@@ -1,0 +1,2786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — A mobile bimanual platform for everyday work</title>
+<meta name="description" content="MABEL is a sub-$8k open-source mobile bimanual robot. 17-DOF hands, 3-swerve holonomic base, Vision Pro teleop, and long-horizon autonomy on Jetson Thor." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  /* ─── Reset & root ────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body { overflow-x: hidden; }
+
+  :root {
+    --bone:        #F2EEE6;
+    --paper:       #E8E3D8;
+    --paper-2:     #DCD6C7;
+    --ink:         #161412;
+    --ink-soft:    #2A2622;
+    --ash:         #6B6660;
+    --ash-light:   #A09A91;
+    --rust:        #C25B2A;
+    --rust-dim:    #8B3F1D;
+    --clay:        #8B5A3C;
+
+    --font-display: 'Instrument Serif', 'Times New Roman', serif;
+    --font-sans:    'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono:    'Geist Mono', 'SFMono-Regular', Menlo, monospace;
+
+    --max:    1320px;
+    --gutter: clamp(20px, 4vw, 56px);
+
+    --ease-out:   cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.65, 0.05, 0.36, 1);
+  }
+
+  body {
+    background: var(--bone);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.55;
+    letter-spacing: -0.005em;
+  }
+
+  ::selection { background: var(--ink); color: var(--bone); }
+
+  img, video { max-width: 100%; display: block; }
+
+  /* ─── Typography scale ────────────────────────────────────────────── */
+  .display-xl {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(72px, 14vw, 220px);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+  }
+  .display-lg {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(56px, 8.5vw, 132px);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+  }
+  .display-md {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(40px, 5.5vw, 84px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+  }
+  .display-sm {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(28px, 3.4vw, 48px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .italic { font-style: italic; }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ash);
+    font-weight: 500;
+  }
+  .lede {
+    font-size: clamp(18px, 1.6vw, 22px);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    letter-spacing: -0.012em;
+    max-width: 56ch;
+  }
+  .body-lg {
+    font-size: clamp(16px, 1.15vw, 18px);
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+
+  /* ─── Layout primitives ───────────────────────────────────────────── */
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+  section { position: relative; }
+  .pad-y { padding: clamp(80px, 14vh, 180px) 0; }
+  .pad-y-lg { padding: clamp(120px, 18vh, 240px) 0; }
+  .divider {
+    height: 1px;
+    background: var(--ink);
+    opacity: 0.12;
+    width: 100%;
+  }
+
+  /* ─── Nav ─────────────────────────────────────────────────────────── */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 18px var(--gutter);
+    display: flex; align-items: center; justify-content: space-between;
+    transition: backdrop-filter 0.4s var(--ease-out), background 0.4s var(--ease-out), border-color 0.4s var(--ease-out);
+    border-bottom: 1px solid transparent;
+  }
+  .nav.scrolled {
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background: rgba(242, 238, 230, 0.72);
+    border-bottom-color: rgba(22, 20, 18, 0.08);
+  }
+  .nav.dark.scrolled {
+    background: rgba(22, 20, 18, 0.72);
+    border-bottom-color: rgba(242, 238, 230, 0.08);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 24px;
+    letter-spacing: -0.02em;
+    color: inherit;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-logo .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--rust);
+    display: inline-block;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.35); opacity: 0.65; }
+  }
+  .nav-links {
+    display: flex; gap: 36px;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+  }
+  .nav-links a {
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+    position: relative;
+  }
+  .nav-links a:hover { opacity: 1; }
+  .nav-cta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: inherit;
+    text-decoration: none;
+    padding: 9px 16px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .nav-cta:hover { opacity: 1; background: currentColor; }
+  .nav-cta:hover span { color: var(--bone); }
+  .nav.dark .nav-cta:hover span { color: var(--ink); }
+  @media (max-width: 720px) {
+    .nav-links { display: none; }
+  }
+
+  /* ─── Hero ────────────────────────────────────────────────────────── */
+  .hero {
+    height: 100vh;
+    min-height: 720px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    background: var(--bone);
+  }
+  .hero-media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    will-change: transform;
+  }
+  .hero-media video,
+  .hero-media .placeholder {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .placeholder {
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(194, 91, 42, 0.10), transparent 55%),
+      radial-gradient(ellipse at 75% 70%, rgba(139, 90, 60, 0.14), transparent 60%),
+      linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
+    position: relative;
+  }
+  .placeholder::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(22,20,18,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(22,20,18,0.025) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse at center, black 35%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 35%, transparent 75%);
+  }
+  .placeholder-label {
+    position: absolute;
+    bottom: 24px; right: 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--ash);
+    padding: 6px 10px;
+    border: 1px solid rgba(22,20,18,0.15);
+    border-radius: 4px;
+    background: rgba(242, 238, 230, 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 var(--gutter) clamp(48px, 8vh, 96px);
+    width: 100%;
+    max-width: var(--max);
+    margin: 0 auto;
+  }
+  .hero-top-row {
+    position: absolute;
+    top: clamp(96px, 14vh, 140px);
+    left: var(--gutter);
+    right: var(--gutter);
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 24px;
+    z-index: 2;
+  }
+  .hero-coord {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.04em;
+    line-height: 1.7;
+  }
+  .hero-coord b { color: var(--ink-soft); font-weight: 500; }
+
+  .hero-title {
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .hero-title .line {
+    display: block;
+    transform: translateY(110%);
+    opacity: 0;
+    animation: rise 1.4s var(--ease-out) forwards;
+  }
+  .hero-title .line:nth-child(2) { animation-delay: 0.12s; }
+  .hero-title .line:nth-child(3) { animation-delay: 0.24s; }
+  @keyframes rise {
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .hero-foot {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 32px;
+    opacity: 0;
+    animation: fadeIn 1.2s var(--ease-out) 0.7s forwards;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+  .hero-tag {
+    font-size: clamp(15px, 1.2vw, 17px);
+    color: var(--ink-soft);
+    max-width: 38ch;
+    line-height: 1.45;
+    letter-spacing: -0.005em;
+  }
+  .hero-tag em { font-family: var(--font-display); font-style: italic; font-size: 1.15em; }
+  .hero-scroll {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--ash);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hero-scroll .arrow {
+    width: 1px; height: 36px; background: var(--ash);
+    position: relative;
+    animation: scrollArrow 2.2s ease-in-out infinite;
+  }
+  .hero-scroll .arrow::after {
+    content: '';
+    position: absolute; bottom: 0; left: -2px;
+    width: 5px; height: 5px;
+    border-right: 1px solid var(--ash);
+    border-bottom: 1px solid var(--ash);
+    transform: rotate(45deg) translateY(-1px);
+  }
+  @keyframes scrollArrow {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(8px); opacity: 0.4; }
+  }
+
+  /* ─── Manifesto section ───────────────────────────────────────────── */
+  .manifesto {
+    background: var(--bone);
+    padding: clamp(140px, 22vh, 260px) 0;
+  }
+  .manifesto-body {
+    max-width: 18ch;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .manifesto p {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 5.4vw, 84px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .manifesto .accent { color: var(--rust); font-style: italic; }
+  .manifesto .soft { color: var(--ash); }
+
+  /* ─── Stats strip ─────────────────────────────────────────────────── */
+  .stats {
+    background: var(--ink);
+    color: var(--bone);
+    padding: clamp(100px, 14vh, 160px) 0;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(28px, 4vw, 64px);
+  }
+  @media (max-width: 880px) { .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 48px 24px; } }
+  .stat {
+    border-top: 1px solid rgba(242, 238, 230, 0.18);
+    padding-top: 24px;
+  }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: clamp(56px, 7vw, 104px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 14px;
+    display: flex; align-items: baseline;
+  }
+  .stat-num .unit {
+    font-size: 0.45em;
+    color: var(--ash-light);
+    margin-left: 6px;
+    letter-spacing: -0.02em;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ash-light);
+    line-height: 1.5;
+  }
+
+  /* ─── Section header ──────────────────────────────────────────────── */
+  .sec-head {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: clamp(40px, 8vw, 120px);
+    align-items: end;
+    margin-bottom: clamp(64px, 9vh, 100px);
+  }
+  @media (max-width: 880px) { .sec-head { grid-template-columns: 1fr; gap: 24px; } }
+  .sec-head .eyebrow { margin-bottom: 16px; display: block; }
+  .sec-head .title { margin-bottom: 0; }
+
+  /* ─── Hardware pinned scroll ──────────────────────────────────────── */
+  .hardware {
+    background: var(--bone);
+    padding-top: clamp(100px, 14vh, 160px);
+  }
+  .hw-stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 6vw, 96px);
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+  @media (max-width: 880px) { .hw-stage { grid-template-columns: 1fr; } }
+  .hw-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .hw-figure {
+    position: relative;
+    width: 100%;
+    height: min(85vh, 720px);
+    background: var(--paper);
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(22,20,18,0.06);
+  }
+  .hw-figure svg { width: 100%; height: 100%; display: block; }
+
+  /* Hot dots that pulse on the robot diagram */
+  .hot-dot {
+    transform-origin: center;
+  }
+  .hot-dot circle.ring {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: hotPulse 2.4s ease-out infinite;
+  }
+  @keyframes hotPulse {
+    0% { transform: scale(0.7); opacity: 0.9; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+  .hot-dot.active circle.core { fill: var(--rust); }
+  .hot-dot.active circle.ring { stroke: var(--rust); }
+
+  .hw-scroll {
+    padding: 100px 0;
+  }
+  .hw-step {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 0;
+    opacity: 0.28;
+    transition: opacity 0.6s var(--ease-out);
+  }
+  .hw-step.active { opacity: 1; }
+  .hw-step .eyebrow {
+    margin-bottom: 18px;
+    color: var(--rust);
+  }
+  .hw-step h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(36px, 4.5vw, 64px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+    color: var(--ink);
+  }
+  .hw-step p {
+    font-size: clamp(15px, 1.2vw, 18px);
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 38ch;
+  }
+  .hw-step .spec {
+    margin-top: 28px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .hw-step .spec span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-soft);
+    padding: 6px 10px;
+    border: 1px solid rgba(22,20,18,0.18);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.4);
+  }
+
+  @media (max-width: 880px) {
+    .hw-sticky { position: relative; height: 60vh; margin-bottom: 32px; }
+    .hw-step { min-height: auto; padding: 32px 0; opacity: 1; }
+  }
+
+  /* ─── Capability grid ─────────────────────────────────────────────── */
+  .cap-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1px;
+    background: rgba(22,20,18,0.10);
+    border-top: 1px solid rgba(22,20,18,0.10);
+    border-bottom: 1px solid rgba(22,20,18,0.10);
+  }
+  .cap {
+    background: var(--bone);
+    padding: 40px 32px;
+    grid-column: span 4;
+    min-height: 280px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.5s var(--ease-out);
+  }
+  .cap:hover { background: var(--paper); }
+  .cap.lg { grid-column: span 6; }
+  @media (max-width: 880px) {
+    .cap, .cap.lg { grid-column: span 12; }
+  }
+  .cap-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.12em;
+  }
+  .cap h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(28px, 2.4vw, 36px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 24px 0 12px;
+  }
+  .cap p {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  /* ─── Software / brain ────────────────────────────────────────────── */
+  .software {
+    background: var(--ink);
+    color: var(--bone);
+    padding: clamp(120px, 18vh, 200px) 0;
+    overflow: hidden;
+  }
+  .software .eyebrow { color: var(--ash-light); }
+  .software .display-md { color: var(--bone); }
+  .software .lede { color: var(--ash-light); }
+
+  .stack-vis {
+    margin-top: clamp(60px, 9vh, 100px);
+    border: 1px solid rgba(242,238,230,0.12);
+    border-radius: 16px;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(242,238,230,0.025) 0%, transparent 100%);
+  }
+  .stack-row {
+    display: grid;
+    grid-template-columns: 220px 1fr auto;
+    align-items: center;
+    padding: 22px 28px;
+    border-bottom: 1px solid rgba(242,238,230,0.08);
+    gap: 24px;
+    transition: background 0.3s ease;
+  }
+  .stack-row:last-child { border-bottom: 0; }
+  .stack-row:hover { background: rgba(242,238,230,0.03); }
+  .stack-layer {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ash-light);
+  }
+  .stack-name {
+    font-family: var(--font-display);
+    font-size: clamp(20px, 2vw, 28px);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .stack-tags {
+    display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;
+  }
+  .stack-tags span {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ash-light);
+    padding: 5px 9px;
+    border: 1px solid rgba(242,238,230,0.18);
+    border-radius: 999px;
+  }
+  @media (max-width: 720px) {
+    .stack-row { grid-template-columns: 1fr; gap: 8px; }
+    .stack-tags { justify-content: flex-start; }
+  }
+
+  .compute-card {
+    margin-top: 40px;
+    border: 1px solid rgba(242,238,230,0.14);
+    border-radius: 16px;
+    padding: 32px;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 32px; align-items: center;
+  }
+  @media (max-width: 720px) { .compute-card { grid-template-columns: 1fr; } }
+  .compute-chip {
+    width: 88px; height: 88px;
+    border-radius: 14px;
+    background:
+      linear-gradient(135deg, #3a342c 0%, #1d1a16 100%);
+    position: relative;
+    border: 1px solid rgba(242,238,230,0.15);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .compute-chip::before, .compute-chip::after {
+    content: '';
+    position: absolute;
+    background: rgba(242,238,230,0.2);
+    width: 4px; height: 4px;
+  }
+  .compute-chip::before { top: 8px; left: 8px; box-shadow: 14px 0 var(--ash), 28px 0 var(--ash), 42px 0 var(--ash), 56px 0 var(--ash), 70px 0 var(--ash); }
+  .compute-chip::after { bottom: 8px; left: 8px; box-shadow: 14px 0 var(--ash), 28px 0 var(--ash), 42px 0 var(--ash), 56px 0 var(--ash), 70px 0 var(--ash); }
+  .compute-chip-core {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ash-light);
+    letter-spacing: 0.18em;
+    transform: rotate(-90deg);
+  }
+  .compute-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3vw, 40px);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .compute-sub { color: var(--ash-light); margin-top: 6px; font-size: 14px; }
+  .compute-stat {
+    font-family: var(--font-mono);
+    color: var(--ash-light);
+    font-size: 12px;
+    text-align: right;
+    line-height: 1.7;
+  }
+  .compute-stat b { color: var(--bone); font-family: var(--font-display); font-size: 28px; display: block; font-weight: 400; }
+
+  /* ─── Teleop / Vision Pro ─────────────────────────────────────────── */
+  .teleop {
+    background: var(--bone);
+    padding: clamp(120px, 18vh, 200px) 0;
+    overflow: hidden;
+  }
+  .teleop-hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 6vw, 96px);
+    align-items: center;
+  }
+  @media (max-width: 880px) { .teleop-hero { grid-template-columns: 1fr; } }
+  .teleop-copy h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(44px, 6vw, 88px);
+    line-height: 1;
+    letter-spacing: -0.028em;
+    margin-bottom: 28px;
+  }
+  .teleop-copy .italic { color: var(--rust); }
+  .teleop-points {
+    margin-top: 40px;
+    border-top: 1px solid rgba(22,20,18,0.12);
+  }
+  .teleop-point {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 16px;
+    padding: 22px 0;
+    border-bottom: 1px solid rgba(22,20,18,0.12);
+  }
+  .teleop-point .num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.12em;
+    padding-top: 4px;
+  }
+  .teleop-point h5 {
+    font-family: var(--font-display);
+    font-size: clamp(20px, 1.8vw, 24px);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+  }
+  .teleop-point p { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+
+  .teleop-visual {
+    aspect-ratio: 4 / 5;
+    background: var(--paper);
+    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(22,20,18,0.06);
+  }
+  .teleop-visual .placeholder { height: 100%; }
+  .vp-overlay {
+    position: absolute;
+    inset: 24px;
+    pointer-events: none;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .vp-corner {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    display: flex; gap: 14px;
+  }
+  .vp-corner.r { justify-content: flex-end; }
+  .vp-corner b { color: var(--rust); font-weight: 500; }
+  .vp-crosshair {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px; height: 90px;
+    pointer-events: none;
+  }
+  .vp-crosshair::before, .vp-crosshair::after {
+    content: '';
+    position: absolute;
+    background: var(--ink-soft);
+    opacity: 0.4;
+  }
+  .vp-crosshair::before {
+    top: 50%; left: 0; right: 0; height: 1px;
+  }
+  .vp-crosshair::after {
+    left: 50%; top: 0; bottom: 0; width: 1px;
+  }
+  .vp-ring {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px; height: 50px;
+    border: 1px solid var(--rust);
+    border-radius: 50%;
+  }
+
+  /* ─── Demo: long horizon laundry ──────────────────────────────────── */
+  .demo {
+    background: var(--paper);
+    padding: clamp(120px, 18vh, 200px) 0;
+    overflow: hidden;
+  }
+  .demo-head {
+    text-align: center;
+    margin-bottom: clamp(60px, 8vh, 100px);
+  }
+  .demo-head .lede { margin: 24px auto 0; }
+
+  .timeline {
+    position: relative;
+    padding-left: clamp(40px, 5vw, 80px);
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: rgba(22,20,18,0.18);
+  }
+  .tl-step {
+    position: relative;
+    padding-bottom: clamp(56px, 8vh, 96px);
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: clamp(40px, 5vw, 80px);
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1.1s var(--ease-out), transform 1.1s var(--ease-out);
+  }
+  .tl-step.in { opacity: 1; transform: translateY(0); }
+  @media (max-width: 880px) { .tl-step { grid-template-columns: 1fr; } }
+  .tl-step::before {
+    content: '';
+    position: absolute;
+    left: calc(clamp(40px, 5vw, 80px) * -1);
+    top: 14px;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: var(--bone);
+    border: 1px solid var(--ink);
+    transform: translateX(calc(-50% + 0.5px));
+  }
+  .tl-step.in::before {
+    background: var(--rust);
+    border-color: var(--rust);
+  }
+  .tl-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ash);
+    margin-bottom: 12px;
+  }
+  .tl-step h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(28px, 3.2vw, 44px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .tl-step p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 44ch;
+  }
+  .tl-shot {
+    aspect-ratio: 4 / 3;
+    background: var(--bone);
+    border-radius: 14px;
+    border: 1px solid rgba(22,20,18,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .tl-shot .placeholder {
+    background:
+      radial-gradient(ellipse at 30% 30%, rgba(194, 91, 42, 0.10), transparent 60%),
+      linear-gradient(180deg, var(--bone) 0%, var(--paper) 100%);
+  }
+  .tl-shot-label {
+    position: absolute;
+    bottom: 14px; left: 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-soft);
+    background: rgba(242,238,230,0.85);
+    padding: 5px 9px;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ─── NYC marquee horizontal rail ─────────────────────────────────── */
+  .nyc {
+    background: var(--ink);
+    color: var(--bone);
+    padding: clamp(120px, 18vh, 180px) 0 0;
+    overflow: hidden;
+  }
+  .nyc .sec-head .eyebrow,
+  .nyc .sec-head .title { color: var(--bone); }
+  .nyc .lede { color: var(--ash-light); }
+  .nyc-marquee {
+    margin-top: clamp(60px, 9vh, 100px);
+    padding-bottom: clamp(80px, 12vh, 140px);
+  }
+  .marquee-track {
+    display: flex;
+    gap: 32px;
+    animation: marquee 50s linear infinite;
+    will-change: transform;
+  }
+  .marquee-track:hover { animation-play-state: paused; }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-50% - 16px)); }
+  }
+  .nyc-card {
+    flex: 0 0 clamp(280px, 32vw, 460px);
+    aspect-ratio: 3 / 4;
+    background: #1f1c18;
+    border: 1px solid rgba(242,238,230,0.10);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+  .nyc-card .placeholder {
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(194, 91, 42, 0.12), transparent 65%),
+      linear-gradient(180deg, #2a2520 0%, #14110e 100%);
+  }
+  .nyc-card .placeholder::before {
+    background-image:
+      linear-gradient(rgba(242,238,230,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(242,238,230,0.04) 1px, transparent 1px);
+  }
+  .nyc-card-meta {
+    position: absolute;
+    bottom: 24px; left: 24px; right: 24px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    z-index: 2;
+  }
+  .nyc-card h5 {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2vw, 30px);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+  }
+  .nyc-card-meta .coord {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ash-light);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    text-align: right;
+  }
+  .nyc-card-top {
+    position: absolute;
+    top: 20px; left: 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ash-light);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  /* ─── BOM / Build philosophy ──────────────────────────────────────── */
+  .bom {
+    background: var(--bone);
+    padding: clamp(120px, 18vh, 200px) 0;
+  }
+  .bom-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: clamp(40px, 6vw, 96px);
+    align-items: start;
+  }
+  @media (max-width: 880px) { .bom-grid { grid-template-columns: 1fr; } }
+  .bom-table {
+    border-top: 1px solid rgba(22,20,18,0.20);
+  }
+  .bom-row {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 16px;
+    padding: 22px 0;
+    border-bottom: 1px solid rgba(22,20,18,0.12);
+    align-items: baseline;
+    transition: padding-left 0.4s var(--ease-out);
+  }
+  .bom-row:hover { padding-left: 8px; }
+  .bom-row .num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ash);
+  }
+  .bom-row .name {
+    font-family: var(--font-display);
+    font-size: clamp(20px, 1.8vw, 26px);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .bom-row .sub {
+    font-size: 13px;
+    color: var(--ash);
+    margin-top: 4px;
+  }
+  .bom-row .cost {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .bom-total {
+    margin-top: 36px;
+    display: flex; align-items: baseline; justify-content: space-between;
+    border-top: 1px solid var(--ink);
+    padding-top: 24px;
+  }
+  .bom-total .label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-soft);
+  }
+  .bom-total .num {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 5vw, 64px);
+    letter-spacing: -0.025em;
+    line-height: 1;
+  }
+  .bom-philosophy {
+    position: sticky;
+    top: 100px;
+  }
+  .bom-philosophy h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(36px, 4.5vw, 60px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 24px;
+  }
+  .bom-philosophy .accent { color: var(--rust); font-style: italic; }
+  .bom-philosophy p { color: var(--ink-soft); line-height: 1.6; margin-bottom: 18px; font-size: 15px; }
+
+  /* ─── Build steps ─────────────────────────────────────────────────── */
+  .build {
+    background: var(--paper);
+    padding: clamp(100px, 14vh, 160px) 0;
+  }
+  .build-list { counter-reset: step; margin-top: clamp(40px, 6vh, 70px); }
+  .build-step {
+    display: grid;
+    grid-template-columns: 80px 1fr 1.2fr;
+    gap: clamp(20px, 3vw, 40px);
+    padding: clamp(28px, 4vh, 44px) 0;
+    border-bottom: 1px solid rgba(22,20,18,0.14);
+    counter-increment: step;
+    align-items: start;
+  }
+  .build-step::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ash);
+    letter-spacing: 0.12em;
+    padding-top: 8px;
+  }
+  .build-step h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(24px, 2.4vw, 34px);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .build-step .build-time {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ash);
+    margin-top: 6px;
+    letter-spacing: 0.08em;
+  }
+  .build-step p {
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  @media (max-width: 720px) {
+    .build-step { grid-template-columns: 1fr; gap: 12px; }
+    .build-step::before { padding-top: 0; }
+  }
+
+  /* ─── Paper / closing ─────────────────────────────────────────────── */
+  .paper {
+    background: var(--ink);
+    color: var(--bone);
+    padding: clamp(140px, 22vh, 240px) 0;
+    text-align: center;
+  }
+  .paper .display-md { color: var(--bone); margin: 0 auto 36px; max-width: 18ch; }
+  .paper .italic { color: var(--rust); }
+  .paper .cite {
+    margin: 56px auto 0;
+    max-width: 640px;
+    border: 1px solid rgba(242,238,230,0.16);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: left;
+    background: rgba(242,238,230,0.02);
+  }
+  .paper .cite pre {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ash-light);
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+  .paper-actions {
+    margin-top: 48px;
+    display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  }
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    padding: 14px 22px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background 0.3s ease, color 0.3s ease, transform 0.3s var(--ease-out);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .btn-primary { background: var(--bone); color: var(--ink); }
+  .btn-primary:hover { background: var(--rust); color: var(--bone); transform: translateY(-2px); }
+  .btn-ghost { color: var(--bone); border: 1px solid rgba(242,238,230,0.3); }
+  .btn-ghost:hover { background: rgba(242,238,230,0.08); transform: translateY(-2px); }
+
+  /* ─── Footer ──────────────────────────────────────────────────────── */
+  footer {
+    background: var(--ink);
+    color: var(--ash-light);
+    padding: 60px 0 32px;
+    border-top: 1px solid rgba(242,238,230,0.10);
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 60px;
+  }
+  @media (max-width: 720px) { .foot-grid { grid-template-columns: 1fr 1fr; gap: 32px; } }
+  .foot-brand {
+    font-family: var(--font-display);
+    font-size: 36px;
+    color: var(--bone);
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .foot-brand-sub { font-size: 13px; color: var(--ash-light); max-width: 36ch; line-height: 1.5; }
+  .foot-col h6 {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--bone);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .foot-col a {
+    display: block;
+    color: var(--ash-light);
+    text-decoration: none;
+    font-size: 13px;
+    margin-bottom: 8px;
+    transition: color 0.2s ease;
+  }
+  .foot-col a:hover { color: var(--bone); }
+  .foot-bottom {
+    border-top: 1px solid rgba(242,238,230,0.10);
+    padding-top: 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ash-light);
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── Scroll fade-in primitive ────────────────────────────────────── */
+  .fade-up { opacity: 0; transform: translateY(40px); transition: opacity 1.1s var(--ease-out), transform 1.1s var(--ease-out); }
+  .fade-up.in { opacity: 1; transform: translateY(0); }
+  .fade-up.d1 { transition-delay: 0.08s; }
+  .fade-up.d2 { transition-delay: 0.16s; }
+  .fade-up.d3 { transition-delay: 0.24s; }
+  .fade-up.d4 { transition-delay: 0.32s; }
+
+  /* ─── Scroll indicator (Sunday-style pill) ────────────────────────── */
+  .scroll-indicator {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    z-index: 90;
+    background: rgba(242, 238, 230, 0.78);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border: 1px solid rgba(22, 20, 18, 0.08);
+    border-radius: 22px;
+    padding: 16px 9px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) translateX(12px);
+    transition: opacity 0.7s var(--ease-out),
+                transform 0.7s var(--ease-out),
+                background 0.4s ease,
+                border-color 0.4s ease;
+  }
+  .scroll-indicator.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) translateX(0);
+  }
+  .scroll-indicator.dark {
+    background: rgba(22, 20, 18, 0.62);
+    border-color: rgba(242, 238, 230, 0.10);
+  }
+  .scroll-track {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    align-items: center;
+  }
+  .scroll-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(22, 20, 18, 0.45);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: height 0.45s var(--ease-out),
+                background 0.35s ease,
+                width 0.35s var(--ease-out);
+    position: relative;
+  }
+  .scroll-dot:hover { background: var(--ink); }
+  .scroll-dot.active {
+    height: 24px;
+    background: var(--ink);
+  }
+  .scroll-indicator.dark .scroll-dot { background: rgba(242, 238, 230, 0.40); }
+  .scroll-indicator.dark .scroll-dot:hover,
+  .scroll-indicator.dark .scroll-dot.active { background: var(--bone); }
+  .scroll-dot-label {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%) translateX(6px);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: rgba(242, 238, 230, 0.95);
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(22, 20, 18, 0.08);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.35s var(--ease-out);
+    white-space: nowrap;
+  }
+  .scroll-indicator.dark .scroll-dot-label {
+    background: rgba(22, 20, 18, 0.92);
+    color: var(--bone);
+    border-color: rgba(242, 238, 230, 0.12);
+  }
+  .scroll-dot:hover .scroll-dot-label {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+  @media (max-width: 880px) { .scroll-indicator { display: none; } }
+
+  /* ─── Magic reveal section (Sunday "Made by Magic" style) ──────────── */
+  .magic {
+    background: var(--ink);
+    color: var(--bone);
+    position: relative;
+    height: 220vh; /* scroll runway for the reveal */
+    overflow: hidden;
+  }
+  .magic-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 var(--gutter);
+  }
+  .magic-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--ash-light);
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 1s var(--ease-out), transform 1s var(--ease-out);
+  }
+  .magic-sticky.in .magic-eyebrow { opacity: 1; transform: translateY(0); }
+  .magic-text {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(56px, 11vw, 180px);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+    max-width: 14ch;
+    margin: 0 auto;
+    color: var(--bone);
+  }
+  .magic-word {
+    display: inline-block;
+    margin-right: 0.18em;
+  }
+  .magic-word.italic { font-style: italic; color: var(--rust); }
+  .magic-char {
+    display: inline-block;
+    opacity: 0.08;
+    transform: translateY(8px);
+    will-change: opacity, transform;
+  }
+  .magic-foot {
+    margin-top: 56px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ash-light);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+  }
+  .magic-sticky.complete .magic-foot { opacity: 1; transform: translateY(0); }
+  .magic-foot .dot {
+    display: inline-block;
+    width: 4px; height: 4px;
+    background: var(--rust);
+    border-radius: 50%;
+    margin: 0 12px;
+    vertical-align: middle;
+  }
+
+  /* ─── Floating hardware (sticky image floats over scenes) ──────────── */
+  .float-hw {
+    background: var(--bone);
+    padding-top: clamp(80px, 13vh, 140px);
+    position: relative;
+    overflow: hidden;
+  }
+  .float-hw .sec-head { margin-bottom: clamp(40px, 7vh, 80px); }
+  .float-stage {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    position: relative;
+  }
+  .float-image-layer,
+  .float-scenes-layer {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .float-image-layer {
+    pointer-events: none;
+    z-index: 2;
+  }
+  .float-image-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--gutter);
+  }
+  .float-image-frame {
+    position: relative;
+    width: min(44vw, 480px);
+    aspect-ratio: 3 / 4;
+    background: var(--paper);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(22, 20, 18, 0.06);
+    box-shadow:
+      0 36px 80px -24px rgba(22, 20, 18, 0.22),
+      0 12px 28px -10px rgba(22, 20, 18, 0.12);
+    transform-origin: center center;
+    transition: transform 1s var(--ease-out);
+    will-change: transform;
+  }
+  .float-image-frame svg {
+    width: 100%; height: 100%;
+    display: block;
+  }
+  .float-image-frame .placeholder-label {
+    bottom: 16px; left: 16px;
+    right: auto;
+  }
+  .float-callout {
+    position: absolute;
+    top: 24px; right: 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-soft);
+    background: rgba(242, 238, 230, 0.85);
+    backdrop-filter: blur(4px);
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(22, 20, 18, 0.08);
+    opacity: 0;
+    transform: translateX(8px);
+    transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+  }
+  .float-callout.in { opacity: 1; transform: translateX(0); }
+  .float-callout b { color: var(--rust); font-weight: 500; }
+  .float-scenes-layer { z-index: 1; position: relative; }
+  .float-scene {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--gutter);
+    max-width: var(--max);
+    margin: 0 auto;
+  }
+  .float-scene-text {
+    max-width: 28ch;
+    opacity: 0.22;
+    transform: translateY(20px);
+    transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  }
+  .float-scene.in .float-scene-text { opacity: 1; transform: translateY(0); }
+  .float-scene.left .float-scene-text { margin-right: auto; margin-left: 0; }
+  .float-scene.right .float-scene-text { margin-left: auto; margin-right: 0; }
+  .float-scene-text .eyebrow {
+    margin-bottom: 14px;
+    display: block;
+    color: var(--rust);
+  }
+  .float-scene-text h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(32px, 4.2vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    margin-bottom: 18px;
+  }
+  .float-scene-text p {
+    font-size: clamp(15px, 1.1vw, 17px);
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  @media (max-width: 880px) {
+    .float-image-frame { width: 64vw; }
+    .float-scene-text { max-width: 22ch; }
+  }
+
+  /* ─── Reduced motion ──────────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    .marquee-track { animation: none !important; }
+    .float-image-frame { transform: none !important; }
+    .magic-char { opacity: 1 !important; transform: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCROLL INDICATOR  (Sunday-style fixed pill)
+═══════════════════════════════════════════════════════════════ -->
+<aside class="scroll-indicator" id="scrollIndicator" aria-label="Page sections">
+  <div class="scroll-track">
+    <button class="scroll-dot" data-target="hero"     aria-label="Top"><span class="scroll-dot-label">Top</span></button>
+    <button class="scroll-dot" data-target="system"   aria-label="System"><span class="scroll-dot-label">System</span></button>
+    <button class="scroll-dot" data-target="floatHw"  aria-label="Detail"><span class="scroll-dot-label">Detail</span></button>
+    <button class="scroll-dot" data-target="software" aria-label="Software"><span class="scroll-dot-label">Software</span></button>
+    <button class="scroll-dot" data-target="teleop"   aria-label="Teleop"><span class="scroll-dot-label">Teleop</span></button>
+    <button class="scroll-dot" data-target="demo"     aria-label="Demo"><span class="scroll-dot-label">Demo</span></button>
+    <button class="scroll-dot" data-target="build"    aria-label="Build"><span class="scroll-dot-label">Build</span></button>
+    <button class="scroll-dot" data-target="paper"    aria-label="Paper"><span class="scroll-dot-label">Paper</span></button>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     NAV
+═══════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <div class="nav-links">
+    <a href="#system">System</a>
+    <a href="#software">Software</a>
+    <a href="#teleop">Teleop</a>
+    <a href="#demo">Demo</a>
+    <a href="#build">Build</a>
+  </div>
+  <a href="#paper" class="nav-cta"><span>Read the paper</span></a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-media" id="hero-media">
+    <!-- Drop your hero footage here. Example:
+         <video src="assets/mabel-hero.mp4" autoplay muted loop playsinline></video> -->
+    <div class="placeholder">
+      <div class="placeholder-label">Hero footage · 4K · 30s loop</div>
+    </div>
+  </div>
+
+  <div class="hero-top-row">
+    <div class="hero-coord">
+      <b>40.7128° N · 74.0060° W</b><br/>
+      New York, NY · Lab 06 · 09:42 EST
+    </div>
+    <div class="hero-coord" style="text-align: right;">
+      <b>v1.0 · platform release</b><br/>
+      Made open, made repeatable.
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <h1 class="display-xl hero-title">
+      <span class="line">MABEL</span>
+      <span class="line italic" style="font-size: 0.7em; color: var(--ink-soft);">a robot that</span>
+      <span class="line italic" style="font-size: 0.7em;">does the work.</span>
+    </h1>
+    <div class="hero-foot">
+      <p class="hero-tag">
+        A mobile bimanual platform built for the long tail of everyday tasks — <em>fetch, fold, navigate, deliver</em>. Open hardware. Sub-$8k. Production-grade autonomy.
+      </p>
+      <div class="hero-scroll">
+        <span>Scroll</span>
+        <div class="arrow"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MANIFESTO
+═══════════════════════════════════════════════════════════════ -->
+<section class="manifesto">
+  <div class="wrap">
+    <div class="manifesto-body fade-up">
+      <p>
+        Not a demo. <span class="soft">Not a toy.</span><br/>
+        A platform for <span class="accent">real work,</span><br/>
+        in <span class="accent">real homes,</span><br/>
+        across <span class="accent">28 floors.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAGIC REVEAL  (scroll-driven character materialization)
+═══════════════════════════════════════════════════════════════ -->
+<section class="magic" id="magic">
+  <div class="magic-sticky" id="magicSticky">
+    <div class="magic-eyebrow">An open robot, for once</div>
+    <h2 class="magic-text" id="magicText" data-text="Made to be made again."></h2>
+    <div class="magic-foot">
+      <span>Specs</span><span class="dot"></span><span>CAD</span><span class="dot"></span><span>Firmware</span><span class="dot"></span><span>Models</span><span class="dot"></span><span>Open</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     STATS
+═══════════════════════════════════════════════════════════════ -->
+<section class="stats">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat fade-up">
+        <div class="stat-num"><span class="counter" data-target="8">0</span><span class="unit">k USD</span></div>
+        <div class="stat-label">Full BOM<br/>under eight thousand</div>
+      </div>
+      <div class="stat fade-up d1">
+        <div class="stat-num"><span class="counter" data-target="17">0</span><span class="unit">DOF</span></div>
+        <div class="stat-label">Per ORCA hand<br/>×2 dexterous arms</div>
+      </div>
+      <div class="stat fade-up d2">
+        <div class="stat-num"><span class="counter" data-target="3">0</span><span class="unit">swerve</span></div>
+        <div class="stat-label">Independent modules<br/>holonomic base</div>
+      </div>
+      <div class="stat fade-up d3">
+        <div class="stat-num"><span class="counter" data-target="28">0</span><span class="unit">floors</span></div>
+        <div class="stat-label">Demonstrated reach<br/>building-scale autonomy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HARDWARE — pinned scroll
+═══════════════════════════════════════════════════════════════ -->
+<section class="hardware" id="system">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow fade-up">01 — System</span>
+        <h2 class="display-md fade-up d1">A body, <span class="italic" style="color: var(--rust);">composed.</span></h2>
+      </div>
+      <p class="lede fade-up d2">
+        Every joint earns its place. From the swerve modules under the chassis to the rotational neck and twin 17-DOF hands, MABEL is engineered as one coherent platform — not a stack of subsystems.
+      </p>
+    </div>
+  </div>
+
+  <div class="hw-stage">
+    <!-- Sticky robot diagram -->
+    <div class="hw-sticky">
+      <div class="hw-figure">
+        <svg viewBox="0 0 500 720" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FAFAF6" />
+              <stop offset="100%" stop-color="#E1DBCC" />
+            </linearGradient>
+            <linearGradient id="headGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#222" />
+              <stop offset="100%" stop-color="#0a0a0a" />
+            </linearGradient>
+            <linearGradient id="screenGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2a2622" />
+              <stop offset="100%" stop-color="#161412" />
+            </linearGradient>
+          </defs>
+
+          <!-- floor shadow -->
+          <ellipse cx="250" cy="680" rx="160" ry="14" fill="rgba(22,20,18,0.08)" />
+
+          <!-- Swerve base -->
+          <g id="part-base">
+            <rect x="120" y="600" width="260" height="60" rx="14" fill="url(#bodyGrad)" stroke="#cdc7b8" stroke-width="1" />
+            <!-- swerve modules -->
+            <circle cx="148" cy="660" r="22" fill="#1a1a18" />
+            <circle cx="148" cy="660" r="14" fill="#2a2a26" />
+            <circle cx="352" cy="660" r="22" fill="#1a1a18" />
+            <circle cx="352" cy="660" r="14" fill="#2a2a26" />
+            <circle cx="250" cy="675" r="22" fill="#1a1a18" />
+            <circle cx="250" cy="675" r="14" fill="#2a2a26" />
+            <!-- lidar puck -->
+            <rect x="232" y="586" width="36" height="14" rx="3" fill="#1a1a18" />
+            <rect x="237" y="591" width="26" height="3" fill="var(--rust)" opacity="0.7" />
+          </g>
+
+          <!-- Lift column -->
+          <rect x="232" y="430" width="36" height="180" fill="#cdc7b8" />
+          <rect x="240" y="430" width="20" height="180" fill="#bbb5a4" />
+
+          <!-- Torso (tilted slightly) -->
+          <g id="part-torso" transform="rotate(-3 250 380)">
+            <rect x="170" y="280" width="160" height="180" rx="20" fill="url(#bodyGrad)" stroke="#cdc7b8" stroke-width="1" />
+            <!-- touchscreen -->
+            <rect x="188" y="306" width="124" height="120" rx="10" fill="url(#screenGrad)" />
+            <rect x="200" y="320" width="100" height="3" rx="1" fill="rgba(242,238,230,0.16)" />
+            <rect x="200" y="332" width="64" height="3" rx="1" fill="rgba(242,238,230,0.10)" />
+            <rect x="200" y="344" width="80" height="3" rx="1" fill="rgba(242,238,230,0.10)" />
+            <circle cx="250" cy="395" r="14" fill="none" stroke="var(--rust)" stroke-width="1.5" opacity="0.7" />
+          </g>
+
+          <!-- Left arm -->
+          <g id="part-arm-l">
+            <circle cx="170" cy="295" r="18" fill="#cdc7b8" />
+            <rect x="105" y="290" width="68" height="22" rx="11" fill="url(#bodyGrad)" stroke="#cdc7b8" stroke-width="1" />
+            <circle cx="108" cy="301" r="16" fill="#cdc7b8" />
+            <rect x="98" y="299" width="22" height="80" rx="11" fill="url(#bodyGrad)" stroke="#cdc7b8" stroke-width="1" />
+            <circle cx="109" cy="380" r="14" fill="#cdc7b8" />
+            <!-- hand -->
+            <g id="part-hand-l">
+              <rect x="94" y="378" width="30" height="36" rx="6" fill="url(#bodyGrad)" stroke="#cdc7b8" stroke-width="1" />
+              <!-- fingers -->
+              <rect x="96" y="412" width="4" height="22" rx="2" fill="#bbb5a4" />
+              <rect x="102" y="414" width="4" height="26" rx="2" fill="#bbb5a4" />
+              <rect x="108" y="414" width="4" height="26" rx="2" fill="#bbb5a4" />
+              <rect x="114" y="412" width="4" height="22" rx="2" fill="#bbb5a4" />
+              <rect x="119" y="404" width="6" height="14" rx="3" fill="#bbb5a4" />
+            </g>
+          </g>
+
+          <!-- Right arm -->
+          <g id="part-arm-r">
+            <circle cx="330" cy="295" r="18" fill="#cdc7b8" />
+            <rect x="327" y="290" width="68" height="22" rx="11" fill="url(#bodyGrad)" stroke="#cdc7b8" stroke-width="1" />
+            <circle cx="392" cy="301" r="16" fill="#cdc7b8" />
+            <rect x="380" y="299" width="22" height="80" rx="11" fill="url(#bodyGrad)" stroke="#cdc7b8" stroke-width="1" />
+            <circle cx="391" cy="380" r="14" fill="#cdc7b8" />
+            <g id="part-hand-r">
+              <rect x="376" y="378" width="30" height="36" rx="6" fill="url(#bodyGrad)" stroke="#cdc7b8" stroke-width="1" />
+              <rect x="380" y="412" width="4" height="22" rx="2" fill="#bbb5a4" />
+              <rect x="386" y="414" width="4" height="26" rx="2" fill="#bbb5a4" />
+              <rect x="392" y="414" width="4" height="26" rx="2" fill="#bbb5a4" />
+              <rect x="398" y="412" width="4" height="22" rx="2" fill="#bbb5a4" />
+              <rect x="375" y="404" width="6" height="14" rx="3" fill="#bbb5a4" />
+            </g>
+          </g>
+
+          <!-- Neck -->
+          <rect x="240" y="248" width="20" height="38" fill="#cdc7b8" />
+
+          <!-- Head -->
+          <g id="part-head">
+            <rect x="200" y="160" width="100" height="100" rx="22" fill="url(#headGrad)" />
+            <!-- eyes (LED matrix) -->
+            <g id="part-eyes">
+              <rect x="218" y="190" width="26" height="22" rx="6" fill="#0a0a0a" stroke="rgba(242,238,230,0.08)" />
+              <rect x="222" y="194" width="18" height="14" rx="3" fill="var(--rust)" opacity="0.85" />
+              <rect x="256" y="190" width="26" height="22" rx="6" fill="#0a0a0a" stroke="rgba(242,238,230,0.08)" />
+              <rect x="260" y="194" width="18" height="14" rx="3" fill="var(--rust)" opacity="0.85" />
+              <!-- stereo camera bar -->
+              <rect x="225" y="226" width="50" height="6" rx="2" fill="#1a1a18" stroke="rgba(242,238,230,0.06)" />
+              <circle cx="235" cy="229" r="1.4" fill="rgba(242,238,230,0.5)" />
+              <circle cx="265" cy="229" r="1.4" fill="rgba(242,238,230,0.5)" />
+            </g>
+          </g>
+
+          <!-- Hot dots / labels -->
+          <g class="hot-dot" id="dot-head" transform="translate(250 200)">
+            <circle class="ring" r="6" fill="none" stroke="var(--ash)" stroke-width="1" />
+            <circle class="core" r="3.5" fill="var(--ash)" />
+          </g>
+          <g class="hot-dot" id="dot-torso" transform="translate(250 370)">
+            <circle class="ring" r="6" fill="none" stroke="var(--ash)" stroke-width="1" />
+            <circle class="core" r="3.5" fill="var(--ash)" />
+          </g>
+          <g class="hot-dot" id="dot-arm" transform="translate(108 340)">
+            <circle class="ring" r="6" fill="none" stroke="var(--ash)" stroke-width="1" />
+            <circle class="core" r="3.5" fill="var(--ash)" />
+          </g>
+          <g class="hot-dot" id="dot-hand" transform="translate(109 410)">
+            <circle class="ring" r="6" fill="none" stroke="var(--ash)" stroke-width="1" />
+            <circle class="core" r="3.5" fill="var(--ash)" />
+          </g>
+          <g class="hot-dot" id="dot-base" transform="translate(250 660)">
+            <circle class="ring" r="6" fill="none" stroke="var(--ash)" stroke-width="1" />
+            <circle class="core" r="3.5" fill="var(--ash)" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Scrolling content -->
+    <div class="hw-scroll" id="hw-scroll">
+      <div class="hw-step" data-target="head">
+        <span class="eyebrow">Active perception</span>
+        <h3>A head that<br/>looks where it<br/>thinks.</h3>
+        <p>
+          3-DOF rotational neck (pan, tilt, roll) carries a stereo RGB-D camera and an animated LED matrix face. The head doesn't just see — it expresses, signaling intent the way a person does before they act.
+        </p>
+        <div class="spec">
+          <span>Stereo RGB-D</span>
+          <span>3 DOF neck</span>
+          <span>LED matrix eyes</span>
+        </div>
+      </div>
+
+      <div class="hw-step" data-target="torso">
+        <span class="eyebrow">Reach &amp; posture</span>
+        <h3>A torso that<br/>changes its mind.</h3>
+        <p>
+          Integrated standing-desk lift gives MABEL real vertical range — from floor pickup to countertop hand-off. A tilt joint lets it lean in to look, lean back to think. A 13″ touchscreen turns the chest into a face when the eyes aren't enough.
+        </p>
+        <div class="spec">
+          <span>Linear lift</span>
+          <span>Torso tilt joint</span>
+          <span>13″ touchscreen</span>
+        </div>
+      </div>
+
+      <div class="hw-step" data-target="arm">
+        <span class="eyebrow">Dexterous arms</span>
+        <h3>Seven joints<br/>per side.</h3>
+        <p>
+          Twin 7-DOF arms based on the Open Arm reference — backdriveable, payload-capable, and tuned for bimanual coordination. Eye-in-hand wrist cameras give MABEL the close-up vision the head can't always provide.
+        </p>
+        <div class="spec">
+          <span>2 × 7 DOF</span>
+          <span>Wrist cameras</span>
+          <span>Open Arm derived</span>
+        </div>
+      </div>
+
+      <div class="hw-step" data-target="hand">
+        <span class="eyebrow">ORCA hands</span>
+        <h3>17 degrees of<br/>fingertip <em class="italic">care.</em></h3>
+        <p>
+          Sixteen finger joints plus an active wrist roll. The ORCA hand lets MABEL pinch a coin, grasp a coffee cup, knock on a door, and fold a t-shirt — without swapping end-effectors. Soft fingertip pads. Tactile-ready.
+        </p>
+        <div class="spec">
+          <span>16 finger DOF</span>
+          <span>Active wrist roll</span>
+          <span>Tendon driven</span>
+        </div>
+      </div>
+
+      <div class="hw-step" data-target="base">
+        <span class="eyebrow">Holonomic base</span>
+        <h3>Three swerves.<br/>Any direction.</h3>
+        <p>
+          A three-module independent swerve drive — adapted from First Robotics — gives MABEL true holonomic motion. It can strafe through a doorway, rotate in place to face you, and hold a heading while it moves. 2D LiDAR underneath powers SLAM.
+        </p>
+        <div class="spec">
+          <span>3 × swerve modules</span>
+          <span>2D LiDAR</span>
+          <span>Onboard mini PC</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CAPABILITY GRID
+═══════════════════════════════════════════════════════════════ -->
+<section class="pad-y" style="background: var(--bone);">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow fade-up">02 — Capabilities</span>
+        <h2 class="display-md fade-up d1">What it actually <span class="italic" style="color: var(--rust);">does.</span></h2>
+      </div>
+      <p class="lede fade-up d2">Six capabilities, one platform. Each was a research project somewhere. Here, they're table stakes.</p>
+    </div>
+  </div>
+  <div class="cap-grid">
+    <div class="cap fade-up"><span class="cap-num">A</span><div><h4>Bimanual fine manipulation</h4><p>Both hands cooperate on a single object. Fold a shirt, twist open a jar, hand off a tool.</p></div></div>
+    <div class="cap fade-up d1"><span class="cap-num">B</span><div><h4>Long-horizon autonomy</h4><p>Plan multi-step tasks across rooms and floors. Diffusion Policy stitched to SLAM-based navigation.</p></div></div>
+    <div class="cap fade-up d2"><span class="cap-num">C</span><div><h4>Building-scale mobility</h4><p>Elevator buttons, doors, corridors. The swerve base composes with active perception to handle real interiors.</p></div></div>
+    <div class="cap fade-up lg"><span class="cap-num">D</span><div><h4>Spatial teleoperation</h4><p>Apple Vision Pro streams hand pose and gaze directly to MABEL with sub-100ms latency over local Wi-Fi 6.</p></div></div>
+    <div class="cap fade-up d1 lg"><span class="cap-num">E</span><div><h4>Expressive HRI</h4><p>LED matrix eyes and touchscreen torso make state legible — what MABEL sees, where it's going, what it'll do next.</p></div></div>
+    <div class="cap fade-up"><span class="cap-num">F</span><div><h4>Onboard learning</h4><p>Teleop sessions stream straight to HDF5/Zarr for IL pipelines (ACT, Diffusion Policy). No external rig required.</p></div></div>
+    <div class="cap fade-up d1"><span class="cap-num">G</span><div><h4>Edge inference</h4><p>The entire stack runs on a single Jetson Thor onboard. No cloud, no laptop tether.</p></div></div>
+    <div class="cap fade-up d2"><span class="cap-num">H</span><div><h4>Open hardware</h4><p>Every CAD file, every gerber, every URDF. Reproduce or remix — that's the contract.</p></div></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FLOATING HARDWARE  (sticky robot detail floats over text scenes)
+═══════════════════════════════════════════════════════════════ -->
+<section class="float-hw" id="floatHw">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow fade-up">Detail</span>
+        <h2 class="display-md fade-up d1">Up close, <span class="italic" style="color: var(--rust);">honest.</span></h2>
+      </div>
+      <p class="lede fade-up d2">No render-trickery. Every screw is sourceable, every line of code reviewable. Here's what one looks like.</p>
+    </div>
+  </div>
+
+  <div class="float-stage">
+    <!-- Layer 1: sticky image that stays visible while text scrolls -->
+    <div class="float-image-layer">
+      <div class="float-image-sticky">
+        <div class="float-image-frame" id="floatImage">
+          <!-- DUMMY ROBOT IMAGE — replace this <svg> block with your real photograph
+               (e.g. <img src="assets/mabel-detail.jpg" alt="MABEL upper body">) -->
+          <svg viewBox="0 0 400 540" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="bgVig" cx="50%" cy="38%" r="75%">
+                <stop offset="0%" stop-color="#F5F0E2"/>
+                <stop offset="100%" stop-color="#CFC7B0"/>
+              </radialGradient>
+              <linearGradient id="bodyShade" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FCFAF4"/>
+                <stop offset="45%" stop-color="#EDE7D5"/>
+                <stop offset="100%" stop-color="#BFB9A7"/>
+              </linearGradient>
+              <linearGradient id="bodySide" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="rgba(0,0,0,0.20)"/>
+                <stop offset="18%" stop-color="rgba(0,0,0,0)"/>
+                <stop offset="82%" stop-color="rgba(0,0,0,0)"/>
+                <stop offset="100%" stop-color="rgba(0,0,0,0.20)"/>
+              </linearGradient>
+              <linearGradient id="headShade" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2a2520"/>
+                <stop offset="55%" stop-color="#161412"/>
+                <stop offset="100%" stop-color="#080706"/>
+              </linearGradient>
+              <linearGradient id="headSpec" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+                <stop offset="60%" stop-color="rgba(255,255,255,0)"/>
+              </linearGradient>
+              <linearGradient id="screenG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1c1814"/>
+                <stop offset="100%" stop-color="#080706"/>
+              </linearGradient>
+              <radialGradient id="eyePix" cx="50%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#E5743A"/>
+                <stop offset="55%" stop-color="#C25B2A"/>
+                <stop offset="100%" stop-color="#7C361B"/>
+              </radialGradient>
+            </defs>
+
+            <!-- Background -->
+            <rect width="400" height="540" fill="url(#bgVig)"/>
+
+            <!-- Floor shadow -->
+            <ellipse cx="200" cy="528" rx="160" ry="14" fill="rgba(22,20,18,0.20)" opacity="0.7"/>
+            <ellipse cx="200" cy="528" rx="98" ry="9" fill="rgba(22,20,18,0.30)" opacity="0.5"/>
+
+            <!-- Torso block -->
+            <rect x="96" y="278" width="208" height="262" rx="14" fill="url(#bodyShade)"/>
+            <rect x="96" y="278" width="208" height="262" rx="14" fill="url(#bodySide)"/>
+
+            <!-- Shoulder caps -->
+            <path d="M 96 290 Q 130 254 200 252 Q 270 254 304 290 L 304 304 L 96 304 Z" fill="url(#bodyShade)"/>
+            <path d="M 96 290 Q 130 254 200 252 Q 270 254 304 290 L 304 304 L 96 304 Z" fill="rgba(0,0,0,0.10)"/>
+
+            <!-- Touchscreen -->
+            <rect x="128" y="320" width="144" height="174" rx="14" fill="url(#screenG)" stroke="rgba(22,20,18,0.15)" stroke-width="0.5"/>
+            <path d="M 132 324 L 268 324 L 246 364 L 132 364 Z" fill="rgba(255,255,255,0.045)"/>
+            <rect x="146" y="340" width="84" height="3" rx="1.5" fill="rgba(242,238,230,0.55)"/>
+            <rect x="146" y="352" width="56" height="3" rx="1.5" fill="rgba(242,238,230,0.25)"/>
+            <rect x="146" y="364" width="68" height="3" rx="1.5" fill="rgba(242,238,230,0.25)"/>
+            <circle cx="200" cy="432" r="30" fill="none" stroke="rgba(194,91,42,0.35)" stroke-width="0.5"/>
+            <circle cx="200" cy="432" r="20" fill="none" stroke="rgba(194,91,42,0.80)" stroke-width="1.2"/>
+            <circle cx="200" cy="432" r="4" fill="#C25B2A"/>
+
+            <!-- Shoulder joints (3D ball) -->
+            <ellipse cx="96" cy="286" rx="26" ry="22" fill="#C9C3B0"/>
+            <ellipse cx="96" cy="286" rx="20" ry="17" fill="url(#bodyShade)"/>
+            <ellipse cx="304" cy="286" rx="26" ry="22" fill="#C9C3B0"/>
+            <ellipse cx="304" cy="286" rx="20" ry="17" fill="url(#bodyShade)"/>
+
+            <!-- Upper-arm stubs going off frame -->
+            <rect x="72" y="284" width="24" height="78" rx="12" fill="url(#bodyShade)"/>
+            <rect x="304" y="284" width="24" height="78" rx="12" fill="url(#bodyShade)"/>
+            <rect x="72" y="284" width="6" height="78" rx="3" fill="rgba(0,0,0,0.14)"/>
+            <rect x="322" y="284" width="6" height="78" rx="3" fill="rgba(0,0,0,0.14)"/>
+
+            <!-- Neck -->
+            <rect x="184" y="220" width="32" height="52" fill="#C9C3B0"/>
+            <rect x="190" y="220" width="20" height="52" fill="url(#bodyShade)"/>
+            <rect x="184" y="220" width="6" height="52" fill="rgba(0,0,0,0.14)"/>
+            <rect x="210" y="220" width="6" height="52" fill="rgba(0,0,0,0.14)"/>
+
+            <!-- Head -->
+            <rect x="130" y="120" width="140" height="124" rx="30" fill="url(#headShade)"/>
+            <rect x="130" y="120" width="140" height="124" rx="30" fill="url(#headSpec)"/>
+            <path d="M 138 134 Q 160 124 200 122 Q 240 124 262 134" stroke="rgba(255,255,255,0.18)" stroke-width="1" fill="none"/>
+
+            <!-- Eye plates -->
+            <rect x="146" y="160" width="46" height="34" rx="9" fill="#050403" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+            <rect x="208" y="160" width="46" height="34" rx="9" fill="#050403" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+
+            <!-- Eye LED matrices -->
+            <rect x="152" y="166" width="34" height="22" rx="4" fill="url(#eyePix)"/>
+            <rect x="214" y="166" width="34" height="22" rx="4" fill="url(#eyePix)"/>
+
+            <!-- LED pixel dots -->
+            <g fill="#FBF6E8" opacity="0.62">
+              <circle cx="158" cy="172" r="0.9"/><circle cx="164" cy="172" r="0.9"/><circle cx="172" cy="172" r="0.9"/><circle cx="178" cy="172" r="0.9"/>
+              <circle cx="158" cy="178" r="0.9"/><circle cx="172" cy="178" r="1.3"/><circle cx="178" cy="178" r="0.9"/>
+              <circle cx="166" cy="184" r="0.9"/><circle cx="172" cy="184" r="0.9"/>
+              <circle cx="220" cy="172" r="0.9"/><circle cx="226" cy="172" r="0.9"/><circle cx="234" cy="172" r="0.9"/><circle cx="240" cy="172" r="0.9"/>
+              <circle cx="220" cy="178" r="0.9"/><circle cx="234" cy="178" r="1.3"/><circle cx="240" cy="178" r="0.9"/>
+              <circle cx="228" cy="184" r="0.9"/><circle cx="234" cy="184" r="0.9"/>
+            </g>
+
+            <!-- Stereo camera bar -->
+            <rect x="158" y="210" width="84" height="12" rx="3" fill="#0a0907" stroke="rgba(255,255,255,0.06)"/>
+            <circle cx="175" cy="216" r="2.6" fill="#1a1814" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+            <circle cx="225" cy="216" r="2.6" fill="#1a1814" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+            <circle cx="175" cy="216" r="1" fill="rgba(255,255,255,0.55)"/>
+            <circle cx="225" cy="216" r="1" fill="rgba(255,255,255,0.55)"/>
+
+            <!-- Status LED -->
+            <circle cx="200" cy="234" r="2" fill="#C25B2A" opacity="0.85"/>
+          </svg>
+
+          <!-- Live callout overlay that updates as scenes progress -->
+          <div class="float-callout" id="floatCallout">
+            <span id="floatCalloutText"><b>HEAD</b> · 3 DOF · 13.2 cm</span>
+          </div>
+
+          <span class="placeholder-label">Dummy render · replace with photo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 2: scenes — they scroll past while the image floats above -->
+    <div class="float-scenes-layer">
+      <div class="float-scene left" data-callout="<b>HEAD</b> · 3 DOF · 13.2 cm">
+        <div class="float-scene-text">
+          <span class="eyebrow">01 · Head</span>
+          <h3>Eyes that<br/>mean it.</h3>
+          <p>Two 16×16 RGB matrices behind dark anti-reflective glass. A state machine drives 14 distinct expressions — idle, listening, working, thinking, error — so MABEL signals intent before it acts.</p>
+        </div>
+      </div>
+
+      <div class="float-scene right" data-callout="<b>HANDS</b> · 17 DOF × 2 · tendon-driven">
+        <div class="float-scene-text">
+          <span class="eyebrow">02 · Hands</span>
+          <h3>Tendons,<br/>not gears.</h3>
+          <p>Each ORCA finger drives through Dyneema-cored tendons routed through PTFE-lined channels in the palm. Backlash near zero. Repair time measured in minutes, not days.</p>
+        </div>
+      </div>
+
+      <div class="float-scene left" data-callout="<b>CABLES</b> · routed internally · CAN + Ethernet">
+        <div class="float-scene-text">
+          <span class="eyebrow">03 · Cabling</span>
+          <h3>Inside, where<br/>it belongs.</h3>
+          <p>Power, CAN bus, and Ethernet travel through the structural members — through the lift column, through the torso, through each arm's centerline. No service loops. No snags.</p>
+        </div>
+      </div>
+
+      <div class="float-scene right" data-callout="<b>FASTENERS</b> · M3 only · &lt; 1 hr disassembly">
+        <div class="float-scene-text">
+          <span class="eyebrow">04 · Repair</span>
+          <h3>Every screw<br/>is an M3.</h3>
+          <p>One hex key. One screw size. Fastener counts kept absurdly low. You can fully disassemble MABEL on a kitchen table in under an hour — and put it back together before dinner.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SOFTWARE
+═══════════════════════════════════════════════════════════════ -->
+<section class="software" id="software">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow fade-up">03 — Software</span>
+        <h2 class="display-md fade-up d1">One stack. <span class="italic" style="color: var(--rust);">One brain.</span></h2>
+      </div>
+      <p class="lede fade-up d2">
+        ROS 2 below the line, modern learning above it. Diffusion Policy plans the next ten seconds of behavior; SLAM and Nav2 plan the next ten meters. Everything runs on a single Jetson Thor onboard.
+      </p>
+    </div>
+
+    <div class="stack-vis fade-up">
+      <div class="stack-row">
+        <div class="stack-layer">L7 · Task</div>
+        <div class="stack-name">High-level planner &amp; task graph</div>
+        <div class="stack-tags"><span>LLM</span><span>State machine</span></div>
+      </div>
+      <div class="stack-row">
+        <div class="stack-layer">L6 · Policy</div>
+        <div class="stack-name">Diffusion Policy · ACT · per-skill experts</div>
+        <div class="stack-tags"><span>PyTorch</span><span>HDF5 / Zarr</span></div>
+      </div>
+      <div class="stack-row">
+        <div class="stack-layer">L5 · Perception</div>
+        <div class="stack-name">Multi-cam fusion, eye-in-hand, RGB-D</div>
+        <div class="stack-tags"><span>Realsense</span><span>Wrist cams</span></div>
+      </div>
+      <div class="stack-row">
+        <div class="stack-layer">L4 · Navigation</div>
+        <div class="stack-name">SLAM Toolbox + Nav2 holonomic</div>
+        <div class="stack-tags"><span>2D LiDAR</span><span>Nav2</span></div>
+      </div>
+      <div class="stack-row">
+        <div class="stack-layer">L3 · MoveIt2</div>
+        <div class="stack-name">Bimanual motion planning</div>
+        <div class="stack-tags"><span>MoveIt2</span><span>URDF</span></div>
+      </div>
+      <div class="stack-row">
+        <div class="stack-layer">L2 · ROS 2</div>
+        <div class="stack-name">Humble · DDS middleware</div>
+        <div class="stack-tags"><span>ROS 2 Humble</span></div>
+      </div>
+      <div class="stack-row">
+        <div class="stack-layer">L1 · Firmware</div>
+        <div class="stack-name">Swerve, ORCA hands, LED eyes</div>
+        <div class="stack-tags"><span>C++</span><span>Microcontroller</span></div>
+      </div>
+    </div>
+
+    <div class="compute-card fade-up">
+      <div class="compute-chip">
+        <div class="compute-chip-core">NVIDIA · THOR</div>
+      </div>
+      <div>
+        <div class="compute-title">Runs <span class="italic" style="color: var(--rust);">entirely</span> on Jetson Thor.</div>
+        <div class="compute-sub">SLAM, navigation, perception, and policy inference — onboard, untethered, real-time.</div>
+      </div>
+      <div class="compute-stat">
+        <b>2 kW · TFLOPS</b>
+        Edge inference<br/>No cloud
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TELEOP — Vision Pro
+═══════════════════════════════════════════════════════════════ -->
+<section class="teleop" id="teleop">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow fade-up">04 — Teleoperation</span>
+        <h2 class="display-md fade-up d1">Wear the goggles.<br/>Be the robot.</h2>
+      </div>
+      <p class="lede fade-up d2">
+        A custom visionOS app turns Apple Vision Pro into MABEL's nervous system. Hand pose, finger curl, head orientation, and gaze stream directly to the robot over local WebRTC.
+      </p>
+    </div>
+
+    <div class="teleop-hero">
+      <div class="teleop-copy fade-up">
+        <h3>You move.<br/><span class="italic">It moves.</span></h3>
+        <p class="body-lg" style="max-width: 44ch;">
+          No joystick. No keyboard. Pinch to grasp, raise your arm to lift, look where you want MABEL to look. Every teleop session auto-logs to HDF5 — every frame, every joint angle, every camera, every action — straight into the IL pipeline.
+        </p>
+
+        <div class="teleop-points">
+          <div class="teleop-point">
+            <div class="num">01</div>
+            <div>
+              <h5>Hand-to-hand mapping</h5>
+              <p>26-joint hand tracking from visionOS maps onto the 17-DOF ORCA hand with retargeting solved per finger.</p>
+            </div>
+          </div>
+          <div class="teleop-point">
+            <div class="num">02</div>
+            <div>
+              <h5>Sub-100ms loop</h5>
+              <p>WebRTC over local Wi-Fi 6 keeps the perception-to-actuation latency where it needs to be for embodied immersion.</p>
+            </div>
+          </div>
+          <div class="teleop-point">
+            <div class="num">03</div>
+            <div>
+              <h5>Data-collection by default</h5>
+              <p>Every demo doubles as a labeled trajectory. Compatible with ALOHA/ACT and Diffusion Policy training out of the box.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="teleop-visual fade-up d2">
+        <div class="placeholder">
+          <div class="placeholder-label">Vision Pro POV · live stream</div>
+        </div>
+        <div class="vp-overlay">
+          <div class="vp-corner">
+            <span><b>● REC</b></span>
+            <span>FPS 90</span>
+            <span>LAT 84ms</span>
+          </div>
+          <div class="vp-corner r">
+            <span>SESSION 047</span>
+          </div>
+        </div>
+        <div class="vp-crosshair"></div>
+        <div class="vp-ring"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     DEMO — long-horizon laundry
+═══════════════════════════════════════════════════════════════ -->
+<section class="demo" id="demo">
+  <div class="wrap">
+    <div class="demo-head">
+      <span class="eyebrow fade-up">05 — Long-horizon demo</span>
+      <h2 class="display-lg fade-up d1" style="margin-top: 16px;">Laundry. <span class="italic" style="color: var(--rust);">From 28 to 6.</span></h2>
+      <p class="lede fade-up d2">
+        One task, twelve sub-steps, two elevators, three doors, and one floor of a Manhattan high-rise that didn't know a robot was coming. Every step runs autonomously, stitched end-to-end.
+      </p>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-step">
+        <div>
+          <div class="tl-meta">Step 01 · 00:00</div>
+          <h4>Picks up the laundry bag.</h4>
+          <p>Bimanual lift from the bedroom floor. Diffusion Policy chooses the grasp; the second hand stabilizes the bag's weight transfer onto the lift column.</p>
+        </div>
+        <div class="tl-shot"><div class="placeholder"></div><span class="tl-shot-label">Apt · floor 28 · bedroom</span></div>
+      </div>
+
+      <div class="tl-step">
+        <div>
+          <div class="tl-meta">Step 02 · 00:42</div>
+          <h4>Navigates to the elevator.</h4>
+          <p>SLAM-based global plan; the holonomic base strafes around the kitchen island, holding heading so the wrist cameras keep the bag in view.</p>
+        </div>
+        <div class="tl-shot"><div class="placeholder"></div><span class="tl-shot-label">Apt corridor · floor 28</span></div>
+      </div>
+
+      <div class="tl-step">
+        <div>
+          <div class="tl-meta">Step 03 · 01:15</div>
+          <h4>Presses the elevator button.</h4>
+          <p>Active perception locates the call button. A single finger from the ORCA hand extends, presses, retracts. MABEL waits.</p>
+        </div>
+        <div class="tl-shot"><div class="placeholder"></div><span class="tl-shot-label">Elevator lobby · 28F</span></div>
+      </div>
+
+      <div class="tl-step">
+        <div>
+          <div class="tl-meta">Step 04 · 02:08</div>
+          <h4>Enters the elevator. Selects floor 6.</h4>
+          <p>The base rotates to clear the doorframe and strafes in. The arm reads the floor panel, finds <em>6</em>, and presses. The doors close.</p>
+        </div>
+        <div class="tl-shot"><div class="placeholder"></div><span class="tl-shot-label">Elevator car</span></div>
+      </div>
+
+      <div class="tl-step">
+        <div>
+          <div class="tl-meta">Step 05 · 03:30</div>
+          <h4>Exits, navigates to the laundry room.</h4>
+          <p>Pre-built floorplan, live SLAM correction. MABEL recognizes the laundry-room door, approaches, and pauses for the handle.</p>
+        </div>
+        <div class="tl-shot"><div class="placeholder"></div><span class="tl-shot-label">Laundry room · 6F</span></div>
+      </div>
+
+      <div class="tl-step">
+        <div>
+          <div class="tl-meta">Step 06 · 04:12</div>
+          <h4>Opens the door. Loads the machine.</h4>
+          <p>Bimanual: one hand holds the door, the other opens the washer lid, lifts the bag, transfers clothes. Closes the lid. Selects the cycle. Pays.</p>
+        </div>
+        <div class="tl-shot"><div class="placeholder"></div><span class="tl-shot-label">Washer · loaded · paid</span></div>
+      </div>
+
+      <div class="tl-step">
+        <div>
+          <div class="tl-meta">Step 07 · 06:48 · complete</div>
+          <h4>Returns to the apartment.</h4>
+          <p>The reverse path. Eyes go from amber-attentive to soft-cyan-idle. MABEL parks, lowers its torso, waits for the next task.</p>
+        </div>
+        <div class="tl-shot"><div class="placeholder"></div><span class="tl-shot-label">Apt · floor 28 · idle</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     NYC marquee
+═══════════════════════════════════════════════════════════════ -->
+<section class="nyc">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow fade-up">06 — In the wild</span>
+        <h2 class="display-md fade-up d1">MABEL in <span class="italic" style="color: var(--rust);">New York.</span></h2>
+      </div>
+      <p class="lede fade-up d2">
+        We took the robot outside. Across bridges, through plazas, around tourists. The platform that handles a Manhattan high-rise should also handle a Manhattan sidewalk.
+      </p>
+    </div>
+  </div>
+
+  <div class="nyc-marquee">
+    <div class="marquee-track" id="marquee">
+      <!-- Set 1 -->
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">01</div>
+        <div class="nyc-card-meta">
+          <h5>Brooklyn Bridge</h5>
+          <div class="coord">40.7061° N<br/>73.9969° W</div>
+        </div>
+      </div>
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">02</div>
+        <div class="nyc-card-meta">
+          <h5>Empire State</h5>
+          <div class="coord">40.7484° N<br/>73.9857° W</div>
+        </div>
+      </div>
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">03</div>
+        <div class="nyc-card-meta">
+          <h5>Times Square</h5>
+          <div class="coord">40.7580° N<br/>73.9855° W</div>
+        </div>
+      </div>
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">04</div>
+        <div class="nyc-card-meta">
+          <h5>Financial District</h5>
+          <div class="coord">40.7074° N<br/>74.0113° W</div>
+        </div>
+      </div>
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">05</div>
+        <div class="nyc-card-meta">
+          <h5>Central Park</h5>
+          <div class="coord">40.7829° N<br/>73.9654° W</div>
+        </div>
+      </div>
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">06</div>
+        <div class="nyc-card-meta">
+          <h5>DUMBO</h5>
+          <div class="coord">40.7033° N<br/>73.9881° W</div>
+        </div>
+      </div>
+      <!-- Set 2 (duplicate for seamless loop) -->
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">01</div>
+        <div class="nyc-card-meta">
+          <h5>Brooklyn Bridge</h5>
+          <div class="coord">40.7061° N<br/>73.9969° W</div>
+        </div>
+      </div>
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">02</div>
+        <div class="nyc-card-meta">
+          <h5>Empire State</h5>
+          <div class="coord">40.7484° N<br/>73.9857° W</div>
+        </div>
+      </div>
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">03</div>
+        <div class="nyc-card-meta">
+          <h5>Times Square</h5>
+          <div class="coord">40.7580° N<br/>73.9855° W</div>
+        </div>
+      </div>
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">04</div>
+        <div class="nyc-card-meta">
+          <h5>Financial District</h5>
+          <div class="coord">40.7074° N<br/>74.0113° W</div>
+        </div>
+      </div>
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">05</div>
+        <div class="nyc-card-meta">
+          <h5>Central Park</h5>
+          <div class="coord">40.7829° N<br/>73.9654° W</div>
+        </div>
+      </div>
+      <div class="nyc-card">
+        <div class="placeholder"></div>
+        <div class="nyc-card-top">06</div>
+        <div class="nyc-card-meta">
+          <h5>DUMBO</h5>
+          <div class="coord">40.7033° N<br/>73.9881° W</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     BOM
+═══════════════════════════════════════════════════════════════ -->
+<section class="bom" id="hardware">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow fade-up">07 — Bill of materials</span>
+        <h2 class="display-md fade-up d1">Sub-$8k, <span class="italic" style="color: var(--rust);">itemized.</span></h2>
+      </div>
+      <p class="lede fade-up d2">
+        We refuse to hide the cost. Here is the full BOM. Every line item links to a vendor in the open repo.
+      </p>
+    </div>
+
+    <div class="bom-grid">
+      <div class="bom-table fade-up">
+        <div class="bom-row"><span class="num">01</span><div><div class="name">Holonomic swerve base</div><div class="sub">3× swerve modules, chassis, drive electronics</div></div><span class="cost">$1,420</span></div>
+        <div class="bom-row"><span class="num">02</span><div><div class="name">Lift column &amp; torso</div><div class="sub">Linear actuator, tilt joint, 13″ touchscreen</div></div><span class="cost">$890</span></div>
+        <div class="bom-row"><span class="num">03</span><div><div class="name">Twin 7-DOF arms</div><div class="sub">Open Arm-derived, with control boards</div></div><span class="cost">$2,180</span></div>
+        <div class="bom-row"><span class="num">04</span><div><div class="name">2× ORCA hands · 17 DOF each</div><div class="sub">Tendon-driven, soft fingertip pads</div></div><span class="cost">$1,640</span></div>
+        <div class="bom-row"><span class="num">05</span><div><div class="name">3-DOF active head</div><div class="sub">Pan / tilt / roll + stereo RGB-D camera</div></div><span class="cost">$420</span></div>
+        <div class="bom-row"><span class="num">06</span><div><div class="name">Sensing</div><div class="sub">2D LiDAR, dual wrist cameras, IMU</div></div><span class="cost">$520</span></div>
+        <div class="bom-row"><span class="num">07</span><div><div class="name">LED matrix eyes</div><div class="sub">Custom PCB, addressable RGB matrix</div></div><span class="cost">$110</span></div>
+        <div class="bom-row"><span class="num">08</span><div><div class="name">Compute · Jetson Thor + mini PC</div><div class="sub">Onboard inference and ROS 2 host</div></div><span class="cost">$680</span></div>
+        <div class="bom-row"><span class="num">09</span><div><div class="name">Power · battery, BMS, wiring</div><div class="sub">Hot-swappable cell packs</div></div><span class="cost">$140</span></div>
+        <div class="bom-total">
+          <span class="label">Total BOM</span>
+          <span class="num">$7,940</span>
+        </div>
+      </div>
+
+      <aside class="bom-philosophy">
+        <div class="fade-up">
+          <h3>Cost is a <span class="accent">design parameter,</span> not an excuse.</h3>
+          <p>Every component on this list was chosen with two questions in mind: <em>does it work for the task</em>, and <em>could a grad student in Lagos, São Paulo, or Beijing buy it next week?</em></p>
+          <p>3D-printed structural parts. Off-the-shelf actuators where they're good enough. Custom electronics only where they have to be. No proprietary couplings, no five-figure encoders, no "contact sales" components.</p>
+          <p>The result is a research-grade mobile bimanual robot that one person can afford and one weekend can assemble. That's the contract.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     BUILD
+═══════════════════════════════════════════════════════════════ -->
+<section class="build" id="build">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow fade-up">08 — Build it</span>
+        <h2 class="display-md fade-up d1">One weekend.<br/>One robot.</h2>
+      </div>
+      <p class="lede fade-up d2">Full assembly takes a single, focused weekend with two people. Print, screw, flash, ship.</p>
+    </div>
+
+    <div class="build-list">
+      <div class="build-step fade-up">
+        <div>
+          <h4>Print the structural parts.</h4>
+          <div class="build-time">~ 36 print-hours · PETG or ABS</div>
+        </div>
+        <p>STLs ship pre-oriented for a Bambu X1C-class printer. Total filament mass: ≈ 2.1 kg. We've validated prints at 0.2mm layer, 25% gyroid infill.</p>
+      </div>
+      <div class="build-step fade-up">
+        <div>
+          <h4>Wire the swerve base.</h4>
+          <div class="build-time">~ 3 hours · two people</div>
+        </div>
+        <p>The base assembles as three identical swerve modules around a single power-distribution PCB. Connectors are keyed; you cannot wire it wrong.</p>
+      </div>
+      <div class="build-step fade-up">
+        <div>
+          <h4>Assemble the arms &amp; hands.</h4>
+          <div class="build-time">~ 5 hours</div>
+        </div>
+        <p>Each arm and ORCA hand follows the published Open Arm and ORCA build guides, with a MABEL-specific torso bracket included in this repo.</p>
+      </div>
+      <div class="build-step fade-up">
+        <div>
+          <h4>Mount the head &amp; torso.</h4>
+          <div class="build-time">~ 2 hours</div>
+        </div>
+        <p>The lift column bolts directly to the swerve base; the torso slides onto the lift and clips into place. The head mounts on the neck via four M3 screws.</p>
+      </div>
+      <div class="build-step fade-up">
+        <div>
+          <h4>Flash firmware. Pull the repo.</h4>
+          <div class="build-time">~ 1 hour</div>
+        </div>
+        <p>One <code>docker compose up</code> brings up the entire ROS 2 stack. Calibration is automated — MABEL stretches each arm through a sequence on first boot.</p>
+      </div>
+      <div class="build-step fade-up">
+        <div>
+          <h4>Ship it.</h4>
+          <div class="build-time">~ 5 minutes</div>
+        </div>
+        <p>Connect Vision Pro. Open the MABEL app. Pinch the air. The robot moves. Welcome to research.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAPER / CITATION
+═══════════════════════════════════════════════════════════════ -->
+<section class="paper" id="paper">
+  <div class="wrap">
+    <span class="eyebrow fade-up" style="color: var(--ash-light);">09 — Paper</span>
+    <h2 class="display-md fade-up d1" style="margin-top: 16px;">A platform <span class="italic">for the field,</span> not a paper for the file.</h2>
+    <p class="lede fade-up d2" style="color: var(--ash-light); margin: 24px auto 0;">
+      MABEL was built to be reproduced. The hardware, software, training data, and teleop client are all open. Take what you need.
+    </p>
+
+    <div class="paper-actions fade-up d3">
+      <a href="#" class="btn btn-primary">Read the paper ↗</a>
+      <a href="#" class="btn btn-ghost">GitHub repo ↗</a>
+      <a href="#" class="btn btn-ghost">visionOS app ↗</a>
+    </div>
+
+    <div class="cite fade-up d4">
+<pre>@article{cheng2026mabel,
+  title  = {MABEL: A Sub-$8k Mobile Bimanual Platform
+            for Dexterous Manipulation},
+  author = {Cheng, Jerry and others},
+  journal= {Under review · IEEE RAL},
+  year   = {2026}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+      </div>
+      <div class="foot-col">
+        <h6>Project</h6>
+        <a href="#system">System</a>
+        <a href="#software">Software</a>
+        <a href="#teleop">Teleop</a>
+        <a href="#demo">Demo</a>
+      </div>
+      <div class="foot-col">
+        <h6>Resources</h6>
+        <a href="#">Paper</a>
+        <a href="#">GitHub</a>
+        <a href="#">BOM &amp; CAD</a>
+        <a href="#">visionOS app</a>
+      </div>
+      <div class="foot-col">
+        <h6>Contact</h6>
+        <a href="#">Twitter</a>
+        <a href="#">Email</a>
+        <a href="#">Lab page</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Cheng et al · MIT License</span>
+      <span>Built in New York · v1.0.0</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════════════════════ -->
+<script>
+  // ── Nav scroll state ─────────────────────────────────────────────
+  const nav = document.getElementById('nav');
+  const darkSections = ['stats', 'software', 'nyc', 'paper'];
+  function updateNav() {
+    nav.classList.toggle('scrolled', window.scrollY > 24);
+
+    // Detect what section nav is currently over → dark/light state
+    const navY = nav.getBoundingClientRect().bottom;
+    let onDark = false;
+    document.querySelectorAll('section, footer').forEach(s => {
+      const r = s.getBoundingClientRect();
+      if (r.top <= navY && r.bottom >= navY) {
+        const bg = getComputedStyle(s).backgroundColor;
+        // dark if section has the ink background
+        if (s.classList.contains('stats') ||
+            s.classList.contains('software') ||
+            s.classList.contains('nyc') ||
+            s.classList.contains('paper') ||
+            s.tagName === 'FOOTER') {
+          onDark = true;
+        }
+      }
+    });
+    nav.classList.toggle('dark', onDark);
+    nav.style.color = onDark ? 'var(--bone)' : 'var(--ink)';
+  }
+  window.addEventListener('scroll', updateNav, { passive: true });
+  updateNav();
+
+  // ── Hero parallax ────────────────────────────────────────────────
+  const heroMedia = document.getElementById('hero-media');
+  function heroParallax() {
+    const y = window.scrollY;
+    if (y < window.innerHeight) {
+      // background drifts up at half speed, content stays put for cinematic feel
+      heroMedia.style.transform = `translateY(${y * 0.35}px) scale(${1 + y * 0.0004})`;
+      heroMedia.style.opacity = Math.max(0, 1 - y / window.innerHeight * 0.8);
+    }
+  }
+  window.addEventListener('scroll', heroParallax, { passive: true });
+  heroParallax();
+
+  // ── Fade-up reveal on scroll ─────────────────────────────────────
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+  document.querySelectorAll('.fade-up').forEach(el => revealObs.observe(el));
+
+  // ── Timeline step reveal ─────────────────────────────────────────
+  const tlObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+      }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('.tl-step').forEach(el => tlObs.observe(el));
+
+  // ── Number counter ───────────────────────────────────────────────
+  const counters = document.querySelectorAll('.counter');
+  const countObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        const target = parseInt(el.dataset.target, 10);
+        const duration = 1400;
+        const start = performance.now();
+        const step = (now) => {
+          const t = Math.min(1, (now - start) / duration);
+          // ease-out cubic
+          const eased = 1 - Math.pow(1 - t, 3);
+          el.textContent = Math.round(target * eased);
+          if (t < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+        countObs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(el => countObs.observe(el));
+
+  // ── Hardware pinned-scroll active state ──────────────────────────
+  const steps = document.querySelectorAll('.hw-step');
+  const dotMap = {
+    head:  document.getElementById('dot-head'),
+    torso: document.getElementById('dot-torso'),
+    arm:   document.getElementById('dot-arm'),
+    hand:  document.getElementById('dot-hand'),
+    base:  document.getElementById('dot-base'),
+  };
+  const stepObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        steps.forEach(s => s.classList.remove('active'));
+        e.target.classList.add('active');
+        // Update SVG dots
+        Object.values(dotMap).forEach(d => d && d.classList.remove('active'));
+        const target = e.target.dataset.target;
+        if (dotMap[target]) dotMap[target].classList.add('active');
+      }
+    });
+  }, { threshold: 0.55, rootMargin: '-20% 0px -20% 0px' });
+  steps.forEach(s => stepObs.observe(s));
+
+  // ── Smooth anchor scroll (account for nav height) ────────────────
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href');
+      if (id.length > 1) {
+        const t = document.querySelector(id);
+        if (t) {
+          e.preventDefault();
+          const top = t.getBoundingClientRect().top + window.scrollY - 20;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      }
+    });
+  });
+
+  // ── Scroll indicator pill (Sunday-style) ─────────────────────────
+  const indicator = document.getElementById('scrollIndicator');
+  const scrollDots = Array.from(indicator.querySelectorAll('.scroll-dot'));
+  const indicatorTargets = scrollDots.map(d => document.getElementById(d.dataset.target));
+
+  function updateScrollIndicator() {
+    // Reveal once we've meaningfully scrolled past the hero
+    indicator.classList.toggle('visible', window.scrollY > window.innerHeight * 0.4);
+
+    // Active dot: pick the latest section whose top has crossed our probe line
+    const probeY = window.scrollY + window.innerHeight * 0.45;
+    let activeIdx = 0;
+    indicatorTargets.forEach((t, i) => {
+      if (t && t.offsetTop <= probeY) activeIdx = i;
+    });
+    scrollDots.forEach((d, i) => d.classList.toggle('active', i === activeIdx));
+
+    // Dark theme detection (mirrors nav logic)
+    const midY = window.innerHeight / 2;
+    let onDark = false;
+    document.querySelectorAll('section, footer').forEach(s => {
+      const r = s.getBoundingClientRect();
+      if (r.top <= midY && r.bottom >= midY) {
+        if (s.classList.contains('stats') ||
+            s.classList.contains('software') ||
+            s.classList.contains('nyc') ||
+            s.classList.contains('paper') ||
+            s.classList.contains('magic') ||
+            s.tagName === 'FOOTER') {
+          onDark = true;
+        }
+      }
+    });
+    indicator.classList.toggle('dark', onDark);
+  }
+  scrollDots.forEach((d, i) => {
+    d.addEventListener('click', (e) => {
+      e.preventDefault();
+      const t = indicatorTargets[i];
+      if (t) {
+        const top = t.getBoundingClientRect().top + window.scrollY - 20;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    });
+  });
+  window.addEventListener('scroll', updateScrollIndicator, { passive: true });
+  updateScrollIndicator();
+
+  // ── Magic reveal (Sunday "made by magic"-style character materialization) ──
+  const magic = document.getElementById('magic');
+  const magicText = document.getElementById('magicText');
+  const magicSticky = document.getElementById('magicSticky');
+
+  if (magicText && magic) {
+    // Build per-character spans from the data-text attribute.
+    // Words at indices in italicSet render in italic + rust accent.
+    const fullText = magicText.dataset.text || '';
+    const words = fullText.split(' ');
+    const italicSet = new Set([3, 4]); // "made again." get the emphasis treatment
+    magicText.innerHTML = '';
+    words.forEach((word, wi) => {
+      const wordEl = document.createElement('span');
+      wordEl.className = 'magic-word' + (italicSet.has(wi) ? ' italic' : '');
+      [...word].forEach(ch => {
+        const charEl = document.createElement('span');
+        charEl.className = 'magic-char';
+        charEl.textContent = ch;
+        wordEl.appendChild(charEl);
+      });
+      magicText.appendChild(wordEl);
+    });
+  }
+
+  const magicChars = magic ? magic.querySelectorAll('.magic-char') : [];
+  function updateMagic() {
+    if (!magic || magicChars.length === 0) return;
+    const rect = magic.getBoundingClientRect();
+    const totalScroll = magic.offsetHeight - window.innerHeight;
+    const progress = Math.max(0, Math.min(1, -rect.top / totalScroll));
+
+    // Trigger the eyebrow when the sticky enters its parked state
+    if (rect.top < window.innerHeight * 0.5 && rect.bottom > window.innerHeight * 0.5) {
+      magicSticky.classList.add('in');
+    }
+    magicSticky.classList.toggle('complete', progress > 0.88);
+
+    // Progressive char reveal — each char has a window of scroll progress where it materializes
+    const total = magicChars.length;
+    magicChars.forEach((c, i) => {
+      // The 1.15 multiplier ensures the last char finishes before scroll runs out
+      const local = Math.max(0, Math.min(1, (progress * total * 1.15 - i) / 1.4));
+      c.style.opacity = 0.08 + local * 0.92;
+      c.style.transform = `translateY(${(1 - local) * 8}px)`;
+    });
+  }
+  window.addEventListener('scroll', updateMagic, { passive: true });
+  updateMagic();
+
+  // ── Floating hardware scenes (sticky image + scrolling text + live callout) ──
+  const floatScenes = document.querySelectorAll('.float-scene');
+  const floatImage = document.getElementById('floatImage');
+  const floatCallout = document.getElementById('floatCallout');
+  const floatCalloutText = document.getElementById('floatCalloutText');
+  // Subtle per-scene transforms so the image breathes as you scroll
+  const sceneTransforms = [
+    'rotate(0deg) scale(1) translateY(0)',
+    'rotate(-1.5deg) scale(1.04) translateY(-8px)',
+    'rotate(1deg) scale(0.98) translateY(6px)',
+    'rotate(-0.5deg) scale(1.02) translateY(-4px)'
+  ];
+
+  const floatObs = new IntersectionObserver((entries) => {
+    // Find the most-visible scene each tick
+    let bestRatio = 0;
+    let bestEl = null;
+    entries.forEach(e => {
+      e.target.classList.toggle('in', e.isIntersecting);
+    });
+    document.querySelectorAll('.float-scene').forEach(s => {
+      const r = s.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const visible = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+      const ratio = visible / vh;
+      if (ratio > bestRatio) { bestRatio = ratio; bestEl = s; }
+    });
+    if (bestEl && floatImage && floatCallout) {
+      const idx = Array.from(floatScenes).indexOf(bestEl);
+      floatImage.style.transform = sceneTransforms[idx] || sceneTransforms[0];
+      const callout = bestEl.dataset.callout;
+      if (callout && floatCalloutText.innerHTML !== callout) {
+        // Crossfade the callout text on change
+        floatCallout.classList.remove('in');
+        setTimeout(() => {
+          floatCalloutText.innerHTML = callout;
+          floatCallout.classList.add('in');
+        }, 220);
+      } else {
+        floatCallout.classList.add('in');
+      }
+    }
+  }, { threshold: [0.25, 0.5, 0.75] });
+  floatScenes.forEach(s => floatObs.observe(s));
+
+  // ── Reduce motion respect ────────────────────────────────────────
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    window.removeEventListener('scroll', heroParallax);
+    heroMedia.style.transform = '';
+  }
+</script>
+
+</body>
+</html>
