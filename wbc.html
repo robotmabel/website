@@ -24,13 +24,13 @@
   <nav class="nav-links">
     <a href="index.html">Overview</a>
     <a href="hardware.html">Hardware</a>
+    <a href="software.html">Software</a>
     <a href="firmware.html">Firmware</a>
     <a href="ros.html">ROS</a>
     <a href="navigation.html">Navigation</a>
-    <a href="software.html">Software</a>
     <a href="simulation.html">Simulation</a>
-    <a href="teleop.html">Teleop</a>
     <a href="wbc.html" class="on">WBC</a>
+    <a href="teleop.html">Teleop</a>
     <a href="learning.html">Learning</a>
     <a href="connect.html">Connect</a>
     <a href="#" class="ext">Paper ↗</a>
@@ -38,7 +38,7 @@
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a><a href="teleop.html">Teleop</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 
 <!-- ─── PAGE HERO ─── -->
@@ -110,7 +110,8 @@
         <p class="wbc-note">Grab a <b style="color:var(--rust);">rust handle</b> and drag. The arm complies with the constrained IK; the arrow shows the wrench you apply.</p>
       </div>
     </div>
-    <p class="table-note fade-up" style="margin-top:14px; color:var(--ash-light);">A browser stand-in for the MuJoCo demo (<code>gravity_compensation.py</code>): in sim, Ctrl-drag a body applies a real external wrench and the gravity-compensated arms follow with almost no resistance. Here, dragging the handle plays the same role.</p>
+    <p class="table-note fade-up" style="margin-top:14px; color:var(--ash-light);">A browser stand-in for the MuJoCo demo (<code>gravity_compensation.py</code>): in sim, Ctrl-drag a body applies a real external wrench and the gravity-compensated arms follow with almost no resistance. Here, dragging the palm handle plays the same role.</p>
+    <p class="table-note fade-up" style="margin-top:8px; font-style:italic; color:var(--ash-light); opacity:0.9;">Note: this viewer is a lightweight <strong>re-implementation that reflects the idea</strong> of the compliance controller, not the actual MuJoCo admittance/impedance controller under <code>simulation/</code>. To run the real one, see <a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener" style="color:var(--rust);">github.com/thejerrycheng/MABEL</a> → <code>simulation/mabel_mujoco</code> (<code>gravity_compensation.py</code>, <code>whole_body_armguide.py</code>).</p>
 
     <div class="feature fade-up" style="margin-top:8px;">
       <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">τ = g(q) — feedforward against gravity</div></div></div>
@@ -184,20 +185,28 @@
         </div>
         <p class="wbc-note" data-wbc-group="nav">Swerve base, holonomic. Caps: 0.8&nbsp;m/s linear, 2.0&nbsp;rad/s yaw — the tip-over model trims them as the lift rises.</p>
 
-        <!-- ARM / WHOLE: joystick + Z slider drive the green wrist target -->
+        <!-- ARM / WHOLE: per-hand toggle, then joystick + Z move that palm target -->
+        <div class="wbc-row" data-wbc-group="arm whole" style="border:none;padding-bottom:0;">
+          <div class="wbc-row-top"><span class="lab">Commanding hand</span></div>
+          <div class="wbc-seg" data-wbc-hand>
+            <button class="on" data-hand-side="l">Left palm</button>
+            <button data-hand-side="r">Right palm</button>
+          </div>
+        </div>
         <div class="wbc-pad-wrap" data-wbc-group="arm whole">
           <div class="wbc-pad" data-wbc-pad><span class="wbc-knob"></span></div>
           <div class="wbc-pad-axes"><span>X&nbsp;<b data-wbc-out="padx">+0.00 m</b></span><span>Y&nbsp;<b data-wbc-out="pady">+0.00 m</b></span></div>
         </div>
         <div class="wbc-row" data-wbc-group="arm whole">
-          <div class="wbc-row-top"><span class="lab">Wrist height Z</span><span class="out" data-wbc-out="armZ">+0 cm</span></div>
+          <div class="wbc-row-top"><span class="lab">Palm height Z</span><span class="out" data-wbc-out="armZ">+0 cm</span></div>
           <input class="wbc-slider" type="range" data-wbc-slider="armZ" data-def="0" min="-0.3" max="0.4" step="0.005" value="0" />
         </div>
-        <p class="wbc-note" data-wbc-group="arm">Move the joystick — the <span class="green">green wrist tracking point</span> follows and the left arm tracks it by IK. Base and lift held.</p>
-        <p class="wbc-note" data-wbc-group="whole">Same <span class="green">green target</span>, but the lazy base follows and the lift engages to keep the hand reachable.</p>
+        <p class="wbc-note" data-wbc-group="arm">Pick a hand, then move the joystick — its <span class="green">green palm tracking point</span> follows and that arm tracks it by IK. Both palms are tracked bimanually; base and lift are held.</p>
+        <p class="wbc-note" data-wbc-group="whole">Same <span class="green">green palm targets</span>, but the lazy base follows the hand centroid and the lift engages to keep both hands reachable.</p>
       </div>
     </div>
-    <p class="table-note fade-up" style="margin-top:14px;">Mirrors <code>teleop_keyboard.py</code> (TAB cycles the three modes) — but instead of holding arrow keys, you set the commands directly. <strong>Nav</strong> drives the swerve base + lift; <strong>Arm</strong> moves the palms in Cartesian space with the base &amp; lift frozen; <strong>Whole body</strong> adds the lazy base follower and engages the lift/torso so the hand stays in its dexterous range.</p>
+    <p class="table-note fade-up" style="margin-top:14px;">Mirrors <code>teleop_keyboard.py</code> (TAB cycles the three modes) — but instead of holding arrow keys, you set the commands directly. <strong>Nav</strong> drives the swerve base + lift; <strong>Arm</strong> moves both palms in Cartesian space with the base &amp; lift frozen; <strong>Whole body</strong> adds the lazy base follower and engages the lift/torso so the hands stay in their dexterous range. The green points are the <code>left_palm</code> / <code>right_palm</code> targets the real <code>mabel/wbc.py</code> controller tracks.</p>
+    <p class="table-note fade-up" style="margin-top:8px; font-style:italic; opacity:0.85;">Note: this in-browser viewer is a lightweight <strong>re-implementation that reflects the idea</strong> of the controller (kinematic IK on the rig), not the actual MuJoCo whole-body controller. To run the real thing, see <a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener" style="color:var(--rust);">github.com/thejerrycheng/MABEL</a> → <code>simulation/mabel_mujoco</code>.</p>
   </div>
 </section>
 
@@ -242,8 +251,8 @@
   <div class="wrap-narrow" style="text-align:center;">
     <h2 class="display-sm fade-up" style="margin-bottom:24px;">A 6-DOF wish, 51 joints of motion.</h2>
     <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <a href="teleop.html" class="btn btn-ghost">← Teleop</a>
-      <a href="learning.html" class="btn btn-primary">Next: Learning →</a>
+      <a href="simulation.html" class="btn btn-ghost">← Simulation</a>
+      <a href="teleop.html" class="btn btn-primary">Next: Teleop →</a>
     </div>
   </div>
 </section>

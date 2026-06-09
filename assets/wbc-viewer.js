@@ -143,7 +143,12 @@ class WbcViewer {
       .filter((n) => this.joints[n]);
     this.armChains.r = ['right_arm_1','right_arm_2','right_arm_3','right_arm_4','right_arm_5','right_arm_6','right_arm_7']
       .filter((n) => this.joints[n]);
-    this.eeNode = { l: this.joints['left_arm_7']?._n, r: this.joints['right_arm_7']?._n };
+    // End-effector = the PALM body the real controller tracks (mabel/wbc.py
+    // commands left_palm / right_palm), not the hand_mount link.
+    this.eeNode = {
+      l: this.root.getObjectByName('left_palm') || this.joints['left_arm_7']?._n,
+      r: this.root.getObjectByName('right_palm') || this.joints['right_arm_7']?._n,
+    };
 
     this.root.updateMatrixWorld(true);
     for (const s of ['l', 'r']) {
@@ -337,32 +342,51 @@ class WbcViewer {
   /* ═══ OPERATE viewer ══════════════════════════════════════════════ */
   _initOperate() {
     this.opMode = 'nav';                   // 'nav' | 'arm' | 'whole'
+    this.hand = 'l';                       // which palm the joystick edits
     this.nav = { vx: 0, vy: 0, w: 0, lift: 0 };
     this.wheel = 0;                        // accumulated drive-wheel spin
     this.pad = { x: 0, y: 0 };             // joystick, [-1,1]
-    this.armZ = 0;                         // Z slider offset, metres
+    // per-hand Cartesian offset of the palm target from its home, metres
+    this.armOff = { l: { x: 0, y: 0, z: 0 }, r: { x: 0, y: 0, z: 0 } };
 
-    // green wrist tracking point
-    this.greenTarget = new THREE.Vector3().copy(this.rest.l);
-    this.greenHome = new THREE.Vector3().copy(this.rest.l);
-    const g = new THREE.Mesh(
-      new THREE.SphereGeometry(this.maxd * 0.025, 24, 24),
-      new THREE.MeshStandardMaterial({ color: GREEN, emissive: GREEN, emissiveIntensity: 0.55, roughness: 0.4 }),
-    );
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(this.maxd * 0.034, this.maxd * 0.04, 32),
-      new THREE.MeshBasicMaterial({ color: GREEN, transparent: true, opacity: 0.5, side: THREE.DoubleSide }),
-    );
-    g.add(ring);
-    this.greenDot = g;
-    this.scene.add(g);
+    // green PALM tracking point — one per hand (the real controller tracks both)
+    this.gTarget = { l: new THREE.Vector3().copy(this.rest.l), r: new THREE.Vector3().copy(this.rest.r) };
+    this.gHome = { l: new THREE.Vector3().copy(this.rest.l), r: new THREE.Vector3().copy(this.rest.r) };
+    this.greenDot = {};
+    for (const s of ['l', 'r']) {
+      const g = new THREE.Mesh(
+        new THREE.SphereGeometry(this.maxd * 0.024, 24, 24),
+        new THREE.MeshStandardMaterial({ color: GREEN, emissive: GREEN, emissiveIntensity: 0.55, roughness: 0.4 }),
+      );
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(this.maxd * 0.032, this.maxd * 0.038, 32),
+        new THREE.MeshBasicMaterial({ color: GREEN, transparent: true, opacity: 0.5, side: THREE.DoubleSide }),
+      );
+      g.add(ring);
+      g.position.copy(this.gHome[s]);
+      this.scene.add(g);
+      this.greenDot[s] = g;
+    }
 
     this._wireOperateUI();
     this._applyOpMode();
   }
 
+  // dim the inactive hand's marker so it's clear which one the joystick drives
+  _emphasizeHand() {
+    for (const s of ['l', 'r']) {
+      const on = (s === this.hand);
+      const d = this.greenDot[s];
+      d.material.emissiveIntensity = on ? 0.6 : 0.25;
+      d.scale.setScalar(on ? 1 : 0.78);
+      d.children[0].material.opacity = on ? 0.55 : 0.22;
+    }
+  }
+
   _wireOperateUI() {
     const panel = this.box;
+    const reach = this.maxd * 0.4;
+
     // 3-way mode toggle
     const seg = panel.querySelector('[data-wbc-segments]');
     if (seg) seg.addEventListener('click', (e) => {
@@ -372,7 +396,29 @@ class WbcViewer {
       this._applyOpMode();
     });
 
-    // sliders (nav velocities + lift, arm Z)
+    // per-hand selector (which palm the joystick edits)
+    const handSeg = panel.querySelector('[data-wbc-hand]');
+    const syncPadToHand = () => {
+      const o = this.armOff[this.hand];
+      this.pad.x = o.x; this.pad.y = -o.y;
+      const knob = panel.querySelector('.wbc-knob');
+      if (knob) { knob.style.left = `${(o.x * 0.5 + 0.5) * 100}%`; knob.style.top = `${(-o.y * 0.5 + 0.5) * 100}%`; }
+      const zsl = panel.querySelector('[data-wbc-slider="armZ"]');
+      if (zsl) { zsl.value = o.z; zsl.dispatchEvent(new Event('input')); }
+      const ox = panel.querySelector('[data-wbc-out="padx"]');
+      const oy = panel.querySelector('[data-wbc-out="pady"]');
+      if (ox) ox.textContent = (o.x >= 0 ? '+' : '') + (o.x * reach).toFixed(2) + ' m';
+      if (oy) oy.textContent = (o.y >= 0 ? '+' : '') + (o.y * reach).toFixed(2) + ' m';
+    };
+    if (handSeg) handSeg.addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      this.hand = b.dataset.handSide;
+      handSeg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+      this._emphasizeHand();
+      syncPadToHand();
+    });
+
+    // sliders (nav velocities + lift, arm Z) — Z edits the ACTIVE hand
     panel.querySelectorAll('[data-wbc-slider]').forEach((sl) => {
       const key = sl.dataset.wbcSlider;
       const out = panel.querySelector(`[data-wbc-out="${key}"]`);
@@ -385,14 +431,14 @@ class WbcViewer {
       };
       const apply = () => {
         const v = parseFloat(sl.value);
-        if (key === 'armZ') this.armZ = v; else this.nav[key] = v;
+        if (key === 'armZ') this.armOff[this.hand].z = v; else this.nav[key] = v;
         if (out) out.textContent = fmt();
       };
       sl.addEventListener('input', apply);
       apply();
     });
 
-    // virtual joystick pad
+    // virtual joystick pad — edits the ACTIVE hand's X/Y offset
     const pad = panel.querySelector('[data-wbc-pad]');
     if (pad) {
       const knob = pad.querySelector('.wbc-knob');
@@ -403,12 +449,14 @@ class WbcViewer {
         let y = ((ev.clientY - r.top) / r.height) * 2 - 1;
         x = Math.max(-1, Math.min(1, x)); y = Math.max(-1, Math.min(1, y));
         this.pad.x = x; this.pad.y = y;
+        this.armOff[this.hand].x = x;
+        this.armOff[this.hand].y = -y;
         knob.style.left = `${(x * 0.5 + 0.5) * 100}%`;
         knob.style.top = `${(y * 0.5 + 0.5) * 100}%`;
         const ox = panel.querySelector('[data-wbc-out="padx"]');
         const oy = panel.querySelector('[data-wbc-out="pady"]');
-        if (ox) ox.textContent = (x >= 0 ? '+' : '') + (x * 0.4).toFixed(2) + ' m';
-        if (oy) oy.textContent = (-y >= 0 ? '+' : '') + (-y * 0.4).toFixed(2) + ' m';
+        if (ox) ox.textContent = (x >= 0 ? '+' : '') + (x * reach).toFixed(2) + ' m';
+        if (oy) oy.textContent = (-y >= 0 ? '+' : '') + (-y * reach).toFixed(2) + ' m';
       };
       let dragging = false;
       pad.addEventListener('pointerdown', (e) => { dragging = true; pad.setPointerCapture(e.pointerId); setFromEvent(e); });
@@ -421,6 +469,7 @@ class WbcViewer {
     // reset
     const reset = panel.querySelector('[data-wbc-reset]');
     if (reset) reset.addEventListener('click', () => {
+      this.armOff = { l: { x: 0, y: 0, z: 0 }, r: { x: 0, y: 0, z: 0 } };
       panel.querySelectorAll('[data-wbc-slider]').forEach((sl) => {
         sl.value = sl.dataset.def || 0; sl.dispatchEvent(new Event('input'));
       });
@@ -430,6 +479,8 @@ class WbcViewer {
       panel.querySelectorAll('[data-wbc-out="padx"],[data-wbc-out="pady"]').forEach((o) => o.textContent = '+0.00 m');
       this.baseOffset.set(0, 0, 0); this.baseYaw = 0;
     });
+
+    this._emphasizeHand();
   }
 
   _applyOpMode() {
@@ -438,7 +489,9 @@ class WbcViewer {
       const groups = el.dataset.wbcGroup.split(' ');
       el.style.display = groups.includes(this.opMode) ? '' : 'none';
     });
-    this.greenDot.visible = (this.opMode !== 'nav');
+    const showGreen = (this.opMode !== 'nav');
+    this.greenDot.l.visible = showGreen;
+    this.greenDot.r.visible = showGreen;
   }
 
   _stepOperate(dt) {
@@ -463,43 +516,49 @@ class WbcViewer {
       this._setLift(this.nav.lift);
       // keep arms in their held rest pose
       this._relax('l', 0.08); this._relax('r', 0.08);
-      this.greenTarget.copy(this.greenHome);
+      this.gTarget.l.copy(this.gHome.l); this.gTarget.r.copy(this.gHome.r);
       return;
     }
 
-    // ARM / WHOLE: the joystick + Z slider place the green wrist target,
-    // mapped onto the camera-aligned ground plane so dragging feels natural.
+    // ARM / WHOLE: each palm target = its home + per-hand offset, mapped onto
+    // the camera-aligned ground plane so the joystick feels natural. Both arms
+    // track their own palm target (bimanual), mirroring mabel/wbc.py.
     const camDir = this.camera.getWorldDirection(new THREE.Vector3());
     const flat = new THREE.Vector3(camDir.x, 0, camDir.z);
     if (flat.lengthSq() < 1e-6) flat.set(0, 0, 1);
     flat.normalize();
     const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), flat).normalize();
     const reach = this.maxd * 0.4;
-    this.greenTarget.copy(this.greenHome)
-      .addScaledVector(flat, -this.pad.y * reach)   // push up = away
-      .addScaledVector(right, this.pad.x * reach)
-      .add(new THREE.Vector3(0, this.armZ, 0));
+    for (const s of ['l', 'r']) {
+      const o = this.armOff[s];
+      this.gTarget[s].copy(this.gHome[s])
+        .addScaledVector(flat, o.y * reach)      // joystick up = away from camera
+        .addScaledVector(right, o.x * reach)
+        .add(new THREE.Vector3(0, o.z, 0));
+    }
 
     if (this.opMode === 'whole') {
-      // lazy base: nudge toward the target if it drifts past a comfort radius
+      // lazy base: follow the hand centroid if it drifts past a comfort radius
+      const cen = new THREE.Vector3().addVectors(this.gTarget.l, this.gTarget.r).multiplyScalar(0.5);
       const baseC = this._rootP0.clone().add(this.baseOffset);
-      const flatErr = new THREE.Vector3(this.greenTarget.x - baseC.x, 0, this.greenTarget.z - baseC.z);
-      const comfort = this.maxd * 0.32;
+      const flatErr = new THREE.Vector3(cen.x - baseC.x, 0, cen.z - baseC.z);
+      const comfort = this.maxd * 0.3;
       if (flatErr.length() > comfort) {
         const push = flatErr.clone().setLength(flatErr.length() - comfort);
         this.baseOffset.addScaledVector(push.normalize(), Math.min(0.6, flatErr.length()) * dt * 1.2);
       }
-      // lift engages toward the target height
-      const dz = this.greenTarget.y - this.greenHome.y;
+      // lift engages toward the mean target height
+      const dz = 0.5 * ((this.gTarget.l.y - this.gHome.l.y) + (this.gTarget.r.y - this.gHome.r.y));
       this.nav.lift = Math.max(0, Math.min(0.635, 0.3 + dz));
       this._setLift(this.nav.lift);
       this._applyBase();
     }
 
-    this.greenDot.position.copy(this.greenTarget);
-    this.active.l = true;
-    this._ik('l', this.greenTarget, 0.5, 3);
-    this._relax('r', 0.05);
+    for (const s of ['l', 'r']) {
+      this.active[s] = true;
+      this._ik(s, this.gTarget[s], 0.5, 3);
+      this.greenDot[s].position.copy(this.gTarget[s]);
+    }
   }
 
   _setLift(v) {
