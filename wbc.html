@@ -184,30 +184,30 @@
           <button class="on" data-mode="gravity">Gravity&nbsp;comp</button>
           <button data-mode="compliance">Compliance</button>
         </div>
-        <p class="wbc-note" data-wbc-status>Back-drivable — the hand holds wherever you leave it.</p>
-        <p class="wbc-note">Grab a <b style="color:var(--rust);">rust palm handle</b> and drag. The arm complies; push far and the <strong>mobile base creeps</strong> via the same comfort box as teleop, while the lift &amp; torso engage lazily. The arrow shows the wrench you apply.</p>
+        <p class="wbc-note" data-wbc-status>Gravity comp only — the arm floats and holds wherever you leave it; the base stays put.</p>
+        <p class="wbc-note">Grab a <b style="color:var(--rust);">rust palm handle</b> and drag — the gravity-comp arm is back-drivable and <strong>stays where you let go</strong> (no spring). In <strong>Compliance</strong>, push it past the comfort box and the whole <strong>base glides</strong> with you, then coasts to a stop. The arrow shows the drag wrench.</p>
       </div>
     </div>
-    <p class="table-note fade-up" style="margin-top:14px; color:var(--ash-light);">A browser stand-in for the MuJoCo demo (<code>gravity_compensation.py</code>): in sim, Ctrl-drag a body applies a real external wrench and the gravity-compensated arms follow with almost no resistance. Here, dragging the palm handle plays the same role.</p>
-    <p class="table-note fade-up" style="margin-top:8px; font-style:italic; color:var(--ash-light); opacity:0.9;">Note: this viewer is a lightweight <strong>re-implementation that reflects the idea</strong> of the compliance controller, not the actual MuJoCo admittance/impedance controller under <code>simulation/</code>. To run the real one, see <a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener" style="color:var(--rust);">github.com/thejerrycheng/MABEL</a> → <code>simulation/mabel_mujoco</code> (<code>gravity_compensation.py</code>, <code>whole_body_armguide.py</code>).</p>
+    <p class="table-note fade-up" style="margin-top:14px; color:var(--ash-light);">A browser stand-in for the MuJoCo demos: <code>gravity_compensation.py</code> (arms float) and <code>whole_body_armguide_torque.py</code> (the base admits the drag wrench). In sim, Ctrl-drag an arm body applies a real wrench; here, dragging the palm handle plays that role.</p>
+    <p class="table-note fade-up" style="margin-top:8px; font-style:italic; color:var(--ash-light); opacity:0.9;">Note: this viewer is a lightweight <strong>re-implementation that reflects the idea</strong> of the compliance controller, not the actual MuJoCo admittance controller under <code>simulation/</code>. To run the real one, see <a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener" style="color:var(--rust);">github.com/thejerrycheng/MABEL</a> → <code>simulation/mabel_mujoco</code> (<code>gravity_compensation.py</code>, <code>whole_body_armguide_torque.py</code>).</p>
 
     <div class="feature fade-up" style="margin-top:8px;">
       <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">τ = g(q) — feedforward against gravity</div></div></div>
       <div class="feature-copy">
         <span class="eyebrow">Mode 1 · Gravity compensation</span>
         <h3>The arm floats.</h3>
-        <p>A full rigid-body model computes the gravity torque <em>g(q)</em> for every link and feeds it forward, so each joint exactly holds its own weight. The arms become weightless and back-drivable — guide them with a fingertip and they stay where you leave them. The torso and lift run <em>lazy</em> (gravity-held, heavily damped); the base, neck, and hands stay locked. This is the backbone of kinesthetic teaching and safe shared workspaces.</p>
+        <p>A full rigid-body model computes the gravity torque <em>g(q)</em> for every link and feeds it forward, so each joint exactly holds its own weight. The arms become weightless and back-drivable — guide them with a fingertip and they stay where you leave them, with no spring pulling back. The torso and lift run <em>lazy</em> (gravity-held, heavily damped); the base, neck, and hands stay locked. This is the backbone of kinesthetic teaching and safe shared workspaces.</p>
         <div class="spec"><span>Inverse dynamics g(q)</span><span>Feedforward torque</span><span>Lazy torso/lift</span><span>Backdrivable</span></div>
       </div>
     </div>
 
     <div class="feature flip fade-up">
-      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">f = K(x* − x) − D ẋ — virtual spring/damper</div></div></div>
+      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">m v̇ = f<sub>ext</sub> − b v — base admittance</div></div></div>
       <div class="feature-copy">
-        <span class="eyebrow">Mode 2 · Compliance</span>
-        <h3>Give, then hold.</h3>
-        <p>On top of gravity comp, a Cartesian impedance law renders a virtual spring-and-damper at each hand: <em>f = K(x*&nbsp;−&nbsp;x) − D&nbsp;ẋ</em>, mapped to joint torques through the arm Jacobian. Push MABEL and it yields; let go and it springs back to its reference pose. Stiffness <em>K</em> and damping <em>D</em> are tunable per axis — firm where the task needs precision, soft where contact needs care — and it needs no force/torque sensor, since the wrench is estimated from the model and joint state.</p>
-        <div class="spec"><span>Cartesian impedance</span><span>Per-axis K / D</span><span>Jacobian-mapped</span><span>Sensorless</span></div>
+        <span class="eyebrow">Mode 2 · Whole-body compliance</span>
+        <h3>Push the arm, move the robot.</h3>
+        <p>Gravity comp keeps the arms back-drivable; the external wrench is then <em>estimated from joint torque</em> (a generalized-momentum observer maps <em>τ<sub>ext</sub></em> through <em>(J<sup>T</sup>)<sup>#</sup></em> to a Cartesian force — no force sensor) and fed to a <strong>base admittance</strong>. The base behaves as a virtual planar mass-damper, <em>m&nbsp;v̇ = f<sub>ext</sub> − b&nbsp;v</em>, with a Coulomb deadband and a kinetic stop: push an arm past its comfortable workspace and the whole robot <strong>glides</strong> along with you, then <strong>coasts to a stop</strong> when you let go — it neither springs back nor rolls forever. The exact same code runs on hardware off the motor torque feedback.</p>
+        <div class="spec"><span>Torque-estimated wrench</span><span>Base admittance m v̇=f−bv</span><span>Coulomb + kinetic stop</span><span>Sensorless</span></div>
       </div>
     </div>
   </div>

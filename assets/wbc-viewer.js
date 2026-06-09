@@ -26,16 +26,31 @@ const RUST = 0xC25B2A;
 const GREEN = 0x3FB56B;
 
 // ── lazy-base comfort box + body laziness, ported from mabel/config.py ──
-// LazyBase: the base only creeps when the hand centroid leaves this box.
+// LazyBase: the base only creeps once a hand leaves a comfort box centred on
+// the NEUTRAL hand pose (config.py: "referenced to the neutral hand pose").
 const LAZY = {
-  FWD_MIN: 0.0, FWD_MAX: 0.80,   // m, forward reach band (robot frame)
-  LEFT_HALF: 0.25,               // m, lateral half-span
-  YAW_DB: 0.30,                  // rad, yaw deadband
-  KP_LIN: 1.5, KP_ANG: 1.5,      // follower gains
+  HALF: 0.18,                    // m, comfort half-span (excursion from neutral)
+  YAW_DB: 0.30,                  // rad, yaw deadband (config LAZY_YAW_DEADBAND)
+  KP_LIN: 1.5, KP_ANG: 1.5,      // follower gains (config LAZY_KP_LIN / KP_ANG)
 };
 // Weighted-DLS "laziness": lift is 50× heavier (barely moves), torso 2×.
 // We emulate the joint weighting with inverse-weight engagement gains.
 const BODY = { LIFT_W: 50.0, TORSO_W: 2.0, LIFT_BAND: 0.12, TORSO_FRAC: 0.5 };
+
+// ── base admittance (mabel/admittance.py) for the COMPLIANCE viewer ──
+// The gravity-comp arms are back-drivable; the drag wrench (here synthesised
+// from how far the hand is pulled past the comfort box) drives the base as a
+// virtual planar mass-damper with a Coulomb deadband + kinetic stop, so the
+// whole robot glides and coasts to rest — no spring.
+const ADMIT = {
+  M: 4.5,            // kg, virtual base mass        (ADMIT_MASS)
+  BL: 22.0,          // N/(m/s), viscous friction     (ADMIT_LIN_DAMP)
+  FS: 3.0,           // N, static (Coulomb) deadband  (ADMIT_F_STATIC)
+  VSTOP: 0.02,       // m/s, settle-to-rest threshold (ADMIT_V_STOP)
+  KDRAG: 45.0,       // N/m, hand-pull → synthetic drag force
+  BOX: 0.03,         // m, comfort box before the base engages (DRAG_BOX)
+  RAMP: 0.04,        // m, excursion to full engagement (DRAG_BOX_RAMP)
+};
 
 class WbcViewer {
   constructor(box) {
@@ -81,10 +96,10 @@ class WbcViewer {
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.7;
-    controls.minDistance = 0.5;
+    controls.autoRotateSpeed = 0.85;
+    controls.minDistance = 0.4;
     controls.maxDistance = 8;
-    controls.target.set(0, 0.6, 0);
+    controls.target.set(0, 0.5, 0);
     this.controls = controls;
 
     let idle;
@@ -118,7 +133,7 @@ class WbcViewer {
       const maxd = Math.max(sz.x, sz.y, sz.z) || 1;
       this.maxd = maxd;
       this.controls.target.copy(c);
-      this.camera.position.copy(c).add(new THREE.Vector3(maxd * 0.8, maxd * 0.42, maxd * 1.25));
+      this.camera.position.copy(c).add(new THREE.Vector3(maxd * 0.85, maxd * 0.5, maxd * 1.25));
       this.camera.near = maxd / 100; this.camera.far = maxd * 60; this.camera.updateProjectionMatrix();
       this.controls.update();
 
@@ -171,6 +186,10 @@ class WbcViewer {
         this.targets[s].copy(this.rest[s]);
       }
     }
+    // Neutral hand centroid — the comfort box is referenced to THIS, not the
+    // world origin, so the base stays perfectly still until a hand is moved
+    // (mirrors the "referenced to the neutral hand pose" note in config.py).
+    this.restCentroid = new THREE.Vector3().addVectors(this.rest.l, this.rest.r).multiplyScalar(0.5);
 
     if (this.kind === 'compliance') this._initCompliance();
     else this._initOperate();
@@ -268,6 +287,7 @@ class WbcViewer {
 
     this.mode = 'gravity';                 // 'gravity' | 'compliance'
     this.drag = null;                      // active side while dragging
+    this.admVx = 0; this.admVy = 0;        // base admittance velocity (base frame)
     this._wireComplianceUI();
     this._wireGrab();
   }
@@ -279,14 +299,15 @@ class WbcViewer {
       this.mode = b.dataset.mode;
       seg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
       this._setStatus(b.dataset.mode === 'gravity'
-        ? 'Back-drivable — the hand holds wherever you leave it.'
-        : 'Spring-loaded — release and it returns to its rest pose.');
+        ? 'Gravity comp only — the arm floats and holds wherever you leave it; the base stays put.'
+        : 'Whole-body: push past the comfort box and the base admits the wrench — it glides, then coasts to a stop. No spring.');
     });
 
     const reset = this.box.querySelector('[data-wbc-reset]');
     if (reset) reset.addEventListener('click', () => {
       for (const s of ['l', 'r']) this.targets[s].copy(this.rest[s]);
       this.baseOffset.set(0, 0, 0); this.baseYaw = 0;
+      this.admVx = 0; this.admVy = 0;
       this.liftCmd = 0; this.torsoCmd = 0;
       if (this.joints['torso']) this._set('torso', 0);
       this._setLift(0);
@@ -335,17 +356,12 @@ class WbcViewer {
   }
 
   _stepCompliance(dt) {
-    // Compliance mode: any hand not being dragged is pulled home by a virtual
-    // spring (impedance). Gravity-comp mode: it just holds where left.
-    for (const s of ['l', 'r']) {
-      if (this.mode === 'compliance' && this.drag !== s) {
-        this.targets[s].lerp(this.rest[s], 0.06);
-      }
-    }
-    // Whole-body compliant follow: the mobile base creeps via the SAME comfort
-    // box as teleop, and the lift/torso jointly engage but lazier (50× / 2×).
-    this._lazyWholeBody(this.targets.l, this.targets.r, dt);
-    // Both arms track their palm targets (bimanual), then glue handles on.
+    // Gravity comp persists in BOTH modes: the arms are back-drivable and hold
+    // wherever you leave them — NO spring back to a rest pose.
+    // Compliance mode adds the base admittance: the drag wrench glides the whole
+    // robot (virtual mass-damper) and it coasts to a stop on release.
+    if (this.mode === 'compliance') this._baseAdmittance(dt);
+    // Both arms track their (gravity-comp) palm targets, then glue handles on.
     for (const s of ['l', 'r']) {
       if (!this.eeNode[s]) continue;
       this._ik(s, this.targets[s], 0.55, 2);
@@ -366,6 +382,54 @@ class WbcViewer {
     } else {
       this.forceArrow.visible = false;
     }
+  }
+
+  /* ── base admittance (mabel/admittance.py): virtual planar mass-damper ──
+     The synthetic drag wrench (∝ how far the hand is pulled past the comfort
+     box, referenced to the neutral pose that follows the base) drives the base
+     velocity through m·v̇ = F − b·v, with a Coulomb deadband and a kinetic stop
+     so it glides and coasts to rest instead of springing or rolling forever. */
+  _baseAdmittance(dt) {
+    const prev = this.baseOffset.clone();
+    const c = Math.cos(this.baseYaw), s = Math.sin(this.baseYaw);
+    const fwd = new THREE.Vector3(s, 0, c);
+    const left = new THREE.Vector3(c, 0, -s);
+
+    // only the operator's ACTIVE push generates a wrench; on release it is zero
+    // so the base coasts to a stop (the hands then ride along with the body).
+    let fx = 0, fy = 0;
+    if (this.drag) {
+      const centroid = new THREE.Vector3().addVectors(this.targets.l, this.targets.r).multiplyScalar(0.5);
+      const neutral = this.restCentroid.clone().add(this.baseOffset);
+      const e = new THREE.Vector3().subVectors(centroid, neutral); e.y = 0;
+      const eFwd = e.dot(fwd), eLeft = e.dot(left);
+      const excursion = Math.hypot(eFwd, eLeft);
+      // smooth engagement gate past the small comfort box (boundary_gate)
+      const gate = Math.min(1, Math.max(0, (excursion - ADMIT.BOX) / ADMIT.RAMP));
+      fx = ADMIT.KDRAG * eFwd * gate;
+      fy = ADMIT.KDRAG * eLeft * gate;
+      // static (Coulomb) deadband: a small wrench produces no motion
+      fx = Math.abs(fx) > ADMIT.FS ? fx : 0;
+      fy = Math.abs(fy) > ADMIT.FS ? fy : 0;
+    }
+
+    // virtual mass-damper (viscous virtual friction)
+    this.admVx += (fx - ADMIT.BL * this.admVx) / ADMIT.M * dt;
+    this.admVy += (fy - ADMIT.BL * this.admVy) / ADMIT.M * dt;
+    // kinetic stop: unforced and slow → settle to rest (no endless roll)
+    if (fx === 0 && Math.abs(this.admVx) < ADMIT.VSTOP) this.admVx = 0;
+    if (fy === 0 && Math.abs(this.admVy) < ADMIT.VSTOP) this.admVy = 0;
+
+    this.baseOffset.addScaledVector(fwd, this.admVx * dt);
+    this.baseOffset.addScaledVector(left, this.admVy * dt);
+
+    // the hands are attached to the body: any hand not under the cursor rides
+    // along with the base so the arms don't stretch to hold a world point.
+    const delta = new THREE.Vector3().subVectors(this.baseOffset, prev);
+    if (delta.lengthSq() > 0) {
+      for (const s2 of ['l', 'r']) if (this.drag !== s2) this.targets[s2].add(delta);
+    }
+    this._applyBase();
   }
 
   /* ═══ OPERATE viewer ══════════════════════════════════════════════ */
@@ -588,18 +652,22 @@ class WbcViewer {
     const left = new THREE.Vector3(c, 0, -s);
 
     const centroid = new THREE.Vector3().addVectors(pL, pR).multiplyScalar(0.5);
-    const baseC = this._rootP0.clone().add(this.baseOffset);
-    const e = new THREE.Vector3().subVectors(centroid, baseC); e.y = 0;
+    // Hand excursion from the neutral centroid (which follows the base). At rest
+    // this is exactly zero, so the base never creeps or spins on its own.
+    const neutral = this.restCentroid.clone().add(this.baseOffset);
+    const e = new THREE.Vector3().subVectors(centroid, neutral); e.y = 0;
     const eFwd = e.dot(fwd);
     const eLeft = e.dot(left);
 
-    // ---- LazyBase comfort box (exact thresholds from config.py) ----
+    // ---- LazyBase comfort box (config.py gains, neutral-referenced) ----
     let vFwd = 0, vLeft = 0, omega = 0;
-    if (eFwd > LAZY.FWD_MAX) vFwd = LAZY.KP_LIN * (eFwd - LAZY.FWD_MAX);
-    else if (eFwd < LAZY.FWD_MIN) vFwd = LAZY.KP_LIN * (eFwd - LAZY.FWD_MIN);
-    if (eLeft > LAZY.LEFT_HALF) vLeft = LAZY.KP_LIN * (eLeft - LAZY.LEFT_HALF);
-    else if (eLeft < -LAZY.LEFT_HALF) vLeft = LAZY.KP_LIN * (eLeft + LAZY.LEFT_HALF);
-    const yawErr = Math.atan2(eLeft, eFwd);
+    if (eFwd > LAZY.HALF) vFwd = LAZY.KP_LIN * (eFwd - LAZY.HALF);
+    else if (eFwd < -LAZY.HALF) vFwd = LAZY.KP_LIN * (eFwd + LAZY.HALF);
+    if (eLeft > LAZY.HALF) vLeft = LAZY.KP_LIN * (eLeft - LAZY.HALF);
+    else if (eLeft < -LAZY.HALF) vLeft = LAZY.KP_LIN * (eLeft + LAZY.HALF);
+    // yaw only engages once the excursion itself is sizeable (avoids any
+    // spin-in-place when the hands are near neutral)
+    const yawErr = (e.length() > LAZY.HALF) ? Math.atan2(eLeft, eFwd) : 0;
     if (yawErr > LAZY.YAW_DB) omega = LAZY.KP_ANG * (yawErr - LAZY.YAW_DB);
     else if (yawErr < -LAZY.YAW_DB) omega = LAZY.KP_ANG * (yawErr + LAZY.YAW_DB);
 

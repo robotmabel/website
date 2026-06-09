@@ -529,7 +529,7 @@ section { position: relative; }
 .wbc-viewer.loaded .viewer-loading { opacity: 0; pointer-events: none; }
 
 .wbc-ctl {
-  position: absolute; top: 14px; left: 14px; z-index: 4;
+  position: absolute; top: 14px; right: 14px; z-index: 4;
   width: clamp(214px, 23vw, 268px);
   display: flex; flex-direction: column; gap: 12px;
   padding: 14px;
