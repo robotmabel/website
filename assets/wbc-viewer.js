@@ -608,10 +608,10 @@ class WbcViewer {
     this.baseYaw += omega * dt;
 
     // ---- lazy lift: engage toward mean target height, heavily damped (50×) ----
-    const dz = 0.5 * ((pL.y - this.gHome.l.y) + (pR.y - this.gHome.r.y));
-    let liftDes = this.liftCmd;
-    if (dz > BODY.LIFT_BAND) liftDes = Math.min(0.635, dz - BODY.LIFT_BAND);
-    else if (dz < -BODY.LIFT_BAND) liftDes = 0;
+    const dz = 0.5 * ((pL.y - this.rest.l.y) + (pR.y - this.rest.r.y));
+    // engage only while the hands sit above the comfortable band; relax to
+    // neutral otherwise (so releasing a high target lets the lift settle back)
+    const liftDes = (dz > BODY.LIFT_BAND) ? Math.min(0.635, dz - BODY.LIFT_BAND) : 0;
     // first-order lazy approach (slower than the arms by ~the weight ratio)
     this.liftCmd += (liftDes - this.liftCmd) * Math.min(1, dt * (LAZY.KP_LIN / 1.0));
     this._setLift(this.liftCmd);

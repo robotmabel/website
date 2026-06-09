@@ -80,61 +80,6 @@
   </div>
 </section>
 
-<!-- ─── GRAVITY + COMPLIANCE (interactive) ─── -->
-<section class="dark-sec pad-y" id="compliance">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Feel · interactive</span>
-        <h2 class="display-md title" style="color:var(--bone);">Strong, but <span class="italic accent">soft.</span></h2>
-      </div>
-      <p class="lede">Model-based torque makes the arms weightless to push and gentle on contact. Grab a hand below and feel it — two modes, one controller.</p>
-    </div>
-
-    <!-- live drag-to-comply viewer -->
-    <div class="viewer-3d wbc-viewer fade-up" data-wbc-viewer="compliance">
-      <canvas></canvas>
-      <div class="ph dark viewer-loading"><div class="ph-label">Loading MABEL · grab a hand</div></div>
-      <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
-      </button>
-      <div class="viewer-hint"><span class="dot-live"></span> Grab a hand · drag · release</div>
-
-      <div class="wbc-ctl">
-        <div class="wbc-ctl-head"><span class="wbc-ctl-title">Mode</span></div>
-        <div class="wbc-seg" data-wbc-segments>
-          <button class="on" data-mode="gravity">Gravity&nbsp;comp</button>
-          <button data-mode="compliance">Compliance</button>
-        </div>
-        <p class="wbc-note" data-wbc-status>Back-drivable — the hand holds wherever you leave it.</p>
-        <p class="wbc-note">Grab a <b style="color:var(--rust);">rust handle</b> and drag. The arm complies with the constrained IK; the arrow shows the wrench you apply.</p>
-      </div>
-    </div>
-    <p class="table-note fade-up" style="margin-top:14px; color:var(--ash-light);">A browser stand-in for the MuJoCo demo (<code>gravity_compensation.py</code>): in sim, Ctrl-drag a body applies a real external wrench and the gravity-compensated arms follow with almost no resistance. Here, dragging the palm handle plays the same role.</p>
-    <p class="table-note fade-up" style="margin-top:8px; font-style:italic; color:var(--ash-light); opacity:0.9;">Note: this viewer is a lightweight <strong>re-implementation that reflects the idea</strong> of the compliance controller, not the actual MuJoCo admittance/impedance controller under <code>simulation/</code>. To run the real one, see <a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener" style="color:var(--rust);">github.com/thejerrycheng/MABEL</a> → <code>simulation/mabel_mujoco</code> (<code>gravity_compensation.py</code>, <code>whole_body_armguide.py</code>).</p>
-
-    <div class="feature fade-up" style="margin-top:8px;">
-      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">τ = g(q) — feedforward against gravity</div></div></div>
-      <div class="feature-copy">
-        <span class="eyebrow">Mode 1 · Gravity compensation</span>
-        <h3>The arm floats.</h3>
-        <p>A full rigid-body model computes the gravity torque <em>g(q)</em> for every link and feeds it forward, so each joint exactly holds its own weight. The arms become weightless and back-drivable — guide them with a fingertip and they stay where you leave them. The torso and lift run <em>lazy</em> (gravity-held, heavily damped); the base, neck, and hands stay locked. This is the backbone of kinesthetic teaching and safe shared workspaces.</p>
-        <div class="spec"><span>Inverse dynamics g(q)</span><span>Feedforward torque</span><span>Lazy torso/lift</span><span>Backdrivable</span></div>
-      </div>
-    </div>
-
-    <div class="feature flip fade-up">
-      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">f = K(x* − x) − D ẋ — virtual spring/damper</div></div></div>
-      <div class="feature-copy">
-        <span class="eyebrow">Mode 2 · Compliance</span>
-        <h3>Give, then hold.</h3>
-        <p>On top of gravity comp, a Cartesian impedance law renders a virtual spring-and-damper at each hand: <em>f = K(x*&nbsp;−&nbsp;x) − D&nbsp;ẋ</em>, mapped to joint torques through the arm Jacobian. Push MABEL and it yields; let go and it springs back to its reference pose. Stiffness <em>K</em> and damping <em>D</em> are tunable per axis — firm where the task needs precision, soft where contact needs care — and it needs no force/torque sensor, since the wrench is estimated from the model and joint state.</p>
-        <div class="spec"><span>Cartesian impedance</span><span>Per-axis K / D</span><span>Jacobian-mapped</span><span>Sensorless</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ─── OPERATING MODES (interactive, command-driven) ─── -->
 <section class="pad-y" id="modes">
   <div class="wrap">
@@ -179,7 +124,7 @@
           <div class="wbc-row-top"><span class="lab">Yaw rate ω</span><span class="out" data-wbc-out="w">0.0 rad/s</span></div>
           <input class="wbc-slider" type="range" data-wbc-slider="w" data-def="0" min="-2" max="2" step="0.05" value="0" />
         </div>
-        <div class="wbc-row" data-wbc-group="nav whole">
+        <div class="wbc-row" data-wbc-group="nav">
           <div class="wbc-row-top"><span class="lab">Lift height</span><span class="out" data-wbc-out="lift">0 cm</span></div>
           <input class="wbc-slider" type="range" data-wbc-slider="lift" data-def="0" min="0" max="0.635" step="0.005" value="0" />
         </div>
@@ -202,11 +147,69 @@
           <input class="wbc-slider" type="range" data-wbc-slider="armZ" data-def="0" min="-0.3" max="0.4" step="0.005" value="0" />
         </div>
         <p class="wbc-note" data-wbc-group="arm">Pick a hand, then move the joystick — its <span class="green">green palm tracking point</span> follows and that arm tracks it by IK. Both palms are tracked bimanually; base and lift are held.</p>
-        <p class="wbc-note" data-wbc-group="whole">Same <span class="green">green palm targets</span>, but the lazy base follows the hand centroid and the lift engages to keep both hands reachable.</p>
+        <p class="wbc-note" data-wbc-group="whole">Same <span class="green">green palm targets</span>, but now the swerve base follows the hand centroid through the comfort box, and the lift &amp; torso are jointly engaged — lazier (50× / 2× weighted) — to keep both hands in reach.</p>
       </div>
     </div>
     <p class="table-note fade-up" style="margin-top:14px;">Mirrors <code>teleop_keyboard.py</code> (TAB cycles the three modes) — but instead of holding arrow keys, you set the commands directly. <strong>Nav</strong> drives the swerve base + lift; <strong>Arm</strong> moves both palms in Cartesian space with the base &amp; lift frozen; <strong>Whole body</strong> adds the lazy base follower and engages the lift/torso so the hands stay in their dexterous range. The green points are the <code>left_palm</code> / <code>right_palm</code> targets the real <code>mabel/wbc.py</code> controller tracks.</p>
     <p class="table-note fade-up" style="margin-top:8px; font-style:italic; opacity:0.85;">Note: this in-browser viewer is a lightweight <strong>re-implementation that reflects the idea</strong> of the controller (kinematic IK on the rig), not the actual MuJoCo whole-body controller. To run the real thing, see <a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener" style="color:var(--rust);">github.com/thejerrycheng/MABEL</a> → <code>simulation/mabel_mujoco</code>.</p>
+  </div>
+</section>
+
+<!-- ─── GRAVITY + COMPLIANCE (interactive) ─── -->
+<section class="dark-sec pad-y" id="compliance">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Feel · interactive</span>
+        <h2 class="display-md title" style="color:var(--bone);">Strong, but <span class="italic accent">soft.</span></h2>
+      </div>
+      <p class="lede">Model-based torque makes the arms weightless to push and gentle on contact. Grab a hand below and feel it — two modes, one controller.</p>
+    </div>
+
+    <!-- live drag-to-comply viewer -->
+    <div class="viewer-3d wbc-viewer fade-up" data-wbc-viewer="compliance">
+      <canvas></canvas>
+      <div class="ph dark viewer-loading"><div class="ph-label">Loading MABEL · grab a hand</div></div>
+      <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
+      </button>
+      <div class="viewer-hint"><span class="dot-live"></span> Grab a hand · drag · release</div>
+
+      <div class="wbc-ctl">
+        <div class="wbc-ctl-head">
+          <span class="wbc-ctl-title">Mode</span>
+          <button class="wbc-reset" data-wbc-reset>Reset</button>
+        </div>
+        <div class="wbc-seg" data-wbc-segments>
+          <button class="on" data-mode="gravity">Gravity&nbsp;comp</button>
+          <button data-mode="compliance">Compliance</button>
+        </div>
+        <p class="wbc-note" data-wbc-status>Back-drivable — the hand holds wherever you leave it.</p>
+        <p class="wbc-note">Grab a <b style="color:var(--rust);">rust palm handle</b> and drag. The arm complies; push far and the <strong>mobile base creeps</strong> via the same comfort box as teleop, while the lift &amp; torso engage lazily. The arrow shows the wrench you apply.</p>
+      </div>
+    </div>
+    <p class="table-note fade-up" style="margin-top:14px; color:var(--ash-light);">A browser stand-in for the MuJoCo demo (<code>gravity_compensation.py</code>): in sim, Ctrl-drag a body applies a real external wrench and the gravity-compensated arms follow with almost no resistance. Here, dragging the palm handle plays the same role.</p>
+    <p class="table-note fade-up" style="margin-top:8px; font-style:italic; color:var(--ash-light); opacity:0.9;">Note: this viewer is a lightweight <strong>re-implementation that reflects the idea</strong> of the compliance controller, not the actual MuJoCo admittance/impedance controller under <code>simulation/</code>. To run the real one, see <a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener" style="color:var(--rust);">github.com/thejerrycheng/MABEL</a> → <code>simulation/mabel_mujoco</code> (<code>gravity_compensation.py</code>, <code>whole_body_armguide.py</code>).</p>
+
+    <div class="feature fade-up" style="margin-top:8px;">
+      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">τ = g(q) — feedforward against gravity</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Mode 1 · Gravity compensation</span>
+        <h3>The arm floats.</h3>
+        <p>A full rigid-body model computes the gravity torque <em>g(q)</em> for every link and feeds it forward, so each joint exactly holds its own weight. The arms become weightless and back-drivable — guide them with a fingertip and they stay where you leave them. The torso and lift run <em>lazy</em> (gravity-held, heavily damped); the base, neck, and hands stay locked. This is the backbone of kinesthetic teaching and safe shared workspaces.</p>
+        <div class="spec"><span>Inverse dynamics g(q)</span><span>Feedforward torque</span><span>Lazy torso/lift</span><span>Backdrivable</span></div>
+      </div>
+    </div>
+
+    <div class="feature flip fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">f = K(x* − x) − D ẋ — virtual spring/damper</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Mode 2 · Compliance</span>
+        <h3>Give, then hold.</h3>
+        <p>On top of gravity comp, a Cartesian impedance law renders a virtual spring-and-damper at each hand: <em>f = K(x*&nbsp;−&nbsp;x) − D&nbsp;ẋ</em>, mapped to joint torques through the arm Jacobian. Push MABEL and it yields; let go and it springs back to its reference pose. Stiffness <em>K</em> and damping <em>D</em> are tunable per axis — firm where the task needs precision, soft where contact needs care — and it needs no force/torque sensor, since the wrench is estimated from the model and joint state.</p>
+        <div class="spec"><span>Cartesian impedance</span><span>Per-axis K / D</span><span>Jacobian-mapped</span><span>Sensorless</span></div>
+      </div>
+    </div>
   </div>
 </section>
 
