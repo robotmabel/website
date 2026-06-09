@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Software</title>
+<meta name="description" content="MABEL software stack: ROS 2 Humble below the line, Diffusion Policy, ACT, MoveIt2, SLAM Toolbox and Nav2 above it — all running onboard a single Jetson Thor." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="hardware.html">Hardware</a>
+    <a href="software.html" class="on">Software</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a>
+    <a href="learning.html">Learning</a>
+    <a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / Software</div>
+    <span class="eyebrow">02 · Software</span>
+    <h1 class="display-lg">One stack. One brain.</h1>
+    <p class="lede">
+      ROS 2 below, learning above. Policy plans the next ten seconds; Nav2 the next ten meters. All of it on
+      one Jetson Thor — no cloud, no tether.
+    </p>
+    <div class="spec" style="margin-top:28px;">
+      <span>ROS 2 Humble</span><span>Diffusion Policy</span><span>ACT</span><span>MoveIt2</span><span>Nav2</span><span>Jetson Thor</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STACK ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The stack</span>
+        <h2 class="display-md title" style="color:var(--bone);">Seven layers, <span class="italic accent">bottom to top.</span></h2>
+      </div>
+      <p class="lede">Firmware to task graph. Each layer publishes clean interfaces, so a researcher can swap the policy without touching the driver.</p>
+    </div>
+
+    <div class="stack-vis fade-up">
+      <div class="stack-row"><div class="stack-layer">L7 · Task</div><div class="stack-name">High-level planner &amp; task graph</div><div class="stack-tags"><span>LLM</span><span>State machine</span></div></div>
+      <div class="stack-row"><div class="stack-layer">L6 · Policy</div><div class="stack-name">Diffusion Policy · ACT · per-skill experts</div><div class="stack-tags"><span>PyTorch</span><span>HDF5 / Zarr</span></div></div>
+      <div class="stack-row"><div class="stack-layer">L5 · Perception</div><div class="stack-name">Multi-cam fusion, eye-in-hand, RGB-D</div><div class="stack-tags"><span>RealSense</span><span>Wrist cams</span></div></div>
+      <div class="stack-row"><div class="stack-layer">L4 · Navigation</div><div class="stack-name">SLAM Toolbox + Nav2 (holonomic)</div><div class="stack-tags"><span>2D LiDAR</span><span>Nav2</span></div></div>
+      <div class="stack-row"><div class="stack-layer">L3 · Whole-body</div><div class="stack-name">Bimanual + base motion planning</div><div class="stack-tags"><span>MoveIt2</span><span>QP / IK</span></div></div>
+      <div class="stack-row"><div class="stack-layer">L2 · ROS 2</div><div class="stack-name">Humble · DDS middleware</div><div class="stack-tags"><span>ROS 2 Humble</span><span>DDS</span></div></div>
+      <div class="stack-row"><div class="stack-layer">L1 · Firmware</div><div class="stack-name">Swerve, ORCA hands, LED eyes</div><div class="stack-tags"><span>C++</span><span>CAN / micro</span></div></div>
+    </div>
+
+    <div class="compute-card fade-up">
+      <div class="compute-chip"><div class="compute-chip-core">NVIDIA · THOR</div></div>
+      <div>
+        <div class="compute-title">Runs <span class="italic accent">entirely</span> on Jetson Thor.</div>
+        <div class="compute-sub">SLAM, navigation, perception, whole-body control, and policy inference — onboard, untethered, real-time.</div>
+      </div>
+      <div class="compute-stat"><b>Edge</b>Inference onboard<br/>No cloud</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DATA FLOW / ARCHITECTURE ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Architecture</span>
+        <h2 class="display-md title">From pixels to <span class="italic accent">torques.</span></h2>
+      </div>
+      <p class="lede">A single observation graph feeds both the planners and the learned policies. The same interfaces serve simulation and the real robot.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Unified observation graph</h5>
+        <p>Head RGB-D, two wrist cameras, joint encoders, LiDAR, and IMU are time-synchronized into a single ROS 2 message graph. Every consumer — MoveIt2, Nav2, or a policy — reads from the same source of truth.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Policy &amp; planner side by side</h5>
+        <p>Learned policies emit action chunks at 10–30 Hz; classical planners (MoveIt2, Nav2) handle collision-aware motion and global routing. A small arbiter decides which authority owns each actuator group at any moment.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Sim-parity interfaces</h5>
+        <p>The same topic names and message types drive the MuJoCo / Isaac twin and the hardware driver, so a policy trained in sim deploys with no glue code. See <a href="simulation.html" style="color:var(--rust);">Simulation</a>.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Data engine built in</h5>
+        <p>Every teleop and autonomous episode streams to HDF5 / Zarr — images, joint states, actions, and goals — directly into the learning pipeline. See <a href="learning.html" style="color:var(--rust);">Learning</a>.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BUSES & I/O ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Buses &amp; I/O</span>
+        <h2 class="display-md title" style="color:var(--bone);">Talking to <span class="italic accent">every joint.</span></h2>
+      </div>
+      <p class="lede">Fifty-one actuators, a dozen sensors, one real-time loop. Here's how the bytes move.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Real-time actuator bus</h5>
+        <p>Quasi-direct-drive motors run on CAN FD; swerve and wrists ride RS-485. Torque goes down, encoder and current come back — 200 Hz+, fast enough for gravity comp and impedance.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Synchronized cameras</h5>
+        <p>A head RGB-D and two eye-in-hand wrist cameras are hardware-timestamped, so images and joint states line up to the millisecond before a policy ever sees them.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>One clock, one graph</h5>
+        <p>Cameras, encoders, LiDAR, and IMU share a time base and publish into one ROS 2 graph — no skew between what MABEL sees and where it thinks it is.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Deterministic loop</h5>
+        <p>C++ firmware on the microcontrollers holds the hard real-time edge; the Jetson closes the control loop at a fixed rate. See <a href="hardware.html" style="color:var(--rust);">Hardware</a> for the wiring.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MODULES ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">Modules</span>
+      <h2 class="display-md">Composable by design.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>Drivers</h4><p>200 Hz CAN/RS-485 actuator drivers for swerve, arms, and ORCA hands — publish <code>/joint_states</code>, subscribe to commands.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>Calibration</h4><p>Automated encoder-offset and kinematic calibration on first boot; differential wrist mapping handled in software.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Navigation</h4><p>SLAM Toolbox mapping with Nav2 configured for a holonomic footprint — strafe and rotate planned as one.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>Whole-body control</h4><p>A QP-based controller resolves base, lift, torso, and arm redundancy against task and posture objectives.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Policy runtime</h4><p>A thin PyTorch inference server runs Diffusion Policy / ACT checkpoints with normalization stats bundled in.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Recorder</h4><p>Lossless episode logging to HDF5 / Zarr, ALOHA/ACT-compatible, with per-frame camera and action alignment.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Read the code, run the stack.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="#" class="btn btn-primary">GitHub repo ↗</a>
+      <a href="simulation.html" class="btn btn-ghost">Next: Simulation →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Subsystems</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a><a href="learning.html">Learning</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Contact ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>

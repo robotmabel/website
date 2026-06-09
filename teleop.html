@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Teleoperation</title>
+<meta name="description" content="MABEL teleoperation through Apple Vision Pro: stereo passthrough, per-finger hand retargeting onto the 17-DOF ORCA hands, gaze cueing, and a sub-100 ms WebRTC loop. Every session auto-logs for learning." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="hardware.html">Hardware</a>
+    <a href="software.html">Software</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="teleop.html" class="on">Teleop</a>
+    <a href="wbc.html">WBC</a>
+    <a href="learning.html">Learning</a>
+    <a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / Teleop</div>
+    <span class="eyebrow">04 · Teleop</span>
+    <h1 class="display-lg">Wear the goggles. Be the robot.</h1>
+    <p class="lede">
+      A visionOS app turns Apple Vision Pro into MABEL's senses. Hand, finger, and gaze stream to the robot
+      at sub-100 ms — and every session writes itself into the training set.
+    </p>
+    <div class="spec" style="margin-top:28px;">
+      <span>Apple Vision Pro</span><span>WebRTC · sub-100 ms</span><span>Per-finger retargeting</span><span>Auto-logged to HDF5</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TELEOP ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Teleoperation</span>
+        <h2 class="display-md title">You move. <span class="italic accent">It moves.</span></h2>
+      </div>
+      <p class="lede">No joystick, no keyboard. Pinch to grasp, raise your arm to lift, look where you want MABEL to look — and every session auto-logs into the learning pipeline.</p>
+    </div>
+
+    <div class="feature fade-up">
+      <div class="feature-media media-frame r-45">
+        <div class="ph"><div class="ph-label">Vision Pro POV · live stream</div></div>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">visionOS app</span>
+        <h3>Embodiment, not remote control.</h3>
+        <p>The operator sees MABEL's stereo feed in the headset and reaches into the scene. Twenty-six tracked hand joints map onto each 17-DOF ORCA hand; head pose drives the 3-DOF neck; gaze cues the active-perception system. The result feels less like driving a robot and more like wearing one.</p>
+        <div class="spec"><span>Stereo passthrough</span><span>26-joint tracking</span><span>Gaze cueing</span></div>
+      </div>
+    </div>
+
+    <div class="points fade-up" style="margin-top:8px;">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Hand-to-hand retargeting</h5>
+        <p>visionOS hand tracking is solved per finger onto the ORCA kinematics, preserving contact intent rather than raw joint angles — a pinch stays a pinch even though human and robot hands differ.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Sub-100 ms loop</h5>
+        <p>WebRTC over local Wi-Fi 6 keeps perception-to-actuation latency low enough for embodied immersion; the operator stops thinking about lag and starts thinking about the task.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Data collection by default</h5>
+        <p>Every demonstration doubles as a labeled trajectory — images, joint states, actions, and goals — written to HDF5 and compatible with ALOHA/ACT and Diffusion Policy out of the box.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DATA ENGINE ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Built for data</span>
+        <h2 class="display-md title" style="color:var(--bone);">Every demo is <span class="italic accent">a dataset.</span></h2>
+      </div>
+      <p class="lede">Teleop isn't just control — it's collection. Do the task; the training set writes itself.</p>
+    </div>
+
+    <div class="feature fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">Session log · HDF5 timeline</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Capture</span>
+        <h3>Record while you reach.</h3>
+        <p>Head and wrist cameras, joint states, actions, and the goal frame stream to disk in lockstep — ALOHA/ACT-compatible HDF5, ready for <a href="learning.html" style="color:var(--rust);">training</a> the moment you stop.</p>
+        <div class="spec"><span>Multi-cam RGB-D</span><span>Action + state</span><span>Goal-conditioned</span></div>
+      </div>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Intent in, motion out</h5>
+        <p>Your hand and gaze become a 6-DOF target. The <a href="wbc.html" style="color:var(--rust);">whole-body controller</a> works out how 51 joints honor it — you never think about the base or the lift.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Safe to stand beside</h5>
+        <p>Compliant, gravity-compensated arms mean a missed grasp bumps — it doesn't break. Teleoperate next to the robot, not behind glass.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>One headset, full body</h5>
+        <p>Two hands, a neck, and gaze from a single operator. No extra rig, no second pilot. Put it on and go.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Put on the headset.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="#" class="btn btn-primary">visionOS app ↗</a>
+      <a href="wbc.html" class="btn btn-ghost">Next: Whole-Body Control →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Subsystems</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a><a href="learning.html">Learning</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Contact ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Simulation</title>
+<meta name="description" content="MABEL simulation: a MuJoCo and Isaac Lab digital twin with shared URDF/MJCF, analytical FK/IK, domain randomization, and a sim-to-real bridge that shares interfaces with the real robot." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="hardware.html">Hardware</a>
+    <a href="software.html">Software</a>
+    <a href="simulation.html" class="on">Simulation</a>
+    <a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a>
+    <a href="learning.html">Learning</a>
+    <a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / Simulation</div>
+    <span class="eyebrow">03 · Simulation</span>
+    <h1 class="display-lg">A twin that tells the truth.</h1>
+    <p class="lede">
+      A high-fidelity twin in MuJoCo and Isaac Lab, from the same URDF as the real robot. Train policies,
+      tune control, validate every change — before it touches hardware.
+    </p>
+    <div class="spec" style="margin-top:28px;">
+      <span>MuJoCo</span><span>Isaac Lab</span><span>Shared URDF / MJCF</span><span>Domain randomization</span><span>Sim-to-real</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── WHY SIM ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Why a twin</span>
+        <h2 class="display-md title">Validate first, <span class="italic accent">break nothing.</span></h2>
+      </div>
+      <p class="lede">A 51-DOF robot is expensive to crash. The twin lets us iterate on control and policy at thousands of episodes per hour, then deploy only what already works.</p>
+    </div>
+
+    <div class="feature fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">MuJoCo · MABEL scene</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">MuJoCo</span>
+        <h3>Contact-rich, fast, exact.</h3>
+        <p>The MuJoCo model captures the tendon routing of the ORCA hands, the swerve-module kinematics, and the lift–torso chain. Analytical FK and damped-least-squares IK match the on-robot solvers exactly, so trajectories transfer without surprises. It is the default sandbox for manipulation and whole-body control.</p>
+        <div class="spec"><span>Tendon hands</span><span>Analytical FK/IK</span><span>Contact dynamics</span></div>
+      </div>
+    </div>
+
+    <div class="feature flip fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">Isaac Lab · parallel envs</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Isaac Lab</span>
+        <h3>Thousands of MABELs at once.</h3>
+        <p>For large-scale policy pre-training and reinforcement learning, the same robot is instantiated in massively parallel GPU simulation. Thousands of environments step together, generating the experience that bootstraps a policy before a single real demonstration is collected.</p>
+        <div class="spec"><span>GPU-parallel</span><span>RL pre-train</span><span>Photoreal option</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PIPELINE ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Sim-to-real</span>
+        <h2 class="display-md title" style="color:var(--bone);">One model, <span class="italic accent">two worlds.</span></h2>
+      </div>
+      <p class="lede">The gap is closed by construction: identical interfaces, randomized physics, and calibration that pulls sim toward the measured robot.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Single source of geometry</h5>
+        <p>One URDF generates the MJCF, the Isaac asset, the MoveIt2 collision model, and the on-robot kinematics. DH parameters live in one config module — sim and hardware can never silently diverge.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Domain randomization</h5>
+        <p>Mass, friction, actuator gains, latency, camera pose, and lighting are randomized per episode. Policies learn to be robust to the parameters we can't measure perfectly, so the residual sim-to-real gap stays small.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Identical ROS 2 interfaces</h5>
+        <p>The twin publishes the same topics and message types as the hardware driver. A controller or policy node cannot tell whether it is talking to MuJoCo or to the real swerve base — so deployment is a config flag, not a rewrite.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Calibration in the loop</h5>
+        <p>Measured joint trajectories from the real robot are replayed in sim; residuals tune the model's friction and gain parameters until predicted and measured motion agree. The twin gets more honest every time MABEL moves.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CAPABILITIES IN SIM ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">In the twin</span>
+      <h2 class="display-md">What you can run.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">A</span><div><h4>Kinematics &amp; IK</h4><p>FK/IK sandboxes for the arms and whole body, with reachability and manipulability visualization.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">B</span><div><h4>Motion planning</h4><p>RRT*, potential-field, and trajectory generation validated against the collision model before deployment.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">C</span><div><h4>Whole-body control</h4><p>Tune the QP controller's task and posture weights against repeatable, ground-truth scenes.</p></div></div>
+    <div class="card fade-up"><span class="card-num">D</span><div><h4>Policy pre-training</h4><p>Generate demonstrations and run RL at scale in Isaac Lab, then fine-tune on real data.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">E</span><div><h4>Teleop replay</h4><p>Replay Vision Pro sessions in sim to debug retargeting and label trajectories offline.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">F</span><div><h4>Regression tests</h4><p>Every code change reruns a scene suite; figures and metrics regenerate from scratch with fixed seeds.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Clone the twin, run a scene.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="#" class="btn btn-primary">URDF &amp; sim repo ↗</a>
+      <a href="teleop.html" class="btn btn-ghost">Next: Teleop →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Subsystems</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a><a href="learning.html">Learning</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Contact ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>

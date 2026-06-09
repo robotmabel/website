@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Whole-Body Control</title>
+<meta name="description" content="MABEL's whole-body controller: a QP that coordinates 51 joints — gravity compensation, Cartesian impedance/compliance, null-space posture, and actuator-level torque control." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="hardware.html">Hardware</a>
+    <a href="software.html">Software</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="teleop.html">Teleop</a>
+    <a href="wbc.html" class="on">WBC</a>
+    <a href="learning.html">Learning</a>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / Whole-Body Control</div>
+    <span class="eyebrow">05 · Whole-Body Control</span>
+    <h1 class="display-lg">The whole body, controlled.</h1>
+    <p class="lede">
+      One 6-DOF target is under-determined for a 51-joint robot. The controller turns that redundancy into a
+      feature — gravity-compensated, compliant, and safe to touch.
+    </p>
+    <div class="spec" style="margin-top:28px;">
+      <span>QP controller</span><span>Gravity comp</span><span>Cartesian impedance</span><span>Null-space posture</span><span>Torque control</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CORE ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The controller</span>
+        <h2 class="display-md title">One program, <span class="italic accent">every joint.</span></h2>
+      </div>
+      <p class="lede">Each control step solves a quadratic program: hit the target, respect the limits, stay comfortable.</p>
+    </div>
+
+    <div class="feature fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">WBC · QP block diagram</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">QP formulation</span>
+        <h3>Solve, don't script.</h3>
+        <p>Track the commanded pose, obey joint, velocity, and self-collision limits, and regularize toward a natural posture — all as one quadratic program, every cycle. The base strafes, the lift rises, the torso leans, so the hand lands in its most dexterous range. Automatically.</p>
+        <div class="spec"><span>Task + posture costs</span><span>Hard limits</span><span>Self-collision aware</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── GRAVITY + COMPLIANCE ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Feel</span>
+        <h2 class="display-md title" style="color:var(--bone);">Strong, but <span class="italic accent">soft.</span></h2>
+      </div>
+      <p class="lede">Model-based torque makes the arms weightless to push and gentle on contact — safe to work beside.</p>
+    </div>
+
+    <div class="feature fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">Gravity comp · move-by-hand</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Gravity compensation</span>
+        <h3>The arm floats.</h3>
+        <p>A full rigid-body model feeds forward the torque needed to hold every link against gravity. The arms become weightless — guide them with a fingertip, and they stay where you leave them. The backbone of kinesthetic teaching and safe shared workspaces.</p>
+        <div class="spec"><span>Inverse dynamics</span><span>Feedforward torque</span><span>Backdrivable</span></div>
+      </div>
+    </div>
+
+    <div class="feature flip fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">Impedance · contact response</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Compliance</span>
+        <h3>Give, then hold.</h3>
+        <p>A Cartesian impedance law renders a virtual spring-and-damper at each hand. Push MABEL and it yields; let go and it returns. Stiffness is tunable per axis — firm where the task needs precision, soft where contact needs care. No force sensor required.</p>
+        <div class="spec"><span>Virtual stiffness/damping</span><span>Per-axis tuning</span><span>Sensorless</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DETAILS ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Under the hood</span>
+        <h2 class="display-md title">Redundancy, <span class="italic accent">resolved.</span></h2>
+      </div>
+      <p class="lede">Fifty-one joints, one objective. Here's how the extra freedom gets used.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Null-space posture</h5>
+        <p>Base, lift, torso, and arm joints solve jointly. The spare freedom maximizes manipulability and stays clear of joint limits — MABEL rarely paints itself into a corner.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Mobile base in the loop</h5>
+        <p>The holonomic base is part of the reach. Far target? Drive the body. Fine work? Hold still and let the wrist talk.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Bimanual coupling</h5>
+        <p>A relative-pose constraint locks the two hands together while the body moves freely — carry a tray, open a lid, never drop the grasp.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Torque at the actuator</h5>
+        <p>Quasi-direct-drive motors close a high-rate current loop, so commanded torques become real ones — the foundation gravity comp and impedance stand on. See <a href="software.html" style="color:var(--rust);">Software</a> for the bus and timing.</p>
+      </div></div>
+      <div class="point"><div class="num">05</div><div>
+        <h5>Shared with everything</h5>
+        <p>The same controller serves <a href="teleop.html" style="color:var(--rust);">teleop</a> and <a href="learning.html" style="color:var(--rust);">learned policies</a>. They supply intent; the whole-body layer makes it feasible, safe, and smooth.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">A 6-DOF wish, 51 joints of motion.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="teleop.html" class="btn btn-ghost">← Teleop</a>
+      <a href="learning.html" class="btn btn-primary">Next: Learning →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Subsystems</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="#" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>
