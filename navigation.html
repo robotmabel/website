@@ -109,6 +109,46 @@
   </div>
 </section>
 
+<!-- ─── SWERVE PLAYGROUND (interactive) ─── -->
+<section class="pad-y" id="swerve">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Holonomic · interactive</span>
+        <h2 class="display-md title">Drive the <span class="italic accent">swerve base.</span></h2>
+      </div>
+      <p class="lede">Drag to set a translation velocity, add a yaw rate, and watch the three modules steer to the commanded body twist — the same inverse kinematics the base runs: <code>v<sub>i</sub> = v + ω × r<sub>i</sub></code>.</p>
+    </div>
+
+    <div class="swerve-wrap fade-up">
+      <div class="swerve-stage">
+        <canvas id="swerveCanvas"></canvas>
+        <div class="swerve-hint"><span class="dot-live"></span> Drag to steer</div>
+      </div>
+      <div class="swerve-panel">
+        <div class="swerve-readouts">
+          <div class="sw-cell"><span class="k">Forward v<sub>x</sub></span><span class="v" data-sw="vx">0.00 m/s</span></div>
+          <div class="sw-cell"><span class="k">Strafe v<sub>y</sub></span><span class="v" data-sw="vy">0.00 m/s</span></div>
+          <div class="sw-cell"><span class="k">Speed |v|</span><span class="v" data-sw="speed">0.00 m/s</span></div>
+          <div class="sw-cell"><span class="k">Yaw rate ω</span><span class="v" data-sw="omega">0.0 rad/s</span></div>
+        </div>
+        <div class="wbc-row">
+          <div class="wbc-row-top"><span class="lab">Yaw rate ω</span></div>
+          <input class="wbc-slider" type="range" data-sw-yaw min="-2" max="2" step="0.05" value="0" />
+        </div>
+        <div class="swerve-steers">
+          <div class="sw-mod"><span>FL</span><b data-sw="FL">0°</b></div>
+          <div class="sw-mod"><span>FR</span><b data-sw="FR">0°</b></div>
+          <div class="sw-mod"><span>B</span><b data-sw="B">0°</b></div>
+        </div>
+        <button class="wbc-reset" data-sw-reset>Reset</button>
+        <p class="wbc-note">Tip-safe caps: 0.8&nbsp;m/s linear, 2.0&nbsp;rad/s yaw — the outer ring is the speed limit the tip-over model trims as the lift rises.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="module" src="assets/swerve-toy.js"></script>
+
 <!-- ─── SENSOR FUSION ─── -->
 <section class="soft-sec pad-y">
   <div class="wrap">

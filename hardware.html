@@ -174,6 +174,38 @@
   </div>
 </section>
 
+<!-- ─── EXPLODED VIEW (scroll-driven) ─── -->
+<section class="pad-y" id="explode">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Exploded view</span>
+        <h2 class="display-md title">Pull it <span class="italic accent">apart.</span></h2>
+      </div>
+      <p class="lede">Scroll, and MABEL separates into its subsystems — head, arms, hands, lift, swerve base. Drag to orbit; tap any label to read about that part.</p>
+    </div>
+  </div>
+  <div class="explode-scroll" id="explodeScroll">
+    <div class="explode-stick">
+      <div class="wrap explode-grid">
+        <div class="viewer-3d has-rig explode-stage" id="explode3d">
+          <canvas id="explodeCanvas"></canvas>
+          <div class="ph viewer-loading"><div class="ph-label">Loading MABEL · exploded rig</div></div>
+          <div class="xp-labels" id="explodeLabels"></div>
+          <div class="xp-progress"><span class="dot-live"></span> Exploded <b id="explodePct">0%</b> · scroll to separate</div>
+        </div>
+        <aside class="explode-copy fade-up">
+          <span class="eyebrow">51 DOF, five subsystems</span>
+          <h3 class="display-sm" id="explodeTitle">Five projects,<br/>one body.</h3>
+          <p class="body" id="explodeBlurb">Each subsystem was a research effort on its own — the ORCA hands, the OpenArm arms, the active head, the lift torso, the swerve base. Scroll to pull them apart, then tap a callout to learn what each one does.</p>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="module" src="assets/explode-viewer.js"></script>
+
 <!-- ─── NOVELTY / CONTRIBUTIONS ─── -->
 <section class="soft-sec pad-y" id="novelty">
   <div class="wrap">
