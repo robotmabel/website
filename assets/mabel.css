@@ -665,6 +665,24 @@ section { position: relative; }
   .explode-copy p { min-height: 0; }
 }
 
+/* ── AR · view in your room (model-viewer) ── */
+.ar-stage model-viewer { width: 100%; height: 100%; background: transparent; --poster-color: transparent; }
+.ar-poster { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.ar-btn { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 3; white-space: nowrap; }
+.ar-stage .viewer-hint { z-index: 2; }
+@media (max-width: 640px) { .ar-stage { aspect-ratio: 4 / 5; } }
+
+/* ── interactive BOM cost donut ── */
+.bom-donut { position: relative; width: min(280px, 78%); margin: 0 auto 30px; }
+.bom-donut-svg { width: 100%; height: auto; display: block; }
+.bom-seg { transition: opacity 0.25s ease, stroke-width 0.2s ease; }
+.bom-seg.dim { opacity: 0.26; }
+.bom-seg.hot { stroke-width: 17; }
+.bom-centre { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.bom-c-val { font-family: var(--font-display); font-size: clamp(24px, 3vw, 32px); letter-spacing: -0.02em; line-height: 1; color: var(--ink); transition: color 0.2s ease; }
+.bom-c-key { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ash); margin-top: 6px; text-align: center; max-width: 76%; line-height: 1.4; }
+.spec-table .row.bom-row-hot { padding-left: 8px; background: linear-gradient(90deg, rgba(194,91,42,0.07), transparent 70%); }
+
 /* ── swerve velocity playground ── */
 .swerve-wrap { display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(20px, 4vw, 56px); align-items: center; }
 .swerve-stage {

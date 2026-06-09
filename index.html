@@ -132,6 +132,42 @@
   </div>
 </section>
 
+<!-- ─── AR · VIEW IN YOUR ROOM ─── -->
+<section class="pad-y" id="ar">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Augmented reality</span>
+        <h2 class="display-md title">See it at <span class="italic accent">human scale.</span></h2>
+      </div>
+      <p class="lede">On a phone, drop a life-size MABEL onto your floor; on desktop, drag to orbit. It's built to a person's proportions — about 1.5 m tall — so AR shows it at real size.</p>
+    </div>
+
+    <div class="viewer-3d ar-stage reveal-media">
+      <model-viewer
+        src="assets/mabel_rig.glb"
+        alt="MABEL — life-size 3D model, viewable in AR"
+        camera-controls
+        auto-rotate
+        touch-action="pan-y"
+        ar
+        ar-modes="webxr scene-viewer quick-look"
+        ar-scale="fixed"
+        shadow-intensity="1"
+        exposure="1.05"
+        environment-image="neutral"
+        loading="lazy"
+        reveal="interaction">
+        <div class="ph ar-poster" slot="poster"><div class="ph-label">Tap to load MABEL · ~10&nbsp;MB</div></div>
+        <button slot="ar-button" class="btn btn-primary ar-btn">View in your room ↗</button>
+      </model-viewer>
+      <div class="viewer-hint"><span class="dot-live"></span> Drag · scroll · or “View in your room”</div>
+    </div>
+    <p class="table-note fade-up" style="margin-top:14px;">AR launches on Android (Scene Viewer) and recent iOS/visionOS; on desktop and unsupported phones it stays an orbitable 3D model. Same rig as the <a href="hardware.html#model" style="color:var(--rust);">articulated viewer</a>.</p>
+  </div>
+</section>
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+
 <!-- ─── EXPLORE / SUBSYSTEM CARDS ─── -->
 <section class="pad-y">
   <div class="wrap">
