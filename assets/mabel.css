@@ -480,6 +480,9 @@ section { position: relative; }
 .viewer-loading { transition: opacity 0.6s var(--ease-out); }
 .viewer-3d.loaded .viewer-loading { opacity: 0; pointer-events: none; }
 
+/* wrapper that lets the joint panel overlay on desktop, stack on mobile */
+.viewer-wrap { position: relative; }
+
 /* ── joint control panel ── */
 .jp {
   position: absolute; top: 14px; right: 14px; z-index: 4;
@@ -518,15 +521,32 @@ section { position: relative; }
 .jp-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 3px; border-radius: 3px; background: rgba(22,20,18,0.16); outline: none; cursor: pointer; }
 .jp-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--rust); border: 2px solid var(--bone); box-shadow: 0 1px 4px rgba(22,20,18,0.3); cursor: pointer; }
 .jp-slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--rust); border: 2px solid var(--bone); cursor: pointer; }
-@media (max-width: 640px) {
-  .jp { left: 12px; right: 12px; width: auto; top: auto; bottom: 12px; max-height: 48%; }
+/* phones: tall full-width 3D view, joint panel drops BELOW it (no overlay) */
+@media (max-width: 760px) {
+  .viewer-wrap { display: flex; flex-direction: column; gap: 12px; }
+  #robot3d { aspect-ratio: auto; height: 60vh; min-height: 360px; }
+  .jp {
+    position: static; top: auto; right: auto; left: auto; bottom: auto; z-index: auto;
+    width: auto; max-height: none;
+  }
+  .jp-list { max-height: 44vh; }
+  .jp-tabs { padding: 12px 12px 8px; }
+  .jp-tab { padding: 11px 4px; font-size: 11px; }
+  .jp-row { padding: 12px 0; }
+  .jp-name { font-size: 13px; }
+  .jp-slider { height: 5px; }
+  .jp-slider::-webkit-slider-thumb { width: 24px; height: 24px; }
+  .jp-slider::-moz-range-thumb { width: 24px; height: 24px; }
+  .jp-reset { padding: 9px 15px; font-size: 11px; }
 }
 
 /* ── WBC interactive viewers (compliance + operating modes) ── */
-.wbc-viewer { aspect-ratio: 16 / 10; cursor: grab; }
-.wbc-viewer.grabbing { cursor: grabbing; }
-.wbc-viewer .viewer-loading { position: absolute; inset: 0; }
-.wbc-viewer.loaded .viewer-loading { opacity: 0; pointer-events: none; }
+.wbc-block { position: relative; }
+.wbc-stage { aspect-ratio: 16 / 10; cursor: grab; }
+.wbc-stage.grabbing { cursor: grabbing; }
+.wbc-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.wbc-stage .viewer-loading { position: absolute; inset: 0; }
+.wbc-stage.loaded .viewer-loading { opacity: 0; pointer-events: none; }
 
 .wbc-ctl {
   position: absolute; top: 14px; right: 14px; z-index: 4;
@@ -583,10 +603,28 @@ section { position: relative; }
 .wbc-reset { align-self: flex-start; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); background: rgba(22,20,18,0.06); border: 1px solid rgba(22,20,18,0.12); border-radius: 999px; padding: 5px 11px; cursor: pointer; transition: background 0.2s ease; }
 .wbc-reset:hover { background: var(--rust); color: var(--bone); border-color: var(--rust); }
 
-@media (max-width: 700px) {
-  .wbc-viewer { aspect-ratio: 4 / 5; }
-  .wbc-ctl { left: 10px; right: 10px; top: auto; bottom: 10px; width: auto; flex-direction: column; }
-  .wbc-pad { width: 108px; height: 108px; }
+/* phones / narrow: give the 3D view a tall full-width stage and drop the
+   controls BELOW it in normal flow — no overlay, big tappable targets. */
+@media (max-width: 760px) {
+  .wbc-block { display: flex; flex-direction: column; gap: 12px; }
+  .wbc-stage { aspect-ratio: auto; height: 60vh; min-height: 360px; }
+  .wbc-ctl {
+    position: static; top: auto; right: auto; z-index: auto;
+    width: auto; max-width: none; padding: 16px; gap: 14px;
+  }
+  .wbc-seg { gap: 6px; }
+  .wbc-seg button { padding: 12px 6px; font-size: 11px; }
+  .wbc-row-top .lab { font-size: 13px; }
+  .wbc-row-top .out { font-size: 11.5px; }
+  .wbc-slider { height: 5px; }
+  .wbc-slider::-webkit-slider-thumb { width: 24px; height: 24px; }
+  .wbc-slider::-moz-range-thumb { width: 24px; height: 24px; }
+  .wbc-pad { width: 168px; height: 168px; }
+  .wbc-knob { width: 42px; height: 42px; }
+  .wbc-reset { padding: 9px 16px; font-size: 11px; }
+  .wbc-note { font-size: 12.5px; }
+  /* keep the fullscreen + hint chips clear of the rounded corners */
+  .wbc-stage .viewer-hint { left: 12px; bottom: 12px; }
 }
 
 /* ─── Connect / links hub ─────────────────────────────────────────── */

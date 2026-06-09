@@ -69,13 +69,15 @@
       <p class="lede">Drag to orbit, scroll to zoom, open it full-screen — then move the joints. Every slider's range comes straight from MABEL's URDF; the model articulates live.</p>
     </div>
 
-    <div class="reveal-media viewer-3d has-rig" id="robot3d">
-      <canvas id="robotCanvas"></canvas>
-      <div class="ph viewer-loading"><div class="ph-label">Loading MABEL · articulated URDF</div></div>
-      <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
-      </button>
-      <div class="viewer-hint"><span class="dot-live"></span> Drag · scroll · move joints</div>
+    <div class="viewer-wrap reveal-media">
+      <div class="viewer-3d has-rig" id="robot3d">
+        <canvas id="robotCanvas"></canvas>
+        <div class="ph viewer-loading"><div class="ph-label">Loading MABEL · articulated URDF</div></div>
+        <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
+        </button>
+        <div class="viewer-hint"><span class="dot-live"></span> Drag · scroll · move joints</div>
+      </div>
 
       <!-- joint control panel (groups + sliders, ranges from URDF) -->
       <div class="jp" id="jointPanel">

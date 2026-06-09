@@ -92,13 +92,15 @@
     </div>
 
     <!-- live command viewer: nav / arm / whole body -->
-    <div class="viewer-3d wbc-viewer fade-up" data-wbc-viewer="operate">
+    <div class="wbc-block fade-up" data-wbc-viewer="operate">
+      <div class="viewer-3d wbc-stage">
       <canvas></canvas>
       <div class="ph viewer-loading"><div class="ph-label">Loading MABEL · pick a mode</div></div>
       <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
       </button>
       <div class="viewer-hint"><span class="dot-live"></span> Toggle mode · drive the command</div>
+      </div><!-- /wbc-stage -->
 
       <div class="wbc-ctl">
         <div class="wbc-ctl-head">
@@ -167,13 +169,15 @@
     </div>
 
     <!-- live drag-to-comply viewer -->
-    <div class="viewer-3d wbc-viewer fade-up" data-wbc-viewer="compliance">
+    <div class="wbc-block fade-up" data-wbc-viewer="compliance">
+      <div class="viewer-3d wbc-stage">
       <canvas></canvas>
       <div class="ph dark viewer-loading"><div class="ph-label">Loading MABEL · grab a hand</div></div>
       <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
       </button>
       <div class="viewer-hint"><span class="dot-live"></span> Grab a hand · drag · release</div>
+      </div><!-- /wbc-stage -->
 
       <div class="wbc-ctl">
         <div class="wbc-ctl-head">

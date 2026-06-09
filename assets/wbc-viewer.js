@@ -54,8 +54,11 @@ const ADMIT = {
 
 class WbcViewer {
   constructor(box) {
-    this.box = box;
+    this.box = box;                               // wrapper (holds stage + panel)
     this.kind = box.dataset.wbcViewer;            // 'compliance' | 'operate'
+    // the 3D stage is where the canvas lives; on phones the control panel drops
+    // below it instead of overlaying, so size/fullscreen track the stage, not box
+    this.stage = box.querySelector('.wbc-stage') || box;
     this.canvas = box.querySelector('canvas');
     if (!this.canvas) return;
 
@@ -110,12 +113,12 @@ class WbcViewer {
     this._wake = wake; this._sleep = sleep;
 
     const resize = () => {
-      const w = this.box.clientWidth, h = this.box.clientHeight;
+      const w = this.stage.clientWidth, h = this.stage.clientHeight;
       if (!w || !h) return;
       renderer.setSize(w, h, false);
       camera.aspect = w / h; camera.updateProjectionMatrix();
     };
-    new ResizeObserver(resize).observe(this.box);
+    new ResizeObserver(resize).observe(this.stage);
     document.addEventListener('fullscreenchange', () => setTimeout(resize, 60));
     window.addEventListener('resize', resize);
     resize();
@@ -146,7 +149,7 @@ class WbcViewer {
       this.liftCmd = 0;       // shared lazy-lift command (m)
       this.torsoCmd = 0;      // shared lazy-torso command (rad)
 
-      this.box.classList.add('loaded');
+      this.stage.classList.add('loaded');
       this._loadJoints();
     }, undefined, (err) => console.error('MABEL rig failed to load', err));
   }
@@ -333,7 +336,7 @@ class WbcViewer {
       this.active[s] = true;
       this.controls.enabled = false;
       this._wake();
-      this.box.classList.add('grabbing');
+      this.stage.classList.add('grabbing');
       ev.stopPropagation();
     }, true);
 
@@ -348,7 +351,7 @@ class WbcViewer {
       this.drag = null;
       this.controls.enabled = true;
       this._sleep();
-      this.box.classList.remove('grabbing');
+      this.stage.classList.remove('grabbing');
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
