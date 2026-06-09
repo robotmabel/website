@@ -11,7 +11,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
 <script>document.documentElement.classList.add('js');</script>
-<script type="module" src="assets/model-viewer.min.js"></script>
+<script type="importmap">
+{ "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
+</script>
 </head>
 <body>
 
@@ -65,37 +67,35 @@
         <span class="eyebrow">Explore in 3D</span>
         <h2 class="display-md title">Turn it <span class="italic accent">over.</span></h2>
       </div>
-      <p class="lede">Drag to orbit, scroll to zoom, open it full-screen. Left alone, it spins slowly on its vertical axis. This is the real thing — baked straight from MABEL's URDF.</p>
+      <p class="lede">Drag to orbit, scroll to zoom, open it full-screen — then move the joints. Every slider's range comes straight from MABEL's URDF; the model articulates live.</p>
     </div>
 
-    <div class="reveal-media viewer-3d" id="robot3d">
-      <div class="ph"><div class="ph-label">Loading MABEL · mabel_full.urdf → glTF</div></div>
-      <!-- Baked from mabel_ws/src/mabel_description/urdf/mabel_full.urdf via urdf_to_glb.py -->
-      <model-viewer
-        src="assets/mabel.glb"
-        alt="MABEL — interactive 3D model"
-        camera-controls
-        touch-action="pan-y"
-        auto-rotate
-        auto-rotate-delay="0"
-        rotation-per-second="16deg"
-        interaction-prompt="none"
-        shadow-intensity="1"
-        shadow-softness="0.9"
-        exposure="1.05"
-        environment-image="neutral"
-        camera-orbit="35deg 78deg 105%"
-        min-camera-orbit="auto auto 50%"
-        max-camera-orbit="auto auto 220%"
-        style="position:absolute; inset:0;">
-      </model-viewer>
+    <div class="reveal-media viewer-3d has-rig" id="robot3d">
+      <canvas id="robotCanvas"></canvas>
+      <div class="ph viewer-loading"><div class="ph-label">Loading MABEL · articulated URDF</div></div>
       <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
       </button>
-      <div class="viewer-hint"><span class="dot-live"></span> Drag · scroll · auto-rotating</div>
+      <div class="viewer-hint"><span class="dot-live"></span> Drag · scroll · move joints</div>
+
+      <!-- joint control panel (groups + sliders, ranges from URDF) -->
+      <div class="jp" id="jointPanel">
+        <div class="jp-head">
+          <span class="jp-title">Joints</span>
+          <div class="jp-head-actions">
+            <button class="jp-reset" id="jpReset">Reset</button>
+            <button class="jp-toggle" id="jpToggle" aria-label="Collapse panel">▾</button>
+          </div>
+        </div>
+        <div class="jp-tabs" id="jpTabs"></div>
+        <div class="jp-list" id="jpList"></div>
+      </div>
     </div>
+    <p class="table-note fade-up" style="margin-top:14px;">Switch group — Hands · Arms · Body (lift, torso, neck) · Base — then drag a slider to drive that joint. Ranges read live from <code>mabel_full.urdf</code> (60 actuated joints).</p>
   </div>
 </section>
+
+<script type="module" src="assets/robot-viewer.js"></script>
 
 <!-- ─── ANATOMY ─── -->
 <section class="pad-y">

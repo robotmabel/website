@@ -147,6 +147,50 @@
     hero.addEventListener('pointerleave', function () { glow.classList.remove('show'); });
   }
 
+  /* ── Animated wordmark: trigger staggered letter entrance ── */
+  var heroTitle = document.querySelector('.hero-title');
+  if (heroTitle) {
+    var chs = heroTitle.querySelectorAll('.ch');
+    if (chs.length && !reduceMotion) {
+      chs.forEach(function (c, i) { c.style.transitionDelay = (0.15 + i * 0.07) + 's'; });
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { heroTitle.classList.add('in'); });
+      });
+      // Clear the entrance stagger once it's done so hover stays snappy.
+      setTimeout(function () { chs.forEach(function (c) { c.style.transitionDelay = ''; }); }, 1600);
+    } else {
+      heroTitle.classList.add('in');
+    }
+  }
+
+  /* ── Rotating hero subtitle ── */
+  var rot = document.querySelector('.hero-sub .rot');
+  if (rot) {
+    var phrases = [
+      'A robot that does the work.',
+      'Two hands, one body, no tether.',
+      'Built open. Made to be rebuilt.',
+      'Fifty-one joints, one mind.',
+      'Dexterity you can 3D-print.',
+      'The work, done — onboard.'
+    ];
+    var pi = 0;
+    var swap = function () {
+      if (document.hidden) return;
+      rot.classList.add('leaving');
+      setTimeout(function () {
+        pi = (pi + 1) % phrases.length;
+        rot.textContent = phrases[pi];
+        rot.classList.remove('leaving');
+        rot.classList.add('entering');
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { rot.classList.remove('entering'); });
+        });
+      }, 560);
+    };
+    setInterval(swap, 4200);
+  }
+
   /* ── Single rAF scroll loop: progress + nav + parallax ── */
   var heroInner = document.querySelector('.hero-home-inner');
   var coordRow = document.querySelector('.hero-coord-row');
