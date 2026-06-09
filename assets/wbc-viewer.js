@@ -25,6 +25,18 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const RUST = 0xC25B2A;
 const GREEN = 0x3FB56B;
 
+// ── lazy-base comfort box + body laziness, ported from mabel/config.py ──
+// LazyBase: the base only creeps when the hand centroid leaves this box.
+const LAZY = {
+  FWD_MIN: 0.0, FWD_MAX: 0.80,   // m, forward reach band (robot frame)
+  LEFT_HALF: 0.25,               // m, lateral half-span
+  YAW_DB: 0.30,                  // rad, yaw deadband
+  KP_LIN: 1.5, KP_ANG: 1.5,      // follower gains
+};
+// Weighted-DLS "laziness": lift is 50× heavier (barely moves), torso 2×.
+// We emulate the joint weighting with inverse-weight engagement gains.
+const BODY = { LIFT_W: 50.0, TORSO_W: 2.0, LIFT_BAND: 0.12, TORSO_FRAC: 0.5 };
+
 class WbcViewer {
   constructor(box) {
     this.box = box;
@@ -116,6 +128,8 @@ class WbcViewer {
       this._rootQ0 = root.quaternion.clone();
       this.baseOffset = new THREE.Vector3();
       this.baseYaw = 0;
+      this.liftCmd = 0;       // shared lazy-lift command (m)
+      this.torsoCmd = 0;      // shared lazy-torso command (rad)
 
       this.box.classList.add('loaded');
       this._loadJoints();
@@ -268,6 +282,16 @@ class WbcViewer {
         ? 'Back-drivable — the hand holds wherever you leave it.'
         : 'Spring-loaded — release and it returns to its rest pose.');
     });
+
+    const reset = this.box.querySelector('[data-wbc-reset]');
+    if (reset) reset.addEventListener('click', () => {
+      for (const s of ['l', 'r']) this.targets[s].copy(this.rest[s]);
+      this.baseOffset.set(0, 0, 0); this.baseYaw = 0;
+      this.liftCmd = 0; this.torsoCmd = 0;
+      if (this.joints['torso']) this._set('torso', 0);
+      this._setLift(0);
+      this._applyBase();
+    });
   }
 
   _wireGrab() {
@@ -310,16 +334,21 @@ class WbcViewer {
     window.addEventListener('pointercancel', up);
   }
 
-  _stepCompliance() {
+  _stepCompliance(dt) {
+    // Compliance mode: any hand not being dragged is pulled home by a virtual
+    // spring (impedance). Gravity-comp mode: it just holds where left.
+    for (const s of ['l', 'r']) {
+      if (this.mode === 'compliance' && this.drag !== s) {
+        this.targets[s].lerp(this.rest[s], 0.06);
+      }
+    }
+    // Whole-body compliant follow: the mobile base creeps via the SAME comfort
+    // box as teleop, and the lift/torso jointly engage but lazier (50× / 2×).
+    this._lazyWholeBody(this.targets.l, this.targets.r, dt);
+    // Both arms track their palm targets (bimanual), then glue handles on.
     for (const s of ['l', 'r']) {
       if (!this.eeNode[s]) continue;
-      // compliance mode: when not being dragged, a virtual spring pulls home
-      if (this.mode === 'compliance' && this.drag !== s && this.active[s]) {
-        this.targets[s].lerp(this.rest[s], 0.06);
-        if (this.targets[s].distanceTo(this.rest[s]) < this.maxd * 0.004) this.active[s] = false;
-      }
-      if (this.active[s]) this._ik(s, this.targets[s], 0.55, 2);
-      // keep the handle glued to the (possibly lagging) hand
+      this._ik(s, this.targets[s], 0.55, 2);
       const ee = new THREE.Vector3(); this.eeNode[s].getWorldPosition(ee);
       this.handles[s].position.copy(ee);
     }
@@ -513,7 +542,8 @@ class WbcViewer {
       for (const n of ['fl_drive', 'fr_drive', 'b_drive']) if (this.joints[n]) this._set(n, this.wheel);
 
       this._applyBase();
-      this._setLift(this.nav.lift);
+      this.liftCmd = this.nav.lift;           // keep the shared lift command in sync
+      this._setLift(this.liftCmd);
       // keep arms in their held rest pose
       this._relax('l', 0.08); this._relax('r', 0.08);
       this.gTarget.l.copy(this.gHome.l); this.gTarget.r.copy(this.gHome.r);
@@ -537,28 +567,64 @@ class WbcViewer {
         .add(new THREE.Vector3(0, o.z, 0));
     }
 
-    if (this.opMode === 'whole') {
-      // lazy base: follow the hand centroid if it drifts past a comfort radius
-      const cen = new THREE.Vector3().addVectors(this.gTarget.l, this.gTarget.r).multiplyScalar(0.5);
-      const baseC = this._rootP0.clone().add(this.baseOffset);
-      const flatErr = new THREE.Vector3(cen.x - baseC.x, 0, cen.z - baseC.z);
-      const comfort = this.maxd * 0.3;
-      if (flatErr.length() > comfort) {
-        const push = flatErr.clone().setLength(flatErr.length() - comfort);
-        this.baseOffset.addScaledVector(push.normalize(), Math.min(0.6, flatErr.length()) * dt * 1.2);
-      }
-      // lift engages toward the mean target height
-      const dz = 0.5 * ((this.gTarget.l.y - this.gHome.l.y) + (this.gTarget.r.y - this.gHome.r.y));
-      this.nav.lift = Math.max(0, Math.min(0.635, 0.3 + dz));
-      this._setLift(this.nav.lift);
-      this._applyBase();
-    }
+    // WHOLE BODY: lazy base (comfort box) + jointly-optimized-but-lazy
+    // lift/torso, identical technique to the compliance viewer.
+    if (this.opMode === 'whole') this._lazyWholeBody(this.gTarget.l, this.gTarget.r, dt);
 
     for (const s of ['l', 'r']) {
       this.active[s] = true;
       this._ik(s, this.gTarget[s], 0.5, 3);
       this.greenDot[s].position.copy(this.gTarget[s]);
     }
+  }
+
+  /* ── shared lazy whole-body follower (mabel/lazy_base.py + lazy lift/torso) ─
+     The mobile base creeps only when the hand centroid leaves the comfort box;
+     the lift + torso are jointly engaged but far lazier (weights 50× / 2×). */
+  _lazyWholeBody(pL, pR, dt) {
+    // robot-frame forward / left unit vectors from the current base yaw
+    const c = Math.cos(this.baseYaw), s = Math.sin(this.baseYaw);
+    const fwd = new THREE.Vector3(s, 0, c);
+    const left = new THREE.Vector3(c, 0, -s);
+
+    const centroid = new THREE.Vector3().addVectors(pL, pR).multiplyScalar(0.5);
+    const baseC = this._rootP0.clone().add(this.baseOffset);
+    const e = new THREE.Vector3().subVectors(centroid, baseC); e.y = 0;
+    const eFwd = e.dot(fwd);
+    const eLeft = e.dot(left);
+
+    // ---- LazyBase comfort box (exact thresholds from config.py) ----
+    let vFwd = 0, vLeft = 0, omega = 0;
+    if (eFwd > LAZY.FWD_MAX) vFwd = LAZY.KP_LIN * (eFwd - LAZY.FWD_MAX);
+    else if (eFwd < LAZY.FWD_MIN) vFwd = LAZY.KP_LIN * (eFwd - LAZY.FWD_MIN);
+    if (eLeft > LAZY.LEFT_HALF) vLeft = LAZY.KP_LIN * (eLeft - LAZY.LEFT_HALF);
+    else if (eLeft < -LAZY.LEFT_HALF) vLeft = LAZY.KP_LIN * (eLeft + LAZY.LEFT_HALF);
+    const yawErr = Math.atan2(eLeft, eFwd);
+    if (yawErr > LAZY.YAW_DB) omega = LAZY.KP_ANG * (yawErr - LAZY.YAW_DB);
+    else if (yawErr < -LAZY.YAW_DB) omega = LAZY.KP_ANG * (yawErr + LAZY.YAW_DB);
+
+    this.baseOffset.addScaledVector(fwd, vFwd * dt);
+    this.baseOffset.addScaledVector(left, vLeft * dt);
+    this.baseYaw += omega * dt;
+
+    // ---- lazy lift: engage toward mean target height, heavily damped (50×) ----
+    const dz = 0.5 * ((pL.y - this.gHome.l.y) + (pR.y - this.gHome.r.y));
+    let liftDes = this.liftCmd;
+    if (dz > BODY.LIFT_BAND) liftDes = Math.min(0.635, dz - BODY.LIFT_BAND);
+    else if (dz < -BODY.LIFT_BAND) liftDes = 0;
+    // first-order lazy approach (slower than the arms by ~the weight ratio)
+    this.liftCmd += (liftDes - this.liftCmd) * Math.min(1, dt * (LAZY.KP_LIN / 1.0));
+    this._setLift(this.liftCmd);
+
+    // ---- lazy torso: take a small share of the facing error (weight 2×) ----
+    if (this.joints['torso']) {
+      const tj = this.joints['torso'];
+      let tDes = Math.max(tj.lower, Math.min(tj.upper, -yawErr * BODY.TORSO_FRAC));
+      this.torsoCmd += (tDes - this.torsoCmd) * Math.min(1, dt * (LAZY.KP_ANG / BODY.TORSO_W));
+      this._set('torso', this.torsoCmd);
+    }
+
+    this._applyBase();
   }
 
   _setLift(v) {
@@ -585,7 +651,7 @@ class WbcViewer {
     this.renderer.setAnimationLoop((t) => {
       const dt = Math.min(0.05, (t - last) / 1000); last = t;
       if (this.ready) {
-        if (this.kind === 'compliance') this._stepCompliance();
+        if (this.kind === 'compliance') this._stepCompliance(dt);
         else this._stepOperate(dt);
       }
       this.controls.update();
