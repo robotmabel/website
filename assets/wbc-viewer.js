@@ -25,8 +25,6 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const RUST = 0xC25B2A;
 const GREEN = 0x3FB56B;
 
-document.querySelectorAll('[data-wbc-viewer]').forEach((box) => new WbcViewer(box));
-
 class WbcViewer {
   constructor(box) {
     this.box = box;
@@ -34,6 +32,7 @@ class WbcViewer {
     this.canvas = box.querySelector('canvas');
     if (!this.canvas) return;
 
+    this.ready = false;
     this.joints = {};                              // name -> joint record
     this.q = {};                                   // name -> current value
     this.armChains = { l: [], r: [] };             // shoulder..wrist joint names
@@ -156,6 +155,7 @@ class WbcViewer {
 
     if (this.kind === 'compliance') this._initCompliance();
     else this._initOperate();
+    this.ready = true;
   }
 
   /* ── joint setter (revolute + prismatic) ─────────────────────────── */
@@ -525,7 +525,7 @@ class WbcViewer {
     let last = performance.now();
     this.renderer.setAnimationLoop((t) => {
       const dt = Math.min(0.05, (t - last) / 1000); last = t;
-      if (this.root) {
+      if (this.ready) {
         if (this.kind === 'compliance') this._stepCompliance();
         else this._stepOperate(dt);
       }
@@ -534,3 +534,5 @@ class WbcViewer {
     });
   }
 }
+
+document.querySelectorAll('[data-wbc-viewer]').forEach((box) => new WbcViewer(box));
