@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — ROS 2</title>
+<meta name="description" content="MABEL's ROS 2 Humble workspace: hardware drivers, sensors, URDF description, and custom interfaces wrapped behind standard topics — one launch file brings up the whole robot." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="hardware.html">Hardware</a>
+    <a href="firmware.html">Firmware</a>
+    <a href="ros.html" class="on">ROS</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="software.html">Software</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="teleop.html">Teleop</a>
+    <a href="wbc.html">WBC</a>
+    <a href="learning.html">Learning</a>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / <a href="software.html">Software</a> / ROS</div>
+    <span class="eyebrow">L2 · ROS 2</span>
+    <h1 class="display-lg">One graph, every joint.</h1>
+    <p class="lede">
+      A single ROS 2 Humble workspace — <code>mabel_ws</code> — wraps every firmware target behind standard topics:
+      drivers, sensors, descriptions, and custom interfaces. One launch file brings up the whole robot over DDS.
+    </p>
+    <div class="spec" style="margin-top:28px;">
+      <span>ROS 2 Humble</span><span>Ubuntu 22.04</span><span>DDS</span><span>colcon</span><span>/joint_states</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PACKAGES ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The workspace</span>
+        <h2 class="display-md title" style="color:var(--bone);">Wrapped behind <span class="italic accent">clean topics.</span></h2>
+      </div>
+      <p class="lede">Every firmware bus surfaces in ROS the same way — joint command in, joint state out. Consumers never see CAN, RS-485, or Dynamixel; they see topics.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Hardware drivers</h5>
+        <p><code>mabel_base_hardware</code>, <code>mabel_arms_hardware</code>, <code>mabel_body_hardware</code>, and <code>mabel_orca_hand</code> bridge each firmware bus to ROS — publishing <code>/joint_states</code>, subscribing to commands at 200 Hz+.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Sensors &amp; time base</h5>
+        <p><code>mabel_sensors</code> brings up the head RGB-D, two eye-in-hand wrist cameras, and the base 2-D LiDAR — hardware-timestamped onto one clock so images, scans, and joint states line up to the millisecond.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Description &amp; interfaces</h5>
+        <p><code>mabel_description</code> holds the URDF, meshes, and RViz config — the same kinematic tree used in sim. <code>mabel_interfaces</code> defines the custom messages and services the stack speaks.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Teleop bridge</h5>
+        <p><code>mabel_teleop</code> routes Apple Vision Pro and keyboard input into the same command topics the drivers listen on — the teleop path and the autonomy path are interchangeable. See <a href="teleop.html" style="color:var(--rust);">Teleop</a>.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BRINGUP ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Bring-up</span>
+        <h2 class="display-md title">One command, <span class="italic accent">whole robot.</span></h2>
+      </div>
+      <p class="lede">Build once with <code>colcon</code>, then launch the full stack — base, arms, hands, sensors, and description — from a single entry point.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Build the workspace</h5>
+        <p><code>rosdep install</code> pulls dependencies, then <code>colcon build --symlink-install</code> builds every package; <code>source install/setup.bash</code> and the stack is live.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Launch the stack</h5>
+        <p><code>ros2 launch mabel_bringup robot.launch.py</code> starts base, arms, hands, sensors, and description together over DDS — no per-subsystem babysitting.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Sim parity</h5>
+        <p>The same topic names and message types drive the MuJoCo / Isaac twin, so behavior validated in sim deploys with no glue code. See <a href="simulation.html" style="color:var(--rust);">Simulation</a>.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Layers above</h5>
+        <p>Navigation and whole-body control subscribe to the same graph — <a href="navigation.html" style="color:var(--rust);">Nav2 + SLAM</a> below, <a href="software.html" style="color:var(--rust);">application software</a> above.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PACKAGE MAP ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">Packages</span>
+      <h2 class="display-md">Inside <code>mabel_ws/src</code>.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>mabel_bringup</h4><p>System launch files — one entry point for the full hardware stack.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>*_hardware</h4><p>Base, arms, and body drivers publishing <code>/joint_states</code> and taking commands.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>mabel_orca_hand</h4><p>ROS driver for the 17-DOF ORCA hands on top of <code>orca_core</code>.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>mabel_sensors</h4><p>Head RGB-D, dual wrist cameras, and base 2-D LiDAR on a shared clock.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>mabel_description</h4><p>URDF, meshes, and RViz config — one kinematic tree for sim and real.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>mabel_interfaces</h4><p>Custom messages and services that tie the stack together.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Stack is up. Now find the room.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="#" class="btn btn-primary">GitHub repo ↗</a>
+      <a href="navigation.html" class="btn btn-ghost">Next: Navigation →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Software</h6><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="software.html">Software</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Contact ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>

@@ -163,7 +163,7 @@
     }
   }
 
-  /* ── Rotating hero subtitle ── */
+  /* ── Rotating hero subtitle: per-letter assemble/disassemble ── */
   var rot = document.querySelector('.hero-sub .rot');
   if (rot) {
     var phrases = [
@@ -175,20 +175,50 @@
       'The work, done — onboard.'
     ];
     var pi = 0;
+    var STAG_IN = 0.028, STAG_OUT = 0.016;
+
+    var build = function (text) {
+      rot.textContent = '';
+      var words = text.split(' ');
+      var idx = 0;
+      words.forEach(function (word, wi) {
+        var w = document.createElement('span');
+        w.className = 'rw';
+        for (var c = 0; c < word.length; c++) {
+          var l = document.createElement('span');
+          l.className = 'rl hid-in';
+          l.textContent = word[c];
+          l.style.transitionDelay = (idx * STAG_IN) + 's';
+          w.appendChild(l);
+          idx++;
+        }
+        rot.appendChild(w);
+        if (wi < words.length - 1) rot.appendChild(document.createTextNode(' '));
+      });
+      // commit hidden state, then release so letters rise in, left → right
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          rot.querySelectorAll('.rl').forEach(function (l) { l.classList.remove('hid-in'); });
+        });
+      });
+    };
+
     var swap = function () {
       if (document.hidden) return;
-      rot.classList.add('leaving');
+      var letters = rot.querySelectorAll('.rl');
+      letters.forEach(function (l, i) {
+        l.style.transitionDelay = (i * STAG_OUT) + 's';
+        l.classList.add('hid-out');
+      });
+      var outMs = Math.min(letters.length * STAG_OUT * 1000 + 480, 640);
       setTimeout(function () {
         pi = (pi + 1) % phrases.length;
-        rot.textContent = phrases[pi];
-        rot.classList.remove('leaving');
-        rot.classList.add('entering');
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () { rot.classList.remove('entering'); });
-        });
-      }, 560);
+        build(phrases[pi]);
+      }, outMs);
     };
-    setInterval(swap, 4200);
+
+    build(phrases[0]);          // assemble the first line on load
+    setInterval(swap, 4400);
   }
 
   /* ── Single rAF scroll loop: progress + nav + parallax ── */

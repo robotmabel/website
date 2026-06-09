@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
 <title>MABEL — Software</title>
-<meta name="description" content="MABEL software stack: per-MCU firmware over CAN FD / RS-485, a ROS 2 Humble workspace of drivers and descriptions, and Nav2 + SLAM Toolbox navigation — all running onboard a single Jetson Thor." />
+<meta name="description" content="MABEL software overview: per-MCU firmware, a ROS 2 Humble workspace, Nav2 + SLAM navigation, and a whole-body control application layer — all running onboard a single Jetson Thor." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -21,16 +21,21 @@
   <nav class="nav-links">
     <a href="index.html">Overview</a>
     <a href="hardware.html">Hardware</a>
+    <a href="firmware.html">Firmware</a>
+    <a href="ros.html">ROS</a>
+    <a href="navigation.html">Navigation</a>
     <a href="software.html" class="on">Software</a>
     <a href="simulation.html">Simulation</a>
-    <a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a>
+    <a href="teleop.html">Teleop</a>
+    <a href="wbc.html">WBC</a>
     <a href="learning.html">Learning</a>
-    <a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 
 <!-- ─── PAGE HERO ─── -->
@@ -38,14 +43,14 @@
   <div class="page-hero-inner">
     <div class="crumbs"><a href="index.html">Overview</a> / Software</div>
     <span class="eyebrow">02 · Software</span>
-    <h1 class="display-lg">Firmware, ROS, and a brain.</h1>
+    <h1 class="display-lg">One stack. One brain.</h1>
     <p class="lede">
-      Per-MCU firmware holds the hard real-time edge. A ROS 2 Humble workspace ties every driver, sensor, and
-      description together. Above it, navigation and whole-body control close the loop — all onboard a single
-      Jetson Thor, no cloud, no tether.
+      Per-MCU firmware holds the hard real-time edge. A ROS 2 Humble workspace ties every driver and sensor
+      together. Navigation and whole-body control close the loop — all onboard a single Jetson Thor, no cloud,
+      no tether.
     </p>
     <div class="spec" style="margin-top:28px;">
-      <span>ROS 2 Humble</span><span>CAN FD / RS-485</span><span>Teensy · PlatformIO</span><span>SLAM Toolbox</span><span>Nav2</span><span>Jetson Thor</span>
+      <span>Firmware</span><span>ROS 2 Humble</span><span>Navigation</span><span>Whole-body control</span><span>Jetson Thor</span>
     </div>
   </div>
 </section>
@@ -58,14 +63,14 @@
         <span class="eyebrow">The stack</span>
         <h2 class="display-md title" style="color:var(--bone);">Four tiers, <span class="italic accent">bottom to top.</span></h2>
       </div>
-      <p class="lede">Firmware to whole-body control. Each tier publishes clean interfaces, so a researcher can re-tune navigation without ever touching a motor driver.</p>
+      <p class="lede">Firmware to whole-body control. Each tier publishes clean interfaces, so a researcher can re-tune navigation without ever touching a motor driver. Follow any tier to its own page.</p>
     </div>
 
     <div class="stack-vis fade-up">
-      <div class="stack-row"><div class="stack-layer">L4 · Software</div><div class="stack-name">Whole-body control · perception · MoveIt2</div><div class="stack-tags"><span>QP / IK</span><span>MoveIt2</span></div></div>
-      <div class="stack-row"><div class="stack-layer">L3 · Navigation</div><div class="stack-name">SLAM Toolbox mapping · localization · Nav2</div><div class="stack-tags"><span>2D LiDAR</span><span>RGB-D SLAM</span><span>Nav2</span></div></div>
-      <div class="stack-row"><div class="stack-layer">L2 · ROS 2</div><div class="stack-name">Humble · DDS · drivers, sensors, description</div><div class="stack-tags"><span>ROS 2 Humble</span><span>DDS</span></div></div>
-      <div class="stack-row"><div class="stack-layer">L1 · Firmware</div><div class="stack-name">Swerve · arms · ORCA hands · head · lift</div><div class="stack-tags"><span>Teensy / PlatformIO</span><span>CAN FD / RS-485</span></div></div>
+      <a class="stack-row" href="software.html#software" style="text-decoration:none;color:inherit;"><div class="stack-layer">L4 · Software</div><div class="stack-name">Whole-body control · perception · MoveIt2</div><div class="stack-tags"><span>QP / IK</span><span>MoveIt2</span></div></a>
+      <a class="stack-row" href="navigation.html" style="text-decoration:none;color:inherit;"><div class="stack-layer">L3 · Navigation</div><div class="stack-name">SLAM Toolbox mapping · localization · Nav2</div><div class="stack-tags"><span>2D LiDAR</span><span>RGB-D SLAM</span><span>Nav2</span></div></a>
+      <a class="stack-row" href="ros.html" style="text-decoration:none;color:inherit;"><div class="stack-layer">L2 · ROS 2</div><div class="stack-name">Humble · DDS · drivers, sensors, description</div><div class="stack-tags"><span>ROS 2 Humble</span><span>DDS</span></div></a>
+      <a class="stack-row" href="firmware.html" style="text-decoration:none;color:inherit;"><div class="stack-layer">L1 · Firmware</div><div class="stack-name">Swerve · arms · ORCA hands · head · lift</div><div class="stack-tags"><span>Teensy / PlatformIO</span><span>CAN FD / RS-485</span></div></a>
     </div>
 
     <div class="compute-card fade-up">
@@ -79,107 +84,33 @@
   </div>
 </section>
 
-<!-- ─── FIRMWARE ─── -->
-<section class="pad-y" id="firmware">
+<!-- ─── SUBSYSTEM PAGES ─── -->
+<section class="pad-y">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">L1 · Firmware</span>
-        <h2 class="display-md title">Close to the <span class="italic accent">metal.</span></h2>
+        <span class="eyebrow">Explore the stack</span>
+        <h2 class="display-md title">Three pages, <span class="italic accent">one system.</span></h2>
       </div>
-      <p class="lede">Each actuated subsystem runs its own microcontroller firmware — deterministic loops down at the bus level, with a clean command/feedback contract up to ROS.</p>
+      <p class="lede">The lower tiers each get a dedicated page. Start at the metal and work up, or jump straight to the layer you're editing.</p>
     </div>
 
     <div class="points fade-up">
       <div class="point"><div class="num">01</div><div>
-        <h5>Swerve base</h5>
-        <p>Teensy firmware (PlatformIO) drives the three swerve modules over the REV CAN protocol — six brushless motors, drive plus steer. Ships with a Python GUI and a drive sim; <code>setup_can.sh</code> brings up and enumerates the bus.</p>
+        <h5><a href="firmware.html" style="color:var(--rust);">Firmware →</a></h5>
+        <p>Per-MCU control for swerve, arms, ORCA hands, head, and lift — deterministic loops over CAN FD / RS-485 with a clean command/feedback contract up to ROS.</p>
       </div></div>
       <div class="point"><div class="num">02</div><div>
-        <h5>Arms</h5>
-        <p>PlatformIO (C++) firmware runs the OpenArm-derived 7-DOF arms — quasi-direct-drive motors on CAN FD, fast enough for gravity compensation and impedance control.</p>
+        <h5><a href="ros.html" style="color:var(--rust);">ROS →</a></h5>
+        <p>The <code>mabel_ws</code> Humble workspace — hardware drivers, sensors, URDF description, and custom interfaces, all behind standard topics and one bring-up launch file.</p>
       </div></div>
       <div class="point"><div class="num">03</div><div>
-        <h5>ORCA hands</h5>
-        <p>The 17-DOF tendon-driven ORCA hands run on Dynamixel / Feetech servos through the <code>orca_core</code> driver, exposing per-joint position feedback to the host.</p>
+        <h5><a href="navigation.html" style="color:var(--rust);">Navigation →</a></h5>
+        <p>SLAM Toolbox mapping from the base LiDAR and RGB-D cameras, plus Nav2 tuned for the holonomic swerve footprint — building-scale, all onboard.</p>
       </div></div>
       <div class="point"><div class="num">04</div><div>
-        <h5>Head &amp; lift</h5>
-        <p>A 3-DOF Dynamixel neck (pan / tilt / roll) is driven from the Dynamixel SDK; the linear lift column runs its own MCU firmware with a host-side GUI for setup and homing.</p>
-      </div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── ROS 2 ─── -->
-<section class="dark-sec pad-y" id="ros">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">L2 · ROS 2</span>
-        <h2 class="display-md title" style="color:var(--bone);">One graph, <span class="italic accent">every joint.</span></h2>
-      </div>
-      <p class="lede">A single ROS 2 Humble workspace (<code>mabel_ws</code>) wraps every firmware target behind standard topics. One launch file brings up the whole robot.</p>
-    </div>
-
-    <div class="points fade-up">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Hardware drivers</h5>
-        <p><code>mabel_base_hardware</code>, <code>mabel_arms_hardware</code>, <code>mabel_body_hardware</code>, and <code>mabel_orca_hand</code> bridge each firmware bus to ROS — publishing <code>/joint_states</code>, subscribing to commands at 200 Hz+.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Sensors &amp; time base</h5>
-        <p><code>mabel_sensors</code> brings up the head RGB-D, two eye-in-hand wrist cameras, and the base 2-D LiDAR — hardware-timestamped onto one clock so images, scans, and joint states line up to the millisecond.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Description &amp; interfaces</h5>
-        <p><code>mabel_description</code> holds the URDF, meshes, and RViz config — the same kinematic tree used in sim. <code>mabel_interfaces</code> defines the custom messages and services the stack speaks.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
-        <h5>One-command bringup</h5>
-        <p><code>ros2 launch mabel_bringup robot.launch.py</code> starts the full stack — base, arms, hands, sensors, and description — over DDS. The same topic names drive the <a href="simulation.html" style="color:var(--rust);">MuJoCo / Isaac twin</a>, so there's no glue code between sim and real.</p>
-      </div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── NAVIGATION ─── -->
-<section class="pad-y" id="navigation">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">L3 · Navigation</span>
-        <h2 class="display-md title">Knows where it <span class="italic accent">is.</span></h2>
-      </div>
-      <p class="lede">Map the space with the base's own sensors, localize within it, and plan a holonomic path through it — building-scale, all onboard.</p>
-    </div>
-
-    <div class="feature fade-up">
-      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">SLAM map · occupancy grid + RGB-D cloud</div></div></div>
-      <div class="feature-copy">
-        <span class="eyebrow">Mapping &amp; SLAM</span>
-        <h3>Built from the base up.</h3>
-        <p>The base 2-D LiDAR feeds <code>SLAM Toolbox</code> (<code>mabel_slam</code>), turning raw scans into a clean occupancy grid with loop closure for fast, reliable planning. The onboard RGB-D cameras add a dense visual layer — so MABEL maps and localizes by what it senses, not just what it bumps into.</p>
-        <div class="spec"><span>SLAM Toolbox</span><span>2-D LiDAR</span><span>RGB-D</span><span>Loop closure</span></div>
-      </div>
-    </div>
-
-    <div class="points fade-up">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Localization</h5>
-        <p>Scan-matching against the LiDAR grid, corrected by visual loop closures from the base cameras — MABEL holds its pose down long, repetitive corridors.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Nav2 stack</h5>
-        <p><code>mabel_navigation</code> runs Nav2: a global planner finds the route, a local controller tracks it while dodging obstacles. Costmaps fuse LiDAR and depth; recovery behaviors handle the dead ends.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Holonomic by default</h5>
-        <p>Nav2 is configured for an omnidirectional footprint, so the swerve base strafes and rotates as one — through doorways, around islands, into elevators.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
-        <h5>Building-scale</h5>
-        <p>Pre-built floorplans with live SLAM correction carry MABEL across rooms and floors — long-horizon mobility for whole-body manipulation tasks.</p>
+        <h5><a href="software.html#software" style="color:var(--rust);">Software ↓</a></h5>
+        <p>The application layer on top: a unified observation graph feeding perception, MoveIt2, and the whole-body controller — in sim and on the real robot alike.</p>
       </div></div>
     </div>
   </div>
@@ -217,31 +148,13 @@
   </div>
 </section>
 
-<!-- ─── MODULES ─── -->
-<section class="soft-sec pad-y">
-  <div class="wrap">
-    <div class="sec-head-center fade-up">
-      <span class="eyebrow">Modules</span>
-      <h2 class="display-md">Composable by design.</h2>
-    </div>
-  </div>
-  <div class="card-grid">
-    <div class="card fade-up"><span class="card-num">01</span><div><h4>Drivers</h4><p>200 Hz CAN FD / RS-485 actuator drivers for swerve, arms, and ORCA hands — publish <code>/joint_states</code>, subscribe to commands.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>Sensors</h4><p>Head RGB-D, dual wrist cameras, and base 2-D LiDAR brought up on a shared clock — hardware-timestamped into one graph.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Mapping &amp; SLAM</h4><p>SLAM Toolbox builds an occupancy grid from the base LiDAR with loop closure; RGB-D adds a dense visual layer.</p></div></div>
-    <div class="card fade-up"><span class="card-num">04</span><div><h4>Navigation</h4><p>Nav2 configured for a holonomic footprint — strafe and rotate planned as one across building-scale maps.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Whole-body control</h4><p>A QP-based controller resolves base, lift, torso, and arm redundancy against task and posture objectives.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Description</h4><p>One URDF, meshes, and RViz config shared by hardware drivers and the sim twin — a single kinematic source of truth.</p></div></div>
-  </div>
-</section>
-
 <!-- ─── CTA ─── -->
 <section class="pad-y">
   <div class="wrap-narrow" style="text-align:center;">
     <h2 class="display-sm fade-up" style="margin-bottom:24px;">Read the code, run the stack.</h2>
     <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
       <a href="#" class="btn btn-primary">GitHub repo ↗</a>
-      <a href="simulation.html" class="btn btn-ghost">Next: Simulation →</a>
+      <a href="firmware.html" class="btn btn-ghost">Start: Firmware →</a>
     </div>
   </div>
 </section>
@@ -254,7 +167,7 @@
         <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
       </div>
-      <div class="foot-col"><h6>Subsystems</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a><a href="learning.html">Learning</a></div>
+      <div class="foot-col"><h6>Software</h6><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="software.html">Software</a></div>
       <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Contact ↗</a></div>
     </div>

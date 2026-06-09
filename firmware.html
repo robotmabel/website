@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Firmware</title>
+<meta name="description" content="MABEL firmware: per-MCU control for swerve, arms, ORCA hands, head, and lift — deterministic loops over CAN FD / RS-485 with a clean command/feedback contract up to ROS." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="hardware.html">Hardware</a>
+    <a href="firmware.html" class="on">Firmware</a>
+    <a href="ros.html">ROS</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="software.html">Software</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="teleop.html">Teleop</a>
+    <a href="wbc.html">WBC</a>
+    <a href="learning.html">Learning</a>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / <a href="software.html">Software</a> / Firmware</div>
+    <span class="eyebrow">L1 · Firmware</span>
+    <h1 class="display-lg">Close to the metal.</h1>
+    <p class="lede">
+      Each actuated subsystem runs its own microcontroller firmware — deterministic loops down at the bus level,
+      with a clean command/feedback contract up to ROS. Torque goes down, encoder and current come back.
+    </p>
+    <div class="spec" style="margin-top:28px;">
+      <span>Teensy · PlatformIO</span><span>CAN FD / RS-485</span><span>REV CAN protocol</span><span>Dynamixel / Feetech</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PER-SUBSYSTEM FIRMWARE ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Per-subsystem</span>
+        <h2 class="display-md title" style="color:var(--bone);">One MCU <span class="italic accent">per limb.</span></h2>
+      </div>
+      <p class="lede">Firmware lives in <code>firmware/</code>, one target per actuated subsystem — so a single board can be flashed, debugged, or swapped without disturbing the rest of the robot.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Swerve base</h5>
+        <p>Teensy firmware (PlatformIO) drives the three swerve modules over the REV CAN protocol — six brushless motors, drive plus steer. Ships with a Python GUI and a drive sim; <code>setup_can.sh</code> brings up and enumerates the bus.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Arms</h5>
+        <p>PlatformIO (C++) firmware runs the OpenArm-derived 7-DOF arms — quasi-direct-drive motors on CAN FD, fast enough for gravity compensation and impedance control.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>ORCA hands</h5>
+        <p>The 17-DOF tendon-driven ORCA hands run on Dynamixel / Feetech servos through the <code>orca_core</code> driver, exposing per-joint position feedback to the host.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Head &amp; lift</h5>
+        <p>A 3-DOF Dynamixel neck (pan / tilt / roll) is driven from the Dynamixel SDK; the linear lift column runs its own MCU firmware with a host-side GUI for setup and homing.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BUSES & I/O ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Buses &amp; I/O</span>
+        <h2 class="display-md title">Talking to <span class="italic accent">every joint.</span></h2>
+      </div>
+      <p class="lede">Dozens of actuators, one real-time edge. Here's how the bytes move below the line.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Real-time actuator bus</h5>
+        <p>Quasi-direct-drive motors run on CAN FD; swerve and wrists ride RS-485. Torque goes down, encoder and current come back — 200 Hz+, fast enough for gravity comp and impedance.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Deterministic loop</h5>
+        <p>C++ firmware on the microcontrollers holds the hard real-time edge; the Jetson closes the outer control loop at a fixed rate above it. See <a href="hardware.html" style="color:var(--rust);">Hardware</a> for the wiring.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>CAN bus bring-up</h5>
+        <p>For the swerve base, <code>setup_can.sh</code> then <code>can_up.sh</code> / <code>can_scan.sh</code> enable and enumerate every CAN device before the driver ever publishes a command.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Clean contract to ROS</h5>
+        <p>Every firmware target exposes the same shape — joint command in, joint state out — so the matching <a href="ros.html" style="color:var(--rust);">ROS driver</a> wraps it behind standard topics with no special cases.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MODULES ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">Targets</span>
+      <h2 class="display-md">Five boards, one repo.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>swerve_drive</h4><p>Teensy + PlatformIO over the REV CAN protocol, with a Python GUI and a drive sim for the 3-module base.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>openarm</h4><p>PlatformIO (C++) motor control for the 7-DOF arms — quasi-direct-drive on CAN FD.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>orca_hand</h4><p>17-DOF ORCA hand drivers on Dynamixel / Feetech via the <code>orca_core</code> submodule.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>head</h4><p>3-DOF Dynamixel neck (pan / tilt / roll) driven from the Dynamixel SDK.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>lift</h4><p>Linear lift-column firmware with a host-side GUI for setup and homing.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>can tooling</h4><p>Shared <code>setup_can.sh</code> / <code>can_up.sh</code> / <code>can_scan.sh</code> helpers to bring up and enumerate the bus.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Firmware up, ROS next.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="#" class="btn btn-primary">GitHub repo ↗</a>
+      <a href="ros.html" class="btn btn-ghost">Next: ROS →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Software</h6><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="software.html">Software</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Contact ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>

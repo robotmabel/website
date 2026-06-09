@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Navigation</title>
+<meta name="description" content="MABEL navigation: SLAM Toolbox mapping from the base 2-D LiDAR and onboard RGB-D cameras, localization, and Nav2 configured for a holonomic swerve footprint — building-scale, all onboard." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="hardware.html">Hardware</a>
+    <a href="firmware.html">Firmware</a>
+    <a href="ros.html">ROS</a>
+    <a href="navigation.html" class="on">Navigation</a>
+    <a href="software.html">Software</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="teleop.html">Teleop</a>
+    <a href="wbc.html">WBC</a>
+    <a href="learning.html">Learning</a>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">Whole-Body Control</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / <a href="software.html">Software</a> / Navigation</div>
+    <span class="eyebrow">L3 · Navigation</span>
+    <h1 class="display-lg">Knows where it is.</h1>
+    <p class="lede">
+      Map the space with the base's own sensors, localize within it, and plan a holonomic path through it.
+      SLAM Toolbox below, Nav2 above — building-scale, all onboard.
+    </p>
+    <div class="spec" style="margin-top:28px;">
+      <span>SLAM Toolbox</span><span>2-D LiDAR</span><span>RGB-D</span><span>Nav2</span><span>Holonomic footprint</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MAPPING & SLAM ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Mapping &amp; SLAM</span>
+        <h2 class="display-md title" style="color:var(--bone);">Built from the <span class="italic accent">base up.</span></h2>
+      </div>
+      <p class="lede">The robot maps and localizes with sensors that ride on the mobile base — no external motion capture, no tether.</p>
+    </div>
+
+    <div class="feature fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">SLAM map · occupancy grid + RGB-D cloud</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow"><code>mabel_slam</code></span>
+        <h3>Two maps, one world.</h3>
+        <p>The base 2-D LiDAR feeds <code>SLAM Toolbox</code>, turning raw scans into a clean occupancy grid with loop closure for fast, reliable planning. The onboard RGB-D cameras add a dense visual layer — so MABEL maps and localizes by what it senses, not just what it bumps into.</p>
+        <div class="spec"><span>SLAM Toolbox</span><span>Occupancy grid</span><span>RGB-D</span><span>Loop closure</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NAV2 ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Path planning</span>
+        <h2 class="display-md title">Nav2, tuned <span class="italic accent">holonomic.</span></h2>
+      </div>
+      <p class="lede"><code>mabel_navigation</code> runs the Nav2 stack against the SLAM map, configured for the omnidirectional swerve base.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Localization</h5>
+        <p>Scan-matching against the LiDAR grid, corrected by visual loop closures from the base cameras — MABEL holds its pose down long, repetitive corridors.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Nav2 stack</h5>
+        <p>A global planner finds the route; a local controller tracks it while dodging obstacles. Costmaps fuse LiDAR and depth; recovery behaviors handle the dead ends.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Holonomic by default</h5>
+        <p>Nav2 is configured for an omnidirectional footprint, so the swerve base strafes and rotates as one — through doorways, around islands, into elevators.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Building-scale</h5>
+        <p>Pre-built floorplans with live SLAM correction carry MABEL across rooms and floors — long-horizon mobility for whole-body manipulation tasks.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SENSOR FUSION ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">Onboard sensing</span>
+      <h2 class="display-md">Everything it needs to navigate, it carries.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>Base 2-D LiDAR</h4><p>A planar scanner on the mobile base feeds the occupancy grid and the Nav2 costmap.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>RGB-D cameras</h4><p>Onboard depth cameras add a dense visual layer for loop closure and obstacle avoidance.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Wheel odometry</h4><p>Swerve drive and steer encoders provide the dead-reckoning prior SLAM corrects against.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>Occupancy grid</h4><p>SLAM Toolbox fuses scans into a 2-D grid with loop closure for fast, reliable planning.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Costmaps</h4><p>Global and local costmaps fuse LiDAR and depth so the controller plans around real obstacles.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Recovery</h4><p>Behavior-tree recoveries clear costmaps and re-plan when the robot wedges into a dead end.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">It knows where. Now it decides what.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="#" class="btn btn-primary">GitHub repo ↗</a>
+      <a href="software.html" class="btn btn-ghost">Next: Software →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Software</h6><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="software.html">Software</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="#" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Contact ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>
