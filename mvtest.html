@@ -1,0 +1,9 @@
+<!doctype html><meta charset="utf-8">
+<script type="module" src="model-viewer.min.js"></script>
+<model-viewer id="mv" src="assets/mabel_draco.glb" style="width:600px;height:400px"></model-viewer>
+<script>
+ const mv=document.getElementById('mv');
+ mv.addEventListener('load',()=>{let d={};try{d=mv.getDimensions();}catch(e){}document.title='LOADED '+JSON.stringify(d);});
+ mv.addEventListener('error',e=>{document.title='ERROR '+(e&&e.detail?JSON.stringify(e.detail):'?');});
+ setTimeout(()=>{if(!/LOAD|ERR/.test(document.title))document.title='NOEVENT';},13000);
+</script>

@@ -64,7 +64,7 @@
       <div class="stack-row"><div class="stack-layer">L7 · Task</div><div class="stack-name">High-level planner &amp; task graph</div><div class="stack-tags"><span>LLM</span><span>State machine</span></div></div>
       <div class="stack-row"><div class="stack-layer">L6 · Policy</div><div class="stack-name">Diffusion Policy · ACT · per-skill experts</div><div class="stack-tags"><span>PyTorch</span><span>HDF5 / Zarr</span></div></div>
       <div class="stack-row"><div class="stack-layer">L5 · Perception</div><div class="stack-name">Multi-cam fusion, eye-in-hand, RGB-D</div><div class="stack-tags"><span>RealSense</span><span>Wrist cams</span></div></div>
-      <div class="stack-row"><div class="stack-layer">L4 · Navigation</div><div class="stack-name">SLAM Toolbox + Nav2 (holonomic)</div><div class="stack-tags"><span>2D LiDAR</span><span>Nav2</span></div></div>
+      <div class="stack-row"><div class="stack-layer">L4 · Navigation</div><div class="stack-name">gmapping · visual 3D SLAM · Nav2</div><div class="stack-tags"><span>2D LiDAR</span><span>RGB-D SLAM</span><span>Nav2</span></div></div>
       <div class="stack-row"><div class="stack-layer">L3 · Whole-body</div><div class="stack-name">Bimanual + base motion planning</div><div class="stack-tags"><span>MoveIt2</span><span>QP / IK</span></div></div>
       <div class="stack-row"><div class="stack-layer">L2 · ROS 2</div><div class="stack-name">Humble · DDS middleware</div><div class="stack-tags"><span>ROS 2 Humble</span><span>DDS</span></div></div>
       <div class="stack-row"><div class="stack-layer">L1 · Firmware</div><div class="stack-name">Swerve, ORCA hands, LED eyes</div><div class="stack-tags"><span>C++</span><span>CAN / micro</span></div></div>
@@ -140,6 +140,48 @@
       <div class="point"><div class="num">04</div><div>
         <h5>Deterministic loop</h5>
         <p>C++ firmware on the microcontrollers holds the hard real-time edge; the Jetson closes the control loop at a fixed rate. See <a href="hardware.html" style="color:var(--rust);">Hardware</a> for the wiring.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NAVIGATION ─── -->
+<section class="pad-y" id="navigation">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Navigation</span>
+        <h2 class="display-md title">Knows where it <span class="italic accent">is.</span></h2>
+      </div>
+      <p class="lede">Map the space, find itself in it, plan a path through it — building-scale, all onboard.</p>
+    </div>
+
+    <div class="feature fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">SLAM map · occupancy grid + 3D cloud</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Mapping &amp; SLAM</span>
+        <h3>Two maps, one world.</h3>
+        <p>ROS <code>gmapping</code> turns the 2D LiDAR into a clean occupancy grid for fast, reliable planning. A visual 3D SLAM layer fuses the RGB-D cameras into a dense 3D map with loop closure — so MABEL localizes by what it sees, not just what it bumps into.</p>
+        <div class="spec"><span>gmapping (2D)</span><span>Visual 3D SLAM</span><span>Loop closure</span></div>
+      </div>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Localization</h5>
+        <p>Scan-matching and AMCL on the 2D grid, corrected by visual loop closures — MABEL holds its pose down long, repetitive corridors.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Nav2 navigation stack</h5>
+        <p>A global planner finds the route; a local controller tracks it while dodging obstacles. Costmaps fuse LiDAR and depth; recovery behaviors handle the dead ends.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Holonomic by default</h5>
+        <p>Nav2 is configured for an omnidirectional footprint, so the swerve base strafes and rotates as one — through doorways, around islands, into elevators.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Building-scale</h5>
+        <p>Pre-built floorplans with live SLAM correction carry MABEL across rooms and floors — the backbone of the <a href="learning.html#long-horizon" style="color:var(--rust);">long-horizon</a> demos.</p>
       </div></div>
     </div>
   </div>
