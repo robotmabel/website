@@ -84,9 +84,9 @@
         <span class="eyebrow">Controllers</span>
         <h2 class="display-md title" style="color:var(--bone);">The control stack, <span class="italic accent">on tape.</span></h2>
       </div>
-      <p class="lede">Three controllers carry MABEL: the swerve base, the lift, and the whole-body arm
-        solver. Each one is a module in <code>controller/mabel</code> — the clips are that exact code
-        driving the twin.</p>
+      <p class="lede">The swerve base, the lift, the hands, and the whole-body arm solver. Each is a
+        module in <code>controller/mabel</code> — the clips are that exact code driving the twin, base
+        motion clamped by the same tip-over / fall envelope the keyboard teleop uses.</p>
     </div>
 
     <!-- swerve -->
@@ -118,17 +118,33 @@
         <span class="eyebrow">Z-lift &amp; torso</span>
         <h3>Eye height on demand.</h3>
         <p>A cascaded lift gives <strong>0.635&nbsp;m</strong> of vertical travel; a pitching torso adds
-          reach low. Raising the lift raises the CoM —
-          <em>h = 0.443 + 0.432·z</em> — so the base gets easier to tip. A
-          direction-aware tip-over model shrinks the safe speed and braking limits as ~1/h
-          (<em>a<sub>tip</sub> = g·d / h</em>), keeping forward braking conservative while lateral
-          reversals stay agile.</p>
+          reach low. The clip shows them <strong>one at a time</strong> — lift first, then torso.
+          Raising the lift raises the CoM — <em>h = 0.443 + 0.432·z</em> — so the base gets easier to
+          tip; a direction-aware tip-over model shrinks the safe speed and braking limits as ~1/h
+          (<em>a<sub>tip</sub> = g·d / h</em>), forward braking conservative, lateral reversals agile.</p>
         <div class="spec"><span>0.635 m travel</span><span>ZMP tip-safe</span><span>CoM-aware limits</span></div>
       </div>
     </div>
 
-    <!-- whole body -->
+    <!-- hands -->
     <div class="feature fade-up">
+      <div class="reveal-media feature-media media-frame r-169 sim-dark">
+        <video src="assets/sim/hands.mp4" autoplay muted loop playsinline></video>
+        <span class="sim-cap"><span class="dot"></span>ORCA hand · open → close → open</span>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">Dexterous hands</span>
+        <h3>Seventeen joints per side.</h3>
+        <p>Each hand is an open-source <strong>ORCA</strong> hand — five fingers, tendon-routed, with
+          abduction, MCP, and PIP joints modelled per finger. Open to a flat palm, curl to a full fist;
+          the same position commands drive the simulated and the real hand, so grasps tuned here
+          transfer straight across.</p>
+        <div class="spec"><span>5 fingers</span><span>Tendon-routed</span><span>Open-source ORCA</span></div>
+      </div>
+    </div>
+
+    <!-- whole body -->
+    <div class="feature flip fade-up">
       <div class="reveal-media feature-media media-frame r-169 sim-dark">
         <video src="assets/sim/wbc_reach.mp4" autoplay muted loop playsinline></video>
         <span class="sim-cap"><span class="dot"></span>wbc.py · 18-DOF bimanual DLS IK</span>
@@ -139,10 +155,32 @@
         <p>The upper body is an 18-DOF chain — lift + torso + 7-DOF arm + wrist per side — solved as one
           weighted damped-least-squares problem that tracks both 6-DOF palm targets at once. A
           <strong>null-space posture task</strong> keeps the body near a natural configuration, and
-          weighting makes the lift and torso "lazy" so the arms move first and the body only joins in
-          when it has to. <a href="wbc.html">More on the controller →</a></p>
+          weighting makes the lift and torso "lazy" so the arms lead and the body only joins in when it
+          has to — a slow, coordinated reach. <a href="wbc.html">More on the controller →</a></p>
         <div class="spec"><span>18 DOF</span><span>Weighted DLS</span><span>Null-space posture</span><span>Lazy base follow</span></div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SENSOR SUITE ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">On-board sensors</span>
+        <h2 class="display-md title">What MABEL <span class="italic accent">sees.</span></h2>
+      </div>
+      <p class="lede">Every camera on the robot is modelled in the twin. As it drives through the room,
+        the full suite streams at once — head stereo, both wrists, the body cam, and the base's
+        front/back views — the exact feeds the policies and teleop see.</p>
+    </div>
+    <div class="reveal-media media-frame sim-dark" style="aspect-ratio:3/2;">
+      <video src="assets/sim/sensors.mp4" autoplay muted loop playsinline></video>
+      <span class="sim-cap"><span class="dot"></span>Live on-board camera suite · driving through the home</span>
+    </div>
+    <div class="spec fade-up" style="justify-content:center; margin-top:22px;">
+      <span>Head ZED stereo</span><span>L / R wrist cams</span><span>Body cam</span><span>Base D435 front / back</span><span>360° LiDAR</span>
     </div>
   </div>
 </section>
