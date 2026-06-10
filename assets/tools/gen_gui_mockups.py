@@ -213,8 +213,144 @@ def hand_svg():
     return "\n".join(o)
 
 
+# ── Animated "how to use the GUI" demo (SMIL, plays in <img>) ─────────────────
+
+def swerve_demo_svg():
+    W, H = 1280, 720
+    DUR = "9s"
+    o = chrome(W, H)
+    o.append(txt(W / 2, 25, "MABEL · Swerve Studio", LABEL, 14, 600, anchor="middle"))
+    ty = 56
+    o.append(rr(20, ty, W - 40, 56, 14, SURF))
+    o.append(dot(44, ty + 28, GREEN, 5))
+    # blinking live dot
+    o.append(f'<circle cx="44" cy="{ty+28}" r="5" fill="{GREEN}">'
+             f'<animate attributeName="opacity" values="1;0.3;1" dur="1.4s" repeatCount="indefinite"/></circle>')
+    o.append(txt(58, ty + 33, "can0 · live", LABEL, 14, 600, font=MONO))
+    o.append(txt(210, ty + 33, "1 Mbit/s · 6 dev", LABEL2, 12, 500, font=MONO))
+
+    body_y = ty + 80
+    # telemetry card (single module, "live" feel via blinking current dot)
+    sbx, sbw = 20, 320
+    o.append(rr(sbx, body_y, sbw, 250, 14, PANEL))
+    o.append(txt(sbx + 20, body_y + 28, "TELEMETRY · FRONT-LEFT", LABEL2, 10, 700, spacing="1.5"))
+    rows = [("DRIVE rpm", "3120", BLUE), ("STEER abs", "0.41 rev", PURPLE),
+            ("CURRENT", "8.4 A", BLUE), ("TEMP", "31 °C", LABEL2)]
+    for i, (lbl, val, c) in enumerate(rows):
+        yy = body_y + 64 + i * 40
+        o.append(txt(sbx + 24, yy, lbl, LABEL3, 11, 700, font=MONO))
+        o.append(txt(sbx + sbw - 24, yy, val, c, 14, 500, font=MONO, anchor="end"))
+        o.append(f'<line x1="{sbx+24}" y1="{yy+14}" x2="{sbx+sbw-24}" y2="{yy+14}" stroke="{SEP}"/>')
+
+    # big control card
+    cx, cy, cw, ch = sbx + sbw + 24, body_y, W - (sbx + sbw + 24) - 20, 320
+    o.append(rr(cx, cy, cw, ch, 16, SURF))
+    o.append(txt(cx + 26, cy + 38, "Front-Left module", LABEL, 17, 600))
+    o.append(txt(cx + cw - 26, cy + 38, "id 1 · 2", LABEL3, 12, 500, font=MONO, anchor="end"))
+    # animated enable toggle (off -> on)
+    tx, tyy = cx + cw - 90, cy + 54
+    o.append(f'<rect x="{tx}" y="{tyy}" width="40" height="24" rx="12" fill="#39393D">'
+             f'<animate attributeName="fill" values="#39393D;#39393D;{GREEN};{GREEN};#39393D" '
+             f'keyTimes="0;0.18;0.22;0.9;1" dur="{DUR}" repeatCount="indefinite"/></rect>')
+    o.append(f'<circle cy="{tyy+12}" r="10" fill="#fff"><animate attributeName="cx" '
+             f'values="{tx+12};{tx+12};{tx+28};{tx+28};{tx+12}" keyTimes="0;0.18;0.22;0.9;1" '
+             f'dur="{DUR}" repeatCount="indefinite"/></circle>')
+
+    # STEER slider (animated, dragged by pointer)
+    sx, sy, sw = cx + 26, cy + 130, cw - 52
+    o.append(txt(sx, sy - 18, "STEER", PURPLE, 10, 700, spacing="1"))
+    o.append(rr(sx, sy - 3, sw, 6, 3, ELEV))
+    s0, s1 = 0.18, 0.72
+    fillv = f"{int(sw*s0)};{int(sw*s0)};{int(sw*s1)};{int(sw*s1)};{int(sw*s0)}"
+    o.append(f'<rect x="{sx}" y="{sy-3}" height="6" rx="3" fill="{PURPLE}">'
+             f'<animate attributeName="width" values="{fillv}" keyTimes="0;0.25;0.5;0.85;1" dur="{DUR}" repeatCount="indefinite"/></rect>')
+    kx0, kx1 = sx + int(sw * s0), sx + int(sw * s1)
+    kxv = f"{kx0};{kx0};{kx1};{kx1};{kx0}"
+    o.append(f'<circle cy="{sy}" r="11" fill="#fff"><animate attributeName="cx" values="{kxv}" keyTimes="0;0.25;0.5;0.85;1" dur="{DUR}" repeatCount="indefinite"/></circle>')
+
+    # DRIVE slider (auto-sweep throttle)
+    dx, dy, dw = cx + 26, cy + 210, cw - 52
+    o.append(txt(dx, dy - 18, "DRIVE", ORANGE, 10, 700, spacing="1"))
+    o.append(rr(dx, dy - 3, dw, 6, 3, ELEV))
+    o.append(f'<rect x="{dx}" y="{dy-3}" height="6" rx="3" fill="{ORANGE}">'
+             f'<animate attributeName="width" values="0;{int(dw*0.7)};{int(dw*0.3)};0" keyTimes="0;0.45;0.75;1" dur="{DUR}" repeatCount="indefinite"/></rect>')
+    o.append(f'<circle cy="{dy}" r="11" fill="#fff"><animate attributeName="cx" values="{dx};{dx+int(dw*0.7)};{dx+int(dw*0.3)};{dx}" keyTimes="0;0.45;0.75;1" dur="{DUR}" repeatCount="indefinite"/></circle>')
+
+    # E-STOP
+    o.append(rr(cx + 26, cy + 250, 160, 40, 10, RED))
+    o.append(txt(cx + 106, cy + 275, "E-STOP", "#fff", 13, 700, anchor="middle"))
+
+    # animated pointer cursor: idles, drags steer knob, taps toggle
+    px0, py0 = sx + int(sw * s0), sy
+    o.append(f'<g><circle r="9" fill="#fff" opacity="0.92"/><circle r="9" fill="none" stroke="#000" stroke-width="1" opacity="0.3"/>'
+             f'<animateMotion dur="{DUR}" repeatCount="indefinite" keyTimes="0;0.2;0.25;0.5;0.85;1" '
+             f'path="M {tx+20} {tyy+12} L {tx+20} {tyy+12} L {px0} {py0} L {kx1} {sy} L {px0} {py0} L {px0} {py0}" '
+             f'calcMode="linear"/></g>')
+
+    # caption that cycles via opacity
+    caps = ["Toggle a motor on", "Drag to steer — absolute angle", "Throttle the drive wheel"]
+    cwid = 460
+    ccx = cx + cw / 2
+    o.append(rr(ccx - cwid / 2, H - 60, cwid, 40, 20, "#000", stroke=SEP, sw=1, op=0.85))
+    for i, c in enumerate(caps):
+        vals = "0;0;1;1;0;0"
+        kt = {0: "0;0;0.05;0.28;0.33;1", 1: "0;0.30;0.36;0.58;0.63;1",
+              2: "0;0.63;0.69;0.92;0.97;1"}[i]
+        o.append(f'<text x="{ccx}" y="{H-35}" fill="{LABEL}" font-size="14" font-weight="600" '
+                 f'font-family="{SANS}" text-anchor="middle" opacity="0">{c}'
+                 f'<animate attributeName="opacity" values="{vals}" keyTimes="{kt}" dur="{DUR}" repeatCount="indefinite"/></text>')
+
+    o.append("</svg>")
+    return "\n".join(o)
+
+
+# ── Teleop data-flow diagram ──────────────────────────────────────────────────
+
+def dataflow_svg():
+    W, H = 1280, 560
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{SANS}">']
+    o.append(rr(0, 0, W, H, 18, "#0B0A09", stroke=SEP, sw=1))
+
+    def node(x, y, w, h, title, sub, accent):
+        o.append(rr(x, y, w, h, 16, SURF, stroke=accent, sw=1.5))
+        o.append(txt(x + w / 2, y + 40, title, LABEL, 19, 600, anchor="middle"))
+        for i, line in enumerate(sub):
+            o.append(txt(x + w / 2, y + 68 + i * 22, line, LABEL2, 12.5, 500,
+                         font=MONO, anchor="middle"))
+        o.append(dot(x + 20, y + 24, accent, 5))
+
+    nw, nh = 300, 150
+    y0 = 150
+    node(40, y0, nw, nh, "Operator device", ["Apple Vision Pro", "· or ·", "iPhone / iPad"], BLUE)
+    node(W / 2 - nw / 2, y0, nw, nh + 20, "Mac / Jetson bridge",
+         ["Retargeter (clutch)", "WholeBodyIK + lazy base", "MJPEG camera server"], ORANGE)
+    node(W - 40 - nw, y0, nw, nh, "MABEL", ["robot · or ·", "MuJoCo twin", "51 DOF"], GREEN)
+
+    # uplink arrow (top, left -> right)
+    ay = 100
+    o.append(f'<path d="M {40+nw} {ay} H {W-40-nw}" stroke="{BLUE}" stroke-width="2.5" fill="none" marker-end="url(#ab)"/>')
+    o.append(txt(W / 2, ay - 30, "UPLINK · operator → robot   ·   WebSocket :9090 · 60 Hz", BLUE, 13, 600, anchor="middle", spacing="0.5"))
+    o.append(txt(W / 2, ay - 10, "TeleopFrame: head pose · 27 hand joints/side · mode · nav joysticks", LABEL2, 12, 500, font=MONO, anchor="middle"))
+
+    # downlink arrows (bottom, right -> left)
+    by = H - 90
+    o.append(f'<path d="M {W-40-nw} {by} H {40+nw}" stroke="{GREEN}" stroke-width="2.5" fill="none" marker-end="url(#ag)"/>')
+    o.append(txt(W / 2, by + 26, "DOWNLINK · robot → operator", GREEN, 13, 600, anchor="middle", spacing="0.5"))
+    o.append(txt(W / 2, by + 46, "Stereo MJPEG video :8080 (head ZED + wrists)  ·  RobotState: battery · mode · latency", LABEL2, 12, 500, font=MONO, anchor="middle"))
+
+    # markers
+    o.append(f'<defs>'
+             f'<marker id="ab" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="{BLUE}"/></marker>'
+             f'<marker id="ag" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="{GREEN}"/></marker>'
+             f'</defs>')
+    o.append("</svg>")
+    return "\n".join(o)
+
+
 def main():
-    for name, fn in (("gui-swerve.svg", swerve_svg), ("gui-hand.svg", hand_svg)):
+    for name, fn in (("gui-swerve.svg", swerve_svg), ("gui-hand.svg", hand_svg),
+                     ("gui-swerve-demo.svg", swerve_demo_svg),
+                     ("teleop-dataflow.svg", dataflow_svg)):
         p = os.path.join(OUT, name)
         with open(p, "w") as f:
             f.write(fn())

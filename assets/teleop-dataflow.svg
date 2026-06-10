@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 560" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1280" height="560" rx="18" fill="#0B0A09" opacity="1" stroke="#38383A" stroke-width="1"/>
+<rect x="40" y="150" width="300" height="150" rx="16" fill="#1C1C1E" opacity="1" stroke="#0A84FF" stroke-width="1.5"/>
+<text x="190.0" y="190" fill="#FFFFFF" font-size="19" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Operator device</text>
+<text x="190.0" y="218" fill="#8E8E93" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Apple Vision Pro</text>
+<text x="190.0" y="240" fill="#8E8E93" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">· or ·</text>
+<text x="190.0" y="262" fill="#8E8E93" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">iPhone / iPad</text>
+<circle cx="60" cy="174" r="5" fill="#0A84FF"/>
+<rect x="490.0" y="150" width="300" height="170" rx="16" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.5"/>
+<text x="640.0" y="190" fill="#FFFFFF" font-size="19" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Mac / Jetson bridge</text>
+<text x="640.0" y="218" fill="#8E8E93" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Retargeter (clutch)</text>
+<text x="640.0" y="240" fill="#8E8E93" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">WholeBodyIK + lazy base</text>
+<text x="640.0" y="262" fill="#8E8E93" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">MJPEG camera server</text>
+<circle cx="510.0" cy="174" r="5" fill="#FF9F0A"/>
+<rect x="940" y="150" width="300" height="150" rx="16" fill="#1C1C1E" opacity="1" stroke="#30D158" stroke-width="1.5"/>
+<text x="1090.0" y="190" fill="#FFFFFF" font-size="19" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">MABEL</text>
+<text x="1090.0" y="218" fill="#8E8E93" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">robot · or ·</text>
+<text x="1090.0" y="240" fill="#8E8E93" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">MuJoCo twin</text>
+<text x="1090.0" y="262" fill="#8E8E93" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">51 DOF</text>
+<circle cx="960" cy="174" r="5" fill="#30D158"/>
+<path d="M 340 100 H 940" stroke="#0A84FF" stroke-width="2.5" fill="none" marker-end="url(#ab)"/>
+<text x="640.0" y="70" fill="#0A84FF" font-size="13" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" letter-spacing="0.5">UPLINK · operator → robot   ·   WebSocket :9090 · 60 Hz</text>
+<text x="640.0" y="90" fill="#8E8E93" font-size="12" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">TeleopFrame: head pose · 27 hand joints/side · mode · nav joysticks</text>
+<path d="M 940 470 H 340" stroke="#30D158" stroke-width="2.5" fill="none" marker-end="url(#ag)"/>
+<text x="640.0" y="496" fill="#30D158" font-size="13" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" letter-spacing="0.5">DOWNLINK · robot → operator</text>
+<text x="640.0" y="516" fill="#8E8E93" font-size="12" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Stereo MJPEG video :8080 (head ZED + wrists)  ·  RobotState: battery · mode · latency</text>
+<defs><marker id="ab" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0A84FF"/></marker><marker id="ag" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#30D158"/></marker></defs>
+</svg>
