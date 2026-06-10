@@ -78,6 +78,20 @@
     counters.forEach(function (el) { cobs.observe(el); });
   }
 
+  /* ── Dropdown nav groups (click to toggle; hover handled in CSS) ── */
+  document.querySelectorAll('.nav-grp-btn').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var g = btn.closest('.nav-group');
+      var isOpen = g.classList.contains('open');
+      document.querySelectorAll('.nav-group').forEach(function (x) { x.classList.remove('open'); });
+      if (!isOpen) g.classList.add('open');
+    });
+  });
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.nav-group.open').forEach(function (x) { x.classList.remove('open'); });
+  });
+
   /* ── Tabs (independent groups via [data-tabs]) ── */
   document.querySelectorAll('.tab-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {

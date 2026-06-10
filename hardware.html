@@ -24,22 +24,16 @@
   <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
   <nav class="nav-links">
     <a href="index.html">Overview</a>
-    <a href="hardware.html" class="on">Hardware</a>
-    <a href="software.html">Software</a>
-    <a href="firmware.html">Firmware</a>
-    <a href="ros.html">ROS</a>
-    <a href="navigation.html">Navigation</a>
-    <a href="simulation.html">Simulation</a>
-    <a href="wbc.html">WBC</a>
-    <a href="teleop.html">Teleop</a>
-    <a href="learning.html">Learning</a>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware.html#arms">Arms</a><a href="hardware.html#hands">Hands</a><a href="hardware.html#base">Base</a><a href="hardware.html#body">Body</a><a href="hardware.html#sensors">Sensors</a><a href="hardware.html#electronics">Electronics</a><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Build guide</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="teleop.html">Teleop</a><a href="learning.html">Learning</a></div></div>
     <a href="connect.html">Connect</a>
     <a href="#" class="ext">Paper ↗</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a><a href="teleop.html">Teleop</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware.html#arms">Arms</a><a class="sub" href="hardware.html#hands">Hands</a><a class="sub" href="hardware.html#base">Base</a><a class="sub" href="hardware.html#body">Body</a><a class="sub" href="hardware.html#sensors">Sensors</a><a class="sub" href="hardware.html#electronics">Electronics</a><a class="sub" href="hardware.html#bom">Bill of materials</a><a class="sub" href="hardware.html#build">Build guide</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="teleop.html">Teleop</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 
 <!-- ─── PAGE HERO ─── -->
@@ -169,6 +163,82 @@
           <p>Three independent swerve modules give true holonomic motion — strafe through a doorway, rotate in place, hold a heading while moving. 2D LiDAR underneath powers SLAM.</p>
           <div class="spec"><span>3 × swerve</span><span>2D LiDAR</span><span>Onboard compute</span></div>
         </div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SUBSYSTEMS ─── -->
+<section class="soft-sec pad-y" id="subsystems">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">Subsystems</span>
+      <h2 class="display-md">Six systems, <span class="italic accent">one body.</span></h2>
+    </div>
+
+    <div class="sub-block fade-up" id="arms">
+      <div class="sb-side"><div class="sb-name">Arms</div><div class="sb-stat">14 DOF · 2 × 7</div></div>
+      <div class="sb-body">
+        <p>Two 7-DOF arms derived from the open-source <strong>OpenArm</strong> design, driven by
+          <strong>Damiao</strong> quasi-direct-drive motors on CAN. Low gearing means the arms are
+          back-drivable and torque-controlled — the foundation for gravity compensation and
+          <a href="wbc.html">whole-body compliance</a>. Reach and shoulder spacing are tuned to a human's
+          so teleop feels natural.</p>
+        <div class="spec"><span>OpenArm-derived</span><span>Damiao QDD · CAN</span><span>Torque-controlled</span><span>Back-drivable</span></div>
+      </div>
+    </div>
+
+    <div class="sub-block fade-up" id="hands">
+      <div class="sb-side"><div class="sb-name">Hands</div><div class="sb-stat">34 DOF · 2 × 17</div></div>
+      <div class="sb-body">
+        <p>Two open-source <strong>ORCA</strong> hands — five tendon-routed fingers each, 16× Feetech
+          HLS3915 finger servos plus an HLS3930 wrist, 17 DOF per hand. Enough dexterity for pinch,
+          power, and tripod grasps; the same position commands drive the real and the
+          <a href="simulation.html">simulated</a> hand.</p>
+        <div class="spec"><span>Open-source ORCA</span><span>16× HLS3915 + wrist</span><span>Tendon-routed</span><span>5 fingers/hand</span></div>
+      </div>
+    </div>
+
+    <div class="sub-block fade-up" id="base">
+      <div class="sb-side"><div class="sb-name">Base</div><div class="sb-stat">3 modules · holonomic</div></div>
+      <div class="sb-body">
+        <p>A 3-module <strong>delta swerve</strong> on REV SPARK controllers (NEO / NEO550), 38.1&nbsp;mm
+          wheels — true holonomic motion: strafe through a doorway, rotate in place, hold a heading while
+          driving. A cascaded <strong>Z-lift</strong> adds 0.635&nbsp;m of vertical travel on top.</p>
+        <div class="spec"><span>3 × delta swerve</span><span>REV SPARK · NEO</span><span>0.635 m Z-lift</span><span>Holonomic</span></div>
+      </div>
+    </div>
+
+    <div class="sub-block fade-up" id="body">
+      <div class="sb-side"><div class="sb-name">Body</div><div class="sb-stat">torso · neck · lift</div></div>
+      <div class="sb-body">
+        <p>A pitching <strong>torso</strong> (Damiao) and a 3-DOF <strong>Dynamixel neck</strong>
+          (yaw / pitch / roll) turn the robot from a static arm-on-a-cart into an active one. With the
+          lift, they add the degrees of freedom that shrink the embodiment gap — eye height, lean, and
+          gaze the operator expects.</p>
+        <div class="spec"><span>Torso pitch · Damiao</span><span>3-DOF Dynamixel neck</span><span>Active perception</span></div>
+      </div>
+    </div>
+
+    <div class="sub-block fade-up" id="sensors">
+      <div class="sb-side"><div class="sb-name">Sensors</div><div class="sb-stat">stereo · wrists · LiDAR</div></div>
+      <div class="sb-body">
+        <p>A head <strong>ZED stereo</strong> camera for depth and immersive teleop, two
+          <strong>eye-in-hand wrist cameras</strong> for close manipulation, a base
+          <strong>RPLIDAR&nbsp;A3</strong> 360° 2-D LiDAR for mapping and <a href="navigation.html">navigation</a>,
+          and an IMU — all time-synchronized into one <a href="ros.html">ROS&nbsp;2 graph</a>.</p>
+        <div class="spec"><span>ZED head stereo</span><span>2× wrist cams</span><span>RPLIDAR A3</span><span>IMU</span></div>
+      </div>
+    </div>
+
+    <div class="sub-block fade-up" id="electronics">
+      <div class="sb-side"><div class="sb-name">Electronics</div><div class="sb-stat">custom PCBs · 1 net</div></div>
+      <div class="sb-body">
+        <p>Custom PCBs for the base and body tie the actuators together over a single low-latency local
+          network — <strong>CAN</strong> for the motor buses, <strong>Ethernet</strong> for the
+          high-bandwidth links — so the whole robot stays in lockstep. A single <strong>Jetson Thor</strong>
+          runs everything onboard; one battery powers it all. See <a href="firmware.html">Firmware</a>.</p>
+        <div class="spec"><span>Custom base + body PCB</span><span>CAN + Ethernet</span><span>Jetson Thor</span><span>Single battery</span></div>
       </div>
     </div>
   </div>
@@ -327,7 +397,7 @@
     <div class="fade-up" style="margin-top:48px; display:flex; gap:10px; flex-wrap:wrap;">
       <a href="#" class="btn btn-primary">CAD &amp; STEP files ↗</a>
       <a href="#" class="btn btn-ghost">Assembly guide ↗</a>
-      <a href="software.html" class="btn btn-ghost">Next: Software →</a>
+      <a href="firmware.html" class="btn btn-ghost">Next: Firmware →</a>
     </div>
   </div>
 </section>
@@ -344,7 +414,7 @@
           <a href="#" target="_blank" rel="noopener">Discord ↗</a>
         </div>
       </div>
-      <div class="foot-col"><h6>Subsystems</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a><a href="learning.html">Learning</a></div>
+      <div class="foot-col"><h6>Subsystems</h6><a href="hardware.html">Hardware</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a><a href="learning.html">Learning</a></div>
       <div class="foot-col"><h6>Build</h6><a href="#bom">Bill of materials</a><a href="#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a><a href="#" target="_blank" rel="noopener">URDF &amp; sim ↗</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Contact ↗</a></div>
     </div>

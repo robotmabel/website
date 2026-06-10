@@ -22,22 +22,16 @@
   <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
   <nav class="nav-links">
     <a href="index.html" class="on">Overview</a>
-    <a href="hardware.html">Hardware</a>
-    <a href="software.html">Software</a>
-    <a href="firmware.html">Firmware</a>
-    <a href="ros.html">ROS</a>
-    <a href="navigation.html">Navigation</a>
-    <a href="simulation.html">Simulation</a>
-    <a href="wbc.html">WBC</a>
-    <a href="teleop.html">Teleop</a>
-    <a href="learning.html">Learning</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware.html#arms">Arms</a><a href="hardware.html#hands">Hands</a><a href="hardware.html#base">Base</a><a href="hardware.html#body">Body</a><a href="hardware.html#sensors">Sensors</a><a href="hardware.html#electronics">Electronics</a><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Build guide</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="teleop.html">Teleop</a><a href="learning.html">Learning</a></div></div>
     <a href="connect.html">Connect</a>
     <a href="#" class="ext">Paper ↗</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="navigation.html">Navigation</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a><a href="teleop.html">Teleop</a><a href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware.html#arms">Arms</a><a class="sub" href="hardware.html#hands">Hands</a><a class="sub" href="hardware.html#base">Base</a><a class="sub" href="hardware.html#body">Body</a><a class="sub" href="hardware.html#sensors">Sensors</a><a class="sub" href="hardware.html#electronics">Electronics</a><a class="sub" href="hardware.html#bom">Bill of materials</a><a class="sub" href="hardware.html#build">Build guide</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="teleop.html">Teleop</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 
 <!-- ─── HERO ─── -->
@@ -184,10 +178,10 @@
         <p>Head to wheels. Composition, BOM, and a one-weekend build.</p>
         <div class="res-arrow">Explore →</div>
       </a>
-      <a href="software.html" class="res-card fade-up d1">
+      <a href="ros.html" class="res-card fade-up d1">
         <div class="res-tag">02 · Software</div>
         <h3>The stack</h3>
-        <p>ROS 2 below, learning above. Seven layers, one Jetson Thor.</p>
+        <p>Firmware to whole-body control — one ROS 2 graph, sim and real, all on Jetson Thor.</p>
         <div class="res-arrow">Explore →</div>
       </a>
       <a href="simulation.html" class="res-card fade-up d2">
@@ -338,7 +332,7 @@
       <div class="foot-col">
         <h6>Subsystems</h6>
         <a href="hardware.html">Hardware</a>
-        <a href="software.html">Software</a>
+        
         <a href="simulation.html">Simulation</a>
         <a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a>
         <a href="learning.html">Learning</a>
