@@ -347,10 +347,92 @@ def dataflow_svg():
     return "\n".join(o)
 
 
+# ── Animated ROS node graph (SMIL flowing data, plays in <img>) ───────────────
+
+def ros_graph_svg():
+    W, H = 1280, 760
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{SANS}">']
+    o.append(rr(0, 0, W, H, 18, "#0B0A09", stroke=SEP, sw=1))
+    o.append(txt(36, 44, "mabel_ws · live graph", LABEL2, 12, 700, font=MONO, spacing="1.5"))
+
+    edges = []  # (x1,y1,x2,y2,color)
+
+    def box(x, y, w, h, title, sub, accent, tcol=LABEL):
+        o.append(rr(x, y, w, h, 14, SURF, stroke=accent, sw=1.5))
+        o.append(dot(x + 18, y + 22, accent, 4))
+        o.append(txt(x + 32, y + 27, title, tcol, 14, 600, font=MONO))
+        for i, s in enumerate(sub):
+            o.append(txt(x + 18, y + 48 + i * 18, s, LABEL2, 11, 500, anchor="start"))
+
+    def edge(x1, y1, x2, y2, color, label=None, delay=0.0):
+        o.append(f'<path id="" d="M {x1} {y1} C {(x1+x2)/2} {y1}, {(x1+x2)/2} {y2}, {x2} {y2}" '
+                 f'stroke="{color}" stroke-width="1.6" fill="none" opacity="0.5"/>')
+        if label:
+            o.append(txt((x1 + x2) / 2, (y1 + y2) / 2 - 6, label, color, 10.5, 600,
+                         font=MONO, anchor="middle"))
+        # flowing dot
+        o.append(f'<circle r="4" fill="{color}"><animateMotion dur="2.2s" begin="{delay}s" '
+                 f'repeatCount="indefinite" path="M {x1} {y1} C {(x1+x2)/2} {y1}, {(x1+x2)/2} {y2}, {x2} {y2}"/>'
+                 f'<animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="{delay}s" repeatCount="indefinite"/></circle>')
+
+    # ── columns
+    # sources
+    box(40, 150, 200, 110, "teleop", ["Vision Pro / iOS", "keyboard"], BLUE)
+    box(40, 430, 200, 110, "autonomy", ["Nav2 · policy", "WBC targets"], BLUE)
+    # driver nodes
+    nx, nw, nh = 500, 250, 88
+    nodes = [
+        ("mabel_swerve_node", ["base + lift"], 70),
+        ("body_hardware_node", ["torso · neck"], 192),
+        ("arms_hardware_node", ["14-DOF arms"], 314),
+        ("orca_hand_node", ["2× 17-DOF hands"], 436),
+        ("camera_bridge", ["RGB-D · wrists · LiDAR"], 558),
+    ]
+    for title, sub, y in nodes:
+        box(nx, y, nw, nh, title, sub, ORANGE)
+    # outputs
+    ox = 1010
+    o.append(rr(ox, 150, 230, 150, 14, SURF, stroke=GREEN, sw=1.5))
+    o.append(dot(ox + 18, 172, GREEN, 4))
+    o.append(txt(ox + 32, 177, "/joint_states", GREEN, 15, 700, font=MONO))
+    o.append(txt(ox + 18, 205, "sensor_msgs/JointState", LABEL2, 11, 500))
+    o.append(txt(ox + 18, 228, "every joint · 200 Hz", LABEL2, 11, 500))
+    o.append(txt(ox + 18, 262, "→ RViz · Foxglove", LABEL3, 11, 600, font=MONO))
+    o.append(txt(ox + 18, 282, "→ WBC · learning", LABEL3, 11, 600, font=MONO))
+    for t, sub, y in (("/odom", "→ Nav2 / SLAM", 360), ("/scan", "→ Nav2 / SLAM", 470),
+                      ("/head/image_raw", "→ perception", 580)):
+        o.append(rr(ox, y, 230, 64, 12, ELEV))
+        o.append(dot(ox + 18, y + 22, GREEN, 4))
+        o.append(txt(ox + 32, y + 27, t, LABEL, 13, 600, font=MONO))
+        o.append(txt(ox + 18, y + 48, sub, LABEL3, 10.5, 600, font=MONO))
+
+    # command edges (blue, sources -> drivers)
+    edge(240, 195, nx, 114, BLUE, "/mabel_cmd", 0.0)
+    edge(240, 215, nx, 480, BLUE, "/right_hand/command", 0.6)
+    edge(240, 470, nx, 358, BLUE, "/arms/command", 0.3)
+    edge(240, 490, nx, 236, BLUE, "/body/command", 0.9)
+    # state edges (green, drivers -> outputs)
+    edge(nx + nw, 114, ox, 200, GREEN, None, 0.2)
+    edge(nx + nw, 236, ox, 215, GREEN, None, 0.5)
+    edge(nx + nw, 358, ox, 230, GREEN, None, 0.8)
+    edge(nx + nw, 480, ox, 245, GREEN, None, 1.1)
+    edge(nx + nw, 100, ox, 392, GREEN, "/odom", 1.4)
+    edge(nx + nw, 602, ox, 502, GREEN, "/scan", 0.4)
+    edge(nx + nw, 620, ox, 612, GREEN, "/head/image_raw", 1.0)
+
+    # legend
+    o.append(dot(40, H - 30, BLUE, 5)); o.append(txt(54, H - 25, "commands in", LABEL2, 12, 500))
+    o.append(dot(190, H - 30, GREEN, 5)); o.append(txt(204, H - 25, "state + sensors out", LABEL2, 12, 500))
+    o.append(txt(W - 36, H - 25, "one DDS graph · sim ⇄ real", LABEL3, 12, 600, font=MONO, anchor="end"))
+    o.append("</svg>")
+    return "\n".join(o)
+
+
 def main():
     for name, fn in (("gui-swerve.svg", swerve_svg), ("gui-hand.svg", hand_svg),
                      ("gui-swerve-demo.svg", swerve_demo_svg),
-                     ("teleop-dataflow.svg", dataflow_svg)):
+                     ("teleop-dataflow.svg", dataflow_svg),
+                     ("ros-graph.svg", ros_graph_svg)):
         p = os.path.join(OUT, name)
         with open(p, "w") as f:
             f.write(fn())

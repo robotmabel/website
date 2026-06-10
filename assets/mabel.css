@@ -335,6 +335,19 @@ section { position: relative; }
 .media-frame.gui > img { object-fit: contain; }
 .gui-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 8px; }
 @media (max-width: 820px) { .gui-grid { grid-template-columns: 1fr; } }
+/* topic / interface contract table */
+.tt { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 13px; }
+.tt th { text-align: left; color: var(--ash); font-weight: 600; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; padding: 0 12px 12px 0; border-bottom: 1px solid rgba(22,20,18,0.12); }
+.tt td { padding: 12px 12px 12px 0; border-bottom: 1px solid rgba(22,20,18,0.07); color: var(--ink-soft); vertical-align: top; }
+.tt td:first-child { color: var(--ink); font-weight: 500; white-space: nowrap; }
+.tt .pub { color: #1f9d55; font-weight: 600; } .tt .sub { color: #2563c9; font-weight: 600; }
+.dark-sec .tt th { color: var(--ash-light); border-color: rgba(242,238,230,0.16); }
+.dark-sec .tt td { color: var(--bone); border-color: rgba(242,238,230,0.10); }
+.dark-sec .tt td:first-child { color: var(--bone); }
+.dark-sec .tt .pub { color: #43c463; } .dark-sec .tt .sub { color: #6aa6ff; }
+.dark-sec .bib { background: rgba(8,7,6,0.5); border-color: rgba(242,238,230,0.12); color: var(--bone); box-shadow: none; }
+.dark-sec .bib-copy { background: rgba(242,238,230,0.14); color: var(--bone); }
+.dark-sec .bib-copy:hover { background: var(--rust); }
 .media-frame.sim-dark { background: #07060a; border-color: rgba(242,238,230,0.10); }
 /* caption chip over a sim clip */
 .sim-cap { position: absolute; left: 14px; bottom: 12px; z-index: 2; display: inline-flex; align-items: center; gap: 7px;

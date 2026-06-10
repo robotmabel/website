@@ -92,6 +92,17 @@
   });
 
   /* ── BibTeX copy ── */
+  /* generic: copy the <pre> that sits next to the button */
+  window.copyCode = function (btn) {
+    var pre = btn.parentElement && btn.parentElement.querySelector('pre');
+    if (!pre) return;
+    navigator.clipboard.writeText(pre.textContent).then(function () {
+      var orig = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(function () { btn.textContent = orig; }, 1800);
+    }).catch(function () {});
+  };
+
   window.copyBib = function (btn) {
     var pre = document.getElementById('bib-text');
     if (!pre) return;

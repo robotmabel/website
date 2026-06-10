@@ -45,75 +45,135 @@
     <span class="eyebrow">L2 · ROS 2</span>
     <h1 class="display-lg">One graph, every joint.</h1>
     <p class="lede">
-      A single ROS 2 Humble workspace — <code>mabel_ws</code> — wraps every firmware target behind standard topics:
-      drivers, sensors, descriptions, and custom interfaces. One launch file brings up the whole robot over DDS.
+      A single ROS 2 Humble workspace — <code>mabel_ws</code> — wraps every firmware bus behind standard
+      topics. Commands flow in, <code>/joint_states</code> flows out, and the <strong>exact same graph</strong>
+      drives the real robot or the MuJoCo twin. Flip one flag to choose.
     </p>
     <div class="spec" style="margin-top:28px;">
-      <span>ROS 2 Humble</span><span>Ubuntu 22.04</span><span>DDS</span><span>colcon</span><span>/joint_states</span>
+      <span>ROS 2 Humble</span><span>Ubuntu 22.04</span><span>DDS</span><span>colcon</span><span>sim ⇄ real, one flag</span>
     </div>
   </div>
 </section>
 
-<!-- ─── PACKAGES ─── -->
-<section class="dark-sec pad-y">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">The workspace</span>
-        <h2 class="display-md title" style="color:var(--bone);">Wrapped behind <span class="italic accent">clean topics.</span></h2>
-      </div>
-      <p class="lede">Every firmware bus surfaces in ROS the same way — joint command in, joint state out. Consumers never see CAN, RS-485, or Dynamixel; they see topics.</p>
-    </div>
-
-    <div class="points fade-up">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Hardware drivers</h5>
-        <p><code>mabel_base_hardware</code>, <code>mabel_arms_hardware</code>, <code>mabel_body_hardware</code>, and <code>mabel_orca_hand</code> bridge each firmware bus to ROS — publishing <code>/joint_states</code>, subscribing to commands at 200 Hz+.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Sensors &amp; time base</h5>
-        <p><code>mabel_sensors</code> brings up the head RGB-D, two eye-in-hand wrist cameras, and the base 2-D LiDAR — hardware-timestamped onto one clock so images, scans, and joint states line up to the millisecond.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Description &amp; interfaces</h5>
-        <p><code>mabel_description</code> holds the URDF, meshes, and RViz config — the same kinematic tree used in sim. <code>mabel_interfaces</code> defines the custom messages and services the stack speaks.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
-        <h5>Teleop bridge</h5>
-        <p><code>mabel_teleop</code> routes Apple Vision Pro and keyboard input into the same command topics the drivers listen on — the teleop path and the autonomy path are interchangeable. See <a href="teleop.html" style="color:var(--rust);">Teleop</a>.</p>
-      </div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── BRINGUP ─── -->
+<!-- ─── LIVE GRAPH ─── -->
 <section class="pad-y">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">Bring-up</span>
-        <h2 class="display-md title">One command, <span class="italic accent">whole robot.</span></h2>
+        <span class="eyebrow">The graph</span>
+        <h2 class="display-md title">Commands in, <span class="italic accent">state out.</span></h2>
       </div>
-      <p class="lede">Build once with <code>colcon</code>, then launch the full stack — base, arms, hands, sensors, and description — from a single entry point.</p>
+      <p class="lede">Teleop and autonomy publish the same command topics; per-subsystem driver nodes turn
+        them into bus traffic and publish back <code>/joint_states</code>, <code>/odom</code>, and the
+        sensor streams. Consumers never touch CAN or RS-485 — they see topics.</p>
+    </div>
+    <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:1280/760;">
+      <img src="assets/ros-graph.svg" alt="MABEL ROS 2 graph: teleop and autonomy publish command topics into the swerve, body, arms, hand, and camera driver nodes, which publish /joint_states, /odom, /scan and /head/image_raw" />
+    </div>
+  </div>
+</section>
+
+<!-- ─── BOOT MODES (interactive tabs) ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">One launch file</span>
+        <h2 class="display-md title" style="color:var(--bone);">Two ways to <span class="italic accent">boot.</span></h2>
+      </div>
+      <p class="lede"><code>mabel_bringup/robot.launch.py</code> takes a single <code>use_sim</code> argument —
+        the real robot is a federation of driver nodes; the sim is one monolithic node. The graph above is
+        identical either way.</p>
     </div>
 
-    <div class="points fade-up">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Build the workspace</h5>
-        <p><code>rosdep install</code> pulls dependencies, then <code>colcon build --symlink-install</code> builds every package; <code>source install/setup.bash</code> and the stack is live.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Launch the stack</h5>
-        <p><code>ros2 launch mabel_bringup robot.launch.py</code> starts base, arms, hands, sensors, and description together over DDS — no per-subsystem babysitting.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Sim parity</h5>
-        <p>The same topic names and message types drive the MuJoCo / Isaac twin, so behavior validated in sim deploys with no glue code. See <a href="simulation.html" style="color:var(--rust);">Simulation</a>.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
-        <h5>Layers above</h5>
-        <p>Navigation and whole-body control subscribe to the same graph — <a href="navigation.html" style="color:var(--rust);">Nav2 + SLAM</a> below, <a href="software.html" style="color:var(--rust);">application software</a> above.</p>
-      </div></div>
+    <div class="fade-up" data-tabs>
+      <div class="tab-bar" role="tablist">
+        <button class="tab-btn on" role="tab" data-tab="r-hw">Real hardware</button>
+        <button class="tab-btn" role="tab" data-tab="r-sim">Simulation</button>
+      </div>
+      <div id="r-hw" class="tab-panel on">
+        <div class="bib" style="margin-bottom:18px;">
+          <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+          <pre>ros2 launch mabel_bringup robot.launch.py</pre>
+        </div>
+        <div class="points">
+          <div class="point"><div class="num">A</div><div>
+            <h5>A federated robot</h5>
+            <p>Brings up <code>base.launch.py</code>, <code>body.launch.py</code>, <code>arms.launch.py</code>
+              and <code>sensors.launch.py</code> as independent nodes — each owns one firmware bus and can
+              be restarted alone.</p>
+          </div></div>
+          <div class="point"><div class="num">B</div><div>
+            <h5>Real buses, hidden</h5>
+            <p><code>mabel_swerve_node</code> (REV CAN), <code>arms/body_hardware_node</code> (Damiao CAN),
+              <code>orca_hand_node</code> (Feetech) each publish <code>/joint_states</code> at 200 Hz.</p>
+          </div></div>
+        </div>
+      </div>
+      <div id="r-sim" class="tab-panel">
+        <div class="bib" style="margin-bottom:18px;">
+          <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+          <pre>ros2 launch mabel_bringup robot.launch.py use_sim:=true</pre>
+        </div>
+        <div class="points">
+          <div class="point"><div class="num">A</div><div>
+            <h5>A monolithic universe</h5>
+            <p>One <code>mabel_mujoco_sim</code> node replaces every driver — it owns physics, publishes the
+              same <code>/joint_states</code>, and listens on the same command topics.</p>
+          </div></div>
+          <div class="point"><div class="num">B</div><div>
+            <h5>Nothing else changes</h5>
+            <p>Teleop, WBC, and Nav2 can't tell the difference — same topics, same types. Validate in sim,
+              drop the flag, deploy. See <a href="simulation.html" style="color:#e9a679;">Simulation</a>.</p>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── COMMAND CONTRACT ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The contract</span>
+        <h2 class="display-md title">What's on <span class="italic accent">the wire.</span></h2>
+      </div>
+      <p class="lede">A handful of topics is the entire interface between control and hardware. The base and
+        lift even share one custom message — twist plus lift height plus a state byte.</p>
+    </div>
+
+    <div class="feature fade-up">
+      <div class="feature-copy">
+        <table class="tt">
+          <thead><tr><th>Topic</th><th>Type</th><th>Dir</th></tr></thead>
+          <tbody>
+            <tr><td>/mabel_cmd</td><td>mabel_interfaces/MabelSwerveCmd</td><td><span class="sub">sub</span></td></tr>
+            <tr><td>/arms/command</td><td>arm joint command</td><td><span class="sub">sub</span></td></tr>
+            <tr><td>/body/command</td><td>torso + neck command</td><td><span class="sub">sub</span></td></tr>
+            <tr><td>/left_hand · /right_hand/command</td><td>17-DOF hand command</td><td><span class="sub">sub</span></td></tr>
+            <tr><td>/joint_states</td><td>sensor_msgs/JointState</td><td><span class="pub">pub</span></td></tr>
+            <tr><td>/odom</td><td>nav_msgs/Odometry</td><td><span class="pub">pub</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">mabel_interfaces · the base+lift message</span>
+        <h3>One twist drives the floor.</h3>
+        <p>The swerve base and the lift ride a single custom message — a body-frame twist, the target lift
+          height, and a hardware-state byte. The driver runs the swerve IK and the tip-safe envelope below
+          it; you just send where you want to go.</p>
+        <div class="bib" style="margin-top:18px;">
+          <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+          <pre># MabelSwerveCmd.msg
+float32 vx          # body-frame x velocity
+float32 vy          # body-frame y velocity
+float32 omega       # yaw rate
+float32 lift_pos    # target lift height (m)
+uint8   hardware_state</pre>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -127,12 +187,12 @@
     </div>
   </div>
   <div class="card-grid">
-    <div class="card fade-up"><span class="card-num">01</span><div><h4>mabel_bringup</h4><p>System launch files — one entry point for the full hardware stack.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>*_hardware</h4><p>Base, arms, and body drivers publishing <code>/joint_states</code> and taking commands.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>mabel_orca_hand</h4><p>ROS driver for the 17-DOF ORCA hands on top of <code>orca_core</code>.</p></div></div>
-    <div class="card fade-up"><span class="card-num">04</span><div><h4>mabel_sensors</h4><p>Head RGB-D, dual wrist cameras, and base 2-D LiDAR on a shared clock.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>mabel_description</h4><p>URDF, meshes, and RViz config — one kinematic tree for sim and real.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>mabel_interfaces</h4><p>Custom messages and services that tie the stack together.</p></div></div>
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>mabel_bringup</h4><p>One <code>robot.launch.py</code> with a <code>use_sim</code> flag — federated hardware or monolithic sim.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>mabel_base_hardware</h4><p><code>swerve_node</code>: takes <code>/mabel_cmd</code>, runs swerve IK, publishes <code>/odom</code> + <code>/joint_states</code>.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>arms · body _hardware</h4><p>Damiao-CAN driver nodes for the 14-DOF arms and the torso + neck.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>mabel_orca_hand</h4><p><code>orca_hand_node</code> + a joint-state relay for both 17-DOF Feetech hands.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>mabel_sensors</h4><p><code>camera_bridge</code>: head RGB-D, dual wrist cams, and the base 2-D LiDAR on one clock.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>description · interfaces · sim</h4><p>The shared URDF, the custom messages, and the MuJoCo node — one kinematic tree, sim and real.</p></div></div>
   </div>
 </section>
 
