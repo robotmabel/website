@@ -86,22 +86,101 @@
 </section>
 
 <!-- ─── iOS APP ─── -->
-<section class="dark-sec pad-y">
+<section class="pad-y" id="ios">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">iOS · base driving</span>
-        <h2 class="display-md title" style="color:var(--bone);">Drive it from <span class="italic accent">your phone.</span></h2>
+        <span class="eyebrow">iOS · the pocket console</span>
+        <h2 class="display-md title">Your robot, <span class="italic accent">in your pocket.</span></h2>
       </div>
-      <p class="lede">No headset? The iPhone app shows the same camera feeds and drives the holonomic base
-        with two on-screen joysticks — left to translate, right to turn and lift.</p>
+      <p class="lede">No headset needed. The iPhone app is the lightweight companion — drive, pose, plan,
+        and run policies one-handed, with a live 3D twin and the same camera feeds. It auto-discovers the
+        robot on the network and falls back to an on-device simulator, so it always has something to drive.</p>
     </div>
-    <div class="reveal-media media-frame sim-dark" style="aspect-ratio:1120/680;">
+    <div class="reveal-media media-frame sim-dark fade-up" style="aspect-ratio:1120/680; margin-bottom:34px;">
       <video src="assets/sim/teleop_ios.mp4" autoplay muted loop playsinline></video>
-      <span class="sim-cap"><span class="dot"></span>iPhone capture · drive view + virtual joysticks</span>
+      <span class="sim-cap"><span class="dot"></span>iPhone · driving the base, live</span>
     </div>
-    <div class="spec fade-up" style="justify-content:center; margin-top:22px;">
-      <span>Live camera feeds</span><span>Drone-style joysticks</span><span>Strafe · forward · yaw · lift</span><span>Tip-safe envelope</span><span>RobotState HUD</span>
+    <div class="phone-row fade-up">
+      <img class="phone-shot" src="assets/app-ios-home.svg" alt="MABEL iOS app — Home: connection hero with auto-discovery, battery/speed/link vitals, live 3D twin" />
+      <img class="phone-shot" src="assets/app-ios-drive.svg" alt="MABEL iOS app — Teleop Drive: head-cam feed, twin joysticks, speed governor, E-STOP" />
+      <img class="phone-shot" src="assets/app-ios-nav.svg" alt="MABEL iOS app — Navigate: tap-to-set goal on the occupancy map with an A* path" />
+      <img class="phone-shot" src="assets/app-ios-policies.svg" alt="MABEL iOS app — Policies: learned and scripted skills with offline-eval success rates" />
+    </div>
+  </div>
+</section>
+
+<!-- ─── iOS · DRIVE ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="feature fade-up">
+      <div class="feature-media phone-media"><img class="phone-shot" src="assets/app-ios-drive.svg" alt="Drive mode — twin joysticks over a live camera feed" /></div>
+      <div class="feature-copy">
+        <span class="eyebrow" style="color:#e9a679;">Drive · joystick navigation</span>
+        <h3 style="color:var(--bone);">Two thumbs, holonomic.</h3>
+        <p style="color:var(--bone);opacity:0.82;">Over a live head-cam feed, a left stick translates (strafe + forward) and a right stick turns and lifts. The command runs through the same swerve IK and tip-over envelope as every other path, with a speed governor and an always-present E-STOP. Drone-simple, robot-safe.</p>
+        <div class="spec"><span>Strafe + forward</span><span>Turn + lift</span><span>Speed governor</span><span>E-STOP</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── iOS · ARM / WBC ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="feature flip fade-up">
+      <div class="feature-media phone-media"><img class="phone-shot" src="assets/app-ios-arm.svg" alt="Arm / Whole-Body mode — 3D twin with per-joint sliders" /></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Arm &amp; whole body · the 3D twin</span>
+        <h3>Pose it on a model.</h3>
+        <p>A procedural 3D twin — built from the same <code>mabel_joints.json</code> as the web viewer and MuJoCo — mirrors the robot's joints live. Drag per-joint sliders for the lift, neck, and both 7-DOF arms, or switch to <strong>Whole Body</strong> and move an end-effector while the <a href="wbc.html">whole-body controller</a> coordinates base, lift, torso, and arms.</p>
+        <div class="spec"><span>Live digital twin</span><span>Per-joint sliders</span><span>Whole-body mode</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── iOS · NAVIGATE / A* ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="feature fade-up">
+      <div class="feature-media phone-media"><img class="phone-shot" src="assets/app-ios-nav.svg" alt="Navigate mode — tap a goal, an A* path plans across the SLAM map, the robot drives it" /></div>
+      <div class="feature-copy">
+        <span class="eyebrow" style="color:#e9a679;">Navigate · tap-to-go</span>
+        <h3 style="color:var(--bone);">Tap a spot. It plans the route.</h3>
+        <p style="color:var(--bone);opacity:0.82;">On a stylized occupancy map from <a href="navigation.html" style="color:#e9a679;">SLAM</a>, tap anywhere to drop a goal. The app runs an <strong>A*</strong> global plan around the walls, then a pure-pursuit controller tracks the swerve trajectory — the robot marker drives the route live. Save places like <em>Dock</em> or <em>Staging</em> and send it with one tap.</p>
+        <div class="spec"><span>A* global plan</span><span>Pure-pursuit tracking</span><span>Saved places</span><span>Live heading</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── iOS · POLICIES ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="feature flip fade-up">
+      <div class="feature-media phone-media"><img class="phone-shot" src="assets/app-ios-policies.svg" alt="Policies library — learned CVAE, navigation, and scripted skills with success rates and a run button" /></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Policies · run a skill</span>
+        <h3>Dispatch autonomy.</h3>
+        <p>The policy library lists learned and scripted skills — CVAE visuomotor policies, navigation routines, and scripted behaviors — each with its kind, control rate, and an <strong>offline-eval success rate</strong>. Tap ▶ to dispatch; the robot runs it and reports back. See <a href="learning.html">Learning</a> for how the policies are trained.</p>
+        <div class="spec"><span>CVAE visuomotor</span><span>Navigation routines</span><span>Scripted skills</span><span>Eval success %</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── iOS · CONNECT ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="feature fade-up">
+      <div class="feature-media phone-media"><img class="phone-shot" src="assets/app-ios-home.svg" alt="Home — auto-discovered connection, vitals, and the live twin; Demo (sim) or Robot" /></div>
+      <div class="feature-copy">
+        <span class="eyebrow" style="color:#e9a679;">Connect · sim or real</span>
+        <h3 style="color:var(--bone);">It finds the robot for you.</h3>
+        <p style="color:var(--bone);opacity:0.82;">Open the app and it auto-discovers MABEL on the local network (<code>mabel.local:9090</code>) and connects. No robot around? It drops into <strong>Demo</strong> — an on-device 30&nbsp;Hz physics-lite simulator driving the same twin — so the whole interface is live with nothing plugged in. Flip between <strong>Demo&nbsp;(sim)</strong> and <strong>Robot</strong> anytime; the views never change, only the transport.</p>
+        <div class="spec"><span>Auto-discovery</span><span>Demo (on-device sim)</span><span>Real robot · WebSocket</span><span>Battery · link · vitals</span></div>
+      </div>
     </div>
   </div>
 </section>

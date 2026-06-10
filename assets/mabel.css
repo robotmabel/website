@@ -373,6 +373,11 @@ section[id], .sub-block[id] { scroll-margin-top: 92px; }
 .sb-stat { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: var(--ash); margin-top: 10px; }
 .sb-body p { font-size: 15.5px; line-height: 1.7; color: var(--ink-soft); margin: 0 0 16px; max-width: 64ch; }
 @media (max-width: 760px) { .sub-block { grid-template-columns: 1fr; gap: 14px; padding: 26px 0; } }
+/* iPhone app mockups */
+.phone-media { display: flex; justify-content: center; align-items: center; }
+.phone-shot { display: block; width: 100%; max-width: 290px; border-radius: 38px; filter: drop-shadow(0 50px 70px rgba(22,20,18,0.38)); }
+.phone-row { display: flex; gap: 22px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+.phone-row .phone-shot { max-width: 208px; }
 .media-frame.sim-dark { background: #07060a; border-color: rgba(242,238,230,0.10); }
 /* caption chip over a sim clip */
 .sim-cap { position: absolute; left: 14px; bottom: 12px; z-index: 2; display: inline-flex; align-items: center; gap: 7px;
