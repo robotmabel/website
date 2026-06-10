@@ -63,12 +63,13 @@
         <span class="eyebrow">The graph</span>
         <h2 class="display-md title">Commands in, <span class="italic accent">state out.</span></h2>
       </div>
-      <p class="lede">Teleop and autonomy publish the same command topics; per-subsystem driver nodes turn
-        them into bus traffic and publish back <code>/joint_states</code>, <code>/odom</code>, and the
-        sensor streams. Consumers never touch CAN or RS-485 — they see topics.</p>
+      <p class="lede">Teleop and autonomy publish onto the command bus; the actuator drivers and the
+        sensor nodes publish back onto the state bus — <code>/joint_states</code>, <code>/odom</code>,
+        the camera images, and the LiDAR scan. Boot the twin and one <code>mabel_mujoco_sim</code> node
+        stands in for all of them. Consumers never touch CAN or RS-485; they see topics.</p>
     </div>
-    <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:1280/760;">
-      <img src="assets/ros-graph.svg" alt="MABEL ROS 2 graph: teleop and autonomy publish command topics into the swerve, body, arms, hand, and camera driver nodes, which publish /joint_states, /odom, /scan and /head/image_raw" />
+    <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:1320/940;">
+      <img src="assets/ros-graph.svg" alt="MABEL ROS 2 topic-bus graph: teleop and autonomy publish command topics; actuator driver nodes (swerve, body, arms, orca_hand), sensor nodes (head_stereo, left/right wrist cams, rplidar) and the unified mujoco_sim node publish /joint_states, /odom, image and scan topics up to consumers (robot_state_publisher, rviz2, WBC, nav2/slam, learning)" />
     </div>
   </div>
 </section>

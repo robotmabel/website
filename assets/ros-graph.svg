@@ -1,87 +1,142 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif">
-<rect x="0" y="0" width="1280" height="760" rx="18" fill="#0B0A09" opacity="1" stroke="#38383A" stroke-width="1"/>
-<text x="36" y="44" fill="#8E8E93" font-size="12" font-weight="700" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start" letter-spacing="1.5">mabel_ws · live graph</text>
-<rect x="40" y="150" width="200" height="110" rx="14" fill="#1C1C1E" opacity="1" stroke="#0A84FF" stroke-width="1.5"/>
-<circle cx="58" cy="172" r="4" fill="#0A84FF"/>
-<text x="72" y="177" fill="#FFFFFF" font-size="14" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">teleop</text>
-<text x="58" y="198" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Vision Pro / iOS</text>
-<text x="58" y="216" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">keyboard</text>
-<rect x="40" y="430" width="200" height="110" rx="14" fill="#1C1C1E" opacity="1" stroke="#0A84FF" stroke-width="1.5"/>
-<circle cx="58" cy="452" r="4" fill="#0A84FF"/>
-<text x="72" y="457" fill="#FFFFFF" font-size="14" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">autonomy</text>
-<text x="58" y="478" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Nav2 · policy</text>
-<text x="58" y="496" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">WBC targets</text>
-<rect x="500" y="70" width="250" height="88" rx="14" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.5"/>
-<circle cx="518" cy="92" r="4" fill="#FF9F0A"/>
-<text x="532" y="97" fill="#FFFFFF" font-size="14" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">mabel_swerve_node</text>
-<text x="518" y="118" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">base + lift</text>
-<rect x="500" y="192" width="250" height="88" rx="14" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.5"/>
-<circle cx="518" cy="214" r="4" fill="#FF9F0A"/>
-<text x="532" y="219" fill="#FFFFFF" font-size="14" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">body_hardware_node</text>
-<text x="518" y="240" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">torso · neck</text>
-<rect x="500" y="314" width="250" height="88" rx="14" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.5"/>
-<circle cx="518" cy="336" r="4" fill="#FF9F0A"/>
-<text x="532" y="341" fill="#FFFFFF" font-size="14" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">arms_hardware_node</text>
-<text x="518" y="362" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">14-DOF arms</text>
-<rect x="500" y="436" width="250" height="88" rx="14" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.5"/>
-<circle cx="518" cy="458" r="4" fill="#FF9F0A"/>
-<text x="532" y="463" fill="#FFFFFF" font-size="14" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">orca_hand_node</text>
-<text x="518" y="484" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">2× 17-DOF hands</text>
-<rect x="500" y="558" width="250" height="88" rx="14" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.5"/>
-<circle cx="518" cy="580" r="4" fill="#FF9F0A"/>
-<text x="532" y="585" fill="#FFFFFF" font-size="14" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">camera_bridge</text>
-<text x="518" y="606" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">RGB-D · wrists · LiDAR</text>
-<rect x="1010" y="150" width="230" height="150" rx="14" fill="#1C1C1E" opacity="1" stroke="#30D158" stroke-width="1.5"/>
-<circle cx="1028" cy="172" r="4" fill="#30D158"/>
-<text x="1042" y="177" fill="#30D158" font-size="15" font-weight="700" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">/joint_states</text>
-<text x="1028" y="205" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">sensor_msgs/JointState</text>
-<text x="1028" y="228" fill="#8E8E93" font-size="11" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">every joint · 200 Hz</text>
-<text x="1028" y="262" fill="#636366" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">→ RViz · Foxglove</text>
-<text x="1028" y="282" fill="#636366" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">→ WBC · learning</text>
-<rect x="1010" y="360" width="230" height="64" rx="12" fill="#2C2C2E" opacity="1"/>
-<circle cx="1028" cy="382" r="4" fill="#30D158"/>
-<text x="1042" y="387" fill="#FFFFFF" font-size="13" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">/odom</text>
-<text x="1028" y="408" fill="#636366" font-size="10.5" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">→ Nav2 / SLAM</text>
-<rect x="1010" y="470" width="230" height="64" rx="12" fill="#2C2C2E" opacity="1"/>
-<circle cx="1028" cy="492" r="4" fill="#30D158"/>
-<text x="1042" y="497" fill="#FFFFFF" font-size="13" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">/scan</text>
-<text x="1028" y="518" fill="#636366" font-size="10.5" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">→ Nav2 / SLAM</text>
-<rect x="1010" y="580" width="230" height="64" rx="12" fill="#2C2C2E" opacity="1"/>
-<circle cx="1028" cy="602" r="4" fill="#30D158"/>
-<text x="1042" y="607" fill="#FFFFFF" font-size="13" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">/head/image_raw</text>
-<text x="1028" y="628" fill="#636366" font-size="10.5" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">→ perception</text>
-<path id="" d="M 240 195 C 370.0 195, 370.0 114, 500 114" stroke="#0A84FF" stroke-width="1.6" fill="none" opacity="0.5"/>
-<text x="370.0" y="148.5" fill="#0A84FF" font-size="10.5" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">/mabel_cmd</text>
-<circle r="4" fill="#0A84FF"><animateMotion dur="2.2s" begin="0.0s" repeatCount="indefinite" path="M 240 195 C 370.0 195, 370.0 114, 500 114"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="0.0s" repeatCount="indefinite"/></circle>
-<path id="" d="M 240 215 C 370.0 215, 370.0 480, 500 480" stroke="#0A84FF" stroke-width="1.6" fill="none" opacity="0.5"/>
-<text x="370.0" y="341.5" fill="#0A84FF" font-size="10.5" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">/right_hand/command</text>
-<circle r="4" fill="#0A84FF"><animateMotion dur="2.2s" begin="0.6s" repeatCount="indefinite" path="M 240 215 C 370.0 215, 370.0 480, 500 480"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="0.6s" repeatCount="indefinite"/></circle>
-<path id="" d="M 240 470 C 370.0 470, 370.0 358, 500 358" stroke="#0A84FF" stroke-width="1.6" fill="none" opacity="0.5"/>
-<text x="370.0" y="408.0" fill="#0A84FF" font-size="10.5" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">/arms/command</text>
-<circle r="4" fill="#0A84FF"><animateMotion dur="2.2s" begin="0.3s" repeatCount="indefinite" path="M 240 470 C 370.0 470, 370.0 358, 500 358"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="0.3s" repeatCount="indefinite"/></circle>
-<path id="" d="M 240 490 C 370.0 490, 370.0 236, 500 236" stroke="#0A84FF" stroke-width="1.6" fill="none" opacity="0.5"/>
-<text x="370.0" y="357.0" fill="#0A84FF" font-size="10.5" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">/body/command</text>
-<circle r="4" fill="#0A84FF"><animateMotion dur="2.2s" begin="0.9s" repeatCount="indefinite" path="M 240 490 C 370.0 490, 370.0 236, 500 236"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="0.9s" repeatCount="indefinite"/></circle>
-<path id="" d="M 750 114 C 880.0 114, 880.0 200, 1010 200" stroke="#30D158" stroke-width="1.6" fill="none" opacity="0.5"/>
-<circle r="4" fill="#30D158"><animateMotion dur="2.2s" begin="0.2s" repeatCount="indefinite" path="M 750 114 C 880.0 114, 880.0 200, 1010 200"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="0.2s" repeatCount="indefinite"/></circle>
-<path id="" d="M 750 236 C 880.0 236, 880.0 215, 1010 215" stroke="#30D158" stroke-width="1.6" fill="none" opacity="0.5"/>
-<circle r="4" fill="#30D158"><animateMotion dur="2.2s" begin="0.5s" repeatCount="indefinite" path="M 750 236 C 880.0 236, 880.0 215, 1010 215"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="0.5s" repeatCount="indefinite"/></circle>
-<path id="" d="M 750 358 C 880.0 358, 880.0 230, 1010 230" stroke="#30D158" stroke-width="1.6" fill="none" opacity="0.5"/>
-<circle r="4" fill="#30D158"><animateMotion dur="2.2s" begin="0.8s" repeatCount="indefinite" path="M 750 358 C 880.0 358, 880.0 230, 1010 230"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="0.8s" repeatCount="indefinite"/></circle>
-<path id="" d="M 750 480 C 880.0 480, 880.0 245, 1010 245" stroke="#30D158" stroke-width="1.6" fill="none" opacity="0.5"/>
-<circle r="4" fill="#30D158"><animateMotion dur="2.2s" begin="1.1s" repeatCount="indefinite" path="M 750 480 C 880.0 480, 880.0 245, 1010 245"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="1.1s" repeatCount="indefinite"/></circle>
-<path id="" d="M 750 100 C 880.0 100, 880.0 392, 1010 392" stroke="#30D158" stroke-width="1.6" fill="none" opacity="0.5"/>
-<text x="880.0" y="240.0" fill="#30D158" font-size="10.5" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">/odom</text>
-<circle r="4" fill="#30D158"><animateMotion dur="2.2s" begin="1.4s" repeatCount="indefinite" path="M 750 100 C 880.0 100, 880.0 392, 1010 392"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="1.4s" repeatCount="indefinite"/></circle>
-<path id="" d="M 750 602 C 880.0 602, 880.0 502, 1010 502" stroke="#30D158" stroke-width="1.6" fill="none" opacity="0.5"/>
-<text x="880.0" y="546.0" fill="#30D158" font-size="10.5" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">/scan</text>
-<circle r="4" fill="#30D158"><animateMotion dur="2.2s" begin="0.4s" repeatCount="indefinite" path="M 750 602 C 880.0 602, 880.0 502, 1010 502"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="0.4s" repeatCount="indefinite"/></circle>
-<path id="" d="M 750 620 C 880.0 620, 880.0 612, 1010 612" stroke="#30D158" stroke-width="1.6" fill="none" opacity="0.5"/>
-<text x="880.0" y="610.0" fill="#30D158" font-size="10.5" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">/head/image_raw</text>
-<circle r="4" fill="#30D158"><animateMotion dur="2.2s" begin="1.0s" repeatCount="indefinite" path="M 750 620 C 880.0 620, 880.0 612, 1010 612"/><animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="1.0s" repeatCount="indefinite"/></circle>
-<circle cx="40" cy="730" r="5" fill="#0A84FF"/>
-<text x="54" y="735" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">commands in</text>
-<circle cx="190" cy="730" r="5" fill="#30D158"/>
-<text x="204" y="735" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">state + sensors out</text>
-<text x="1244" y="735" fill="#636366" font-size="12" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="end">one DDS graph · sim ⇄ real</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 940" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1320" height="940" rx="18" fill="#0B0A09" opacity="1" stroke="#38383A" stroke-width="1"/>
+<text x="36" y="42" fill="#8E8E93" font-size="12" font-weight="700" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start" letter-spacing="1.5">mabel_ws · live graph</text>
+<rect x="340.0" y="60" width="200" height="62" rx="12" fill="#1C1C1E" opacity="1" stroke="#0A84FF" stroke-width="1.4"/>
+<circle cx="440" cy="76" r="3.5" fill="#0A84FF"/>
+<text x="440" y="94" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">teleop</text>
+<text x="440" y="111" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Vision Pro · iOS · keys</text>
+<rect x="600.0" y="60" width="200" height="62" rx="12" fill="#1C1C1E" opacity="1" stroke="#0A84FF" stroke-width="1.4"/>
+<circle cx="700" cy="76" r="3.5" fill="#0A84FF"/>
+<text x="700" y="94" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">autonomy</text>
+<text x="700" y="111" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Nav2 · policy · WBC</text>
+<rect x="50" y="156" width="1220" height="64" rx="14" fill="#10161F" opacity="1" stroke="#0A84FF" stroke-width="1.3"/>
+<text x="70" y="178" fill="#0A84FF" font-size="10.5" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="1.5">COMMAND TOPICS  ·  subscribed by the driver nodes</text>
+<text x="70" y="206" fill="#FFFFFF" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">/mabel_cmd   /body/command   /arms/command   /left_hand/command   /right_hand/command</text>
+<rect x="54.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.4"/>
+<circle cx="120" cy="316" r="3.5" fill="#FF9F0A"/>
+<text x="120" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">swerve_node</text>
+<text x="120" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">base + lift</text>
+<text x="120" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">REV CAN</text>
+<rect x="186.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.4"/>
+<circle cx="252" cy="316" r="3.5" fill="#FF9F0A"/>
+<text x="252" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">body_node</text>
+<text x="252" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">torso · neck</text>
+<text x="252" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Damiao · Dynamixel</text>
+<rect x="318.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.4"/>
+<circle cx="384" cy="316" r="3.5" fill="#FF9F0A"/>
+<text x="384" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">arms_node</text>
+<text x="384" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">14-DOF arms</text>
+<text x="384" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Damiao CAN</text>
+<rect x="450.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.4"/>
+<circle cx="516" cy="316" r="3.5" fill="#FF9F0A"/>
+<text x="516" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">orca_hand_node</text>
+<text x="516" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">2× 17-DOF</text>
+<text x="516" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Feetech</text>
+<rect x="582.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#32D0C8" stroke-width="1.4"/>
+<circle cx="648" cy="316" r="3.5" fill="#32D0C8"/>
+<text x="648" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">head_stereo</text>
+<text x="648" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">ZED stereo</text>
+<text x="648" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">L + R eyes</text>
+<rect x="714.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#32D0C8" stroke-width="1.4"/>
+<circle cx="780" cy="316" r="3.5" fill="#32D0C8"/>
+<text x="780" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">left_wrist_cam</text>
+<text x="780" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">v4l2 · rectify</text>
+<rect x="846.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#32D0C8" stroke-width="1.4"/>
+<circle cx="912" cy="316" r="3.5" fill="#32D0C8"/>
+<text x="912" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">right_wrist_cam</text>
+<text x="912" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">v4l2 · rectify</text>
+<rect x="978.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#32D0C8" stroke-width="1.4"/>
+<circle cx="1044" cy="316" r="3.5" fill="#32D0C8"/>
+<text x="1044" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">rplidar</text>
+<text x="1044" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">base 2-D LiDAR</text>
+<text x="1044" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">RPLIDAR A3</text>
+<rect x="1110.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#BF5AF2" stroke-width="1.4"/>
+<circle cx="1176" cy="316" r="3.5" fill="#BF5AF2"/>
+<text x="1176" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">mujoco_sim</text>
+<text x="1176" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">whole robot</text>
+<text x="1176" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">use_sim:=true</text>
+<rect x="1190.0" y="291" width="52" height="18" rx="9" fill="#BF5AF2" opacity="1"/>
+<text x="1216.0" y="302" fill="#0B0A09" font-size="9" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">SIM</text>
+<text x="318.0" y="282" fill="#FF9F0A" font-size="10" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" letter-spacing="1.2">ACTUATOR DRIVERS</text>
+<text x="846.0" y="282" fill="#32D0C8" font-size="10" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" letter-spacing="1.2">SENSOR NODES</text>
+<text x="1176" y="282" fill="#BF5AF2" font-size="10" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" letter-spacing="1.2">SIMULATION</text>
+<line x1="582.0" y1="270" x2="582.0" y2="456" stroke="#38383A" stroke-width="1" stroke-dasharray="3 5"/>
+<line x1="1110.0" y1="270" x2="1110.0" y2="456" stroke="#38383A" stroke-width="1" stroke-dasharray="3 5"/>
+<rect x="50" y="470" width="1220" height="86" rx="14" fill="#0E1A13" opacity="1" stroke="#30D158" stroke-width="1.3"/>
+<text x="70" y="492" fill="#30D158" font-size="10.5" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="1.5">STATE + SENSOR TOPICS  ·  published up to consumers</text>
+<text x="70" y="542" fill="#FFFFFF" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">/joint_states   /odom   /sensors/head/left·right/image   /sensors/{left,right}_wrist/image   /scan</text>
+<text x="70" y="526" fill="#636366" font-size="10.5" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start">sensor_msgs/JointState · nav_msgs/Odometry · sensor_msgs/Image · LaserScan</text>
+<rect x="75.0" y="640" width="210" height="66" rx="12" fill="#1C1C1E" opacity="1" stroke="#9aa0a6" stroke-width="1.4"/>
+<circle cx="180" cy="656" r="3.5" fill="#9aa0a6"/>
+<text x="180" y="674" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">robot_state_publisher</text>
+<text x="180" y="691" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">URDF → /tf</text>
+<rect x="315.0" y="640" width="210" height="66" rx="12" fill="#1C1C1E" opacity="1" stroke="#9aa0a6" stroke-width="1.4"/>
+<circle cx="420" cy="656" r="3.5" fill="#9aa0a6"/>
+<text x="420" y="674" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">rviz2 · Foxglove</text>
+<text x="420" y="691" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">visualize</text>
+<rect x="555.0" y="640" width="210" height="66" rx="12" fill="#1C1C1E" opacity="1" stroke="#9aa0a6" stroke-width="1.4"/>
+<circle cx="660" cy="656" r="3.5" fill="#9aa0a6"/>
+<text x="660" y="674" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">whole_body_control</text>
+<text x="660" y="691" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">IK · compliance</text>
+<rect x="795.0" y="640" width="210" height="66" rx="12" fill="#1C1C1E" opacity="1" stroke="#9aa0a6" stroke-width="1.4"/>
+<circle cx="900" cy="656" r="3.5" fill="#9aa0a6"/>
+<text x="900" y="674" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">nav2 · slam</text>
+<text x="900" y="691" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">map · localize</text>
+<rect x="1035.0" y="640" width="210" height="66" rx="12" fill="#1C1C1E" opacity="1" stroke="#9aa0a6" stroke-width="1.4"/>
+<circle cx="1140" cy="656" r="3.5" fill="#9aa0a6"/>
+<text x="1140" y="674" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">learning</text>
+<text x="1140" y="691" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">log · train</text>
+<line x1="440" y1="122" x2="440" y2="156" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="440" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="122;156" dur="1.8s" begin="0.0s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.0s" repeatCount="indefinite"/></circle>
+<line x1="700" y1="122" x2="700" y2="156" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="700" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="122;156" dur="1.8s" begin="0.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.4s" repeatCount="indefinite"/></circle>
+<line x1="120" y1="220" x2="120" y2="300" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="120" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="220;300" dur="1.8s" begin="0.0s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.0s" repeatCount="indefinite"/></circle>
+<line x1="252" y1="220" x2="252" y2="300" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="252" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="220;300" dur="1.8s" begin="0.15s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.15s" repeatCount="indefinite"/></circle>
+<line x1="384" y1="220" x2="384" y2="300" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="384" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="220;300" dur="1.8s" begin="0.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.3s" repeatCount="indefinite"/></circle>
+<line x1="516" y1="220" x2="516" y2="300" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="516" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="220;300" dur="1.8s" begin="0.44999999999999996s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.44999999999999996s" repeatCount="indefinite"/></circle>
+<line x1="1176" y1="220" x2="1176" y2="300" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="1176" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="220;300" dur="1.8s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.6s" repeatCount="indefinite"/></circle>
+<line x1="120" y1="374" x2="120" y2="470" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="120" r="3.5" fill="#30D158"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.0s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.0s" repeatCount="indefinite"/></circle>
+<line x1="252" y1="374" x2="252" y2="470" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="252" r="3.5" fill="#30D158"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.12s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.12s" repeatCount="indefinite"/></circle>
+<line x1="384" y1="374" x2="384" y2="470" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="384" r="3.5" fill="#30D158"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.24s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.24s" repeatCount="indefinite"/></circle>
+<line x1="516" y1="374" x2="516" y2="470" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="516" r="3.5" fill="#30D158"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.36s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.36s" repeatCount="indefinite"/></circle>
+<line x1="648" y1="374" x2="648" y2="470" stroke="#32D0C8" stroke-width="1.6" opacity="0.45"/>
+<circle cx="648" r="3.5" fill="#32D0C8"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.48s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.48s" repeatCount="indefinite"/></circle>
+<line x1="780" y1="374" x2="780" y2="470" stroke="#32D0C8" stroke-width="1.6" opacity="0.45"/>
+<circle cx="780" r="3.5" fill="#32D0C8"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.6s" repeatCount="indefinite"/></circle>
+<line x1="912" y1="374" x2="912" y2="470" stroke="#32D0C8" stroke-width="1.6" opacity="0.45"/>
+<circle cx="912" r="3.5" fill="#32D0C8"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.72s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.72s" repeatCount="indefinite"/></circle>
+<line x1="1044" y1="374" x2="1044" y2="470" stroke="#32D0C8" stroke-width="1.6" opacity="0.45"/>
+<circle cx="1044" r="3.5" fill="#32D0C8"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.84s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.84s" repeatCount="indefinite"/></circle>
+<line x1="1176" y1="374" x2="1176" y2="470" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="1176" r="3.5" fill="#30D158"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.96s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.96s" repeatCount="indefinite"/></circle>
+<line x1="180" y1="556" x2="180" y2="640" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="180" r="3.5" fill="#30D158"><animate attributeName="cy" values="556;640" dur="1.8s" begin="0.0s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.0s" repeatCount="indefinite"/></circle>
+<line x1="420" y1="556" x2="420" y2="640" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="420" r="3.5" fill="#30D158"><animate attributeName="cy" values="556;640" dur="1.8s" begin="0.18s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.18s" repeatCount="indefinite"/></circle>
+<line x1="660" y1="556" x2="660" y2="640" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="660" r="3.5" fill="#30D158"><animate attributeName="cy" values="556;640" dur="1.8s" begin="0.36s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.36s" repeatCount="indefinite"/></circle>
+<line x1="900" y1="556" x2="900" y2="640" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="900" r="3.5" fill="#30D158"><animate attributeName="cy" values="556;640" dur="1.8s" begin="0.54s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.54s" repeatCount="indefinite"/></circle>
+<line x1="1140" y1="556" x2="1140" y2="640" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="1140" r="3.5" fill="#30D158"><animate attributeName="cy" values="556;640" dur="1.8s" begin="0.72s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.72s" repeatCount="indefinite"/></circle>
+<circle cx="60" cy="910" r="5" fill="#0A84FF"/>
+<text x="74" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">commands</text>
+<circle cx="260" cy="910" r="5" fill="#FF9F0A"/>
+<text x="274" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">drivers</text>
+<circle cx="460" cy="910" r="5" fill="#32D0C8"/>
+<text x="474" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">sensors</text>
+<circle cx="660" cy="910" r="5" fill="#BF5AF2"/>
+<text x="674" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">sim (unified)</text>
+<circle cx="860" cy="910" r="5" fill="#30D158"/>
+<text x="874" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">state + sensors out</text>
+<text x="1284" y="914" fill="#636366" font-size="12" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="end">one DDS graph · sim ⇄ real</text>
 </svg>

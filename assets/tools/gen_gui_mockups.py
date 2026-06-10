@@ -350,80 +350,108 @@ def dataflow_svg():
 # ── Animated ROS node graph (SMIL flowing data, plays in <img>) ───────────────
 
 def ros_graph_svg():
-    W, H = 1280, 760
+    """Topic-bus layout: every wire is a vertical stub to a horizontal rail, so
+    no two lines ever cross. All real mabel_ws nodes + the unified sim node."""
+    W, H = 1320, 940
+    CYAN, SIM = "#32D0C8", "#BF5AF2"
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{SANS}">']
     o.append(rr(0, 0, W, H, 18, "#0B0A09", stroke=SEP, sw=1))
-    o.append(txt(36, 44, "mabel_ws · live graph", LABEL2, 12, 700, font=MONO, spacing="1.5"))
+    o.append(txt(36, 42, "mabel_ws · live graph", LABEL2, 12, 700, font=MONO, spacing="1.5"))
 
-    edges = []  # (x1,y1,x2,y2,color)
-
-    def box(x, y, w, h, title, sub, accent, tcol=LABEL):
-        o.append(rr(x, y, w, h, 14, SURF, stroke=accent, sw=1.5))
-        o.append(dot(x + 18, y + 22, accent, 4))
-        o.append(txt(x + 32, y + 27, title, tcol, 14, 600, font=MONO))
+    def nodebox(cx, y, w, h, title, sub, accent, tag=None):
+        x = cx - w / 2
+        o.append(rr(x, y, w, h, 12, SURF, stroke=accent, sw=1.4))
+        o.append(dot(cx, y + 16, accent, 3.5))   # centered above the title
+        o.append(txt(cx, y + 34, title, LABEL, 11, 600, font=MONO, anchor="middle"))
         for i, s in enumerate(sub):
-            o.append(txt(x + 18, y + 48 + i * 18, s, LABEL2, 11, 500, anchor="start"))
+            o.append(txt(cx, y + 51 + i * 15, s, LABEL2, 9.5, 500, anchor="middle"))
+        if tag:
+            o.append(rr(x + w - 52, y - 9, 52, 18, 9, accent))
+            o.append(txt(x + w - 26, y + 2, tag, "#0B0A09", 9, 700, anchor="middle"))
 
-    def edge(x1, y1, x2, y2, color, label=None, delay=0.0):
-        o.append(f'<path id="" d="M {x1} {y1} C {(x1+x2)/2} {y1}, {(x1+x2)/2} {y2}, {x2} {y2}" '
-                 f'stroke="{color}" stroke-width="1.6" fill="none" opacity="0.5"/>')
-        if label:
-            o.append(txt((x1 + x2) / 2, (y1 + y2) / 2 - 6, label, color, 10.5, 600,
-                         font=MONO, anchor="middle"))
-        # flowing dot
-        o.append(f'<circle r="4" fill="{color}"><animateMotion dur="2.2s" begin="{delay}s" '
-                 f'repeatCount="indefinite" path="M {x1} {y1} C {(x1+x2)/2} {y1}, {(x1+x2)/2} {y2}, {x2} {y2}"/>'
-                 f'<animate attributeName="opacity" values="0;1;1;0" dur="2.2s" begin="{delay}s" repeatCount="indefinite"/></circle>')
+    def rail(y, h, fill, stroke, head, topics):
+        o.append(rr(50, y, W - 100, h, 14, fill, stroke=stroke, sw=1.3))
+        o.append(txt(70, y + 22, head, stroke, 10.5, 700, spacing="1.5"))
+        o.append(txt(70, y + h - 14, topics, LABEL, 12.5, 500, font=MONO))
 
-    # ── columns
-    # sources
-    box(40, 150, 200, 110, "teleop", ["Vision Pro / iOS", "keyboard"], BLUE)
-    box(40, 430, 200, 110, "autonomy", ["Nav2 · policy", "WBC targets"], BLUE)
-    # driver nodes
-    nx, nw, nh = 500, 250, 88
-    nodes = [
-        ("mabel_swerve_node", ["base + lift"], 70),
-        ("body_hardware_node", ["torso · neck"], 192),
-        ("arms_hardware_node", ["14-DOF arms"], 314),
-        ("orca_hand_node", ["2× 17-DOF hands"], 436),
-        ("camera_bridge", ["RGB-D · wrists · LiDAR"], 558),
+    def vstub(x, y1, y2, color, delay=0.0, dur=1.8):
+        ya, yb = (y1, y2) if y1 < y2 else (y2, y1)
+        o.append(f'<line x1="{x}" y1="{y1}" x2="{x}" y2="{y2}" stroke="{color}" stroke-width="1.6" opacity="0.45"/>')
+        o.append(f'<circle cx="{x}" r="3.5" fill="{color}"><animate attributeName="cy" values="{y1};{y2}" '
+                 f'dur="{dur}s" begin="{delay}s" repeatCount="indefinite"/>'
+                 f'<animate attributeName="opacity" values="0;1;1;0" dur="{dur}s" begin="{delay}s" repeatCount="indefinite"/></circle>')
+
+    # ── bands (top → bottom) ───────────────────────────────────────────────
+    # inputs
+    nodebox(440, 60, 200, 62, "teleop", ["Vision Pro · iOS · keys"], BLUE)
+    nodebox(700, 60, 200, 62, "autonomy", ["Nav2 · policy · WBC"], BLUE)
+    # command bus
+    cb_y = 156
+    rail(cb_y, 64, "#10161F", BLUE,
+         "COMMAND TOPICS  ·  subscribed by the driver nodes",
+         "/mabel_cmd   /body/command   /arms/command   /left_hand/command   /right_hand/command")
+    # producer node row
+    ny, nw, nh = 300, 132, 74
+    centers = [120 + i * 132 for i in range(9)]   # 9 nodes
+    drivers = [
+        (centers[0], "swerve_node", ["base + lift", "REV CAN"]),
+        (centers[1], "body_node", ["torso · neck", "Damiao · Dynamixel"]),
+        (centers[2], "arms_node", ["14-DOF arms", "Damiao CAN"]),
+        (centers[3], "orca_hand_node", ["2× 17-DOF", "Feetech"]),
     ]
-    for title, sub, y in nodes:
-        box(nx, y, nw, nh, title, sub, ORANGE)
-    # outputs
-    ox = 1010
-    o.append(rr(ox, 150, 230, 150, 14, SURF, stroke=GREEN, sw=1.5))
-    o.append(dot(ox + 18, 172, GREEN, 4))
-    o.append(txt(ox + 32, 177, "/joint_states", GREEN, 15, 700, font=MONO))
-    o.append(txt(ox + 18, 205, "sensor_msgs/JointState", LABEL2, 11, 500))
-    o.append(txt(ox + 18, 228, "every joint · 200 Hz", LABEL2, 11, 500))
-    o.append(txt(ox + 18, 262, "→ RViz · Foxglove", LABEL3, 11, 600, font=MONO))
-    o.append(txt(ox + 18, 282, "→ WBC · learning", LABEL3, 11, 600, font=MONO))
-    for t, sub, y in (("/odom", "→ Nav2 / SLAM", 360), ("/scan", "→ Nav2 / SLAM", 470),
-                      ("/head/image_raw", "→ perception", 580)):
-        o.append(rr(ox, y, 230, 64, 12, ELEV))
-        o.append(dot(ox + 18, y + 22, GREEN, 4))
-        o.append(txt(ox + 32, y + 27, t, LABEL, 13, 600, font=MONO))
-        o.append(txt(ox + 18, y + 48, sub, LABEL3, 10.5, 600, font=MONO))
+    sensors = [
+        (centers[4], "head_stereo", ["ZED stereo", "L + R eyes"]),
+        (centers[5], "left_wrist_cam", ["v4l2 · rectify"]),
+        (centers[6], "right_wrist_cam", ["v4l2 · rectify"]),
+        (centers[7], "rplidar", ["base 2-D LiDAR", "RPLIDAR A3"]),
+    ]
+    for cx, t, s in drivers:
+        nodebox(cx, ny, nw, nh, t, s, ORANGE)
+    for cx, t, s in sensors:
+        nodebox(cx, ny, nw, nh, t, s, CYAN)
+    # unified sim node
+    nodebox(centers[8], ny, nw, nh, "mujoco_sim", ["whole robot", "use_sim:=true"], SIM, tag="SIM")
+    # group labels + dividers
+    o.append(txt((centers[0] + centers[3]) / 2, ny - 18, "ACTUATOR DRIVERS", ORANGE, 10, 700, anchor="middle", spacing="1.2"))
+    o.append(txt((centers[4] + centers[7]) / 2, ny - 18, "SENSOR NODES", CYAN, 10, 700, anchor="middle", spacing="1.2"))
+    o.append(txt(centers[8], ny - 18, "SIMULATION", SIM, 10, 700, anchor="middle", spacing="1.2"))
+    # state + sensor bus
+    sb_y = 470
+    for dx in ((centers[3] + centers[4]) / 2, (centers[7] + centers[8]) / 2):
+        o.append(f'<line x1="{dx}" y1="{ny-30}" x2="{dx}" y2="{sb_y-14}" stroke="{SEP}" stroke-width="1" stroke-dasharray="3 5"/>')
+    rail(sb_y, 86, "#0E1A13", GREEN,
+         "STATE + SENSOR TOPICS  ·  published up to consumers",
+         "/joint_states   /odom   /sensors/head/left·right/image   /sensors/{left,right}_wrist/image   /scan")
+    o.append(txt(70, sb_y + 56, "sensor_msgs/JointState · nav_msgs/Odometry · sensor_msgs/Image · LaserScan", LABEL3, 10.5, 500, font=MONO))
+    # consumers
+    cy2 = 640
+    cons = [("robot_state_publisher", ["URDF → /tf"]), ("rviz2 · Foxglove", ["visualize"]),
+            ("whole_body_control", ["IK · compliance"]), ("nav2 · slam", ["map · localize"]),
+            ("learning", ["log · train"])]
+    ccenters = [180 + i * 240 for i in range(5)]
+    for cx, (t, s) in zip(ccenters, cons):
+        nodebox(cx, cy2, 210, 66, t, s, "#9aa0a6")
 
-    # command edges (blue, sources -> drivers)
-    edge(240, 195, nx, 114, BLUE, "/mabel_cmd", 0.0)
-    edge(240, 215, nx, 480, BLUE, "/right_hand/command", 0.6)
-    edge(240, 470, nx, 358, BLUE, "/arms/command", 0.3)
-    edge(240, 490, nx, 236, BLUE, "/body/command", 0.9)
-    # state edges (green, drivers -> outputs)
-    edge(nx + nw, 114, ox, 200, GREEN, None, 0.2)
-    edge(nx + nw, 236, ox, 215, GREEN, None, 0.5)
-    edge(nx + nw, 358, ox, 230, GREEN, None, 0.8)
-    edge(nx + nw, 480, ox, 245, GREEN, None, 1.1)
-    edge(nx + nw, 100, ox, 392, GREEN, "/odom", 1.4)
-    edge(nx + nw, 602, ox, 502, GREEN, "/scan", 0.4)
-    edge(nx + nw, 620, ox, 612, GREEN, "/head/image_raw", 1.0)
+    # ── vertical stubs (no diagonals) ──────────────────────────────────────
+    # inputs -> command bus
+    vstub(440, 122, cb_y, BLUE, 0.0); vstub(700, 122, cb_y, BLUE, 0.4)
+    # command bus -> drivers (+sim) ; sensors do NOT subscribe
+    for i, cx in enumerate([centers[k] for k in (0, 1, 2, 3, 8)]):
+        vstub(cx, cb_y + 64, ny, BLUE, 0.15 * i)
+    # producers -> state bus (all 9)
+    for i, cx in enumerate(centers):
+        vstub(cx, ny + nh, sb_y, GREEN if i < 4 or i == 8 else CYAN, 0.12 * i)
+    # state bus -> consumers
+    for i, cx in enumerate(ccenters):
+        vstub(cx, sb_y + 86, cy2, GREEN, 0.18 * i)
 
     # legend
-    o.append(dot(40, H - 30, BLUE, 5)); o.append(txt(54, H - 25, "commands in", LABEL2, 12, 500))
-    o.append(dot(190, H - 30, GREEN, 5)); o.append(txt(204, H - 25, "state + sensors out", LABEL2, 12, 500))
-    o.append(txt(W - 36, H - 25, "one DDS graph · sim ⇄ real", LABEL3, 12, 600, font=MONO, anchor="end"))
+    ly = H - 26
+    for i, (c, t) in enumerate(((BLUE, "commands"), (ORANGE, "drivers"), (CYAN, "sensors"),
+                                (SIM, "sim (unified)"), (GREEN, "state + sensors out"))):
+        x = 60 + i * 200
+        o.append(dot(x, ly - 4, c, 5)); o.append(txt(x + 14, ly, t, LABEL2, 12, 500))
+    o.append(txt(W - 36, ly, "one DDS graph · sim ⇄ real", LABEL3, 12, 600, font=MONO, anchor="end"))
     o.append("</svg>")
     return "\n".join(o)
 
