@@ -72,25 +72,23 @@
     <div class="points fade-up">
       <div class="point"><div class="num">01</div><div>
         <h5>Modular — one target per limb</h5>
-        <p>Firmware lives in <code>firmware/</code>, one folder per actuated subsystem: <code>swerve_drive</code>,
-          <code>openarm</code> (arms + body), <code>orca_hand</code>, <code>head</code>, <code>lift</code>.
-          Any board can be flashed, debugged, or swapped without touching the rest.</p>
+        <p>One folder per subsystem (<code>swerve_drive</code>, <code>openarm</code>, <code>orca_hand</code>,
+          <code>head</code>, <code>lift</code>); flash or swap a board without touching the rest.</p>
       </div></div>
       <div class="point"><div class="num">02</div><div>
         <h5>Own the protocol</h5>
-        <p>Wherever a vendor hides setup behind a closed app, we re-implement it natively — most
-          dramatically the REV SPARK CAN stack, reverse-engineered end-to-end (below). No proprietary
-          runtime sits between us and a motor.</p>
+        <p>Where a vendor hides setup in a closed app, we re-implement it natively — most of all the REV
+          SPARK CAN stack, reverse-engineered end-to-end (below).</p>
       </div></div>
       <div class="point"><div class="num">03</div><div>
         <h5>Cross-platform on purpose</h5>
-        <p>The GUI and host libraries run on <strong>macOS and Ubuntu</strong> — the two machines we
-          actually develop and deploy on. <em>Windows isn't tested yet.</em> No vendor binary, no OS lock-in.</p>
+        <p>GUI and host libraries run on <strong>macOS and Ubuntu</strong>. <em>Windows isn't tested
+          yet.</em> No vendor binary, no OS lock-in.</p>
       </div></div>
       <div class="point"><div class="num">04</div><div>
         <h5>Always-usable</h5>
-        <p>If the bus is down or the driver isn't built, the GUI opens in <strong>SIM mode</strong> with
-          simulated telemetry and a badge — so you can lay out and test the interface with zero hardware.</p>
+        <p>Bus down or driver unbuilt? The GUI opens in <strong>SIM mode</strong> with simulated
+          telemetry — design and test with zero hardware.</p>
       </div></div>
     </div>
   </div>
@@ -102,19 +100,25 @@
     <div class="sec-head fade-up">
       <div>
         <span class="eyebrow">Control Studio</span>
-        <h2 class="display-md title" style="color:var(--bone);">One app for <span class="italic accent">every actuator.</span></h2>
+        <h2 class="display-md title" style="color:var(--bone);">One app, <span class="italic accent">every actuator.</span></h2>
       </div>
-      <p class="lede">A shared iOS-styled GUI — same dark palette, type, vector sliders and pill toggles
-        across the hand, swerve, and lift apps. Configure, monitor, and drive any joint from it.</p>
+      <p class="lede">A shared iOS-styled GUI — same dark palette, sliders, and pill toggles across the
+        swerve, hand, and lift apps. Reassign IDs, write registers, read live status, and jog any joint.</p>
     </div>
 
-    <div class="card-grid">
-      <div class="card fade-up"><span class="card-num">A</span><div><h4>Reassign IDs</h4><p>Give a fresh ORCA-hand Feetech servo its ID, or change a Damiao motor's CAN ID, straight from the GUI — no vendor tool, no Windows machine.</p></div></div>
-      <div class="card fade-up d1"><span class="card-num">B</span><div><h4>Write registers</h4><p>Edit the control registers directly — Feetech servo registers, REV SPARK parameters (control mode, idle brake, PID, encoder zero), Damiao limits and modes.</p></div></div>
-      <div class="card fade-up d2"><span class="card-num">C</span><div><h4>Live status</h4><p>A telemetry sidebar streams position, velocity, current (load proxy) and temperature for every controller, colour-coded as values approach their limits.</p></div></div>
-      <div class="card fade-up"><span class="card-num">D</span><div><h4>Quick control</h4><p>iOS toggle + slider per joint: jog a steering axis to an absolute angle, throttle a drive wheel, enable/disable a motor, fire an E-STOP — instantly.</p></div></div>
-      <div class="card fade-up d1"><span class="card-num">E</span><div><h4>Bus bring-up</h4><p>The CAN-Bus panel brings the interface up / restarts / scans / doctors it, with a live link-and-bitrate strip and a streaming console — no terminal required.</p></div></div>
-      <div class="card fade-up d2"><span class="card-num">F</span><div><h4>Diagnostics</h4><p>Sine-sweep a motor, zero an encoder, clear faults, read limits — the bring-up and test routines that used to need a vendor app are built in.</p></div></div>
+    <div class="gui-grid fade-up">
+      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
+        <img src="assets/gui-swerve.svg" alt="MABEL Swerve Studio — per-module steer/drive control, live telemetry, E-STOP" />
+        <span class="sim-cap"><span class="dot"></span>Swerve Studio · REV SPARK base</span>
+      </div>
+      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
+        <img src="assets/gui-hand.svg" alt="MABEL ORCA Hand Control Studio — 17 per-finger joint sliders, grasp presets" />
+        <span class="sim-cap"><span class="dot"></span>ORCA Hand · 17 Feetech servos</span>
+      </div>
+    </div>
+
+    <div class="spec fade-up" style="justify-content:center; margin-top:24px;">
+      <span>Reassign IDs</span><span>Write registers</span><span>Live pos / vel / current / temp</span><span>Per-joint jog + E-STOP</span><span>CAN bring-up &amp; scan</span><span>SIM fallback</span>
     </div>
   </div>
 </section>
@@ -145,34 +149,24 @@
 
     <div class="points fade-up">
       <div class="point"><div class="num">01</div><div>
-        <h5>Control frames</h5>
-        <p>Velocity (RPM), Position (rotations) and DutyCycle [-1,1] all share one 8-byte payload: an
-          IEEE-754 little-endian float in bytes 0–3, zero-padded. Heartbeat, ClearFaults and BurnFlash
-          are their own API classes.</p>
+        <h5>Control + register frames</h5>
+        <p>Velocity / Position / DutyCycle share one payload — an IEEE-754 LE float in bytes 0–3. Registers
+          live under API class 48 with a type tag, so we set <code>kCtrlType</code>, <code>kIdleMode</code>,
+          PID <code>kP_0</code>, and the steering zero <code>kDutyCycleZeroOffset</code> directly.</p>
       </div></div>
       <div class="point"><div class="num">02</div><div>
-        <h5>The parameter system</h5>
-        <p>Registers live under API class 48 with a per-write type tag (UINT / FLOAT / BOOL). That's how
-          we set <code>kCtrlType</code>, <code>kIdleMode</code>, <code>kInverted</code>, the PID gain
-          <code>kP_0</code>, and the steering <code>kDutyCycleZeroOffset</code> — the absolute-encoder zero.</p>
+        <h5>Telemetry frames</h5>
+        <p>Periodic status: Period&nbsp;0 (duty / volts / current / temp), Period&nbsp;2 (encoder vel +
+          pos), Period&nbsp;5 (absolute steer encoder) — the last only streams once you flip
+          <code>kForceEnableStatus5</code>.</p>
       </div></div>
       <div class="point"><div class="num">03</div><div>
-        <h5>Telemetry frames</h5>
-        <p>Controllers broadcast periodic status: Period&nbsp;0 (duty / voltage / current / temperature),
-          Period&nbsp;2 (encoder velocity + position), and Period&nbsp;5 (absolute steering encoder,
-          0–1 rev) — which only streams once you flip <code>kForceEnableStatus5</code>.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
         <h5>One socket, cached</h5>
-        <p>A single RX thread reads the bus non-blocking, masks the device ID out of each arbitration ID
-          (<code>can_id &amp; 0x3F</code>), and caches the latest value per motor behind a mutex — so a
-          <code>GetVelocity()</code> call is a free cache read, not a bus round-trip.</p>
+        <p>A single RX thread reads the bus non-blocking, masks the device ID (<code>can_id &amp; 0x3F</code>),
+          and caches each motor's latest value behind a mutex — <code>GetVelocity()</code> is a free read.
+          Full mapping in <code>rev_can_protocol.md</code>.</p>
       </div></div>
     </div>
-
-    <p class="lede fade-up" style="margin-top:26px;">The full mapping — every arb-ID, payload layout, and
-      parameter table — lives in <code>firmware/swerve_drive/rev_can_protocol.md</code>, enough to write
-      a clean-room driver from scratch.</p>
   </div>
 </section>
 
@@ -185,12 +179,12 @@
     </div>
   </div>
   <div class="card-grid">
-    <div class="card fade-up"><span class="card-num">01</span><div><h4>Swerve base · REV SPARK</h4><p>NEO / NEO550 brushless on 3 delta modules. Reverse-engineered SPARK CAN in Python + Teensy C++; a drive sim and the Swerve Studio GUI on top.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>Arms · Damiao DM</h4><p>OpenArm-derived 7-DOF arms on quasi-direct-drive Damiao motors over CAN (Teensy + FlexCAN_T4). MIT-mode control with scanner, ID-change, mode-switch, zero and sine-sweep tools.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Body &amp; torso · Damiao DM</h4><p>The torso pitch joint runs the same Damiao/CAN stack as the arms — shared driver, shared GUI status and quick-control.</p></div></div>
-    <div class="card fade-up"><span class="card-num">04</span><div><h4>Hands · Feetech</h4><p>16× HLS3915 finger servos (IDs 1–16) + 1× HLS3930 wrist (ID 17) on a 1 MHz TTL chain. ID assignment and register config done in our own setup scripts + GUI; USB adapter auto-detected.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Neck · Dynamixel</h4><p>3-DOF neck (yaw / pitch / roll) driven through our <code>dynamixel_neck</code> library — pan-tilt-roll without the Wizard.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Lift · RP2040 Pico</h4><p>MicroPython on a Pico: BTS7960 H-bridge + quadrature encoder, cascaded position + velocity control on-board, a host serial library and an iOS GUI (position / velocity / calibration).</p></div></div>
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>Swerve base · REV SPARK</h4><p>NEO / NEO550 on 3 delta modules. Reverse-engineered SPARK CAN in Python + Teensy C++.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>Arms · Damiao DM</h4><p>OpenArm-derived 7-DOF arms, quasi-direct-drive over CAN (Teensy + FlexCAN_T4), MIT-mode.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Body &amp; torso · Damiao</h4><p>Torso pitch shares the arms' Damiao/CAN driver, status, and quick-control.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>Hands · Feetech</h4><p>16× HLS3915 fingers + 1× HLS3930 wrist on a 1 MHz TTL chain; USB adapter auto-detected.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Neck · Dynamixel</h4><p>3-DOF neck (yaw / pitch / roll) via our <code>dynamixel_neck</code> library.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Lift · RP2040 Pico</h4><p>MicroPython, BTS7960 + quad encoder, cascaded position + velocity, host lib + iOS GUI.</p></div></div>
   </div>
 </section>
 
