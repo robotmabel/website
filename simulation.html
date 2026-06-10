@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
 <title>MABEL — Simulation</title>
-<meta name="description" content="MABEL simulation: a MuJoCo and Isaac Lab digital twin with shared URDF/MJCF, analytical FK/IK, domain randomization, and a sim-to-real bridge that shares interfaces with the real robot." />
+<meta name="description" content="MABEL's MuJoCo digital twin: a furnished home scene where the swerve base, Z-lift, and bimanual whole-body controllers run on the same code as the real robot. Every clip on this page is real physics, not animation." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -43,106 +43,175 @@
   <div class="page-hero-inner">
     <div class="crumbs"><a href="index.html">Overview</a> / Simulation</div>
     <span class="eyebrow">03 · Simulation</span>
-    <h1 class="display-lg">A twin that tells the truth.</h1>
+    <h1 class="display-lg">It works in sim first.</h1>
     <p class="lede">
-      A high-fidelity twin in MuJoCo and Isaac Lab, from the same URDF as the real robot. Train policies,
-      tune control, validate every change — before it touches hardware.
+      A MuJoCo digital twin built from the same URDF as the real robot — dropped into a furnished
+      home. The swerve base, the Z-lift, and the bimanual whole-body controllers all run the same
+      <code>controller/mabel</code> code we ship to hardware. <strong>Every clip below is real physics,
+      stepped at 500&nbsp;Hz — not an animation.</strong>
     </p>
     <div class="spec" style="margin-top:28px;">
-      <span>MuJoCo</span><span>Isaac Lab</span><span>Shared URDF / MJCF</span><span>Domain randomization</span><span>Sim-to-real</span>
+      <span>MuJoCo 3.5</span><span>500 Hz · implicitfast</span><span>Shared URDF</span><span>Elliptic contact</span><span>Real control code</span>
     </div>
   </div>
 </section>
 
-<!-- ─── WHY SIM ─── -->
+<!-- ─── HERO CLIP: HOME NAVIGATION ─── -->
 <section class="pad-y">
   <div class="wrap">
+    <div class="reveal-media media-frame r-169 sim-dark" style="margin-bottom:34px;">
+      <video src="assets/sim/home_nav.mp4" autoplay muted loop playsinline poster="assets/sim/home_nav.mp4#t=0.1"></video>
+      <span class="sim-cap"><span class="dot"></span>Holonomic navigation · furnished home · MuJoCo</span>
+    </div>
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">Why a twin</span>
-        <h2 class="display-md title">Validate first, <span class="italic accent">break nothing.</span></h2>
+        <span class="eyebrow">The scene</span>
+        <h2 class="display-md title">A home, not a <span class="italic accent">checkerboard.</span></h2>
       </div>
-      <p class="lede">A 51-DOF robot is expensive to crash. The twin lets us iterate on control and policy at thousands of episodes per hour, then deploy only what already works.</p>
-    </div>
-
-    <div class="feature fade-up">
-      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">MuJoCo · MABEL scene</div></div></div>
-      <div class="feature-copy">
-        <span class="eyebrow">MuJoCo</span>
-        <h3>Contact-rich, fast, exact.</h3>
-        <p>The MuJoCo model captures the tendon routing of the ORCA hands, the swerve-module kinematics, and the lift–torso chain. Analytical FK and damped-least-squares IK match the on-robot solvers exactly, so trajectories transfer without surprises. It is the default sandbox for manipulation and whole-body control.</p>
-        <div class="spec"><span>Tendon hands</span><span>Analytical FK/IK</span><span>Contact dynamics</span></div>
-      </div>
-    </div>
-
-    <div class="feature flip fade-up">
-      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">Isaac Lab · parallel envs</div></div></div>
-      <div class="feature-copy">
-        <span class="eyebrow">Isaac Lab</span>
-        <h3>Thousands of MABELs at once.</h3>
-        <p>For large-scale policy pre-training and reinforcement learning, the same robot is instantiated in massively parallel GPU simulation. Thousands of environments step together, generating the experience that bootstraps a policy before a single real demonstration is collected.</p>
-        <div class="spec"><span>GPU-parallel</span><span>RL pre-train</span><span>Photoreal option</span></div>
-      </div>
+      <p class="lede">The robot drives a delta-swerve loop through a kitchen — island, counter, dining
+        set — raising its lift mid-trip. The furniture is textured primitives; the graspable clutter on
+        the surfaces are real Google-Scanned objects. Same scene we use to collect demos and test
+        navigation.</p>
     </div>
   </div>
 </section>
 
-<!-- ─── PIPELINE ─── -->
+<!-- ─── CONTROLLERS ─── -->
 <section class="dark-sec pad-y">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">Sim-to-real</span>
-        <h2 class="display-md title" style="color:var(--bone);">One model, <span class="italic accent">two worlds.</span></h2>
+        <span class="eyebrow">Controllers</span>
+        <h2 class="display-md title" style="color:var(--bone);">The control stack, <span class="italic accent">on tape.</span></h2>
       </div>
-      <p class="lede">The gap is closed by construction: identical interfaces, randomized physics, and calibration that pulls sim toward the measured robot.</p>
+      <p class="lede">Three controllers carry MABEL: the swerve base, the lift, and the whole-body arm
+        solver. Each one is a module in <code>controller/mabel</code> — the clips are that exact code
+        driving the twin.</p>
+    </div>
+
+    <!-- swerve -->
+    <div class="feature fade-up">
+      <div class="reveal-media feature-media media-frame r-169 sim-dark">
+        <video src="assets/sim/swerve.mp4" autoplay muted loop playsinline></video>
+        <span class="sim-cap"><span class="dot"></span>swerve.py · strafe → strafe → spin-in-place</span>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">Holonomic base · <code>swerve.py</code></span>
+        <h3>Three modules, any direction.</h3>
+        <p>A 3-module delta swerve (wheel radius 38.1&nbsp;mm) maps a body twist
+          <em>(v<sub>x</sub>, v<sub>y</sub>, ω)</em> to per-module steer angle and wheel speed via
+          rigid-body kinematics <em>v<sub>i</sub> = V + ω × r<sub>i</sub></em>. Two tricks keep it from
+          scrubbing the floor: <strong>shortest-path steering</strong> (never sweep past ±90° — flip and
+          drive backward instead) and a <strong>cosine anti-slip choke</strong> that kills drive power
+          until the column catches up.</p>
+        <div class="spec"><span>0.8 m/s lin</span><span>2.0 rad/s ang</span><span>Shortest-path steer</span><span>Anti-slip choke</span></div>
+      </div>
+    </div>
+
+    <!-- lift -->
+    <div class="feature flip fade-up">
+      <div class="reveal-media feature-media media-frame r-169 sim-dark">
+        <video src="assets/sim/lift.mp4" autoplay muted loop playsinline></video>
+        <span class="sim-cap"><span class="dot"></span>cascaded Z-lift · 0 → 0.635 m + torso pitch</span>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">Z-lift &amp; torso</span>
+        <h3>Eye height on demand.</h3>
+        <p>A cascaded lift gives <strong>0.635&nbsp;m</strong> of vertical travel; a pitching torso adds
+          reach low. Raising the lift raises the CoM —
+          <em>h = 0.443 + 0.432·z</em> — so the base gets easier to tip. A
+          direction-aware tip-over model shrinks the safe speed and braking limits as ~1/h
+          (<em>a<sub>tip</sub> = g·d / h</em>), keeping forward braking conservative while lateral
+          reversals stay agile.</p>
+        <div class="spec"><span>0.635 m travel</span><span>ZMP tip-safe</span><span>CoM-aware limits</span></div>
+      </div>
+    </div>
+
+    <!-- whole body -->
+    <div class="feature fade-up">
+      <div class="reveal-media feature-media media-frame r-169 sim-dark">
+        <video src="assets/sim/wbc_reach.mp4" autoplay muted loop playsinline></video>
+        <span class="sim-cap"><span class="dot"></span>wbc.py · 18-DOF bimanual DLS IK</span>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">Whole-body IK · <code>wbc.py</code></span>
+        <h3>Both hands, one solve.</h3>
+        <p>The upper body is an 18-DOF chain — lift + torso + 7-DOF arm + wrist per side — solved as one
+          weighted damped-least-squares problem that tracks both 6-DOF palm targets at once. A
+          <strong>null-space posture task</strong> keeps the body near a natural configuration, and
+          weighting makes the lift and torso "lazy" so the arms move first and the body only joins in
+          when it has to. <a href="wbc.html">More on the controller →</a></p>
+        <div class="spec"><span>18 DOF</span><span>Weighted DLS</span><span>Null-space posture</span><span>Lazy base follow</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── GRAVITY COMP / COMPLIANCE ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">Also in the twin</span>
+      <h2 class="display-md">Beyond the three.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">A</span><div><h4>Gravity compensation</h4><p>An upper-body dynamics model computes the holding torques so the arms go back-drivable — drag them by hand, they stay put when released. The base for drag-to-move teleop.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">B</span><div><h4>Compliance &amp; admittance</h4><p>Arms run compliant; torso and lift run "lazy" (gravity-held, heavily damped). The base behaves as a virtual planar mass for force-driven whole-body motion.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">C</span><div><h4>Lazy-base follower</h4><p>When the hand targets drift to the edge of the arms' workspace, the swerve base creeps to re-centre them — MABEL's analogue of root-translation handling in GMR / HoMMI.</p></div></div>
+    <div class="card fade-up"><span class="card-num">D</span><div><h4>Teleop replay</h4><p>Vision Pro retargeting and keyboard teleop drive the very same twin, so a session can be replayed and debugged offline before it ever touches hardware.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">E</span><div><h4>Sensor sim</h4><p>A 360° planar LiDAR (RPLIDAR A3, 0.2–25 m) plus head RGB-D are modelled in-scene for mapping, SLAM, and navigation development.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">F</span><div><h4>Reproducible by script</h4><p>Every clip on this page regenerates from <code>scripts/tools/render_web_gifs.py</code> driving the real controllers — no hand-keyframing, fixed scenes, deterministic.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── SIM-TO-REAL ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Sim-to-real</span>
+        <h2 class="display-md title">One model, <span class="italic accent">two worlds.</span></h2>
+      </div>
+      <p class="lede">The gap is closed by construction: the twin and the robot share geometry, share
+        interfaces, and the controllers don't know which one they're talking to.</p>
     </div>
 
     <div class="points fade-up">
       <div class="point"><div class="num">01</div><div>
         <h5>Single source of geometry</h5>
-        <p>One URDF generates the MJCF, the Isaac asset, the MoveIt2 collision model, and the on-robot kinematics. DH parameters live in one config module — sim and hardware can never silently diverge.</p>
+        <p>One URDF generates the MuJoCo MJCF, the on-robot kinematics, and the web's 3D viewer. The
+          swerve module positions, wheel radius, and lift limits the controllers use are read straight
+          from the same config — sim and hardware can't silently diverge.</p>
       </div></div>
       <div class="point"><div class="num">02</div><div>
-        <h5>Domain randomization</h5>
-        <p>Mass, friction, actuator gains, latency, camera pose, and lighting are randomized per episode. Policies learn to be robust to the parameters we can't measure perfectly, so the residual sim-to-real gap stays small.</p>
+        <h5>The same controller code</h5>
+        <p>Swerve IK, whole-body IK, the lazy base, and the tip-over safety all live in
+          <code>controller/mabel</code>. The simulator imports them unmodified; deployment swaps the
+          MuJoCo plant for the real RS-485 / CAN bus, not the math.</p>
       </div></div>
       <div class="point"><div class="num">03</div><div>
-        <h5>Identical ROS 2 interfaces</h5>
-        <p>The twin publishes the same topics and message types as the hardware driver. A controller or policy node cannot tell whether it is talking to MuJoCo or to the real swerve base — so deployment is a config flag, not a rewrite.</p>
+        <h5>Tip-safety from measured geometry</h5>
+        <p>The support triangle and CoM projection in the ZMP limiter are measured from the model
+          (wheel contacts + subtree CoM). The robot inherits the same envelope, so "safe in sim" means
+          safe on the floor.</p>
       </div></div>
       <div class="point"><div class="num">04</div><div>
-        <h5>Calibration in the loop</h5>
-        <p>Measured joint trajectories from the real robot are replayed in sim; residuals tune the model's friction and gain parameters until predicted and measured motion agree. The twin gets more honest every time MABEL moves.</p>
+        <h5>Built for data</h5>
+        <p>The furnished home is where teleoperated demonstrations get collected and replayed. Small
+          embodiment gap, real graspable objects, identical interfaces — the twin is the front door to
+          the learning pipeline.</p>
       </div></div>
     </div>
-  </div>
-</section>
-
-<!-- ─── CAPABILITIES IN SIM ─── -->
-<section class="pad-y">
-  <div class="wrap">
-    <div class="sec-head-center fade-up">
-      <span class="eyebrow">In the twin</span>
-      <h2 class="display-md">What you can run.</h2>
-    </div>
-  </div>
-  <div class="card-grid">
-    <div class="card fade-up"><span class="card-num">A</span><div><h4>Kinematics &amp; IK</h4><p>FK/IK sandboxes for the arms and whole body, with reachability and manipulability visualization.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">B</span><div><h4>Motion planning</h4><p>RRT*, potential-field, and trajectory generation validated against the collision model before deployment.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">C</span><div><h4>Whole-body control</h4><p>Tune the QP controller's task and posture weights against repeatable, ground-truth scenes.</p></div></div>
-    <div class="card fade-up"><span class="card-num">D</span><div><h4>Policy pre-training</h4><p>Generate demonstrations and run RL at scale in Isaac Lab, then fine-tune on real data.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">E</span><div><h4>Teleop replay</h4><p>Replay Vision Pro sessions in sim to debug retargeting and label trajectories offline.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">F</span><div><h4>Regression tests</h4><p>Every code change reruns a scene suite; figures and metrics regenerate from scratch with fixed seeds.</p></div></div>
   </div>
 </section>
 
 <!-- ─── CTA ─── -->
-<section class="soft-sec pad-y">
+<section class="pad-y">
   <div class="wrap-narrow" style="text-align:center;">
     <h2 class="display-sm fade-up" style="margin-bottom:24px;">The twin runs. Now make it move.</h2>
     <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <a href="#" class="btn btn-primary">URDF &amp; sim repo ↗</a>
+      <a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener" class="btn btn-primary">Sim &amp; controller code ↗</a>
       <a href="wbc.html" class="btn btn-ghost">Next: Whole-Body Control →</a>
     </div>
   </div>
