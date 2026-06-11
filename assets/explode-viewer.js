@@ -12,9 +12,9 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // subsystem → { node to offset, world-space explode direction·distance(m), label, blurb }
 const PARTS = [
-  { key: 'head',  node: 'neck_1',           off: [0, 0.58, -0.04], label: 'Active head',
+  { key: 'head',  node: 'neck_1',           off: [0, 0.34, -0.04], label: 'Active head',
     blurb: 'Pan / tilt / roll neck carrying a stereo RGB-D camera — active perception that aims the gaze where the task is.' },
-  { key: 'torso', node: 'torso',            off: [0, 0.30, 0],     label: 'Torso & screen',
+  { key: 'torso', node: 'torso',            off: [0, 0.22, 0],     label: 'Torso & screen',
     blurb: 'Tilting torso with a 13″ touchscreen chest. Leans MABEL in to look and doubles the workspace with the lift.' },
   { key: 'lift',  node: 'lift_mid',         off: [0, 0.16, 0],     label: 'Lift column',
     blurb: 'Cascaded standing-desk lift — ~0.64 m of vertical travel for floor-to-counter reach.' },

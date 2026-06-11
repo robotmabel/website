@@ -138,5 +138,5 @@
 <text x="674" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">sim (unified)</text>
 <circle cx="860" cy="910" r="5" fill="#30D158"/>
 <text x="874" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">state + sensors out</text>
-<text x="1284" y="914" fill="#636366" font-size="12" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="end">one DDS graph · sim ⇄ real</text>
+<text x="1284" y="914" fill="#636366" font-size="12" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="end">one DDS graph · sim or real</text>
 </svg>

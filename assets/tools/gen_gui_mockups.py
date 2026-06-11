@@ -451,180 +451,153 @@ def ros_graph_svg():
                                 (SIM, "sim (unified)"), (GREEN, "state + sensors out"))):
         x = 60 + i * 200
         o.append(dot(x, ly - 4, c, 5)); o.append(txt(x + 14, ly, t, LABEL2, 12, 500))
-    o.append(txt(W - 36, ly, "one DDS graph · sim ⇄ real", LABEL3, 12, 600, font=MONO, anchor="end"))
+    o.append(txt(W - 36, ly, "one DDS graph · sim or real", LABEL3, 12, 600, font=MONO, anchor="end"))
     o.append("</svg>")
     return "\n".join(o)
 
 
 # ── System architecture (Figure 1) — animated, plays in <img> ─────────────────
 
+def _arch_common():
+    return dict(PAPER="#FAF8F2", WHITE="#FFFFFF", BONE="#F2EEE6", INK="#161412",
+                INKS="#2A2622", ASH="#6B6660", ASHL="#A09A91", RUST="#C25B2A",
+                HAIR="rgba(22,20,18,0.14)",
+                FS="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif",
+                FM="'Geist Mono', 'SF Mono', Menlo, monospace")
+
 def system_arch_svg():
-    """Clickable, on-brand system figure (bone/rust, Geist)."""
-    W, H = 1360, 800
-    PAPER, WHITE, BONE = "#FAF8F2", "#FFFFFF", "#F2EEE6"
-    INK, INKS, ASH, ASHL = "#161412", "#2A2622", "#6B6660", "#A09A91"
-    RUST, CLAY = "#C25B2A", "#8B5A3C"
-    HAIR = "rgba(22,20,18,0.14)"
-    FS = "'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif"
-    FM = "'Geist Mono', 'SF Mono', Menlo, monospace"
-    def R(x, y, w, h, r, fill, stroke=None, sw=1, dash=None):
-        s = f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}"'
-        if stroke: s += f' stroke="{stroke}" stroke-width="{sw}"'
-        if dash: s += f' stroke-dasharray="{dash}"'
-        return s + "/>"
-    def T(x, y, s, fill=INK, size=12, w=400, font=FS, anc="start", sp=None):
-        sps = f' letter-spacing="{sp}"' if sp else ""
-        return (f'<text x="{x}" y="{y}" fill="{fill}" font-size="{size}" font-weight="{w}" '
-                f'font-family="{font}" text-anchor="{anc}"{sps}>{s}</text>')
-    def Dt(x, y, c, r=4): return f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c}"/>'
-    def A(href, inner): return f'<a href="{href}" target="_top">{inner}</a>'
-    STYLE = ('<style>a{cursor:pointer}a rect,a text{transition:fill .15s,stroke .15s}'
-             'a:hover rect{stroke:#C25B2A;stroke-width:2;fill:#FBEFE7}a:hover text{fill:#C25B2A}</style>')
-    o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{FS}">']
-    o.append(R(0, 0, W, H, 16, PAPER, stroke=HAIR, sw=1))
-    o.append(STYLE)
-    o.append(T(40, 46, "Figure 1 — MABEL system architecture  ·  click any block to open its page", ASH, 13, 500, font=FM, sp="0.3"))
-    bx, bw = 140, 720
-    tw_x, tw_w = 936, 384
-    railL, railR = 70, 898
-    chip_h = 30
-    def chips(items, x0, y0, maxw):
-        cx, cy = x0, y0
-        for t, href in items:
-            w = int(len(t) * 6.2) + 24
-            if cx + w > x0 + maxw:
-                cx = x0; cy += chip_h + 9
-            o.append(A(href, R(cx, cy, w, chip_h, 8, BONE, stroke=HAIR, sw=1) +
-                      T(cx + w / 2, cy + chip_h / 2 + 3.6, t, INKS, 11, 500, font=FM, anc="middle")))
-            cx += w + 10
-        return cy + chip_h
-    tiers = [
-        ("OPERATOR · AUTONOMY", "teleop.html",
+    """Control stack that branches into Real robot + Digital twin, with connecting lines."""
+    g = _arch_common(); PAPER,WHITE,BONE,INK,INKS,ASH,ASHL,RUST,HAIR,FS,FM = (
+        g['PAPER'],g['WHITE'],g['BONE'],g['INK'],g['INKS'],g['ASH'],g['ASHL'],g['RUST'],g['HAIR'],g['FS'],g['FM'])
+    W, H = 1360, 824
+    def R(x,y,w,h,r,fill,stroke=None,sw=1,dash=None):
+        s=f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}"'
+        if stroke: s+=f' stroke="{stroke}" stroke-width="{sw}"'
+        if dash: s+=f' stroke-dasharray="{dash}"'
+        return s+"/>"
+    def T(x,y,s,fill=INK,size=12,w=400,font=FS,anc="start",sp=None):
+        sps=f' letter-spacing="{sp}"' if sp else ""
+        return f'<text x="{x}" y="{y}" fill="{fill}" font-size="{size}" font-weight="{w}" font-family="{font}" text-anchor="{anc}"{sps}>{s}</text>'
+    def Dt(x,y,c,r=4): return f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c}"/>'
+    def A(href,inner): return f'<a href="{href}" target="_top">{inner}</a>'
+    def L(x1,y1,x2,y2,color=HAIR,sw=1.2,dash=None):
+        d=f' stroke-dasharray="{dash}"' if dash else ''
+        return f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{color}" stroke-width="{sw}"{d}/>'
+    def chev(cx,ay,c=RUST):
+        return f'<path d="M {cx-7} {ay} L {cx} {ay+7} L {cx+7} {ay}" stroke="{c}" stroke-width="1.6" fill="none" opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>'
+    STYLE=('<style>a{cursor:pointer}a rect,a text{transition:fill .15s,stroke .15s}'
+           'a:hover rect{stroke:#C25B2A;stroke-width:2;fill:#FBEFE7}a:hover text{fill:#C25B2A}</style>')
+    o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{FS}">']
+    o.append(R(0,0,W,H,16,PAPER,stroke=HAIR,sw=1)); o.append(STYLE)
+    o.append(T(40,46,"Figure 1 — MABEL system architecture  ·  click any block to open its page",ASH,13,500,font=FM,sp="0.3"))
+    chip_h=30
+    def chips(items,x0,y0,maxw):
+        cx,cy=x0,y0
+        for t,href in items:
+            w=int(len(t)*6.2)+24
+            if cx+w>x0+maxw: cx=x0; cy+=chip_h+9
+            o.append(A(href, R(cx,cy,w,chip_h,8,BONE,stroke=HAIR,sw=1)+T(cx+w/2,cy+chip_h/2+3.6,t,INKS,11,500,font=FM,anc="middle")))
+            cx+=w+10
+        return cy+chip_h
+    def box(x,y,w,label,lhref,items,dashed=False):
+        n=len(o)
+        bottom=chips(items,x+24,y+52,w-48)
+        bh=(bottom-y)+18
+        o.insert(n, R(x,y,w,bh,14,WHITE,stroke=HAIR,sw=1.2,dash="2 5" if dashed else None))
+        o.insert(n+1, Dt(x+22,y+25,RUST,3.5))
+        o.insert(n+2, A(lhref, T(x+36,y+30,label,INKS,11,600,sp="0.5")))
+        return y+bh
+    bx,bw=170,1020
+    tiers=[
+        ("OPERATOR · AUTONOMY","teleop.html",
          [("Vision Pro teleop","teleop.html"),("iPhone app","teleop.html"),("Learned policies","learning.html"),("Nav goals","navigation.html")]),
-        ("ONBOARD INTELLIGENCE · Jetson Thor", "wbc.html",
+        ("ONBOARD INTELLIGENCE · Jetson Thor","wbc.html",
          [("Whole-body control (QP)","wbc.html"),("Nav2 + SLAM","navigation.html"),("Policy runtime","learning.html"),("Perception","ros.html")]),
-        ("ROS 2 MIDDLEWARE · mabel_ws (DDS)", "ros.html",
+        ("ROS 2 MIDDLEWARE · mabel_ws (DDS)","ros.html",
          [("driver nodes","ros.html"),("/joint_states","ros.html"),("/odom","ros.html"),("sensor topics","ros.html"),("/cmd","ros.html")]),
-        ("FIRMWARE · per-MCU", "firmware.html",
+        ("FIRMWARE · per-MCU","firmware.html",
          [("swerve · REV CAN","firmware.html"),("arms + body · Damiao CAN","firmware.html"),("hands · Feetech","firmware.html"),("neck · Dynamixel","firmware.html"),("lift · Pico","firmware.html")]),
-        ("HARDWARE · 51 DOF", "hardware.html",
-         [("Base","hardware-base.html"),("Lift","hardware-lift.html"),("Body + neck","hardware-body.html"),("Arms 2×7","hardware-arms.html"),("Hands 2×17","hardware-hands.html"),("Sensors","hardware.html"),("Custom PCB + power","hardware-electronics.html")]),
     ]
-    y = 92; band_ys = []
-    for label, lhref, items in tiers:
-        n = len(o)
-        bottom = chips(items, bx + 26, y + 54, bw - 52)
-        bh = (bottom - y) + 20
-        o.insert(n, R(bx, y, bw, bh, 14, WHITE, stroke=HAIR, sw=1.2))
-        o.insert(n + 1, R(bx, y + 12, 4, bh - 24, 2, RUST))
-        o.insert(n + 2, Dt(bx + 22, y + 25, RUST, 3.5))
-        o.insert(n + 3, A(lhref, T(bx + 36, y + 30, label, INKS, 11, 600, sp="0.6")))
-        band_ys.append((y, bh)); y += bh + 24
-    top = band_ys[0][0]; bot = band_ys[-1][0] + band_ys[-1][1]
-    th = 320; tyt = top + (bot - top - th) / 2
-    o.append(R(tw_x, tyt, tw_w, th, 14, BONE, stroke=ASH, sw=1.2, dash="2 5"))
-    o.append(Dt(tw_x + 22, tyt + 25, CLAY, 3.5))
-    o.append(A("simulation.html", T(tw_x + 36, tyt + 30, "DIGITAL TWIN · MuJoCo / Isaac", INKS, 11, 600, sp="0.4")))
-    for i, t in enumerate(["Same URDF → MJCF","Same ROS 2 interfaces","Domain randomization","Parallel RL / data","Sim ⇄ real, one flag"]):
-        ty = tyt + 60 + i * 48
-        o.append(A("simulation.html", R(tw_x + 24, ty, tw_w - 48, 32, 8, WHITE, stroke=HAIR, sw=1) +
-                  T(tw_x + tw_w / 2, ty + 20, t, INKS, 11, 500, font=FM, anc="middle")))
-    ros_y = band_ys[2][0] + band_ys[2][1] / 2
-    o.append(f'<line x1="{bx+bw}" y1="{ros_y}" x2="{tw_x}" y2="{ros_y}" stroke="{RUST}" stroke-width="1.3" stroke-dasharray="4 4"/>')
-    o.append(T((bx + bw + tw_x) / 2, ros_y - 8, "same topics", RUST, 10, 600, font=FM, anc="middle"))
-    cxs = [bx + bw * f for f in (0.3, 0.5, 0.7)]
-    for i in range(len(band_ys) - 1):
-        y0 = band_ys[i][0] + band_ys[i][1]; y1 = band_ys[i + 1][0]
-        for cx in cxs:
-            o.append(f'<line x1="{cx}" y1="{y0}" x2="{cx}" y2="{y1}" stroke="{HAIR}" stroke-width="1"/>')
-    def rail(x, y0, y1, color, down, label):
-        o.append(f'<line x1="{x}" y1="{y0}" x2="{x}" y2="{y1}" stroke="{color}" stroke-width="2" opacity="0.5"/>')
-        for k in range(4):
-            va = (f"{y0};{y1}" if down else f"{y1};{y0}")
-            o.append(f'<circle cx="{x}" r="4" fill="{color}"><animate attributeName="cy" values="{va}" '
-                     f'dur="3s" begin="{k*0.75}s" repeatCount="indefinite"/></circle>')
-        ly = y0 + (y1 - y0) * 0.30
-        o.append(f'<text x="{x}" y="{ly}" fill="{color}" font-size="11" font-weight="600" '
-                 f'font-family="{FS}" text-anchor="middle" transform="rotate(-90 {x} {ly})" letter-spacing="1">{label}</text>')
-    rail(railL, top, bot, RUST, True, "COMMANDS down  intent to joint targets")
-    rail(railR, top, bot, ASH, False, "STATE up  joints, odom, vision")
-    o.append(T(W / 2, H - 22, "intent flows down · joint state and perception flow up · the twin shares every interface", ASHL, 12, 400, anc="middle"))
+    y=92; ys=[]
+    for label,lhref,items in tiers:
+        b=box(bx,y,bw,label,lhref,items)
+        ys.append((y,b)); 
+        y=b+30
+    # chevrons between the 4 tiers
+    for i in range(len(ys)-1):
+        o.append(chev(bx+bw/2, ys[i][1]+8))
+    fb=ys[-1][1]  # firmware bottom
+    # branch into Real robot + Digital twin
+    by=fb+74
+    half=(bw-30)/2
+    rb=box(bx, by, half, "REAL ROBOT · 51 DOF","hardware.html",
+           [("Base","hardware-base.html"),("Lift","hardware-lift.html"),("Body + neck","hardware-body.html"),("Arms 2×7","hardware-arms.html"),("Hands 2×17","hardware-hands.html"),("Sensors","hardware.html"),("PCB + power","hardware-electronics.html")])
+    tb=box(bx+half+30, by, half, "DIGITAL TWIN · MuJoCo","simulation.html",
+           [("Same URDF → MJCF","simulation.html"),("Same ROS 2 interface","simulation.html"),("Same control code","simulation.html"),("Sim or real, one flag","simulation.html")], dashed=True)
+    # connecting lines: firmware -> bus -> the two targets
+    cxm=bx+bw/2; busy=fb+38
+    o.append(L(cxm, fb+18, cxm, busy, RUST, 1.4))
+    o.append(L(bx+half/2, busy, bx+bw-half/2, busy, RUST, 1.4))
+    o.append(L(bx+half/2, busy, bx+half/2, by, RUST, 1.4))
+    o.append(L(bx+bw-half/2, busy, bx+bw-half/2, by, RUST, 1.4))
+    o.append(chev(bx+half/2, by-9)); o.append(chev(bx+bw-half/2, by-9))
+    o.append(T(cxm, busy-9, "one firmware + ROS 2 interface drives either — sim or real, one flag", ASH, 11, 600, font=FM, anc="middle"))
+    o.append(T(W/2, H-22, "commands flow down to 51 joints · joint state and perception flow back up · the real robot and the twin share every interface", ASHL, 12, 400, anc="middle"))
     o.append("</svg>")
     return chr(10).join(o)
 
-
 def system_arch_mobile_svg():
-    """Portrait, clickable, readable-at-phone-width variant."""
-    W = 430
-    PAPER, WHITE, BONE = "#FAF8F2", "#FFFFFF", "#F2EEE6"
-    INK, INKS, ASH, ASHL = "#161412", "#2A2622", "#6B6660", "#A09A91"
-    RUST, CLAY = "#C25B2A", "#8B5A3C"
-    HAIR = "rgba(22,20,18,0.14)"
-    FS = "'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif"
-    FM = "'Geist Mono', 'SF Mono', Menlo, monospace"
-    def R(x, y, w, h, r, fill, stroke=None, sw=1, dash=None):
-        s = f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}"'
-        if stroke: s += f' stroke="{stroke}" stroke-width="{sw}"'
-        if dash: s += f' stroke-dasharray="{dash}"'
-        return s + "/>"
-    def T(x, y, s, fill=INK, size=12, w=400, font=FS, anc="start", sp=None):
-        sps = f' letter-spacing="{sp}"' if sp else ""
-        return (f'<text x="{x}" y="{y}" fill="{fill}" font-size="{size}" font-weight="{w}" '
-                f'font-family="{font}" text-anchor="{anc}"{sps}>{s}</text>')
-    def Dt(x, y, c, r=4): return f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c}"/>'
-    def A(href, inner): return f'<a href="{href}" target="_top">{inner}</a>'
-    STYLE = ('<style>a{cursor:pointer}a:hover rect{stroke:#C25B2A;stroke-width:2;fill:#FBEFE7}a:hover text{fill:#C25B2A}</style>')
-    body = []
-    mx, mw = 16, W - 32
-    chip_h = 30
-    def chips(items, x0, y0, maxw):
-        cx, cy = x0, y0
-        for t, href in items:
-            w = int(len(t) * 7.0) + 22
-            if cx + w > x0 + maxw:
-                cx = x0; cy += chip_h + 8
-            body.append(A(href, R(cx, cy, w, chip_h, 8, BONE, stroke=HAIR, sw=1) +
-                        T(cx + w / 2, cy + chip_h / 2 + 4, t, INKS, 12.5, 500, font=FM, anc="middle")))
-            cx += w + 8
-        return cy + chip_h
-    tiers = [
-        ("OPERATOR · AUTONOMY", RUST, "teleop.html",
-         [("Vision Pro","teleop.html"),("iPhone app","teleop.html"),("Policies","learning.html"),("Nav goals","navigation.html")]),
-        ("ONBOARD · Jetson Thor", RUST, "wbc.html",
-         [("Whole-body control","wbc.html"),("Nav2 + SLAM","navigation.html"),("Policy runtime","learning.html"),("Perception","ros.html")]),
-        ("ROS 2 · mabel_ws", RUST, "ros.html",
-         [("driver nodes","ros.html"),("/joint_states","ros.html"),("/odom","ros.html"),("sensors","ros.html"),("/cmd","ros.html")]),
-        ("FIRMWARE · per-MCU", RUST, "firmware.html",
-         [("Swerve · REV","firmware.html"),("Arms+Body · Damiao","firmware.html"),("Hands · Feetech","firmware.html"),("Neck · Dynamixel","firmware.html"),("Lift · Pico","firmware.html")]),
-        ("HARDWARE · 51 DOF", RUST, "hardware.html",
-         [("Base","hardware-base.html"),("Lift","hardware-lift.html"),("Body + neck","hardware-body.html"),("Arms 2×7","hardware-arms.html"),("Hands 2×17","hardware-hands.html"),("Sensors","hardware.html"),("PCB + power","hardware-electronics.html")]),
-        ("DIGITAL TWIN · MuJoCo", CLAY, "simulation.html",
-         [("Same URDF","simulation.html"),("Same ROS interfaces","simulation.html"),("Domain rand.","simulation.html"),("Sim ⇄ real","simulation.html")]),
+    g=_arch_common(); PAPER,WHITE,BONE,INK,INKS,ASH,ASHL,RUST,HAIR,FS,FM = (
+        g['PAPER'],g['WHITE'],g['BONE'],g['INK'],g['INKS'],g['ASH'],g['ASHL'],g['RUST'],g['HAIR'],g['FS'],g['FM'])
+    W=430
+    def R(x,y,w,h,r,fill,stroke=None,sw=1,dash=None):
+        s=f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}"'
+        if stroke: s+=f' stroke="{stroke}" stroke-width="{sw}"'
+        if dash: s+=f' stroke-dasharray="{dash}"'
+        return s+"/>"
+    def T(x,y,s,fill=INK,size=12,w=400,font=FS,anc="start",sp=None):
+        sps=f' letter-spacing="{sp}"' if sp else ""
+        return f'<text x="{x}" y="{y}" fill="{fill}" font-size="{size}" font-weight="{w}" font-family="{font}" text-anchor="{anc}"{sps}>{s}</text>'
+    def Dt(x,y,c,r=4): return f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c}"/>'
+    def A(href,inner): return f'<a href="{href}" target="_top">{inner}</a>'
+    STYLE=('<style>a{cursor:pointer}a:hover rect{stroke:#C25B2A;stroke-width:2;fill:#FBEFE7}a:hover text{fill:#C25B2A}</style>')
+    body=[]; mx,mw=16,W-32; chip_h=30
+    def chips(items,x0,y0,maxw):
+        cx,cy=x0,y0
+        for t,href in items:
+            w=int(len(t)*7.0)+22
+            if cx+w>x0+maxw: cx=x0; cy+=chip_h+8
+            body.append(A(href, R(cx,cy,w,chip_h,8,BONE,stroke=HAIR,sw=1)+T(cx+w/2,cy+chip_h/2+4,t,INKS,12.5,500,font=FM,anc="middle")))
+            cx+=w+8
+        return cy+chip_h
+    tiers=[
+        ("OPERATOR · AUTONOMY","teleop.html",[("Vision Pro","teleop.html"),("iPhone app","teleop.html"),("Policies","learning.html"),("Nav goals","navigation.html")],False),
+        ("ONBOARD · Jetson Thor","wbc.html",[("Whole-body control","wbc.html"),("Nav2 + SLAM","navigation.html"),("Policy runtime","learning.html"),("Perception","ros.html")],False),
+        ("ROS 2 · mabel_ws","ros.html",[("driver nodes","ros.html"),("/joint_states","ros.html"),("/odom","ros.html"),("sensors","ros.html"),("/cmd","ros.html")],False),
+        ("FIRMWARE · per-MCU","firmware.html",[("Swerve · REV","firmware.html"),("Arms+Body · Damiao","firmware.html"),("Hands · Feetech","firmware.html"),("Neck · Dynamixel","firmware.html"),("Lift · Pico","firmware.html")],False),
+        ("REAL ROBOT · 51 DOF","hardware.html",[("Base","hardware-base.html"),("Lift","hardware-lift.html"),("Body + neck","hardware-body.html"),("Arms 2×7","hardware-arms.html"),("Hands 2×17","hardware-hands.html"),("Sensors","hardware.html"),("PCB + power","hardware-electronics.html")],False),
+        ("DIGITAL TWIN · MuJoCo","simulation.html",[("Same URDF","simulation.html"),("Same ROS interface","simulation.html"),("Same control code","simulation.html"),("Sim or real","simulation.html")],True),
     ]
-    y = 96
-    for i, (label, accent, lhref, items) in enumerate(tiers):
-        n = len(body)
-        bottom = chips(items, mx + 16, y + 48, mw - 32)
-        bh = (bottom - y) + 16
-        twin = (i == len(tiers) - 1)
-        body.insert(n, R(mx, y, mw, bh, 13, BONE if twin else WHITE, stroke=(CLAY if twin else HAIR),
-                         sw=1.2, dash=("2 5" if twin else None)))
-        body.insert(n + 1, R(mx, y + 11, 4, bh - 22, 2, accent))
-        body.insert(n + 2, Dt(mx + 22, y + 24, accent, 3.5))
-        body.insert(n + 3, A(lhref, T(mx + 34, y + 29, label, INKS, 12, 600, sp="0.4")))
-        if i < len(tiers) - 1:
-            ay = y + bh + 5
-            body.append(f'<path d="M {W/2-6} {ay} L {W/2} {ay+8} L {W/2+6} {ay} M {W/2} {ay-3} L {W/2} {ay+8}" '
-                        f'stroke="{RUST}" stroke-width="1.6" fill="none" opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>')
-        y += bh + (22 if i < len(tiers) - 1 else 18)
-    Hh = int(y + 40)
-    o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {Hh}" font-family="{FS}">']
-    o.append(R(0, 0, W, Hh, 16, PAPER, stroke=HAIR, sw=1))
-    o.append(STYLE)
-    o.append(T(16, 40, "Figure 1 — System architecture", ASH, 13, 500, font=FM, sp="0.3"))
-    o.append(T(16, 62, "tap any block to open its page", RUST, 11.5, 600))
-    o += body
-    o.append(T(W / 2, Hh - 16, "the twin shares every interface", ASHL, 11.5, 400, anc="middle"))
+    y=96
+    for i,(label,lhref,items,dashed) in enumerate(tiers):
+        n=len(body)
+        bottom=chips(items,mx+16,y+48,mw-32)
+        bh=(bottom-y)+16
+        body.insert(n, R(mx,y,mw,bh,13,WHITE if not dashed else BONE,stroke=HAIR,sw=1.2,dash="2 5" if dashed else None))
+        body.insert(n+1, Dt(mx+22,y+24,RUST,3.5))
+        body.insert(n+2, A(lhref, T(mx+34,y+29,label,INKS,12,600,sp="0.4")))
+        if i<len(tiers)-1:
+            ay=y+bh+6
+            tag = ' · real or sim' if i==len(tiers)-2 else ''
+            body.append(f'<path d="M {W/2-7} {ay} L {W/2} {ay+7} L {W/2+7} {ay}" stroke="{RUST}" stroke-width="1.6" fill="none" opacity="0.55" stroke-linecap="round" stroke-linejoin="round"/>')
+        y+=bh+(24 if i<len(tiers)-1 else 18)
+    Hh=int(y+40)
+    o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {Hh}" font-family="{FS}">']
+    o.append(R(0,0,W,Hh,16,PAPER,stroke=HAIR,sw=1)); o.append(STYLE)
+    o.append(T(16,40,"Figure 1 — System architecture",ASH,13,500,font=FM,sp="0.3"))
+    o.append(T(16,62,"tap any block to open its page",RUST,11.5,600))
+    o+=body
+    o.append(T(W/2,Hh-16,"one interface drives the real robot and the twin",ASHL,11,400,anc="middle"))
     o.append("</svg>")
     return chr(10).join(o)
 
