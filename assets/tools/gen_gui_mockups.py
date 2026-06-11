@@ -456,11 +456,101 @@ def ros_graph_svg():
     return "\n".join(o)
 
 
+# ── System architecture (Figure 1) — animated, plays in <img> ─────────────────
+
+def system_arch_svg():
+    W, H = 1360, 912
+    CYAN, SIM = "#32D0C8", "#BF5AF2"
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{SANS}">']
+    o.append(rr(0, 0, W, H, 18, "#0B0A09", stroke=SEP, sw=1))
+    o.append(txt(40, 44, "Figure 1 · MABEL system architecture", LABEL2, 12.5, 700, font=MONO, spacing="1.2"))
+
+    bx, bw = 150, 760            # tier band x / width
+    tw_x, tw_w = 960, 350        # twin column
+    railL, railR = 70, 928       # command-down rail, state-up rail
+    chip_h = 30
+
+    def chips(items, x0, y0, accent, maxw):
+        """lay accent-tinted chips left→right, wrapping; return bottom y."""
+        cx, cy = x0, y0
+        for t in items:
+            w = int(len(t) * 6.0) + 24
+            if cx + w > x0 + maxw:
+                cx = x0; cy += chip_h + 9
+            o.append(rr(cx, cy, w, chip_h, 8, "rgba(242,238,230,0.05)", stroke=accent, sw=1))
+            o.append(txt(cx + w / 2, cy + chip_h / 2 + 3.5, t, LABEL, 11, 500, font=MONO, anchor="middle"))
+            cx += w + 10
+        return cy + chip_h
+
+    tiers = [
+        ("OPERATOR · AUTONOMY", BLUE, ["Vision Pro teleop", "iPhone app", "Learned policies", "Nav goals"]),
+        ("ONBOARD INTELLIGENCE · Jetson Thor", ORANGE, ["Whole-body control (QP)", "Nav2 + SLAM", "Policy runtime", "Perception"]),
+        ("ROS 2 MIDDLEWARE · mabel_ws (DDS)", GREEN, ["driver nodes", "/joint_states", "/odom", "sensor topics", "/cmd"]),
+        ("FIRMWARE · per-MCU", SIM, ["swerve · REV CAN", "arms + body · Damiao CAN", "hands · Feetech", "neck · Dynamixel", "lift · Pico"]),
+        ("HARDWARE · 51 DOF", CYAN, ["Base", "Lift", "Body + neck", "Arms 2×7", "Hands 2×17", "Sensors", "Custom PCB + power"]),
+    ]
+    y = 96
+    band_ys = []
+    for label, accent, items in tiers:
+        # measure height by laying chips on a scratch list
+        n = len(o)
+        bottom = chips(items, bx + 22, y + 52, accent, bw - 44)
+        bh = (bottom - y) + 20
+        # insert band rect BEFORE the chips we just appended
+        band = rr(bx, y, bw, bh, 14, SURF, stroke=accent, sw=1.4)
+        o.insert(n, band)
+        o.insert(n + 1, dot(bx + 20, y + 24, accent, 4))
+        o.insert(n + 2, txt(bx + 34, y + 29, label, accent, 11, 700, spacing="0.8"))
+        band_ys.append((y, bh))
+        y += bh + 26
+
+    top = band_ys[0][0]; bot = band_ys[-1][0] + band_ys[-1][1]
+
+    # twin column
+    o.append(rr(tw_x, top, tw_w, bot - top, 14, SURF, stroke=SIM, sw=1.4))
+    o.append(dot(tw_x + 20, top + 24, SIM, 4))
+    o.append(txt(tw_x + 34, top + 29, "DIGITAL TWIN · MuJoCo / Isaac", SIM, 11, 700, spacing="0.6"))
+    for i, t in enumerate(["Same URDF → MJCF", "Same ROS 2 interfaces", "Domain randomization",
+                           "Parallel RL / data", "Sim ⇄ real, one flag"]):
+        ty = top + 70 + i * 40
+        o.append(rr(tw_x + 22, ty, tw_w - 44, 30, 8, "rgba(191,90,242,0.06)", stroke="rgba(191,90,242,0.4)", sw=1))
+        o.append(txt(tw_x + tw_w / 2, ty + 19, t, LABEL, 11, 500, font=MONO, anchor="middle"))
+    # link ROS tier <-> twin
+    ros_y = band_ys[2][0] + band_ys[2][1] / 2
+    o.append(f'<line x1="{bx+bw}" y1="{ros_y}" x2="{tw_x}" y2="{ros_y}" stroke="{SIM}" stroke-width="1.4" stroke-dasharray="4 4" opacity="0.6"/>')
+    o.append(txt((bx + bw + tw_x) / 2, ros_y - 8, "same topics", SIM, 10, 600, font=MONO, anchor="middle"))
+
+    # inter-tier connectors (vertical, centred)
+    cxs = [bx + bw * f for f in (0.3, 0.5, 0.7)]
+    for i in range(len(band_ys) - 1):
+        y0 = band_ys[i][0] + band_ys[i][1]; y1 = band_ys[i + 1][0]
+        for cx in cxs:
+            o.append(f'<line x1="{cx}" y1="{y0}" x2="{cx}" y2="{y1}" stroke="{SEP}" stroke-width="1"/>')
+
+    # ── flow rails (animated) ──────────────────────────────────────────────
+    def rail(x, y0, y1, color, dirdown, label):
+        o.append(f'<line x1="{x}" y1="{y0}" x2="{x}" y2="{y1}" stroke="{color}" stroke-width="2" opacity="0.5"/>')
+        for k in range(4):
+            va = (f"{y0};{y1}" if dirdown else f"{y1};{y0}")
+            o.append(f'<circle cx="{x}" r="4" fill="{color}"><animate attributeName="cy" values="{va}" '
+                     f'dur="3s" begin="{k*0.75}s" repeatCount="indefinite"/></circle>')
+        o.append(f'<text x="{x}" y="{(y0+y1)/2}" fill="{color}" font-size="11" font-weight="700" '
+                 f'font-family="{SANS}" text-anchor="middle" transform="rotate(-90 {x} {(y0+y1)/2})" letter-spacing="1">{label}</text>')
+    rail(railL, top, bot, BLUE, True, "COMMANDS ↓  intent → joint targets")
+    rail(railR, top, bot, GREEN, False, "STATE ↑  joints · odom · vision")
+
+    o.append(txt(W / 2, H - 26, "intent flows down · joint state and perception flow up · the twin shares every interface",
+                 LABEL3, 12, 500, anchor="middle"))
+    o.append("</svg>")
+    return "\n".join(o)
+
+
 def main():
     for name, fn in (("gui-swerve.svg", swerve_svg), ("gui-hand.svg", hand_svg),
                      ("gui-swerve-demo.svg", swerve_demo_svg),
                      ("teleop-dataflow.svg", dataflow_svg),
-                     ("ros-graph.svg", ros_graph_svg)):
+                     ("ros-graph.svg", ros_graph_svg),
+                     ("system-arch.svg", system_arch_svg)):
         p = os.path.join(OUT, name)
         with open(p, "w") as f:
             f.write(fn())
