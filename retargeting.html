@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Teleop · Retargeting</title>
+<meta name="description" content="MABEL teleop retargeting: mapping a human operator onto the robot — per-frame hand keypoint optimization and whole-body Cartesian QP, handed to whole-body control at 60 Hz." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="navigation.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="learning.html">Learning</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html" class="on">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="learning.html">Learning</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<aside class="sidenav" aria-label="Teleop section navigation">
+  <div class="sidenav-title">Teleop</div>
+  <a href="teleop.html">Overview</a><a href="retargeting.html" class="on">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a>
+</aside>
+
+<!-- HERO -->
+<section class="page-hero"><div class="page-hero-inner">
+  <div class="crumbs"><a href="index.html">Overview</a> / <a href="teleop.html">Teleop</a> / Retargeting</div>
+  <span class="eyebrow">Teleop · Retargeting</span>
+  <h1 class="display-lg">Map a human onto MABEL.</h1>
+  <p class="lede">Your hand has different proportions than the ORCA hand; your arm isn't a 7-DOF OpenArm. <strong>Retargeting</strong> is the front-end of teleop — it turns measured human motion into targets MABEL can actually hit. Two optimization problems, solved every frame, before whole-body control takes over.</p>
+  <div class="spec" style="margin-top:28px;"><span>Hand · keypoint optimization</span><span>Body · Cartesian QP</span><span>60 Hz</span><span>→ Whole-Body Control</span><span>morphology-aware</span></div>
+</div></section>
+
+<!-- PIPELINE FIGURE -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The pipeline</span><h2 class="display-md title">Human in, <span class="italic accent">targets out.</span></h2></div>
+    <p class="lede">The operator never commands joints directly. Their pose is retargeted into robot-frame targets, and a single whole-body solve resolves those targets into all 51 joint commands.</p></div>
+  <div class="arch-fig fade-up"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" viewBox="0 0 1240 560" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1240" height="560" rx="16" fill="#FAF8F2" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<style>a{cursor:pointer}a rect,a text{transition:fill .15s,stroke .15s}a:hover rect{stroke:#C25B2A;stroke-width:2;fill:#FBEFE7}a:hover text{fill:#C25B2A}</style>
+<text x="40" y="46" fill="#6B6660" font-size="13" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure — teleop retargeting: human keypoints → robot targets → joints</text>
+<rect x="40" y="150" width="250" height="232" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="50" cy="171" r="3.5" fill="#C25B2A"/>
+<text x="64" y="176" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">OPERATOR</text>
+<text x="64" y="192" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Apple Vision Pro</text>
+<rect x="58" y="224" width="214" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="70" y="242" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Head pose · 6-DoF</text>
+<rect x="58" y="260" width="214" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="70" y="278" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Left + right wrist · 6-DoF</text>
+<rect x="58" y="296" width="214" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="70" y="314" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Hand joints · 25 × 2</text>
+<rect x="58" y="332" width="214" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="70" y="350" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">gaze · pinch state</text>
+<rect x="370" y="98" width="470" height="160" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="380" cy="119" r="3.5" fill="#C25B2A"/>
+<text x="394" y="124" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">HAND RETARGETING</text>
+<text x="394" y="140" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">per-frame keypoint optimization</text>
+<text x="426" y="170" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Σ‖ vᵢʰ − vᵢʳ(q) ‖²  +  λ‖q − q₋₁‖²</text>
+<text x="394" y="166" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">min</text>
+<text x="408" y="178" fill="#6B6660" font-size="8" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">q</text>
+<text x="394" y="198" fill="#6B6660" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">s.t.  q⁻ ≤ q ≤ q⁺   joint limits</text>
+<text x="818" y="230" fill="#C25B2A" font-size="11" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="end">→ ORCA hand: 16 finger DOF + wrist roll</text>
+<rect x="370" y="288" width="470" height="168" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="380" cy="309" r="3.5" fill="#C25B2A"/>
+<text x="394" y="314" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">WHOLE-BODY RETARGETING</text>
+<text x="394" y="330" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Cartesian QP · redundancy resolution</text>
+<text x="394" y="360" fill="#2A2622" font-size="11.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">head → neck      wrist → arm end-effector target</text>
+<text x="426" y="390" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">‖ J q̇ − ẋ* ‖²  +  regularize the null space</text>
+<text x="394" y="386" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">min</text>
+<text x="409" y="398" fill="#6B6660" font-size="8" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">q̇</text>
+<text x="818" y="428" fill="#C25B2A" font-size="11" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="end">→ arms 7×2 · torso · lift · base</text>
+<a href="wbc.html" target="_top"><rect x="900" y="150" width="300" height="232" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/><circle cx="910" cy="171" r="3.5" fill="#C25B2A"/><text x="924" y="176" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">WHOLE-BODY CONTROL</text><text x="924" y="192" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">shared solver · click →</text></a>
+<text x="924" y="236" fill="#2A2622" font-size="11.5" font-weight="500" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">resolves every target together</text>
+<text x="924" y="258" fill="#6B6660" font-size="11" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">across all 51 joints, with the</text>
+<text x="924" y="276" fill="#6B6660" font-size="11" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">tip-safe + balance constraints</text>
+<rect x="918" y="300" width="264" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="1050.0" y="320" fill="#C25B2A" font-size="11.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">→ 51 coordinated joint commands</text>
+<text x="924" y="370" fill="#A09A91" font-size="10" font-weight="400" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">the same solver autonomy uses</text>
+<line x1="290" y1="266.0" x2="363" y2="266.0" stroke="#C25B2A" stroke-width="1.6"/><path d="M 361 261.0 L 370 266.0 L 361 271.0" stroke="#C25B2A" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="840" y1="266.0" x2="893" y2="266.0" stroke="#C25B2A" stroke-width="1.6"/><path d="M 891 261.0 L 900 266.0 L 891 271.0" stroke="#C25B2A" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="620.0" y="538" fill="#A09A91" font-size="12" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">human keypoints become robot targets, then one whole-body solve turns targets into joints — every frame at 60 Hz</text>
+</svg></div>
+</div></section>
+
+<!-- STAGE 1: HANDS -->
+<section class="soft-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Stage 1 · the hands</span><h2 class="display-md title">Twenty-five joints into <span class="italic accent">sixteen.</span></h2></div>
+    <p class="lede">Vision Pro reports ~25 joint poses per hand. The ORCA hand has 16 tendon-driven finger DOF plus a wrist roll, with its own link lengths — so copying angles doesn't work. We match geometry in task space instead.</p></div>
+  <div class="points fade-up">
+    <div class="point"><div class="num">01</div><div><h5>Why not copy angles</h5><p>Human and ORCA kinematics differ — the same joint angles put the fingertips in different places. Equal angles would not equal the same grasp, so joint-space copying is out.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Match keypoint vectors</h5><p>We pick vectors between hand landmarks — fingertip-to-palm, thumb-to-index — and minimise the squared difference between the human's vectors and the robot's, solving over the robot's joint angles. It's the dex-retargeting formulation.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Feasible and smooth</h5><p>Joint limits enter as hard bounds; a temporal term <code>λ‖q−q₋₁‖²</code> penalises jumpiness. Warm-started from the previous frame, the solve finishes in well under one 60&nbsp;Hz tick.</p></div></div>
+  </div>
+</div></section>
+
+<!-- STAGE 2: BODY -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Stage 2 · the body</span><h2 class="display-md title">Two wrists, <span class="italic accent">fifty-one joints.</span></h2></div>
+    <p class="lede">The headset gives a head pose and two 6-DoF wrist poses. MABEL has far more freedom than that — two 7-DOF arms, a tilting torso, a lift, and a holonomic base — so the mapping is a Cartesian QP that resolves the redundancy.</p></div>
+  <div class="points fade-up">
+    <div class="point"><div class="num">01</div><div><h5>Cartesian targets</h5><p>The head pose drives the pan/tilt/roll neck; each wrist's 6-DoF pose becomes an arm end-effector target in the robot frame. Nothing is committed to a joint yet.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Redundancy is a feature</h5><p>The arms, torso, lift, and base are over-actuated for a 6-DoF target. The QP picks the solution that stays off the joint limits, keeps the torso comfortable, and lets the base lazily follow to extend reach.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>One solve, whole body</h5><p>A single QP couples both arms, the torso, the lift, and the base — so the body moves as one coordinated system rather than four independent chains.</p></div></div>
+  </div>
+</div></section>
+
+<!-- HAND-OFF -->
+<section class="dark-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The hand-off</span><h2 class="display-md title" style="color:var(--bone);">Retargeting proposes. <span class="italic accent">WBC disposes.</span></h2></div>
+    <p class="lede">Retargeting only produces <em>targets</em>. Turning targets into safe, coordinated joint commands — under the tip-safe and balance constraints — is <a href="wbc.html" style="color:#e9a679;">whole-body control</a>, the same solver a learned policy or a navigation goal flows through. That's why retargeting lives in Teleop and WBC lives in the control stack.</p></div>
+  <div class="fade-up" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
+    <a href="wbc.html" class="btn btn-primary">Whole-Body Control →</a>
+    <a href="teleop-visionpro.html" class="btn btn-ghost">See it on Vision Pro →</a>
+    <a href="teleop.html#loop" class="btn btn-ghost">The teleop loop →</a>
+  </div>
+</div></section>
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
+      <div class="foot-col"><h6>Teleop</h6><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>

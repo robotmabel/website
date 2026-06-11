@@ -656,8 +656,73 @@ def system_arch_mobile_svg():
     o.append("</svg>")
     return chr(10).join(o)
 
+def retarget_svg():
+    """Two-stage teleop retargeting pipeline: human keypoints -> robot targets (hand
+    keypoint optimization + whole-body QP) -> handed to whole-body control."""
+    g=_arch_common(); PAPER,WHITE,BONE,INK,INKS,ASH,ASHL,RUST,HAIR,FS,FM = (
+        g['PAPER'],g['WHITE'],g['BONE'],g['INK'],g['INKS'],g['ASH'],g['ASHL'],g['RUST'],g['HAIR'],g['FS'],g['FM'])
+    W,H=1240,560
+    def R(x,y,w,h,r,fill,stroke=None,sw=1,dash=None):
+        s=f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}"'
+        if stroke: s+=f' stroke="{stroke}" stroke-width="{sw}"'
+        if dash: s+=f' stroke-dasharray="{dash}"'
+        return s+"/>"
+    def T(x,y,s,fill=INK,size=12,w=400,font=FS,anc="start",sp=None):
+        sps=f' letter-spacing="{sp}"' if sp else ""
+        return f'<text x="{x}" y="{y}" fill="{fill}" font-size="{size}" font-weight="{w}" font-family="{font}" text-anchor="{anc}"{sps}>{s}</text>'
+    def Dt(x,y,c,r=3.5): return f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c}"/>'
+    def A(href,inner): return f'<a href="{href}" target="_top">{inner}</a>'
+    def arrow(x1,x2,y,c=RUST):
+        return (f'<line x1="{x1}" y1="{y}" x2="{x2-7}" y2="{y}" stroke="{c}" stroke-width="1.6"/>'
+                f'<path d="M {x2-9} {y-5} L {x2} {y} L {x2-9} {y+5}" stroke="{c}" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
+    STYLE=('<style>a{cursor:pointer}a rect,a text{transition:fill .15s,stroke .15s}'
+           'a:hover rect{stroke:#C25B2A;stroke-width:2;fill:#FBEFE7}a:hover text{fill:#C25B2A}</style>')
+    o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{FS}">',
+       R(0,0,W,H,16,PAPER,stroke=HAIR,sw=1), STYLE,
+       T(40,46,"Figure — teleop retargeting: human keypoints → robot targets → joints",ASH,13,500,font=FM,sp="0.3")]
+    def head(x,y,title,sub,c=RUST):
+        o.append(Dt(x+10,y+13,c)); o.append(T(x+24,y+18,title,INKS,11,600,sp="0.5"))
+        o.append(T(x+24,y+34,sub,ASH,10,500,font=FM))
+    # ── Stage A: operator ──
+    ax,aw=40,250; ay,ah=150,232
+    o.append(R(ax,ay,aw,ah,14,WHITE,stroke=HAIR,sw=1.2)); head(ax,ay+8,"OPERATOR","Apple Vision Pro")
+    for i,t in enumerate(["Head pose · 6-DoF","Left + right wrist · 6-DoF","Hand joints · 25 × 2","gaze · pinch state"]):
+        yy=ay+74+i*36
+        o.append(R(ax+18,yy,aw-36,28,8,BONE,stroke=HAIR,sw=1)); o.append(T(ax+30,yy+18,t,INKS,11,500,font=FM))
+    # ── Stage B: two optimizers ──
+    bx,bw=370,470
+    # B1 hand
+    b1y,b1h=98,160
+    o.append(R(bx,b1y,bw,b1h,14,WHITE,stroke=HAIR,sw=1.2)); head(bx,b1y+8,"HAND RETARGETING","per-frame keypoint optimization")
+    o.append(T(bx+56,b1y+72,"Σ‖ vᵢʰ − vᵢʳ(q) ‖²  +  λ‖q − q₋₁‖²",INKS,12.5,500,font=FM))
+    o.append(T(bx+24,b1y+68,"min",INKS,12.5,500,font=FM)); o.append(T(bx+38,b1y+80,"q",ASH,8,500,font=FM,anc="middle"))
+    o.append(T(bx+24,b1y+100,"s.t.  q⁻ ≤ q ≤ q⁺   joint limits",ASH,11,500,font=FM))
+    o.append(T(bx+bw-22,b1y+132,"→ ORCA hand: 16 finger DOF + wrist roll",RUST,11,600,font=FM,anc="end"))
+    # B2 body
+    b2y,b2h=288,168
+    o.append(R(bx,b2y,bw,b2h,14,WHITE,stroke=HAIR,sw=1.2)); head(bx,b2y+8,"WHOLE-BODY RETARGETING","Cartesian QP · redundancy resolution")
+    o.append(T(bx+24,b2y+72,"head → neck      wrist → arm end-effector target",INKS,11.5,500,font=FM))
+    o.append(T(bx+56,b2y+102,"‖ J q̇ − ẋ* ‖²  +  regularize the null space",INKS,12.5,500,font=FM))
+    o.append(T(bx+24,b2y+98,"min",INKS,12.5,500,font=FM)); o.append(T(bx+39,b2y+110,"q̇",ASH,8,500,font=FM,anc="middle"))
+    o.append(T(bx+bw-22,b2y+140,"→ arms 7×2 · torso · lift · base",RUST,11,600,font=FM,anc="end"))
+    # ── Stage C: WBC ──
+    cx,cw=900,300; cy,ch=150,232
+    o.append(A("wbc.html", R(cx,cy,cw,ch,14,WHITE,stroke=HAIR,sw=1.2)+Dt(cx+10,cy+21,RUST)+T(cx+24,cy+26,"WHOLE-BODY CONTROL",INKS,11,600,sp="0.5")+T(cx+24,cy+42,"shared solver · click →",ASH,10,500,font=FM)))
+    o.append(T(cx+24,cy+86,"resolves every target together",INKS,11.5,500))
+    o.append(T(cx+24,cy+108,"across all 51 joints, with the",ASH,11,400))
+    o.append(T(cx+24,cy+126,"tip-safe + balance constraints",ASH,11,400))
+    o.append(R(cx+18,cy+150,cw-36,30,8,BONE,stroke=HAIR,sw=1)); o.append(T(cx+cw/2,cy+170,"→ 51 coordinated joint commands",RUST,11.5,600,font=FM,anc="middle"))
+    o.append(T(cx+24,cy+ch-12,"the same solver autonomy uses",ASHL,10,400,font=FM))
+    # arrows
+    o.append(arrow(ax+aw, bx, ay+ah/2))
+    o.append(arrow(bx+bw, cx, cy+ch/2))
+    o.append(T(W/2, H-22, "human keypoints become robot targets, then one whole-body solve turns targets into joints — every frame at 60 Hz", ASHL,12,400,anc="middle"))
+    o.append("</svg>")
+    return chr(10).join(o)
+
 def main():
     for name, fn in (("gui-swerve.svg", swerve_svg), ("gui-hand.svg", hand_svg),
+                     ("retarget.svg", retarget_svg),
                      ("gui-swerve-demo.svg", swerve_demo_svg),
                      ("teleop-dataflow.svg", dataflow_svg),
                      ("ros-graph.svg", ros_graph_svg),
