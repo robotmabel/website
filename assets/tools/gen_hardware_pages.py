@@ -21,7 +21,7 @@ def link(href,label,active):
 def group(name, items, active_grp, active_page):
     on = " on" if active_grp else ""
     menu = "".join(link(h,l,h==active_page) for h,l in items)
-    return (f'<div class="nav-group{on}"><button type="button" class="nav-grp-btn">{name}'
+    return (f'<div class="nav-group{on}"><button type="button" class="nav-grp-btn" data-href="{items[0][0]}">{name}'
             f'<span class="nav-caret">▾</span></button><div class="nav-menu">{menu}</div></div>')
 
 def mobgroup(name, items):

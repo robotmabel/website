@@ -82,6 +82,8 @@
   document.querySelectorAll('.nav-grp-btn').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       e.stopPropagation();
+      // clicking the group label jumps to the section's first page
+      if (btn.dataset.href) { window.location.href = btn.dataset.href; return; }
       var g = btn.closest('.nav-group');
       var isOpen = g.classList.contains('open');
       document.querySelectorAll('.nav-group').forEach(function (x) { x.classList.remove('open'); });
