@@ -24,7 +24,7 @@
   <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
   <nav class="nav-links">
     <a href="index.html">Overview</a>
-    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html" class="on">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html" class="on">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="server.html">Server & Bridge</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="navigation.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="learning.html">Learning</a></div></div>
@@ -34,12 +34,12 @@
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server & Bridge</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server & Bridge</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 
 <aside class="sidenav" aria-label="Hardware section navigation">
   <div class="sidenav-title">Hardware</div>
-  <a href="hardware.html" class="on">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-electronics.html">Electronics</a>
+  <a href="hardware.html" class="on">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
@@ -265,6 +265,27 @@
     <div class="card fade-up"><span class="card-num">D</span><div><h4>Eye-in-hand vision</h4><p>Wrist cameras give close-up perception exactly where the grasp happens.</p></div></div>
     <div class="card fade-up d1"><span class="card-num">E</span><div><h4>Expressive HRI</h4><p>LED eyes and the touchscreen torso make MABEL's state legible to the people around it.</p></div></div>
     <div class="card fade-up d2"><span class="card-num">F</span><div><h4>Open &amp; reproducible</h4><p>Every CAD file, gerber, and URDF is released. Reproduce or remix — that's the contract.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── SENSING ─── -->
+<section class="pad-y" id="sensing">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Sensing &amp; screens</span>
+        <h2 class="display-md title">Everything it <span class="italic accent">sees and shows.</span></h2>
+      </div>
+      <p class="lede">A full perception suite plus two expressive surfaces — every sensor lands on the ROS&nbsp;2 topic bus. <a href="hardware-sensors.html">Full sensors page →</a></p>
+    </div>
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div><h5>Active head camera</h5><p>A 3-DOF pan / tilt / roll neck aims a stereo <strong>RGB-D</strong> camera — active perception that points the gaze where the task is and feeds Vision Pro passthrough.</p></div></div>
+      <div class="point"><div class="num">02</div><div><h5>Dual wrist cameras</h5><p>An eye-in-hand camera in each wrist gives close-up, rectified vision exactly where the grasp happens.</p></div></div>
+      <div class="point"><div class="num">03</div><div><h5>2-D base LiDAR</h5><p>A scanner under the base publishes <code>/scan</code> for SLAM, localization, and obstacle avoidance.</p></div></div>
+      <div class="point"><div class="num">04</div><div><h5>Proprioception</h5><p>Joint encoders on every actuator, wheel encoders on the swerve base, and an IMU give <code>/joint_states</code> and <code>/odom</code>.</p></div></div>
+      <div class="point"><div class="num">05</div><div><h5>13&Prime; chest touchscreen</h5><p>The torso carries a 13-inch touchscreen — a second face for status, controls, and hand-offs.</p></div></div>
+      <div class="point"><div class="num">06</div><div><h5>LED-matrix eyes</h5><p>Animated addressable eyes signal MABEL&rsquo;s state and intent before it acts — legible, expressive HRI.</p></div></div>
+    </div>
   </div>
 </section>
 

@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
-<title>MABEL — Arms</title>
-<meta name="description" content="MABEL hardware · Arms: Derived from the open-source OpenArm design and driven by Damiao quasi-direct-drive motors on CAN — low gearing means real torque control, gravity compensation, and compliance." />
+<title>MABEL — Sensors</title>
+<meta name="description" content="MABEL hardware · Sensors: stereo RGB-D head camera, dual eye-in-hand wrist cameras, 2-D base LiDAR, joint and wheel encoders, IMU, plus a 13-inch touchscreen and LED-matrix eyes." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -20,7 +20,7 @@
   <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
   <nav class="nav-links">
     <a href="index.html">Overview</a>
-    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html" class="on">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html" class="on">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="server.html">Server & Bridge</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="navigation.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="learning.html">Learning</a></div></div>
@@ -35,17 +35,17 @@
 
 <aside class="sidenav" aria-label="Hardware section navigation">
   <div class="sidenav-title">Hardware</div>
-  <a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html" class="on">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a>
+  <a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html" class="on">Sensors</a><a href="hardware-electronics.html">Electronics</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
 <section class="page-hero">
   <div class="page-hero-inner">
-    <div class="crumbs"><a href="index.html">Overview</a> / <a href="hardware.html">Hardware</a> / Arms</div>
-    <span class="eyebrow">Hardware · Arms</span>
-    <h1 class="display-lg">Two 7-DOF arms, back-drivable.</h1>
-    <p class="lede">Derived from the open-source OpenArm design and driven by Damiao quasi-direct-drive motors on CAN — low gearing means real torque control, gravity compensation, and compliance.</p>
-    <div class="spec" style="margin-top:28px;"><span>14 DOF · 2 × 7</span><span>OpenArm-derived</span><span>Damiao QDD · CAN</span><span>Torque-controlled</span><span>Back-drivable</span></div>
+    <div class="crumbs"><a href="index.html">Overview</a> / <a href="hardware.html">Hardware</a> / Sensors</div>
+    <span class="eyebrow">Hardware · Sensors</span>
+    <h1 class="display-lg">Eyes, ears, and proprioception.</h1>
+    <p class="lede">MABEL&rsquo;s perception suite: a 3-DOF active head carrying a stereo RGB-D camera, dual eye-in-hand wrist cameras, a 2-D base LiDAR for mapping, and joint + wheel encoders throughout &mdash; plus a 13&Prime; touchscreen and animated LED-matrix eyes that make its state legible.</p>
+    <div class="spec" style="margin-top:28px;"><span>Stereo RGB-D head</span><span>2× wrist cameras</span><span>2-D base LiDAR</span><span>Joint + wheel encoders</span><span>IMU</span><span>13″ touchscreen</span></div>
   </div>
 </section>
 
@@ -54,13 +54,13 @@
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">Arms</span>
-        <h2 class="display-md title">Inside the <span class="italic accent">arms.</span></h2>
+        <span class="eyebrow">Sensors</span>
+        <h2 class="display-md title">How MABEL <span class="italic accent">perceives.</span></h2>
       </div>
-      <p class="lede">Real parts, open files. Here's what makes the arms subsystem tick.</p>
+      <p class="lede">Exteroception to see the world, proprioception to know itself, and two surfaces to show what it&rsquo;s thinking — all published as ordinary topics.</p>
     </div>
     <div class="points fade-up">
-      <div class="point"><div class="num">01</div><div><h5>OpenArm lineage</h5><p>Two 7-DOF arms built on the open-source <strong>OpenArm</strong> design — a proven, printable, research-grade arm rather than a closed industrial unit.</p></div></div><div class="point"><div class="num">02</div><div><h5>Quasi-direct-drive</h5><p><strong>Damiao</strong> QDD motors on CAN close a high-rate current loop, so commanded torques become real ones with very little friction to fight.</p></div></div><div class="point"><div class="num">03</div><div><h5>Compliant by design</h5><p>Low gearing makes the arms back-drivable — the foundation for gravity compensation and Cartesian impedance in the <a href="wbc.html">whole-body controller</a>.</p></div></div><div class="point"><div class="num">04</div><div><h5>Human-scale reach</h5><p>Link lengths and shoulder spacing are tuned to a person's, so <a href="teleop.html">teleoperation</a> maps naturally and the embodiment gap stays small.</p></div></div>
+      <div class="point"><div class="num">01</div><div><h5>Active head camera</h5><p>A 3-DOF pan / tilt / roll <a href="hardware-body.html">neck</a> aims a stereo <strong>RGB-D</strong> camera — active perception that points the gaze where the task is, and feeds the <a href="teleop-visionpro.html">Vision Pro</a> stereo passthrough.</p></div></div><div class="point"><div class="num">02</div><div><h5>Eye-in-hand wrist cameras</h5><p>One camera in each <a href="hardware-arms.html">wrist</a> gives close-up, rectified vision exactly where the grasp happens — the detail the head can&rsquo;t always see over the hand.</p></div></div><div class="point"><div class="num">03</div><div><h5>2-D base LiDAR</h5><p>An RPLIDAR-class scanner under the <a href="hardware-base.html">base</a> publishes <code>/scan</code> for SLAM, localization, and obstacle avoidance — the backbone of <a href="navigation.html">navigation</a>.</p></div></div><div class="point"><div class="num">04</div><div><h5>Proprioception</h5><p>Joint encoders on every actuator and wheel encoders on the swerve base give <code>/joint_states</code> and <code>/odom</code>; an IMU stabilizes the base estimate. The robot always knows its own pose.</p></div></div><div class="point"><div class="num">05</div><div><h5>Made legible</h5><p>A 13&Prime; chest <a href="hardware-body.html">touchscreen</a> and animated LED-matrix eyes surface MABEL&rsquo;s state and intent — expressive HRI, so people read it before it acts.</p></div></div><div class="point"><div class="num">06</div><div><h5>One topic bus</h5><p>Every sensor publishes onto the <a href="ros.html">ROS 2</a> state bus (or its <a href="simulation.html">sim twin</a>); consumers see topics, never the hardware. Over teleop the same feeds stream through the <a href="server.html">server</a>.</p></div></div>
     </div>
   </div>
 </section>
@@ -68,9 +68,10 @@
 <!-- ─── CTA ─── -->
 <section class="soft-sec pad-y">
   <div class="wrap-narrow" style="text-align:center;">
-    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Reach, with feeling.</h2>
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Perception, end to end.</h2>
     <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <a href="wbc.html" class="btn btn-primary">Whole-Body Control →</a>
+      <a href="ros.html" class="btn btn-primary">The ROS graph →</a>
+      <a href="navigation.html" class="btn btn-ghost">Navigation →</a>
       <a href="hardware.html" class="btn btn-ghost">← Hardware overview</a>
     </div>
   </div>
@@ -84,7 +85,7 @@
         <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
       </div>
-      <div class="foot-col"><h6>Hardware</h6><a href="hardware-arms.html">Arms</a><a href="hardware-hands.html">Hands</a><a href="hardware-base.html">Base</a><a href="hardware-electronics.html">Electronics</a></div>
+      <div class="foot-col"><h6>Hardware</h6><a href="hardware-arms.html">Arms</a><a href="hardware-hands.html">Hands</a><a href="hardware-base.html">Base</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div>
       <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
