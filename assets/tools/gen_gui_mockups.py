@@ -487,9 +487,7 @@ def system_arch_svg():
         return f'<path d="M {cx-7} {ay} L {cx} {ay+7} L {cx+7} {ay}" stroke="{c}" stroke-width="1.6" fill="none" opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>'
     STYLE=('<style>a{cursor:pointer}a rect,a text{transition:fill .15s,stroke .15s}'
            'a:hover rect{stroke:#C25B2A;stroke-width:2;fill:#FBEFE7}a:hover text{fill:#C25B2A}</style>')
-    o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{FS}">']
-    o.append(R(0,0,W,H,16,PAPER,stroke=HAIR,sw=1)); o.append(STYLE)
-    o.append(T(40,46,"Figure 1 — MABEL system architecture  ·  click any block to open its page",ASH,13,500,font=FM,sp="0.3"))
+    o=[]
     chip_h=30
     def chips(items,x0,y0,maxw):
         cx,cy=x0,y0
@@ -508,6 +506,7 @@ def system_arch_svg():
         o.insert(n+2, A(lhref, T(x+36,y+30,label,INKS,11,600,sp="0.5")))
         return y+bh
     bx,bw=170,1020
+    # ── shared control stack (full width) — identical for sim and real ──
     tiers=[
         ("OPERATOR · AUTONOMY","teleop.html",
          [("Vision Pro teleop","teleop.html"),("iPhone app","teleop.html"),("Learned policies","learning.html"),("Nav goals","navigation.html")]),
@@ -515,34 +514,46 @@ def system_arch_svg():
          [("Whole-body control (QP)","wbc.html"),("Nav2 + SLAM","navigation.html"),("Policy runtime","learning.html"),("Perception","ros.html")]),
         ("ROS 2 MIDDLEWARE · mabel_ws (DDS)","ros.html",
          [("driver nodes","ros.html"),("/joint_states","ros.html"),("/odom","ros.html"),("sensor topics","ros.html"),("/cmd","ros.html")]),
-        ("FIRMWARE · per-MCU","firmware.html",
-         [("swerve · REV CAN","firmware.html"),("arms + body · Damiao CAN","firmware.html"),("hands · Feetech","firmware.html"),("neck · Dynamixel","firmware.html"),("lift · Pico","firmware.html")]),
     ]
     y=92; ys=[]
     for label,lhref,items in tiers:
         b=box(bx,y,bw,label,lhref,items)
-        ys.append((y,b)); 
-        y=b+30
-    # chevrons between the 4 tiers
+        ys.append((y,b)); y=b+30
     for i in range(len(ys)-1):
         o.append(chev(bx+bw/2, ys[i][1]+8))
-    fb=ys[-1][1]  # firmware bottom
-    # branch into Real robot + Digital twin
-    by=fb+74
+    rosb=ys[-1][1]  # ROS 2 bottom — the stack forks here
+    # ── fork after ROS 2: real robot (adds firmware) vs digital twin (no firmware) ──
     half=(bw-30)/2
-    rb=box(bx, by, half, "REAL ROBOT · 51 DOF","hardware.html",
+    lcx, rcx = bx+half/2, bx+bw-half/2          # left/right column centres
+    busy=rosb+42
+    by=rosb+92                                   # branch headers top
+    # LEFT branch — real robot: firmware → hardware
+    fb=box(bx, by, half, "FIRMWARE · per-MCU","firmware.html",
+           [("swerve · REV CAN","firmware.html"),("arms + body · Damiao","firmware.html"),("hands · Feetech","firmware.html"),("neck · Dynamixel","firmware.html"),("lift · Pico","firmware.html")])
+    rby=fb+28
+    o.append(chev(lcx, fb+14)); o.append(L(lcx, fb, lcx, rby, RUST, 1.4))
+    rb=box(bx, rby, half, "REAL ROBOT · 51 DOF","hardware.html",
            [("Base","hardware-base.html"),("Lift","hardware-lift.html"),("Body + neck","hardware-body.html"),("Arms 2×7","hardware-arms.html"),("Hands 2×17","hardware-hands.html"),("Sensors","hardware.html"),("PCB + power","hardware-electronics.html")])
+    # RIGHT branch — digital twin: ROS 2 talks straight to MuJoCo, no firmware
     tb=box(bx+half+30, by, half, "DIGITAL TWIN · MuJoCo","simulation.html",
-           [("Same URDF → MJCF","simulation.html"),("Same ROS 2 interface","simulation.html"),("Same control code","simulation.html"),("Sim or real, one flag","simulation.html")], dashed=True)
-    # connecting lines: firmware -> bus -> the two targets
-    cxm=bx+bw/2; busy=fb+38
-    o.append(L(cxm, fb+18, cxm, busy, RUST, 1.4))
-    o.append(L(bx+half/2, busy, bx+bw-half/2, busy, RUST, 1.4))
-    o.append(L(bx+half/2, busy, bx+half/2, by, RUST, 1.4))
-    o.append(L(bx+bw-half/2, busy, bx+bw-half/2, by, RUST, 1.4))
-    o.append(chev(bx+half/2, by-9)); o.append(chev(bx+bw-half/2, by-9))
-    o.append(T(cxm, busy-9, "one firmware + ROS 2 interface drives either — sim or real, one flag", ASH, 11, 600, font=FM, anc="middle"))
-    o.append(T(W/2, H-22, "commands flow down to 51 joints · joint state and perception flow back up · the real robot and the twin share every interface", ASHL, 12, 400, anc="middle"))
+           [("Same URDF → MJCF","simulation.html"),("Same ROS 2 interface","simulation.html"),("Same control code","simulation.html"),("No firmware — direct","simulation.html"),("Sim or real, one flag","simulation.html")], dashed=True)
+    # connecting lines: ROS 2 → bus → each branch head
+    cxm=bx+bw/2
+    o.append(L(cxm, rosb+18, cxm, busy, RUST, 1.4))
+    o.append(L(lcx, busy, rcx, busy, RUST, 1.4))
+    o.append(L(lcx, busy, lcx, by, RUST, 1.4))
+    o.append(L(rcx, busy, rcx, by, RUST, 1.4))
+    o.append(chev(lcx, by-9)); o.append(chev(rcx, by-9))
+    o.append(T(lcx, busy-9, "ON HARDWARE", RUST, 10.5, 700, font=FM, anc="middle", sp="0.8"))
+    o.append(T(rcx, busy-9, "IN SIMULATION", RUST, 10.5, 700, font=FM, anc="middle", sp="0.8"))
+    o.append(T(cxm, busy+20, "the stack is identical down to ROS 2 — only the real robot adds a firmware layer; the twin drives MuJoCo directly", ASH, 11, 500, font=FM, anc="middle"))
+    # dynamic canvas height
+    H=int(max(rb,tb)+56)
+    head=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{FS}">',
+          R(0,0,W,H,16,PAPER,stroke=HAIR,sw=1), STYLE,
+          T(40,46,"Figure 1 — MABEL system architecture  ·  click any block to open its page",ASH,13,500,font=FM,sp="0.3")]
+    o=head+o
+    o.append(T(W/2, H-22, "commands flow down to the joints · state and perception flow back up · sim and real share every interface above ROS 2", ASHL, 12, 400, anc="middle"))
     o.append("</svg>")
     return chr(10).join(o)
 
@@ -570,27 +581,41 @@ def system_arch_mobile_svg():
             body.append(A(href, R(cx,cy,w,chip_h,8,BONE,stroke=HAIR,sw=1)+T(cx+w/2,cy+chip_h/2+4,t,INKS,12.5,500,font=FM,anc="middle")))
             cx+=w+8
         return cy+chip_h
-    tiers=[
-        ("OPERATOR · AUTONOMY","teleop.html",[("Vision Pro","teleop.html"),("iPhone app","teleop.html"),("Policies","learning.html"),("Nav goals","navigation.html")],False),
-        ("ONBOARD · Jetson Thor","wbc.html",[("Whole-body control","wbc.html"),("Nav2 + SLAM","navigation.html"),("Policy runtime","learning.html"),("Perception","ros.html")],False),
-        ("ROS 2 · mabel_ws","ros.html",[("driver nodes","ros.html"),("/joint_states","ros.html"),("/odom","ros.html"),("sensors","ros.html"),("/cmd","ros.html")],False),
-        ("FIRMWARE · per-MCU","firmware.html",[("Swerve · REV","firmware.html"),("Arms+Body · Damiao","firmware.html"),("Hands · Feetech","firmware.html"),("Neck · Dynamixel","firmware.html"),("Lift · Pico","firmware.html")],False),
-        ("REAL ROBOT · 51 DOF","hardware.html",[("Base","hardware-base.html"),("Lift","hardware-lift.html"),("Body + neck","hardware-body.html"),("Arms 2×7","hardware-arms.html"),("Hands 2×17","hardware-hands.html"),("Sensors","hardware.html"),("PCB + power","hardware-electronics.html")],False),
-        ("DIGITAL TWIN · MuJoCo","simulation.html",[("Same URDF","simulation.html"),("Same ROS interface","simulation.html"),("Same control code","simulation.html"),("Sim or real","simulation.html")],True),
-    ]
-    y=96
-    for i,(label,lhref,items,dashed) in enumerate(tiers):
+    def Tm(x,yy,s,fill=INK,size=12,w=400,font=FS,anc="start",sp=None):
+        sps=f' letter-spacing="{sp}"' if sp else ""
+        return f'<text x="{x}" y="{yy}" fill="{fill}" font-size="{size}" font-weight="{w}" font-family="{font}" text-anchor="{anc}"{sps}>{s}</text>'
+    def chevm(ay): body.append(f'<path d="M {W/2-7} {ay} L {W/2} {ay+7} L {W/2+7} {ay}" stroke="{RUST}" stroke-width="1.6" fill="none" opacity="0.55" stroke-linecap="round" stroke-linejoin="round"/>')
+    def tier(y,label,lhref,items,dashed=False):
         n=len(body)
         bottom=chips(items,mx+16,y+48,mw-32)
         bh=(bottom-y)+16
         body.insert(n, R(mx,y,mw,bh,13,WHITE if not dashed else BONE,stroke=HAIR,sw=1.2,dash="2 5" if dashed else None))
         body.insert(n+1, Dt(mx+22,y+24,RUST,3.5))
-        body.insert(n+2, A(lhref, T(mx+34,y+29,label,INKS,12,600,sp="0.4")))
-        if i<len(tiers)-1:
-            ay=y+bh+6
-            tag = ' · real or sim' if i==len(tiers)-2 else ''
-            body.append(f'<path d="M {W/2-7} {ay} L {W/2} {ay+7} L {W/2+7} {ay}" stroke="{RUST}" stroke-width="1.6" fill="none" opacity="0.55" stroke-linecap="round" stroke-linejoin="round"/>')
-        y+=bh+(24 if i<len(tiers)-1 else 18)
+        body.insert(n+2, A(lhref, Tm(mx+34,y+29,label,INKS,12,600,sp="0.4")))
+        return y+bh
+    # shared control stack
+    shared=[
+        ("OPERATOR · AUTONOMY","teleop.html",[("Vision Pro","teleop.html"),("iPhone app","teleop.html"),("Policies","learning.html"),("Nav goals","navigation.html")]),
+        ("ONBOARD · Jetson Thor","wbc.html",[("Whole-body control","wbc.html"),("Nav2 + SLAM","navigation.html"),("Policy runtime","learning.html"),("Perception","ros.html")]),
+        ("ROS 2 · mabel_ws","ros.html",[("driver nodes","ros.html"),("/joint_states","ros.html"),("/odom","ros.html"),("sensors","ros.html"),("/cmd","ros.html")]),
+    ]
+    y=96
+    for label,lhref,items in shared:
+        bh_end=tier(y,label,lhref,items)
+        chevm(bh_end+6); y=bh_end+30
+    # fork divider
+    body.append(Tm(W/2,y+8,"forks after ROS 2",RUST,11,700,font=FM,anc="middle",sp="0.6"))
+    y+=28
+    # ON HARDWARE branch — firmware then real robot
+    body.append(Tm(mx,y,"ON HARDWARE",ASH,10.5,700,font=FM,sp="0.8")); y+=14
+    bh_end=tier(y,"FIRMWARE · per-MCU","firmware.html",[("Swerve · REV","firmware.html"),("Arms+Body · Damiao","firmware.html"),("Hands · Feetech","firmware.html"),("Neck · Dynamixel","firmware.html"),("Lift · Pico","firmware.html")])
+    chevm(bh_end+6); y=bh_end+30
+    bh_end=tier(y,"REAL ROBOT · 51 DOF","hardware.html",[("Base","hardware-base.html"),("Lift","hardware-lift.html"),("Body + neck","hardware-body.html"),("Arms 2×7","hardware-arms.html"),("Hands 2×17","hardware-hands.html"),("Sensors","hardware.html"),("PCB + power","hardware-electronics.html")])
+    y=bh_end+34
+    # IN SIMULATION branch — MuJoCo, no firmware
+    body.append(Tm(mx,y,"IN SIMULATION",ASH,10.5,700,font=FM,sp="0.8")); y+=14
+    bh_end=tier(y,"DIGITAL TWIN · MuJoCo","simulation.html",[("Same URDF","simulation.html"),("Same ROS interface","simulation.html"),("Same control code","simulation.html"),("No firmware — direct","simulation.html"),("Sim or real","simulation.html")],dashed=True)
+    y=bh_end+18
     Hh=int(y+40)
     o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {Hh}" font-family="{FS}">']
     o.append(R(0,0,W,Hh,16,PAPER,stroke=HAIR,sw=1)); o.append(STYLE)
