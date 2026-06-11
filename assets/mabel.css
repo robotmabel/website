@@ -416,6 +416,10 @@ section[id], .sub-block[id] { scroll-margin-top: 92px; }
 .app-row .app-shot { max-width: 230px; }
 /* on-brand figure (its own bg/border baked into the SVG) */
 .arch-fig { display: block; width: 100%; border-radius: 18px; box-shadow: 0 34px 64px -40px rgba(22,20,18,0.30); }
+.arch-d, .arch-m { border-radius: 18px; overflow: hidden; box-shadow: 0 34px 64px -40px rgba(22,20,18,0.30); }
+.arch-d svg, .arch-m svg { width: 100%; height: auto; display: block; }
+.arch-m { display: none; }
+@media (max-width: 760px) { .arch-d { display: none; } .arch-m { display: block; } }
 .media-frame.sim-dark { background: #07060a; border-color: rgba(242,238,230,0.10); }
 /* caption chip over a sim clip */
 .sim-cap { position: absolute; left: 14px; bottom: 12px; z-index: 2; display: inline-flex; align-items: center; gap: 7px;

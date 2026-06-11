@@ -95,30 +95,195 @@
   </div>
 </section>
 
-<!-- ─── SYSTEM STATS ─── -->
-<section class="soft-sec pad-y">
+<!-- ─── THE SYSTEM · stats + clickable architecture ─── -->
+<section class="soft-sec pad-y" id="architecture">
   <div class="wrap">
-    <div class="sec-head-center fade-up">
-      <span class="eyebrow">System</span>
-      <h2 class="display-md">Built from the ground up.</h2>
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The system</span>
+        <h2 class="display-md title">One platform, <span class="italic accent">end to end.</span></h2>
+      </div>
+      <p class="lede">MABEL is vertically integrated: operator intent and learned policies enter at the top and
+        descend through onboard intelligence, a single ROS&nbsp;2 graph, and per-MCU firmware until they
+        become torque at 51 joints — while joint state, odometry, and vision flow back up. A MuJoCo twin
+        mirrors every interface. <strong>Click any block in the diagram to open its page.</strong></p>
     </div>
-    <div class="stats-grid fade-up">
-      <div class="stat">
-        <div class="stat-num"><span class="counter" data-target="51">0</span><span class="unit">DOF</span></div>
-        <div class="stat-label">Actuated joints<br/>arms, hands &amp; head</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num"><span class="counter" data-target="34">0</span><span class="unit">DOF</span></div>
-        <div class="stat-label">In the two<br/>ORCA hands alone</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num"><span class="counter" data-target="3">0</span><span class="unit">swerve</span></div>
-        <div class="stat-label">Holonomic base<br/>independent modules</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num"><span class="counter" data-target="10">0</span><span class="unit">k USD</span></div>
-        <div class="stat-label">Full BOM<br/>under ten thousand</div>
-      </div>
+    <div class="stats-grid fade-up" style="margin-bottom:clamp(34px,5vh,56px);">
+      <div class="stat"><div class="stat-num"><span class="counter" data-target="51">0</span><span class="unit">DOF</span></div><div class="stat-label">Actuated joints<br/>arms, hands &amp; head</div></div>
+      <div class="stat"><div class="stat-num"><span class="counter" data-target="34">0</span><span class="unit">DOF</span></div><div class="stat-label">In the two<br/>ORCA hands alone</div></div>
+      <div class="stat"><div class="stat-num"><span class="counter" data-target="3">0</span><span class="unit">swerve</span></div><div class="stat-label">Holonomic base<br/>independent modules</div></div>
+      <div class="stat"><div class="stat-num"><span class="counter" data-target="10">0</span><span class="unit">k USD</span></div><div class="stat-label">Full BOM<br/>under ten thousand</div></div>
+    </div>
+    <div class="arch-figs reveal-media fade-up">
+      <div class="arch-d"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 800" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1360" height="800" rx="16" fill="#FAF8F2" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<style>a{cursor:pointer}a rect,a text{transition:fill .15s,stroke .15s}a:hover rect{stroke:#C25B2A;stroke-width:2;fill:#FBEFE7}a:hover text{fill:#C25B2A}</style>
+<text x="40" y="46" fill="#6B6660" font-size="13" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure 1 — MABEL system architecture  ·  click any block to open its page</text>
+<rect x="140" y="92" width="720" height="104" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="140" y="104" width="4" height="80" rx="2" fill="#C25B2A"/>
+<circle cx="162" cy="117" r="3.5" fill="#C25B2A"/>
+<a href="teleop.html" target="_top"><text x="176" y="122" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">OPERATOR · AUTONOMY</text></a>
+<a href="teleop.html" target="_top"><rect x="166" y="146" width="129" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="230.5" y="164.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Vision Pro teleop</text></a>
+<a href="teleop.html" target="_top"><rect x="305" y="146" width="86" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="348.0" y="164.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">iPhone app</text></a>
+<a href="learning.html" target="_top"><rect x="401" y="146" width="123" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="462.5" y="164.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Learned policies</text></a>
+<a href="navigation.html" target="_top"><rect x="534" y="146" width="79" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="573.5" y="164.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Nav goals</text></a>
+<rect x="140" y="220" width="720" height="104" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="140" y="232" width="4" height="80" rx="2" fill="#C25B2A"/>
+<circle cx="162" cy="245" r="3.5" fill="#C25B2A"/>
+<a href="wbc.html" target="_top"><text x="176" y="250" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">ONBOARD INTELLIGENCE · Jetson Thor</text></a>
+<a href="wbc.html" target="_top"><rect x="166" y="274" width="166" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="249.0" y="292.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Whole-body control (QP)</text></a>
+<a href="navigation.html" target="_top"><rect x="342" y="274" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="388.0" y="292.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Nav2 + SLAM</text></a>
+<a href="learning.html" target="_top"><rect x="444" y="274" width="110" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="499.0" y="292.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Policy runtime</text></a>
+<a href="ros.html" target="_top"><rect x="564" y="274" width="86" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="607.0" y="292.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Perception</text></a>
+<rect x="140" y="348" width="720" height="104" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="140" y="360" width="4" height="80" rx="2" fill="#C25B2A"/>
+<circle cx="162" cy="373" r="3.5" fill="#C25B2A"/>
+<a href="ros.html" target="_top"><text x="176" y="378" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">ROS 2 MIDDLEWARE · mabel_ws (DDS)</text></a>
+<a href="ros.html" target="_top"><rect x="166" y="402" width="98" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="215.0" y="420.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">driver nodes</text></a>
+<a href="ros.html" target="_top"><rect x="274" y="402" width="104" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="326.0" y="420.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">/joint_states</text></a>
+<a href="ros.html" target="_top"><rect x="388" y="402" width="55" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="415.5" y="420.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">/odom</text></a>
+<a href="ros.html" target="_top"><rect x="453" y="402" width="104" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="505.0" y="420.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">sensor topics</text></a>
+<a href="ros.html" target="_top"><rect x="567" y="402" width="48" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="591.0" y="420.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">/cmd</text></a>
+<rect x="140" y="476" width="720" height="104" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="140" y="488" width="4" height="80" rx="2" fill="#C25B2A"/>
+<circle cx="162" cy="501" r="3.5" fill="#C25B2A"/>
+<a href="firmware.html" target="_top"><text x="176" y="506" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">FIRMWARE · per-MCU</text></a>
+<a href="firmware.html" target="_top"><rect x="166" y="530" width="123" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="227.5" y="548.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">swerve · REV CAN</text></a>
+<a href="firmware.html" target="_top"><rect x="299" y="530" width="172" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="385.0" y="548.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">arms + body · Damiao CAN</text></a>
+<a href="firmware.html" target="_top"><rect x="481" y="530" width="117" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="539.5" y="548.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">hands · Feetech</text></a>
+<a href="firmware.html" target="_top"><rect x="608" y="530" width="123" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="669.5" y="548.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">neck · Dynamixel</text></a>
+<a href="firmware.html" target="_top"><rect x="741" y="530" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="787.0" y="548.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">lift · Pico</text></a>
+<rect x="140" y="604" width="720" height="104" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="140" y="616" width="4" height="80" rx="2" fill="#C25B2A"/>
+<circle cx="162" cy="629" r="3.5" fill="#C25B2A"/>
+<a href="hardware.html" target="_top"><text x="176" y="634" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">HARDWARE · 51 DOF</text></a>
+<a href="hardware-base.html" target="_top"><rect x="166" y="658" width="48" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="190.0" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Base</text></a>
+<a href="hardware-lift.html" target="_top"><rect x="224" y="658" width="48" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="248.0" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Lift</text></a>
+<a href="hardware-body.html" target="_top"><rect x="282" y="658" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="328.0" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Body + neck</text></a>
+<a href="hardware-arms.html" target="_top"><rect x="384" y="658" width="73" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="420.5" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Arms 2×7</text></a>
+<a href="hardware-hands.html" target="_top"><rect x="467" y="658" width="86" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="510.0" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Hands 2×17</text></a>
+<a href="hardware.html" target="_top"><rect x="563" y="658" width="67" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="596.5" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Sensors</text></a>
+<a href="hardware-electronics.html" target="_top"><rect x="640" y="658" width="135" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="707.5" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Custom PCB + power</text></a>
+<rect x="936" y="240.0" width="384" height="320" rx="14" fill="#F2EEE6" stroke="#6B6660" stroke-width="1.2" stroke-dasharray="2 5"/>
+<circle cx="958" cy="265.0" r="3.5" fill="#8B5A3C"/>
+<a href="simulation.html" target="_top"><text x="972" y="270.0" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.4">DIGITAL TWIN · MuJoCo / Isaac</text></a>
+<a href="simulation.html" target="_top"><rect x="960" y="300.0" width="336" height="32" rx="8" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="1128.0" y="320.0" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Same URDF → MJCF</text></a>
+<a href="simulation.html" target="_top"><rect x="960" y="348.0" width="336" height="32" rx="8" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="1128.0" y="368.0" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Same ROS 2 interfaces</text></a>
+<a href="simulation.html" target="_top"><rect x="960" y="396.0" width="336" height="32" rx="8" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="1128.0" y="416.0" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Domain randomization</text></a>
+<a href="simulation.html" target="_top"><rect x="960" y="444.0" width="336" height="32" rx="8" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="1128.0" y="464.0" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Parallel RL / data</text></a>
+<a href="simulation.html" target="_top"><rect x="960" y="492.0" width="336" height="32" rx="8" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="1128.0" y="512.0" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Sim ⇄ real, one flag</text></a>
+<line x1="860" y1="400.0" x2="936" y2="400.0" stroke="#C25B2A" stroke-width="1.3" stroke-dasharray="4 4"/>
+<text x="898.0" y="392.0" fill="#C25B2A" font-size="10" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">same topics</text>
+<line x1="356.0" y1="196" x2="356.0" y2="220" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="500.0" y1="196" x2="500.0" y2="220" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="644.0" y1="196" x2="644.0" y2="220" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="356.0" y1="324" x2="356.0" y2="348" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="500.0" y1="324" x2="500.0" y2="348" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="644.0" y1="324" x2="644.0" y2="348" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="356.0" y1="452" x2="356.0" y2="476" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="500.0" y1="452" x2="500.0" y2="476" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="644.0" y1="452" x2="644.0" y2="476" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="356.0" y1="580" x2="356.0" y2="604" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="500.0" y1="580" x2="500.0" y2="604" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="644.0" y1="580" x2="644.0" y2="604" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="70" y1="92" x2="70" y2="708" stroke="#C25B2A" stroke-width="2" opacity="0.5"/>
+<circle cx="70" r="4" fill="#C25B2A"><animate attributeName="cy" values="92;708" dur="3s" begin="0.0s" repeatCount="indefinite"/></circle>
+<circle cx="70" r="4" fill="#C25B2A"><animate attributeName="cy" values="92;708" dur="3s" begin="0.75s" repeatCount="indefinite"/></circle>
+<circle cx="70" r="4" fill="#C25B2A"><animate attributeName="cy" values="92;708" dur="3s" begin="1.5s" repeatCount="indefinite"/></circle>
+<circle cx="70" r="4" fill="#C25B2A"><animate attributeName="cy" values="92;708" dur="3s" begin="2.25s" repeatCount="indefinite"/></circle>
+<text x="70" y="276.79999999999995" fill="#C25B2A" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" transform="rotate(-90 70 276.79999999999995)" letter-spacing="1">COMMANDS down  intent to joint targets</text>
+<line x1="898" y1="92" x2="898" y2="708" stroke="#6B6660" stroke-width="2" opacity="0.5"/>
+<circle cx="898" r="4" fill="#6B6660"><animate attributeName="cy" values="708;92" dur="3s" begin="0.0s" repeatCount="indefinite"/></circle>
+<circle cx="898" r="4" fill="#6B6660"><animate attributeName="cy" values="708;92" dur="3s" begin="0.75s" repeatCount="indefinite"/></circle>
+<circle cx="898" r="4" fill="#6B6660"><animate attributeName="cy" values="708;92" dur="3s" begin="1.5s" repeatCount="indefinite"/></circle>
+<circle cx="898" r="4" fill="#6B6660"><animate attributeName="cy" values="708;92" dur="3s" begin="2.25s" repeatCount="indefinite"/></circle>
+<text x="898" y="276.79999999999995" fill="#6B6660" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" transform="rotate(-90 898 276.79999999999995)" letter-spacing="1">STATE up  joints, odom, vision</text>
+<text x="680.0" y="778" fill="#A09A91" font-size="12" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">intent flows down · joint state and perception flow up · the twin shares every interface</text>
+</svg></div>
+      <div class="arch-m"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 1094" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="430" height="1094" rx="16" fill="#FAF8F2" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<style>a{cursor:pointer}a:hover rect{stroke:#C25B2A;stroke-width:2;fill:#FBEFE7}a:hover text{fill:#C25B2A}</style>
+<text x="16" y="40" fill="#6B6660" font-size="13" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure 1 — System architecture</text>
+<text x="16" y="62" fill="#C25B2A" font-size="11.5" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">tap any block to open its page</text>
+<rect x="16" y="96" width="398" height="132" rx="13" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="16" y="107" width="4" height="110" rx="2" fill="#C25B2A"/>
+<circle cx="38" cy="120" r="3.5" fill="#C25B2A"/>
+<a href="teleop.html" target="_top"><text x="50" y="125" fill="#2A2622" font-size="12" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.4">OPERATOR · AUTONOMY</text></a>
+<a href="teleop.html" target="_top"><rect x="32" y="144" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="78.0" y="163.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Vision Pro</text></a>
+<a href="teleop.html" target="_top"><rect x="132" y="144" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="178.0" y="163.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">iPhone app</text></a>
+<a href="learning.html" target="_top"><rect x="232" y="144" width="78" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="271.0" y="163.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Policies</text></a>
+<a href="navigation.html" target="_top"><rect x="32" y="182" width="85" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="74.5" y="201.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Nav goals</text></a>
+<path d="M 209.0 233 L 215.0 241 L 221.0 233 M 215.0 230 L 215.0 241" stroke="#C25B2A" stroke-width="1.6" fill="none" opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="16" y="250" width="398" height="132" rx="13" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="16" y="261" width="4" height="110" rx="2" fill="#C25B2A"/>
+<circle cx="38" cy="274" r="3.5" fill="#C25B2A"/>
+<a href="wbc.html" target="_top"><text x="50" y="279" fill="#2A2622" font-size="12" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.4">ONBOARD · Jetson Thor</text></a>
+<a href="wbc.html" target="_top"><rect x="32" y="298" width="148" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="106.0" y="317.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Whole-body control</text></a>
+<a href="navigation.html" target="_top"><rect x="188" y="298" width="99" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="237.5" y="317.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Nav2 + SLAM</text></a>
+<a href="learning.html" target="_top"><rect x="32" y="336" width="120" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="92.0" y="355.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Policy runtime</text></a>
+<a href="ros.html" target="_top"><rect x="160" y="336" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="206.0" y="355.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Perception</text></a>
+<path d="M 209.0 387 L 215.0 395 L 221.0 387 M 215.0 384 L 215.0 395" stroke="#C25B2A" stroke-width="1.6" fill="none" opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="16" y="404" width="398" height="132" rx="13" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="16" y="415" width="4" height="110" rx="2" fill="#C25B2A"/>
+<circle cx="38" cy="428" r="3.5" fill="#C25B2A"/>
+<a href="ros.html" target="_top"><text x="50" y="433" fill="#2A2622" font-size="12" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.4">ROS 2 · mabel_ws</text></a>
+<a href="ros.html" target="_top"><rect x="32" y="452" width="106" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="85.0" y="471.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">driver nodes</text></a>
+<a href="ros.html" target="_top"><rect x="146" y="452" width="113" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="202.5" y="471.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">/joint_states</text></a>
+<a href="ros.html" target="_top"><rect x="267" y="452" width="57" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="295.5" y="471.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">/odom</text></a>
+<a href="ros.html" target="_top"><rect x="32" y="490" width="71" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="67.5" y="509.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">sensors</text></a>
+<a href="ros.html" target="_top"><rect x="111" y="490" width="50" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="136.0" y="509.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">/cmd</text></a>
+<path d="M 209.0 541 L 215.0 549 L 221.0 541 M 215.0 538 L 215.0 549" stroke="#C25B2A" stroke-width="1.6" fill="none" opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="16" y="558" width="398" height="170" rx="13" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="16" y="569" width="4" height="148" rx="2" fill="#C25B2A"/>
+<circle cx="38" cy="582" r="3.5" fill="#C25B2A"/>
+<a href="firmware.html" target="_top"><text x="50" y="587" fill="#2A2622" font-size="12" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.4">FIRMWARE · per-MCU</text></a>
+<a href="firmware.html" target="_top"><rect x="32" y="606" width="106" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="85.0" y="625.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Swerve · REV</text></a>
+<a href="firmware.html" target="_top"><rect x="146" y="606" width="148" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="220.0" y="625.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Arms+Body · Damiao</text></a>
+<a href="firmware.html" target="_top"><rect x="32" y="644" width="127" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="95.5" y="663.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Hands · Feetech</text></a>
+<a href="firmware.html" target="_top"><rect x="167" y="644" width="134" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="234.0" y="663.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Neck · Dynamixel</text></a>
+<a href="firmware.html" target="_top"><rect x="32" y="682" width="99" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="81.5" y="701.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Lift · Pico</text></a>
+<path d="M 209.0 733 L 215.0 741 L 221.0 733 M 215.0 730 L 215.0 741" stroke="#C25B2A" stroke-width="1.6" fill="none" opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="16" y="750" width="398" height="132" rx="13" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="16" y="761" width="4" height="110" rx="2" fill="#C25B2A"/>
+<circle cx="38" cy="774" r="3.5" fill="#C25B2A"/>
+<a href="hardware.html" target="_top"><text x="50" y="779" fill="#2A2622" font-size="12" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.4">HARDWARE · 51 DOF</text></a>
+<a href="hardware-base.html" target="_top"><rect x="32" y="798" width="50" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="57.0" y="817.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Base</text></a>
+<a href="hardware-lift.html" target="_top"><rect x="90" y="798" width="50" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="115.0" y="817.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Lift</text></a>
+<a href="hardware-body.html" target="_top"><rect x="148" y="798" width="99" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="197.5" y="817.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Body + neck</text></a>
+<a href="hardware-arms.html" target="_top"><rect x="255" y="798" width="78" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="294.0" y="817.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Arms 2×7</text></a>
+<a href="hardware-hands.html" target="_top"><rect x="32" y="836" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="78.0" y="855.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Hands 2×17</text></a>
+<a href="hardware.html" target="_top"><rect x="132" y="836" width="71" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="167.5" y="855.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Sensors</text></a>
+<a href="hardware-electronics.html" target="_top"><rect x="211" y="836" width="99" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="260.5" y="855.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">PCB + power</text></a>
+<path d="M 209.0 887 L 215.0 895 L 221.0 887 M 215.0 884 L 215.0 895" stroke="#C25B2A" stroke-width="1.6" fill="none" opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="16" y="904" width="398" height="132" rx="13" fill="#F2EEE6" stroke="#8B5A3C" stroke-width="1.2" stroke-dasharray="2 5"/>
+<rect x="16" y="915" width="4" height="110" rx="2" fill="#8B5A3C"/>
+<circle cx="38" cy="928" r="3.5" fill="#8B5A3C"/>
+<a href="simulation.html" target="_top"><text x="50" y="933" fill="#2A2622" font-size="12" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.4">DIGITAL TWIN · MuJoCo</text></a>
+<a href="simulation.html" target="_top"><rect x="32" y="952" width="85" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="74.5" y="971.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Same URDF</text></a>
+<a href="simulation.html" target="_top"><rect x="125" y="952" width="155" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="202.5" y="971.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Same ROS interfaces</text></a>
+<a href="simulation.html" target="_top"><rect x="288" y="952" width="106" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="341.0" y="971.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Domain rand.</text></a>
+<a href="simulation.html" target="_top"><rect x="32" y="990" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/><text x="78.0" y="1009.0" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Sim ⇄ real</text></a>
+<text x="215.0" y="1078" fill="#A09A91" font-size="11.5" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">the twin shares every interface</text>
+</svg></div>
+    </div>
+    <p class="table-note fade-up" style="margin-top:14px;"><strong>Figure 1.</strong> The MABEL stack — click any block to dive into that subsystem. Commands flow down (intent → joint targets); joint state, odometry, and vision flow up; the digital twin shares the URDF and ROS&nbsp;2 interfaces.</p>
+    <div class="points fade-up" style="margin-top:38px;">
+      <div class="point"><div class="num">01</div><div>
+        <h5>One source of geometry</h5>
+        <p>A single URDF generates the MJCF for <a href="simulation.html" style="color:var(--rust);">simulation</a>, the on-robot kinematics, and the web's articulated viewer — sim and hardware can't silently diverge.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>One graph, two worlds</h5>
+        <p>Every firmware bus surfaces in <a href="ros.html" style="color:var(--rust);">ROS&nbsp;2</a> behind standard topics; the same graph drives the real robot or the twin — <code>use_sim:=true</code> is the only difference.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Base to fingertips, one solve</h5>
+        <p>The <a href="wbc.html" style="color:var(--rust);">whole-body controller</a> resolves base, lift, torso, and arms against one task — a 6-DOF wish becomes coordinated motion across 51 joints.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Teleop is the data engine</h5>
+        <p>Every <a href="teleop.html" style="color:var(--rust);">teleoperated</a> session is logged as a labeled trajectory that trains the <a href="learning.html" style="color:var(--rust);">policies</a> — the same interfaces that drive the robot also feed the learning loop.</p>
+      </div></div>
     </div>
   </div>
 </section>
@@ -157,107 +322,7 @@
 </section>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 
-<!-- ─── EXPLORE / SUBSYSTEM CARDS ─── -->
-<section class="pad-y">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Explore</span>
-        <h2 class="display-md title">Six subsystems, <span class="italic accent">one platform.</span></h2>
-      </div>
-      <p class="lede">Short here. Deep inside — specs, BOM, and results in every tab.</p>
-    </div>
 
-    <div class="res-grid">
-      <a href="hardware.html" class="res-card fade-up">
-        <div class="res-tag">01 · Hardware</div>
-        <h3>Body &amp; build</h3>
-        <p>Head to wheels. Composition, BOM, and a one-weekend build.</p>
-        <div class="res-arrow">Explore →</div>
-      </a>
-      <a href="ros.html" class="res-card fade-up d1">
-        <div class="res-tag">02 · Software</div>
-        <h3>The stack</h3>
-        <p>Firmware to whole-body control — one ROS 2 graph, sim and real, all on Jetson Thor.</p>
-        <div class="res-arrow">Explore →</div>
-      </a>
-      <a href="simulation.html" class="res-card fade-up d2">
-        <div class="res-tag">03 · Simulation</div>
-        <h3>Digital twin</h3>
-        <p>MuJoCo + Isaac Lab twin. Randomized, validated, sim-to-real.</p>
-        <div class="res-arrow">Explore →</div>
-      </a>
-      <a href="teleop.html" class="res-card fade-up">
-        <div class="res-tag">04 · Teleop</div>
-        <h3>Be the robot</h3>
-        <p>Vision Pro retargeting. Pinch, look, move — at sub-100 ms.</p>
-        <div class="res-arrow">Explore →</div>
-      </a>
-      <a href="wbc.html" class="res-card fade-up d1">
-        <div class="res-tag">05 · Whole-Body Control</div>
-        <h3>Soft &amp; in control</h3>
-        <p>Gravity-compensated, compliant, safe. One QP, 51 joints.</p>
-        <div class="res-arrow">Explore →</div>
-      </a>
-      <a href="learning.html" class="res-card fade-up d2">
-        <div class="res-tag">06 · Learning</div>
-        <h3>Imitation learning</h3>
-        <p>Diffusion Policy + ACT. Data engine to deployment.</p>
-        <div class="res-arrow">Explore →</div>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ─── SYSTEM ARCHITECTURE ─── -->
-<section class="pad-y" id="architecture">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">System architecture</span>
-        <h2 class="display-md title">One system, <span class="italic accent">five layers.</span></h2>
-      </div>
-      <p class="lede">MABEL is vertically integrated. Operator intent and learned policies enter at the top
-        and descend through onboard intelligence, a single ROS&nbsp;2 graph, and per-MCU firmware until they
-        become torque at 51 joints — while joint state, odometry, and vision flow back up. A MuJoCo digital
-        twin mirrors every interface, so the same code runs in simulation and on hardware.</p>
-    </div>
-
-    <div class="reveal-media fade-up">
-      <img class="arch-fig" src="assets/system-arch.svg" alt="Figure 1 — MABEL system architecture: five layers (operator & autonomy, onboard intelligence on Jetson Thor, ROS 2 middleware mabel_ws, per-MCU firmware, and 51-DOF hardware), with commands flowing down and joint state and perception flowing up, plus a MuJoCo digital twin sharing the same ROS 2 interfaces" />
-    </div>
-    <p class="table-note fade-up" style="margin-top:14px;">
-      <strong>Figure 1.</strong> The MABEL stack. Commands flow down (intent → joint targets); joint state,
-      odometry, and vision flow up. The digital twin shares the URDF and the ROS&nbsp;2 interfaces, so
-      behavior validated in sim deploys with a single flag.
-    </p>
-
-    <div class="points fade-up" style="margin-top:36px;">
-      <div class="point"><div class="num">01</div><div>
-        <h5>One source of geometry</h5>
-        <p>A single URDF generates the MJCF for <a href="simulation.html" style="color:var(--rust);">simulation</a>,
-          the on-robot kinematics, and the web's articulated viewer — sim and hardware can't silently diverge.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>One graph, two worlds</h5>
-        <p>Every firmware bus surfaces in <a href="ros.html" style="color:var(--rust);">ROS&nbsp;2</a> behind
-          standard topics; the same graph drives the real robot or the twin — <code>use_sim:=true</code> is the
-          only difference.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Base to fingertips, one solve</h5>
-        <p>The <a href="wbc.html" style="color:var(--rust);">whole-body controller</a> resolves base, lift,
-          torso, and arms against one task — a 6-DOF wish becomes coordinated motion across 51 joints.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
-        <h5>Teleop is the data engine</h5>
-        <p>Every <a href="teleop.html" style="color:var(--rust);">teleoperated</a> session is logged as a
-          labeled trajectory that trains the <a href="learning.html" style="color:var(--rust);">policies</a> —
-          the same interfaces that drive the robot also feed the learning loop.</p>
-      </div></div>
-    </div>
-  </div>
-</section>
 
 <!-- ─── DEMO TABS ─── -->
 <section class="dark-sec pad-y" id="demo">
