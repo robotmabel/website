@@ -22,169 +22,54 @@
     <a href="index.html">Overview</a>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-electronics.html">Electronics</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
-    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="navigation.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="teleop.html" class="on">Teleop</a><a href="learning.html">Learning</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="navigation.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="teleop.html" class="on">Teleop</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="learning.html">Learning</a></div></div>
     <a href="connect.html">Connect</a>
     <a href="#" class="ext">Paper ↗</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="teleop.html">Teleop</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="teleop.html">Teleop</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 
 <aside class="sidenav" aria-label="Autonomy section navigation">
   <div class="sidenav-title">Autonomy</div>
-  <a href="navigation.html">Navigation</a><a href="teleop.html" class="on">Teleop</a><a href="learning.html">Learning</a>
+  <a href="navigation.html">Navigation</a><a href="teleop.html" class="on">Teleop</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="learning.html">Learning</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
-<section class="page-hero">
-  <div class="page-hero-inner">
-    <div class="crumbs"><a href="index.html">Overview</a> / Teleop</div>
-    <span class="eyebrow">04 · Teleop</span>
-    <h1 class="display-lg">Wear the robot.</h1>
-    <p class="lede">
-      Two apps put you inside MABEL. The <strong>Apple Vision Pro</strong> app streams your head and
-      both hands — 27 joints each — at 60 Hz and renders the robot's stereo cameras back into the
-      headset. The <strong>iPhone</strong> app drives the base with on-screen joysticks. Same wire
-      protocol; everything below is real.
-    </p>
-    <div class="spec" style="margin-top:28px;">
-      <span>Apple Vision Pro</span><span>iPhone / iPad</span><span>60 Hz · WebSocket</span><span>Stereo MJPEG</span><span>Clutch retargeting</span>
-    </div>
-  </div>
-</section>
+<section class="page-hero"><div class="page-hero-inner">
+  <div class="crumbs"><a href="index.html">Overview</a> / Teleop</div>
+  <span class="eyebrow">04 · Teleop</span>
+  <h1 class="display-lg">Wear the robot.</h1>
+  <p class="lede">Two platforms, one robot. Today MABEL teleoperates from <strong>Apple Vision Pro</strong> — head and both hands at 60&nbsp;Hz with stereo passthrough — and from <strong>iPhone</strong> — a pocket cockpit that drives, poses, plans, and runs policies. Both speak the same wire protocol.</p>
+  <div class="spec" style="margin-top:28px;"><span>Apple Vision Pro</span><span>iPhone / iPad</span><span>60 Hz · WebSocket</span><span>Stereo MJPEG</span><span>One wire protocol</span></div>
+</div></section>
 
-<!-- ─── VISION PRO APP ─── -->
-<section class="pad-y">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">visionOS · manipulation</span>
-        <h2 class="display-md title">Reach in. <span class="italic accent">It follows.</span></h2>
-      </div>
-      <p class="lede">Put the headset on and you see MABEL's stereo feed wrapped around you. Reach into the
-        scene — your hands drive the arms, a pinch closes the grasp, your gaze aims the neck.</p>
-    </div>
-    <div class="reveal-media media-frame sim-dark" style="aspect-ratio:1120/680;">
-      <video src="assets/sim/teleop_vp.mp4" autoplay muted loop playsinline></video>
-      <span class="sim-cap"><span class="dot"></span>Vision Pro capture · head view + wrist cams + bimanual reach</span>
-    </div>
-    <div class="points fade-up" style="margin-top:30px;">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Stereo passthrough</h5>
-        <p>The head ZED's left/right streams map onto an inward-facing sphere in RealityKit — you look
-          around the robot's world in true stereo, with wrist-cam thumbnails for close work.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Clutch retargeting</h5>
-        <p>A UMI-style <em>relative</em> mapping: pinch to clutch in, move your hands, release to
-          re-anchor — no jumps, robust to where you started. Thumb-to-index distance becomes the grasp.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Whole body, one operator</h5>
-        <p>Hand targets feed the <a href="wbc.html" style="color:var(--rust);">whole-body IK</a>; a lazy
-          swerve base and a look-at neck come along for free. One headset drives all 51 joints.</p>
-      </div></div>
-    </div>
+<!-- ─── SUPPORTED PLATFORMS (side by side) ─── -->
+<section class="pad-y" id="platforms"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Supported platforms</span><h2 class="display-md title">Two devices, <span class="italic accent">side by side.</span></h2></div>
+    <p class="lede">Pick the one in your hand. The headset for immersive bimanual manipulation; the phone for quick drive, pose, and dispatch.</p></div>
+  <div class="device-grid fade-up">
+    <a href="teleop-visionpro.html" class="device-card res-card" style="text-decoration:none;">
+      <div class="media-frame sim-dark" style="aspect-ratio:16/10; margin-bottom:18px;"><video src="assets/sim/teleop_vp.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Apple Vision Pro</span></div>
+      <div class="res-tag">Headset · visionOS</div>
+      <h3>Apple Vision Pro</h3>
+      <p>See MABEL's stereo feed wrapped around you; reach in and the arms follow. 27 hand joints, gaze, and head pose drive the whole body.</p>
+      <div class="res-arrow">Explore Vision Pro teleop →</div>
+    </a>
+    <a href="teleop-ios.html" class="device-card res-card" style="text-decoration:none;">
+      <div class="media-frame sim-dark" style="aspect-ratio:16/10; margin-bottom:18px;"><video src="assets/app/ios-drive.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>iPhone</span></div>
+      <div class="res-tag">Phone · iOS</div>
+      <h3>iPhone</h3>
+      <p>A pocket console: joystick driving, a live 3D-twin for whole-body posing, tap-to-go A* navigation, and a one-tap policy library.</p>
+      <div class="res-arrow">Explore iPhone teleop →</div>
+    </a>
   </div>
-</section>
-
-<!-- ─── iOS APP ─── -->
-<section class="pad-y" id="ios">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">iOS · the pocket console</span>
-        <h2 class="display-md title">Your robot, <span class="italic accent">in your pocket.</span></h2>
-      </div>
-      <p class="lede">The iPhone app is the lightweight companion — drive, pose, plan, and run policies
-        one-handed, with a live 3D twin and the camera feeds. It auto-discovers MABEL on the network and
-        falls back to an on-device simulator, so it always has something to drive. <strong>The screens
-        below are real captures from the running app.</strong></p>
-    </div>
-    <div class="reveal-media media-frame sim-dark fade-up" style="aspect-ratio:2622/1206;">
-      <video src="assets/app/ios-drive.mp4" autoplay muted loop playsinline></video>
-      <span class="sim-cap"><span class="dot"></span>Real capture · Drive cockpit — live joysticks (turn the phone sideways)</span>
-    </div>
-    <div class="points fade-up" style="margin-top:30px;">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Joystick navigation</h5>
-        <p>Rotate to landscape for the cockpit: a left stick translates, a right stick turns and lifts, over
-          live head and wrist camera feeds — with a speed governor and an always-present <strong>STOP</strong>.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Tip-safe under the hood</h5>
-        <p>The sticks run through the same swerve IK and tip-over envelope as every other path, so it stays
-          drone-simple up top and robot-safe underneath.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Always connected</h5>
-        <p>The status bar shows the live link, battery, and speed; the app auto-connects and otherwise drives
-          an on-device <strong>Demo</strong> simulator — every screen here is live with nothing plugged in.</p>
-      </div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── iOS · WHOLE BODY ─── -->
-<section class="dark-sec pad-y">
-  <div class="wrap">
-    <div class="feature fade-up">
-      <div class="feature-media phone-media"><video class="app-shot" src="assets/app/ios-body.mp4" autoplay muted loop playsinline></video><figcaption class="sim-cap" style="position:static;display:inline-flex;margin-top:12px;"><span class="dot"></span>real capture · live</figcaption></div>
-      <div class="feature-copy">
-        <span class="eyebrow" style="color:#e9a679;">Body · the 3D twin</span>
-        <h3 style="color:var(--bone);">Pose it on a live model.</h3>
-        <p style="color:var(--bone);opacity:0.82;">The Body tab renders a real-time 3D twin — same joint
-          definitions as the web viewer and MuJoCo. Drag a wrist to guide the pose under
-          <strong>Gravity Comp</strong> (arms float weightless), switch to <strong>Compliance</strong> or
-          <strong>Joint Control</strong>, set grip, or reset to home — the <a href="wbc.html" style="color:#e9a679;">whole-body controller</a> coordinates the rest.</p>
-        <div class="spec"><span>Live 3D twin</span><span>Gravity comp</span><span>Compliance</span><span>Joint control</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── iOS · NAVIGATE / A* ─── -->
-<section class="pad-y">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Maps · tap-to-go</span>
-        <h2 class="display-md title">Tap a spot. <span class="italic accent">It plans the route.</span></h2>
-      </div>
-      <p class="lede">On a real SLAM reconstruction, tap to drop a goal; the app runs an <strong>A*</strong>
-        global plan around the obstacles, then a <strong>pure-pursuit</strong> controller tracks the swerve
-        trajectory and drives it.</p>
-    </div>
-    <div class="phone-media fade-up"><video class="app-shot" src="assets/app/ios-maps.mp4" autoplay muted loop playsinline style="max-width:300px;"></video></div>
-    <p class="sim-cap" style="position:static;display:inline-flex;margin:14px auto 0;"><span class="dot"></span>Real capture · tap a goal → A* plan → pure-pursuit drive</p>
-    <div class="spec fade-up" style="justify-content:center;margin-top:22px;">
-      <span>Real SLAM map</span><span>A* global plan</span><span>Pure-pursuit tracking</span><span>Saved places</span>
-    </div>
-  </div>
-</section>
-
-<!-- ─── iOS · POLICIES ─── -->
-<section class="dark-sec pad-y">
-  <div class="wrap">
-    <div class="feature flip fade-up">
-      <div class="feature-media phone-media"><img class="app-shot" src="assets/app-ios-policies.svg" alt="Policies library — learned CVAE, navigation, and scripted skills with offline-eval success rates" /></div>
-      <div class="feature-copy">
-        <span class="eyebrow" style="color:#e9a679;">Policies · run a skill</span>
-        <h3 style="color:var(--bone);">Dispatch autonomy.</h3>
-        <p style="color:var(--bone);opacity:0.82;">The library lists learned and scripted skills — CVAE
-          visuomotor policies, navigation routines, and scripted behaviours — each with its kind, control
-          rate, and an <strong>offline-eval success rate</strong>. Tap ▶ to dispatch; the robot runs it and
-          reports back. See <a href="learning.html" style="color:#e9a679;">Learning</a> for how they're trained.</p>
-        <div class="spec"><span>CVAE visuomotor</span><span>Navigation routines</span><span>Scripted skills</span><span>Eval success %</span></div>
-      </div>
-    </div>
-  </div>
-</section>
+</div></section>
 
 <!-- ─── DATA FLOW (IoT) ─── -->
-<section class="pad-y">
+<section class="pad-y" id="loop">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>

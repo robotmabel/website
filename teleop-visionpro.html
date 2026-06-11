@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Teleop · Vision Pro</title>
+<meta name="description" content="MABEL Apple Vision Pro teleoperation: stereo passthrough, 27-joint hand retargeting, clutch mapping, whole-body IK — 60 Hz over WebSocket." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="navigation.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="teleop.html">Teleop</a><a href="teleop-visionpro.html" class="on">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="learning.html">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="teleop.html">Teleop</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<aside class="sidenav" aria-label="Autonomy section navigation">
+  <div class="sidenav-title">Autonomy</div>
+  <a href="navigation.html">Navigation</a><a href="teleop.html">Teleop</a><a href="teleop-visionpro.html" class="on">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="learning.html">Learning</a>
+</aside>
+
+<!-- HERO -->
+<section class="page-hero"><div class="page-hero-inner">
+  <div class="crumbs"><a href="index.html">Overview</a> / <a href="teleop.html">Teleop</a> / Vision Pro</div>
+  <span class="eyebrow">Teleop · Apple Vision Pro</span>
+  <h1 class="display-lg">Wear the robot.</h1>
+  <p class="lede">The <strong>Apple Vision Pro</strong> app streams your head and both hands — 27 joints each — at 60&nbsp;Hz and renders the robot's stereo cameras back into the headset. Reach into the scene; the arms follow.</p>
+  <div class="spec" style="margin-top:28px;"><span>Apple Vision Pro · visionOS</span><span>27 joints / hand</span><span>60 Hz · WebSocket</span><span>Stereo MJPEG</span><span>Clutch retargeting</span></div>
+</div></section>
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">visionOS · manipulation</span><h2 class="display-md title">Reach in. <span class="italic accent">It follows.</span></h2></div>
+    <p class="lede">Put the headset on and you see MABEL's stereo feed wrapped around you. Reach into the scene — your hands drive the arms, a pinch closes the grasp, your gaze aims the neck.</p></div>
+  <div class="reveal-media media-frame sim-dark" style="aspect-ratio:1120/680;"><video src="assets/sim/teleop_vp.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Vision Pro capture · head view + wrist cams + bimanual reach</span></div>
+  <div class="points fade-up" style="margin-top:30px;">
+    <div class="point"><div class="num">01</div><div><h5>Stereo passthrough</h5><p>The head ZED's left/right streams map onto an inward-facing sphere in RealityKit — you look around the robot's world in true stereo, with wrist-cam thumbnails for close work.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Clutch retargeting</h5><p>A UMI-style <em>relative</em> mapping: pinch to clutch in, move your hands, release to re-anchor — no jumps, robust to where you started. Thumb-to-index distance becomes the grasp.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Whole body, one operator</h5><p>Hand targets feed the <a href="wbc.html" style="color:var(--rust);">whole-body IK</a>; a lazy swerve base and a look-at neck come along for free. One headset drives all 51 joints.</p></div></div>
+  </div></div></section>
+<section class="soft-sec pad-y"><div class="wrap-narrow" style="text-align:center;">
+  <h2 class="display-sm fade-up" style="margin-bottom:24px;">Same loop, on every device.</h2>
+  <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+    <a href="teleop.html#loop" class="btn btn-primary">How the loop works →</a>
+    <a href="teleop-ios.html" class="btn btn-ghost">iPhone teleop →</a>
+    <a href="connect.html" class="btn btn-ghost">Get the app ↗</a>
+  </div></div></section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
+      <div class="foot-col"><h6>Autonomy</h6><a href="navigation.html">Navigation</a><a href="teleop.html">Teleop</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="learning.html">Learning</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>

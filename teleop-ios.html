@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Teleop · iPhone</title>
+<meta name="description" content="MABEL iPhone teleoperation app: drive cockpit joysticks, a live 3D-twin whole-body control, tap-to-go A* navigation, and a learned-policy library — all real app captures." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="navigation.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="teleop.html">Teleop</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html" class="on">iPhone</a><a href="learning.html">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="teleop.html">Teleop</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<aside class="sidenav" aria-label="Autonomy section navigation">
+  <div class="sidenav-title">Autonomy</div>
+  <a href="navigation.html">Navigation</a><a href="teleop.html">Teleop</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html" class="on">iPhone</a><a href="learning.html">Learning</a>
+</aside>
+
+<!-- HERO -->
+<section class="page-hero"><div class="page-hero-inner">
+  <div class="crumbs"><a href="index.html">Overview</a> / <a href="teleop.html">Teleop</a> / iPhone</div>
+  <span class="eyebrow">Teleop · iPhone</span>
+  <h1 class="display-lg">Your robot, in your pocket.</h1>
+  <p class="lede">The <strong>iPhone</strong> app is the lightweight companion — drive, pose, plan, and run policies one-handed, with a live 3D twin and the camera feeds. It auto-discovers MABEL and falls back to an on-device simulator. <strong>Every screen below is a real capture from the running app.</strong></p>
+  <div class="spec" style="margin-top:28px;"><span>iPhone / iPad · iOS</span><span>Drive · Body · Maps · Policies</span><span>Live 3D twin</span><span>Auto-connect + Demo sim</span></div>
+</div></section>
+<section class="pad-y" id="ios"><div class="wrap">
+  <div class="reveal-media media-frame sim-dark fade-up" style="aspect-ratio:2622/1206;"><video src="assets/app/ios-drive.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Real capture · Drive cockpit — live joysticks (turn the phone sideways)</span></div>
+  <div class="points fade-up" style="margin-top:30px;">
+    <div class="point"><div class="num">01</div><div><h5>Joystick navigation</h5><p>Rotate to landscape for the cockpit: a left stick translates, a right stick turns and lifts, over live head and wrist camera feeds — with a speed governor and an always-present <strong>STOP</strong>.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Tip-safe under the hood</h5><p>The sticks run through the same swerve IK and tip-over envelope as every other path, so it stays drone-simple up top and robot-safe underneath.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Always connected</h5><p>The status bar shows the live link, battery, and speed; the app auto-connects and otherwise drives an on-device <strong>Demo</strong> simulator — live with nothing plugged in.</p></div></div>
+  </div></div></section>
+<section class="dark-sec pad-y"><div class="wrap"><div class="feature fade-up">
+  <div class="feature-media phone-media"><video class="app-shot" src="assets/app/ios-body.mp4" autoplay muted loop playsinline></video><figcaption class="sim-cap" style="position:static;display:inline-flex;margin-top:12px;"><span class="dot"></span>real capture · live</figcaption></div>
+  <div class="feature-copy"><span class="eyebrow" style="color:#e9a679;">Body · the 3D twin</span><h3 style="color:var(--bone);">Pose it on a live model.</h3>
+    <p style="color:var(--bone);opacity:0.82;">The Body tab renders a real-time 3D twin — same joint definitions as the web viewer and MuJoCo. Drag a wrist under <strong>Gravity Comp</strong>, switch to <strong>Compliance</strong> or <strong>Joint Control</strong>, set grip, or reset to home — the <a href="wbc.html" style="color:#e9a679;">whole-body controller</a> coordinates the rest.</p>
+    <div class="spec"><span>Live 3D twin</span><span>Gravity comp</span><span>Compliance</span><span>Joint control</span></div></div>
+</div></div></section>
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Maps · tap-to-go</span><h2 class="display-md title">Tap a spot. <span class="italic accent">It plans the route.</span></h2></div>
+    <p class="lede">On a real SLAM reconstruction, tap to drop a goal; the app runs an <strong>A*</strong> global plan around the obstacles, then a <strong>pure-pursuit</strong> controller tracks the swerve trajectory and drives it.</p></div>
+  <div class="phone-media fade-up"><video class="app-shot" src="assets/app/ios-maps.mp4" autoplay muted loop playsinline style="max-width:300px;"></video></div>
+  <p class="sim-cap" style="position:static;display:inline-flex;margin:14px auto 0;"><span class="dot"></span>Real capture · tap a goal → A* plan → pure-pursuit drive</p>
+  <div class="spec fade-up" style="justify-content:center;margin-top:22px;"><span>Real SLAM map</span><span>A* global plan</span><span>Pure-pursuit tracking</span><span>Saved places</span></div></div></section>
+<section class="dark-sec pad-y"><div class="wrap"><div class="feature flip fade-up">
+  <div class="feature-media phone-media"><img class="app-shot" src="assets/app-ios-policies.svg" alt="Policies library — learned CVAE, navigation, and scripted skills with offline-eval success rates" /></div>
+  <div class="feature-copy"><span class="eyebrow" style="color:#e9a679;">Policies · run a skill</span><h3 style="color:var(--bone);">Dispatch autonomy.</h3>
+    <p style="color:var(--bone);opacity:0.82;">The library lists learned and scripted skills — CVAE visuomotor policies, navigation routines, and scripted behaviours — each with its kind, control rate, and an <strong>offline-eval success rate</strong>. Tap ▶ to dispatch. See <a href="learning.html" style="color:#e9a679;">Learning</a> for how they're trained.</p>
+    <div class="spec"><span>CVAE visuomotor</span><span>Navigation routines</span><span>Scripted skills</span><span>Eval success %</span></div></div>
+</div></div></section>
+<section class="soft-sec pad-y"><div class="wrap-narrow" style="text-align:center;">
+  <h2 class="display-sm fade-up" style="margin-bottom:24px;">Same loop, on every device.</h2>
+  <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+    <a href="teleop.html#loop" class="btn btn-primary">How the loop works →</a>
+    <a href="teleop-visionpro.html" class="btn btn-ghost">Vision Pro teleop →</a>
+    <a href="connect.html" class="btn btn-ghost">Get the app ↗</a>
+  </div></div></section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
+      <div class="foot-col"><h6>Autonomy</h6><a href="navigation.html">Navigation</a><a href="teleop.html">Teleop</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="learning.html">Learning</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>
