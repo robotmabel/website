@@ -126,7 +126,7 @@
 <section class="dark-sec pad-y">
   <div class="wrap">
     <div class="feature fade-up">
-      <div class="feature-media phone-media"><img class="app-shot" src="assets/app/ios-body.jpg" alt="Real capture — Body tab: 3D twin with Gravity Comp / Compliance / Joint Control and grip sliders" /></div>
+      <div class="feature-media phone-media"><video class="app-shot" src="assets/app/ios-body.mp4" autoplay muted loop playsinline></video><figcaption class="sim-cap" style="position:static;display:inline-flex;margin-top:12px;"><span class="dot"></span>real capture · live</figcaption></div>
       <div class="feature-copy">
         <span class="eyebrow" style="color:#e9a679;">Body · the 3D twin</span>
         <h3 style="color:var(--bone);">Pose it on a live model.</h3>
@@ -152,16 +152,8 @@
         global plan around the obstacles, then a <strong>pure-pursuit</strong> controller tracks the swerve
         trajectory and drives it.</p>
     </div>
-    <div class="app-row fade-up">
-      <figure style="margin:0;text-align:center;">
-        <img class="app-shot" src="assets/app/ios-maps-plan.jpg" alt="Real capture — Maps: A* path planned to the goal across the SLAM point cloud" />
-        <figcaption class="sim-cap" style="position:static;display:inline-flex;margin-top:12px;"><span class="dot"></span>① route planned · A*</figcaption>
-      </figure>
-      <figure style="margin:0;text-align:center;">
-        <img class="app-shot" src="assets/app/ios-maps-follow.jpg" alt="Real capture — Maps: following the path with pure pursuit, robot driving to the goal" />
-        <figcaption class="sim-cap" style="position:static;display:inline-flex;margin-top:12px;"><span class="dot"></span>② following · pure pursuit</figcaption>
-      </figure>
-    </div>
+    <div class="phone-media fade-up"><video class="app-shot" src="assets/app/ios-maps.mp4" autoplay muted loop playsinline style="max-width:300px;"></video></div>
+    <p class="sim-cap" style="position:static;display:inline-flex;margin:14px auto 0;"><span class="dot"></span>Real capture · tap a goal → A* plan → pure-pursuit drive</p>
     <div class="spec fade-up" style="justify-content:center;margin-top:22px;">
       <span>Real SLAM map</span><span>A* global plan</span><span>Pure-pursuit tracking</span><span>Saved places</span>
     </div>
