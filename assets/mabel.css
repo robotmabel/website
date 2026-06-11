@@ -382,6 +382,8 @@ section[id], .sub-block[id] { scroll-margin-top: 92px; }
 .app-shot { display: block; width: 100%; max-width: 270px; border-radius: 26px; border: 1px solid rgba(22,20,18,0.10); filter: drop-shadow(0 44px 64px rgba(22,20,18,0.34)); }
 .app-row { display: flex; gap: 22px; justify-content: center; flex-wrap: wrap; align-items: flex-start; margin-top: 8px; }
 .app-row .app-shot { max-width: 230px; }
+/* on-brand figure (its own bg/border baked into the SVG) */
+.arch-fig { display: block; width: 100%; border-radius: 18px; box-shadow: 0 34px 64px -40px rgba(22,20,18,0.30); }
 .media-frame.sim-dark { background: #07060a; border-color: rgba(242,238,230,0.10); }
 /* caption chip over a sim clip */
 .sim-cap { position: absolute; left: 14px; bottom: 12px; z-index: 2; display: inline-flex; align-items: center; gap: 7px;

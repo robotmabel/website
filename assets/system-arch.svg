@@ -1,109 +1,114 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 912" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif">
-<rect x="0" y="0" width="1360" height="912" rx="18" fill="#0B0A09" opacity="1" stroke="#38383A" stroke-width="1"/>
-<text x="40" y="44" fill="#8E8E93" font-size="12.5" font-weight="700" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="start" letter-spacing="1.2">Figure 1 · MABEL system architecture</text>
-<rect x="150" y="96" width="760" height="102" rx="14" fill="#1C1C1E" opacity="1" stroke="#0A84FF" stroke-width="1.4"/>
-<circle cx="170" cy="120" r="4" fill="#0A84FF"/>
-<text x="184" y="125" fill="#0A84FF" font-size="11" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.8">OPERATOR · AUTONOMY</text>
-<rect x="172" y="148" width="126" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#0A84FF" stroke-width="1"/>
-<text x="235.0" y="166.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Vision Pro teleop</text>
-<rect x="308" y="148" width="84" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#0A84FF" stroke-width="1"/>
-<text x="350.0" y="166.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">iPhone app</text>
-<rect x="402" y="148" width="120" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#0A84FF" stroke-width="1"/>
-<text x="462.0" y="166.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Learned policies</text>
-<rect x="532" y="148" width="78" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#0A84FF" stroke-width="1"/>
-<text x="571.0" y="166.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Nav goals</text>
-<rect x="150" y="224" width="760" height="102" rx="14" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.4"/>
-<circle cx="170" cy="248" r="4" fill="#FF9F0A"/>
-<text x="184" y="253" fill="#FF9F0A" font-size="11" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.8">ONBOARD INTELLIGENCE · Jetson Thor</text>
-<rect x="172" y="276" width="162" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#FF9F0A" stroke-width="1"/>
-<text x="253.0" y="294.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Whole-body control (QP)</text>
-<rect x="344" y="276" width="90" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#FF9F0A" stroke-width="1"/>
-<text x="389.0" y="294.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Nav2 + SLAM</text>
-<rect x="444" y="276" width="108" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#FF9F0A" stroke-width="1"/>
-<text x="498.0" y="294.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Policy runtime</text>
-<rect x="562" y="276" width="84" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#FF9F0A" stroke-width="1"/>
-<text x="604.0" y="294.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Perception</text>
-<rect x="150" y="352" width="760" height="102" rx="14" fill="#1C1C1E" opacity="1" stroke="#30D158" stroke-width="1.4"/>
-<circle cx="170" cy="376" r="4" fill="#30D158"/>
-<text x="184" y="381" fill="#30D158" font-size="11" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.8">ROS 2 MIDDLEWARE · mabel_ws (DDS)</text>
-<rect x="172" y="404" width="96" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#30D158" stroke-width="1"/>
-<text x="220.0" y="422.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">driver nodes</text>
-<rect x="278" y="404" width="102" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#30D158" stroke-width="1"/>
-<text x="329.0" y="422.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">/joint_states</text>
-<rect x="390" y="404" width="54" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#30D158" stroke-width="1"/>
-<text x="417.0" y="422.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">/odom</text>
-<rect x="454" y="404" width="102" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#30D158" stroke-width="1"/>
-<text x="505.0" y="422.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">sensor topics</text>
-<rect x="566" y="404" width="48" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#30D158" stroke-width="1"/>
-<text x="590.0" y="422.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">/cmd</text>
-<rect x="150" y="480" width="760" height="102" rx="14" fill="#1C1C1E" opacity="1" stroke="#BF5AF2" stroke-width="1.4"/>
-<circle cx="170" cy="504" r="4" fill="#BF5AF2"/>
-<text x="184" y="509" fill="#BF5AF2" font-size="11" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.8">FIRMWARE · per-MCU</text>
-<rect x="172" y="532" width="120" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#BF5AF2" stroke-width="1"/>
-<text x="232.0" y="550.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">swerve · REV CAN</text>
-<rect x="302" y="532" width="168" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#BF5AF2" stroke-width="1"/>
-<text x="386.0" y="550.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">arms + body · Damiao CAN</text>
-<rect x="480" y="532" width="114" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#BF5AF2" stroke-width="1"/>
-<text x="537.0" y="550.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">hands · Feetech</text>
-<rect x="604" y="532" width="120" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#BF5AF2" stroke-width="1"/>
-<text x="664.0" y="550.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">neck · Dynamixel</text>
-<rect x="734" y="532" width="90" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#BF5AF2" stroke-width="1"/>
-<text x="779.0" y="550.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">lift · Pico</text>
-<rect x="150" y="608" width="760" height="102" rx="14" fill="#1C1C1E" opacity="1" stroke="#32D0C8" stroke-width="1.4"/>
-<circle cx="170" cy="632" r="4" fill="#32D0C8"/>
-<text x="184" y="637" fill="#32D0C8" font-size="11" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.8">HARDWARE · 51 DOF</text>
-<rect x="172" y="660" width="48" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#32D0C8" stroke-width="1"/>
-<text x="196.0" y="678.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Base</text>
-<rect x="230" y="660" width="48" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#32D0C8" stroke-width="1"/>
-<text x="254.0" y="678.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Lift</text>
-<rect x="288" y="660" width="90" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#32D0C8" stroke-width="1"/>
-<text x="333.0" y="678.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Body + neck</text>
-<rect x="388" y="660" width="72" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#32D0C8" stroke-width="1"/>
-<text x="424.0" y="678.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Arms 2×7</text>
-<rect x="470" y="660" width="84" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#32D0C8" stroke-width="1"/>
-<text x="512.0" y="678.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Hands 2×17</text>
-<rect x="564" y="660" width="66" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#32D0C8" stroke-width="1"/>
-<text x="597.0" y="678.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Sensors</text>
-<rect x="640" y="660" width="132" height="30" rx="8" fill="rgba(242,238,230,0.05)" opacity="1" stroke="#32D0C8" stroke-width="1"/>
-<text x="706.0" y="678.5" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Custom PCB + power</text>
-<rect x="960" y="96" width="350" height="614" rx="14" fill="#1C1C1E" opacity="1" stroke="#BF5AF2" stroke-width="1.4"/>
-<circle cx="980" cy="120" r="4" fill="#BF5AF2"/>
-<text x="994" y="125" fill="#BF5AF2" font-size="11" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">DIGITAL TWIN · MuJoCo / Isaac</text>
-<rect x="982" y="166" width="306" height="30" rx="8" fill="rgba(191,90,242,0.06)" opacity="1" stroke="rgba(191,90,242,0.4)" stroke-width="1"/>
-<text x="1135.0" y="185" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Same URDF → MJCF</text>
-<rect x="982" y="206" width="306" height="30" rx="8" fill="rgba(191,90,242,0.06)" opacity="1" stroke="rgba(191,90,242,0.4)" stroke-width="1"/>
-<text x="1135.0" y="225" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Same ROS 2 interfaces</text>
-<rect x="982" y="246" width="306" height="30" rx="8" fill="rgba(191,90,242,0.06)" opacity="1" stroke="rgba(191,90,242,0.4)" stroke-width="1"/>
-<text x="1135.0" y="265" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Domain randomization</text>
-<rect x="982" y="286" width="306" height="30" rx="8" fill="rgba(191,90,242,0.06)" opacity="1" stroke="rgba(191,90,242,0.4)" stroke-width="1"/>
-<text x="1135.0" y="305" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Parallel RL / data</text>
-<rect x="982" y="326" width="306" height="30" rx="8" fill="rgba(191,90,242,0.06)" opacity="1" stroke="rgba(191,90,242,0.4)" stroke-width="1"/>
-<text x="1135.0" y="345" fill="#FFFFFF" font-size="11" font-weight="500" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">Sim ⇄ real, one flag</text>
-<line x1="910" y1="403.0" x2="960" y2="403.0" stroke="#BF5AF2" stroke-width="1.4" stroke-dasharray="4 4" opacity="0.6"/>
-<text x="935.0" y="395.0" fill="#BF5AF2" font-size="10" font-weight="600" font-family="'SF Mono', Menlo, 'Geist Mono', monospace" text-anchor="middle">same topics</text>
-<line x1="378.0" y1="198" x2="378.0" y2="224" stroke="#38383A" stroke-width="1"/>
-<line x1="530.0" y1="198" x2="530.0" y2="224" stroke="#38383A" stroke-width="1"/>
-<line x1="682.0" y1="198" x2="682.0" y2="224" stroke="#38383A" stroke-width="1"/>
-<line x1="378.0" y1="326" x2="378.0" y2="352" stroke="#38383A" stroke-width="1"/>
-<line x1="530.0" y1="326" x2="530.0" y2="352" stroke="#38383A" stroke-width="1"/>
-<line x1="682.0" y1="326" x2="682.0" y2="352" stroke="#38383A" stroke-width="1"/>
-<line x1="378.0" y1="454" x2="378.0" y2="480" stroke="#38383A" stroke-width="1"/>
-<line x1="530.0" y1="454" x2="530.0" y2="480" stroke="#38383A" stroke-width="1"/>
-<line x1="682.0" y1="454" x2="682.0" y2="480" stroke="#38383A" stroke-width="1"/>
-<line x1="378.0" y1="582" x2="378.0" y2="608" stroke="#38383A" stroke-width="1"/>
-<line x1="530.0" y1="582" x2="530.0" y2="608" stroke="#38383A" stroke-width="1"/>
-<line x1="682.0" y1="582" x2="682.0" y2="608" stroke="#38383A" stroke-width="1"/>
-<line x1="70" y1="96" x2="70" y2="710" stroke="#0A84FF" stroke-width="2" opacity="0.5"/>
-<circle cx="70" r="4" fill="#0A84FF"><animate attributeName="cy" values="96;710" dur="3s" begin="0.0s" repeatCount="indefinite"/></circle>
-<circle cx="70" r="4" fill="#0A84FF"><animate attributeName="cy" values="96;710" dur="3s" begin="0.75s" repeatCount="indefinite"/></circle>
-<circle cx="70" r="4" fill="#0A84FF"><animate attributeName="cy" values="96;710" dur="3s" begin="1.5s" repeatCount="indefinite"/></circle>
-<circle cx="70" r="4" fill="#0A84FF"><animate attributeName="cy" values="96;710" dur="3s" begin="2.25s" repeatCount="indefinite"/></circle>
-<text x="70" y="403.0" fill="#0A84FF" font-size="11" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" transform="rotate(-90 70 403.0)" letter-spacing="1">COMMANDS ↓  intent → joint targets</text>
-<line x1="928" y1="96" x2="928" y2="710" stroke="#30D158" stroke-width="2" opacity="0.5"/>
-<circle cx="928" r="4" fill="#30D158"><animate attributeName="cy" values="710;96" dur="3s" begin="0.0s" repeatCount="indefinite"/></circle>
-<circle cx="928" r="4" fill="#30D158"><animate attributeName="cy" values="710;96" dur="3s" begin="0.75s" repeatCount="indefinite"/></circle>
-<circle cx="928" r="4" fill="#30D158"><animate attributeName="cy" values="710;96" dur="3s" begin="1.5s" repeatCount="indefinite"/></circle>
-<circle cx="928" r="4" fill="#30D158"><animate attributeName="cy" values="710;96" dur="3s" begin="2.25s" repeatCount="indefinite"/></circle>
-<text x="928" y="403.0" fill="#30D158" font-size="11" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" transform="rotate(-90 928 403.0)" letter-spacing="1">STATE ↑  joints · odom · vision</text>
-<text x="680.0" y="886" fill="#636366" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">intent flows down · joint state and perception flow up · the twin shares every interface</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 800" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1360" height="800" rx="16" fill="#FAF8F2" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="40" y="46" fill="#6B6660" font-size="13" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.5">Figure 1 — MABEL system architecture</text>
+<rect x="140" y="92" width="720" height="104" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="140" y="104" width="4" height="80" rx="2" fill="#C25B2A"/>
+<circle cx="162" cy="117" r="3.5" fill="#C25B2A"/>
+<text x="176" y="122" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">OPERATOR · AUTONOMY</text>
+<rect x="166" y="146" width="129" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="230.5" y="164.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Vision Pro teleop</text>
+<rect x="305" y="146" width="86" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="348.0" y="164.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">iPhone app</text>
+<rect x="401" y="146" width="123" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="462.5" y="164.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Learned policies</text>
+<rect x="534" y="146" width="79" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="573.5" y="164.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Nav goals</text>
+<rect x="140" y="220" width="720" height="104" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="140" y="232" width="4" height="80" rx="2" fill="#C25B2A"/>
+<circle cx="162" cy="245" r="3.5" fill="#C25B2A"/>
+<text x="176" y="250" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">ONBOARD INTELLIGENCE · Jetson Thor</text>
+<rect x="166" y="274" width="166" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="249.0" y="292.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Whole-body control (QP)</text>
+<rect x="342" y="274" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="388.0" y="292.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Nav2 + SLAM</text>
+<rect x="444" y="274" width="110" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="499.0" y="292.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Policy runtime</text>
+<rect x="564" y="274" width="86" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="607.0" y="292.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Perception</text>
+<rect x="140" y="348" width="720" height="104" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="140" y="360" width="4" height="80" rx="2" fill="#C25B2A"/>
+<circle cx="162" cy="373" r="3.5" fill="#C25B2A"/>
+<text x="176" y="378" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">ROS 2 MIDDLEWARE · mabel_ws (DDS)</text>
+<rect x="166" y="402" width="98" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="215.0" y="420.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">driver nodes</text>
+<rect x="274" y="402" width="104" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="326.0" y="420.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">/joint_states</text>
+<rect x="388" y="402" width="55" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="415.5" y="420.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">/odom</text>
+<rect x="453" y="402" width="104" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="505.0" y="420.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">sensor topics</text>
+<rect x="567" y="402" width="48" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="591.0" y="420.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">/cmd</text>
+<rect x="140" y="476" width="720" height="104" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="140" y="488" width="4" height="80" rx="2" fill="#C25B2A"/>
+<circle cx="162" cy="501" r="3.5" fill="#C25B2A"/>
+<text x="176" y="506" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">FIRMWARE · per-MCU</text>
+<rect x="166" y="530" width="123" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="227.5" y="548.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">swerve · REV CAN</text>
+<rect x="299" y="530" width="172" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="385.0" y="548.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">arms + body · Damiao CAN</text>
+<rect x="481" y="530" width="117" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="539.5" y="548.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">hands · Feetech</text>
+<rect x="608" y="530" width="123" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="669.5" y="548.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">neck · Dynamixel</text>
+<rect x="741" y="530" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="787.0" y="548.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">lift · Pico</text>
+<rect x="140" y="604" width="720" height="104" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<rect x="140" y="616" width="4" height="80" rx="2" fill="#C25B2A"/>
+<circle cx="162" cy="629" r="3.5" fill="#C25B2A"/>
+<text x="176" y="634" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.6">HARDWARE · 51 DOF</text>
+<rect x="166" y="658" width="48" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="190.0" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Base</text>
+<rect x="224" y="658" width="48" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="248.0" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Lift</text>
+<rect x="282" y="658" width="92" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="328.0" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Body + neck</text>
+<rect x="384" y="658" width="73" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="420.5" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Arms 2×7</text>
+<rect x="467" y="658" width="86" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="510.0" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Hands 2×17</text>
+<rect x="563" y="658" width="67" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="596.5" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Sensors</text>
+<rect x="640" y="658" width="135" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="707.5" y="676.6" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Custom PCB + power</text>
+<rect x="936" y="240.0" width="384" height="320" rx="14" fill="#F2EEE6" stroke="#6B6660" stroke-width="1.2" stroke-dasharray="2 5"/>
+<circle cx="958" cy="265.0" r="3.5" fill="#8B5A3C"/>
+<text x="972" y="270.0" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.4">DIGITAL TWIN · MuJoCo / Isaac</text>
+<rect x="960" y="300.0" width="336" height="32" rx="8" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="1128.0" y="320.0" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Same URDF → MJCF</text>
+<rect x="960" y="348.0" width="336" height="32" rx="8" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="1128.0" y="368.0" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Same ROS 2 interfaces</text>
+<rect x="960" y="396.0" width="336" height="32" rx="8" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="1128.0" y="416.0" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Domain randomization</text>
+<rect x="960" y="444.0" width="336" height="32" rx="8" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="1128.0" y="464.0" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Parallel RL / data</text>
+<rect x="960" y="492.0" width="336" height="32" rx="8" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="1128.0" y="512.0" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">Sim ⇄ real, one flag</text>
+<line x1="860" y1="400.0" x2="936" y2="400.0" stroke="#C25B2A" stroke-width="1.3" stroke-dasharray="4 4"/>
+<text x="898.0" y="392.0" fill="#C25B2A" font-size="10" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">same topics</text>
+<line x1="356.0" y1="196" x2="356.0" y2="220" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="500.0" y1="196" x2="500.0" y2="220" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="644.0" y1="196" x2="644.0" y2="220" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="356.0" y1="324" x2="356.0" y2="348" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="500.0" y1="324" x2="500.0" y2="348" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="644.0" y1="324" x2="644.0" y2="348" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="356.0" y1="452" x2="356.0" y2="476" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="500.0" y1="452" x2="500.0" y2="476" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="644.0" y1="452" x2="644.0" y2="476" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="356.0" y1="580" x2="356.0" y2="604" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="500.0" y1="580" x2="500.0" y2="604" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="644.0" y1="580" x2="644.0" y2="604" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<line x1="70" y1="92" x2="70" y2="708" stroke="#C25B2A" stroke-width="2" opacity="0.5"/>
+<circle cx="70" r="4" fill="#C25B2A"><animate attributeName="cy" values="92;708" dur="3s" begin="0.0s" repeatCount="indefinite"/></circle>
+<circle cx="70" r="4" fill="#C25B2A"><animate attributeName="cy" values="92;708" dur="3s" begin="0.75s" repeatCount="indefinite"/></circle>
+<circle cx="70" r="4" fill="#C25B2A"><animate attributeName="cy" values="92;708" dur="3s" begin="1.5s" repeatCount="indefinite"/></circle>
+<circle cx="70" r="4" fill="#C25B2A"><animate attributeName="cy" values="92;708" dur="3s" begin="2.25s" repeatCount="indefinite"/></circle>
+<text x="70" y="276.79999999999995" fill="#C25B2A" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" transform="rotate(-90 70 276.79999999999995)" letter-spacing="1">COMMANDS ↓  intent → joint targets</text>
+<line x1="898" y1="92" x2="898" y2="708" stroke="#6B6660" stroke-width="2" opacity="0.5"/>
+<circle cx="898" r="4" fill="#6B6660"><animate attributeName="cy" values="708;92" dur="3s" begin="0.0s" repeatCount="indefinite"/></circle>
+<circle cx="898" r="4" fill="#6B6660"><animate attributeName="cy" values="708;92" dur="3s" begin="0.75s" repeatCount="indefinite"/></circle>
+<circle cx="898" r="4" fill="#6B6660"><animate attributeName="cy" values="708;92" dur="3s" begin="1.5s" repeatCount="indefinite"/></circle>
+<circle cx="898" r="4" fill="#6B6660"><animate attributeName="cy" values="708;92" dur="3s" begin="2.25s" repeatCount="indefinite"/></circle>
+<text x="898" y="276.79999999999995" fill="#6B6660" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" transform="rotate(-90 898 276.79999999999995)" letter-spacing="1">STATE ↑  joints · odom · vision</text>
+<text x="680.0" y="778" fill="#A09A91" font-size="12" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">intent flows down · joint state and perception flow up · the twin shares every interface</text>
 </svg>
