@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Autonomy · Data</title>
+<meta name="description" content="MABEL data infrastructure: teleoperation logs synchronized multi-camera, LiDAR, joint, and action data into one-schema HDF5 episodes — the same keys in sim and on the real robot — feeding ACT, CVAE, and Diffusion Policy." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="server.html">Server & Bridge</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="navigation.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="data.html" class="on">Data</a><a href="learning.html">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server & Bridge</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="data.html">Data</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<aside class="sidenav" aria-label="Autonomy section navigation">
+  <div class="sidenav-title">Autonomy</div>
+  <a href="navigation.html">Navigation</a><a href="data.html" class="on">Data</a><a href="learning.html">Learning</a>
+</aside>
+
+<!-- HERO -->
+<section class="page-hero"><div class="page-hero-inner">
+  <div class="crumbs"><a href="index.html">Overview</a> / Autonomy / Data</div>
+  <span class="eyebrow">Autonomy · Data</span>
+  <h1 class="display-lg">The dataset<br>writes itself.</h1>
+  <p class="lede">Collection isn&rsquo;t a separate chore — it&rsquo;s a side effect of using the robot. You <a href="teleop.html"><strong>teleoperate</strong></a> MABEL to do a task; every frame logs as much state as the body exposes — all cameras, the LiDAR, every joint&rsquo;s position / velocity / torque, and <strong>the target command for every actuator</strong>. One schema, identical in <a href="simulation.html">simulation</a> and on the real robot.</p>
+  <div class="spec" style="margin-top:28px;"><span>HDF5 · one file / episode</span><span>7 cams + LiDAR</span><span>59-DOF action label</span><span>15 Hz</span><span>sim = real schema</span></div>
+</div></section>
+
+<!-- FIGURE -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The data engine</span><h2 class="display-md title">Teleop in, <span class="italic accent">labels out.</span></h2></div>
+    <p class="lede">The operator drives MABEL through the <em>same</em> <code>TeleopController</code> the live viewer and the AVP bridge use. Cut an episode with a keypress; a background thread writes it to disk while you keep working.</p></div>
+  <div class="arch-fig fade-up"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" viewBox="0 0 1240 470" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1240" height="470" rx="16" fill="#FAF8F2" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="40" y="46" fill="#6B6660" font-size="13" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure — the data engine: teleop becomes a labelled dataset</text>
+<rect x="40" y="120" width="250" height="250" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="58" cy="142" r="3.5" fill="#C25B2A"/>
+<text x="72" y="147" fill="#2A2622" font-size="11.5" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">TELEOP</text>
+<text x="58" y="168" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">drive to collect</text>
+<circle cx="62" cy="202" r="2.4" fill="#C25B2A"/>
+<text x="74" y="206" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">shared TeleopController</text>
+<circle cx="62" cy="232" r="2.4" fill="#C25B2A"/>
+<text x="74" y="236" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">MuJoCo sim — or real robot</text>
+<circle cx="62" cy="262" r="2.4" fill="#C25B2A"/>
+<text x="74" y="266" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">cut episodes on the fly · SPACE</text>
+<text x="58" y="354" fill="#A09A91" font-size="9.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 01</text>
+<line x1="290" y1="245.0" x2="335" y2="245.0" stroke="#C25B2A" stroke-width="1.8"/><path d="M 333 240.0 L 343 245.0 L 333 250.0" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="343" y="120" width="250" height="250" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="361" cy="142" r="3.5" fill="#C25B2A"/>
+<text x="375" y="147" fill="#2A2622" font-size="11.5" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">RECORD</text>
+<text x="361" y="168" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">EpisodeRecorder · 15 Hz</text>
+<circle cx="365" cy="202" r="2.4" fill="#C25B2A"/>
+<text x="377" y="206" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">log every obs + the action</text>
+<circle cx="365" cy="232" r="2.4" fill="#C25B2A"/>
+<text x="377" y="236" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">background-thread HDF5</text>
+<circle cx="365" cy="262" r="2.4" fill="#C25B2A"/>
+<text x="377" y="266" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">one file per episode</text>
+<text x="361" y="354" fill="#A09A91" font-size="9.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 02</text>
+<line x1="593" y1="245.0" x2="638" y2="245.0" stroke="#C25B2A" stroke-width="1.8"/><path d="M 636 240.0 L 646 245.0 L 636 250.0" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="646" y="120" width="250" height="250" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="664" cy="142" r="3.5" fill="#C25B2A"/>
+<text x="678" y="147" fill="#2A2622" font-size="11.5" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">EPISODE</text>
+<text x="664" y="168" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">HDF5 · one schema</text>
+<circle cx="668" cy="202" r="2.4" fill="#C25B2A"/>
+<text x="680" y="206" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">7 cams + LiDAR + 59 joints</text>
+<circle cx="668" cy="232" r="2.4" fill="#C25B2A"/>
+<text x="680" y="236" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">action/ctrl [59] — the label</text>
+<circle cx="668" cy="262" r="2.4" fill="#C25B2A"/>
+<text x="680" y="266" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim &amp; real share the keys</text>
+<text x="664" y="354" fill="#A09A91" font-size="9.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 03</text>
+<line x1="896" y1="245.0" x2="941" y2="245.0" stroke="#C25B2A" stroke-width="1.8"/><path d="M 939 240.0 L 949 245.0 L 939 250.0" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="949" y="120" width="250" height="250" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="967" cy="142" r="3.5" fill="#C25B2A"/>
+<text x="981" y="147" fill="#2A2622" font-size="11.5" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">TRAIN</text>
+<text x="967" y="168" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">imitation learning</text>
+<circle cx="971" cy="202" r="2.4" fill="#C25B2A"/>
+<text x="983" y="206" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">ACT · CVAE · Diffusion</text>
+<circle cx="971" cy="232" r="2.4" fill="#C25B2A"/>
+<text x="983" y="236" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">stats → normalization</text>
+<circle cx="971" cy="262" r="2.4" fill="#C25B2A"/>
+<text x="983" y="266" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">→ deploy as a policy</text>
+<text x="967" y="354" fill="#A09A91" font-size="9.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 04</text>
+<text x="620.0" y="450" fill="#A09A91" font-size="12" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">collection is a side effect of teleop · identical keys sim↔real → policies deploy without remapping I/O</text>
+</svg></div>
+</div></section>
+
+<!-- HOW IT RECORDS -->
+<section class="soft-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">How it records</span><h2 class="display-md title">One logger, <span class="italic accent">sim or real.</span></h2></div>
+    <p class="lede">A <code>StateProvider</code> turns whatever the platform exposes into a uniform per-frame dict; the recorder never knows whether it&rsquo;s talking to MuJoCo or to hardware.</p></div>
+  <div class="points fade-up">
+    <div class="point"><div class="num">01</div><div><h5>Shared controller</h5><p>You collect through the <code>TeleopController</code> that already drives the sim and the <a href="server.html">bridge</a> — so the demonstrations are generated by the exact control path a policy will later replace.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Uniform schema</h5><p><code>SimStateProvider</code> and <code>RealStateProvider</code> emit the same obs/action keys. Same field names in sim and on the robot is what lets a policy deploy <a href="learning.html">across sim→real</a> with no I/O remapping.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Non-blocking writes</h5><p><code>EpisodeRecorder</code> accumulates frames and saves HDF5 on a background thread — one file per episode. Numbering auto-resumes, so you can stop and restart a session without overwriting.</p></div></div>
+    <div class="point"><div class="num">04</div><div><h5>Honest about the bottleneck</h5><p>Rendering seven cameras is the limit: ~15 Hz with a GPU offscreen context, ~2 Hz on a CPU-only laptop. The inspector reports the rate you actually achieved — drop cameras or resolution to hold the target.</p></div></div>
+  </div>
+</div></section>
+
+<!-- EPISODE SCHEMA -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">What&rsquo;s in an episode</span><h2 class="display-md title">Everything the body <span class="italic accent">knows.</span></h2></div>
+    <p class="lede">One HDF5 file per episode, axis&nbsp;0 = frame. The actuator names, camera list, and units travel with the data in the file attrs (<code>schema_json</code>) and <code>dataset_meta.json</code>.</p></div>
+  <div class="feature fade-up">
+    <div class="feature-copy">
+      <table class="tt">
+        <thead><tr><th>Field</th><th>Shape</th><th>What</th></tr></thead>
+        <tbody>
+          <tr><td>obs/cam/&lt;name&gt;/rgb</td><td>JPEG</td><td>7 cams: 2 wrist, ZED L/R, 3 body</td></tr>
+          <tr><td>obs/cam/&lt;name&gt;/depth</td><td>uint16</td><td>millimetres, on a subset</td></tr>
+          <tr><td>obs/lidar</td><td>[360]</td><td>planar ranges, 1° resolution</td></tr>
+          <tr><td>obs/joint_pos·vel·torque</td><td>[59]</td><td>aligned to the actuator list</td></tr>
+          <tr><td>obs/qpos · qvel</td><td>[81]·[78]</td><td>full state (sim ground truth)</td></tr>
+          <tr><td>obs/pose/{chassis,head,palms}</td><td>[7]</td><td>world position + quaternion</td></tr>
+          <tr><td>obs/base_twist</td><td>[3]</td><td>measured (vx, vy, wz)</td></tr>
+          <tr><td>action/ctrl</td><td>[59]</td><td><span class="pub">the label</span> — target for every actuator</td></tr>
+          <tr><td>teleop/* · time/*</td><td>—</td><td>palm targets, grasp, mode; sim &amp; wall clock</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="feature-copy">
+      <span class="eyebrow">the action label</span>
+      <h3>One vector to imitate.</h3>
+      <p><code>action/ctrl</code> is a single <strong>59-D target-position command</strong> for every actuator at once — arm, wrist, and finger joints, the neck, the lift, the torso, plus the base&rsquo;s steer angles and drive velocities. That is the quantity a policy learns to predict. Observations describe the world; this one array <em>is</em> the supervision.</p>
+      <div class="bib" style="margin-top:18px;">
+        <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+        <pre>episode_0007.h5
+├─ obs/
+│   ├─ cam/{l_wrist,r_wrist,zed_left,…}/rgb
+│   ├─ lidar [360]
+│   └─ joint_pos|vel|torque [59]
+├─ action/ctrl [59]      # ← the target-joint label
+└─ attrs: schema_json, task, fps</pre>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- OPERATOR KEYS -->
+<section class="dark-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Cut on the fly</span><h2 class="display-md title" style="color:var(--bone);">Episodes, <span class="italic accent">by keypress.</span></h2></div>
+    <p class="lede">Global hot-keys (the viewer needn&rsquo;t be focused) let one operator drive and segment at once — keep the good takes, discard the bad ones, never break flow.</p></div>
+  <div class="feature fade-up">
+    <div class="feature-copy">
+      <table class="tt">
+        <thead><tr><th>Key</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>SPACE</td><td>start a new episode / stop &amp; <strong>save</strong></td></tr>
+          <tr><td>X</td><td>discard the in-progress episode</td></tr>
+          <tr><td>C</td><td>recalibrate the teleop clutch at your pose</td></tr>
+          <tr><td>M</td><td>toggle manipulation ↔ navigation</td></tr>
+          <tr><td>B</td><td>toggle lazy base-follow</td></tr>
+          <tr><td>R</td><td>reset to home + re-randomize the object</td></tr>
+          <tr><td>Q · ESC</td><td>quit (auto-discards an unsaved take)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="feature-copy">
+      <span class="eyebrow">inspect · visualize · merge</span>
+      <h3>A small toolbox around the files.</h3>
+      <p><code>inspect_episode.py</code> prints the schema, shapes, and timing — or tile-replays every camera stream. <code>visualize_dataset.py</code> regenerates vector-PDF diagnostics. <code>merge_dataset.py</code> pools several collection folders into one, renumbering episodes so sessions compose cleanly.</p>
+      <div class="bib" style="margin-top:18px;">
+        <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+        <pre>python collect_sim.py --name pick_cube_v1 --task "pick the blue cube"
+python inspect_episode.py datasets/pick_cube_v1/episode_0000.h5 --play
+python merge_dataset.py --out datasets/all datasets/pick_cube_v1 datasets/pick_cube_v2</pre>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- SIM TO REAL + CTA -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Sim → real</span><h2 class="display-md title">Collect in sim. <span class="italic accent">Deploy on hardware.</span></h2></div>
+    <p class="lede">Because sim and real share the identical keys and the identical control path, a dataset gathered in MuJoCo and one gathered on the robot are the same shape — and a policy trained on either speaks the same <code>action/ctrl</code> the robot already executes. The <a href="learning.html">learning</a> stack picks up from here.</p></div>
+  <div class="fade-up" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
+    <a href="learning.html" class="btn btn-primary">Learning →</a>
+    <a href="teleop.html" class="btn btn-ghost">Teleop →</a>
+    <a href="simulation.html" class="btn btn-ghost">Simulation →</a>
+    <a href="ros.html" class="btn btn-ghost">The topic bus →</a>
+  </div>
+</div></section>
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
+      <div class="foot-col"><h6>Autonomy</h6><a href="navigation.html">Navigation</a><a href="data.html">Data</a><a href="learning.html">Learning</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>

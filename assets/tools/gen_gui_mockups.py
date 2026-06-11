@@ -791,9 +791,50 @@ def bridge_svg():
     o.append("</svg>")
     return chr(10).join(o)
 
+def data_svg():
+    """Data engine pipeline: teleop → record → one-schema HDF5 episodes → train."""
+    g=_arch_common(); PAPER,WHITE,BONE,INK,INKS,ASH,ASHL,RUST,HAIR,FS,FM = (
+        g['PAPER'],g['WHITE'],g['BONE'],g['INK'],g['INKS'],g['ASH'],g['ASHL'],g['RUST'],g['HAIR'],g['FS'],g['FM'])
+    W,H=1240,470
+    def R(x,y,w,h,r,fill,stroke=None,sw=1,dash=None):
+        s=f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}"'
+        if stroke: s+=f' stroke="{stroke}" stroke-width="{sw}"'
+        if dash: s+=f' stroke-dasharray="{dash}"'
+        return s+"/>"
+    def T(x,y,s,fill=INK,size=12,w=400,font=FS,anc="start",sp=None):
+        sps=f' letter-spacing="{sp}"' if sp else ""
+        return f'<text x="{x}" y="{y}" fill="{fill}" font-size="{size}" font-weight="{w}" font-family="{font}" text-anchor="{anc}"{sps}>{s}</text>'
+    def Dt(x,y,c,r=3.5): return f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c}"/>'
+    def aR(x1,x2,y,c=RUST):
+        return (f'<line x1="{x1}" y1="{y}" x2="{x2-8}" y2="{y}" stroke="{c}" stroke-width="1.8"/>'
+                f'<path d="M {x2-10} {y-5} L {x2} {y} L {x2-10} {y+5}" stroke="{c}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
+    o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{FS}">',
+       R(0,0,W,H,16,PAPER,stroke=HAIR,sw=1),
+       T(40,46,"Figure — the data engine: teleop becomes a labelled dataset",ASH,13,500,font=FM,sp="0.3")]
+    boxes=[
+      ("01","TELEOP","drive to collect",["shared TeleopController","MuJoCo sim — or real robot","cut episodes on the fly · SPACE"]),
+      ("02","RECORD","EpisodeRecorder · 15 Hz",["log every obs + the action","background-thread HDF5","one file per episode"]),
+      ("03","EPISODE","HDF5 · one schema",["7 cams + LiDAR + 59 joints","action/ctrl [59] — the label","sim &amp; real share the keys"]),
+      ("04","TRAIN","imitation learning",["ACT · CVAE · Diffusion","stats → normalization","→ deploy as a policy"]),
+    ]
+    bw,gap=250,53; y,h=120,250
+    for i,(n,title,sub,lines) in enumerate(boxes):
+        x=40+i*(bw+gap)
+        o.append(R(x,y,bw,h,14,WHITE,stroke=HAIR,sw=1.2))
+        o.append(Dt(x+18,y+22,RUST)); o.append(T(x+32,y+27,title,INKS,11.5,600,sp="0.5"))
+        o.append(T(x+18,y+48,sub,ASH,10,500,font=FM))
+        for j,t in enumerate(lines):
+            o.append(Dt(x+22,y+82+j*30,RUST,2.4)); o.append(T(x+34,y+86+j*30,t,INKS,11,500,font=FM))
+        o.append(T(x+18,y+h-16,f"step {n}",ASHL,9.5,600,font=FM))
+        if i<3: o.append(aR(x+bw, x+bw+gap, y+h/2))
+    o.append(T(W/2, H-20, "collection is a side effect of teleop · identical keys sim↔real → policies deploy without remapping I/O", ASHL,12,400,anc="middle"))
+    o.append("</svg>")
+    return chr(10).join(o)
+
 def main():
     for name, fn in (("gui-swerve.svg", swerve_svg), ("gui-hand.svg", hand_svg),
                      ("retarget.svg", retarget_svg), ("bridge.svg", bridge_svg),
+                     ("data-pipeline.svg", data_svg),
                      ("gui-swerve-demo.svg", swerve_demo_svg),
                      ("teleop-dataflow.svg", dataflow_svg),
                      ("ros-graph.svg", ros_graph_svg),
