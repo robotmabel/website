@@ -48,6 +48,7 @@ function init() {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1.6, 0.01, 200);
   camera.position.set(1.4, 1.1, 1.8);
+  let baseDist = 2;   // assembled camera distance; the loop dollies out as parts explode
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0x8d867b, 1.15));
   const key = new THREE.DirectionalLight(0xffffff, 1.7); key.position.set(2.5, 3.5, 2); scene.add(key);
@@ -112,8 +113,10 @@ function init() {
     const sz = bb.getSize(new THREE.Vector3());
     const maxd = Math.max(sz.x, sz.y, sz.z) || 1;
     controls.target.copy(c);
-    camera.position.copy(c).add(new THREE.Vector3(maxd * 0.9, maxd * 0.5, maxd * 1.3));
+    // start on the robot's face: front is -X (verified) → a front 3/4 view
+    camera.position.copy(c).add(new THREE.Vector3(-maxd * 1.3, maxd * 0.45, maxd * 0.6));
     camera.near = maxd / 100; camera.far = maxd * 60; camera.updateProjectionMatrix();
+    baseDist = camera.position.distanceTo(c);   // assembled framing; loop dollies out as it explodes
     controls.update();
 
     for (const p of PARTS) {
@@ -174,10 +177,17 @@ function init() {
     }
   }
 
+  const _dir = new THREE.Vector3();
   renderer.setAnimationLoop(() => {
     controls.update();
-    applyExplode(smooth(factor));
+    const ef = smooth(factor);
+    applyExplode(ef);
+    // dolly the camera out as the model explodes so every part stays in frame
+    _dir.copy(camera.position).sub(controls.target);
+    if (_dir.lengthSq() > 1e-6) {
+      camera.position.copy(controls.target).addScaledVector(_dir.normalize(), baseDist * (1 + ef * 1.05));
+    }
     renderer.render(scene, camera);
-    placeLabels(smooth(factor));
+    placeLabels(ef);
   });
 }
