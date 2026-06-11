@@ -142,15 +142,17 @@ section { position: relative; }
           backdrop-filter: saturate(180%) blur(28px);
   border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: 22px;
-  padding: 72px 24px 22px;
+  padding: 58px 14px 12px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 24px 60px -18px rgba(22, 20, 18, 0.34);
   transform: translateY(calc(-100% - 12px)); transition: transform 0.4s var(--ease-out);
+  max-height: calc(100vh - 16px);
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
 }
-.mob a { display: block; padding: 13px 6px; font-size: 16px; font-weight: 400; color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(22,20,18,0.08); border-radius: 10px; }
-.mob a:last-child { border-bottom: none; }
-.mob a.ext { color: var(--rust); }
-.mob-grp { display: block; padding: 16px 6px 4px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ash); font-weight: 600; }
-.mob a.sub { padding-left: 20px; }
+.mob a { display: block; padding: 8px 8px; font-size: 14.5px; font-weight: 500; color: var(--ink); text-decoration: none; border-radius: 9px; }
+.mob a.ext { color: var(--rust); margin-top: 4px; }
+.mob-grp { display: block; padding: 11px 8px 2px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ash); font-weight: 600; }
+.mob a.sub { padding: 6px 8px 6px 18px; font-size: 13px; font-weight: 400; opacity: 0.82; }
 @media (max-width: 1180px) { .nav-links { display: none; } .hbg { display: flex; } .mob { display: block; } }
 
 /* ── Dropdown nav groups ── */
