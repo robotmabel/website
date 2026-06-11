@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Lift</title>
+<meta name="description" content="MABEL hardware · Lift: A cascaded Z-lift adds 0.635 m of vertical travel; an RP2040 Pico runs closed-loop position-plus-velocity control over a brushed actuator." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html" class="on">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="teleop.html">Teleop</a><a href="learning.html">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="teleop.html">Teleop</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / <a href="hardware.html">Hardware</a> / Lift</div>
+    <span class="eyebrow">Hardware · Lift</span>
+    <h1 class="display-lg">Eye height, on demand.</h1>
+    <p class="lede">A cascaded Z-lift adds 0.635 m of vertical travel; an RP2040 Pico runs closed-loop position-plus-velocity control over a brushed actuator.</p>
+    <div class="spec" style="margin-top:28px;"><span>0.635 m travel</span><span>Cascaded stages</span><span>RP2040 Pico</span><span>BTS7960 + encoder</span><span>Pos + vel loop</span></div>
+  </div>
+</section>
+
+<!-- ─── DETAIL ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Lift</span>
+        <h2 class="display-md title">Inside the <span class="italic accent">lift.</span></h2>
+      </div>
+      <p class="lede">Real parts, open files. Here's what makes the lift subsystem tick.</p>
+    </div>
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div><h5>Cascaded travel</h5><p>Telescoping stages give <strong>0.635&nbsp;m</strong> of vertical range in a compact stow height — counter height to over a table.</p></div></div><div class="point"><div class="num">02</div><div><h5>Closed-loop on a Pico</h5><p>An RP2040 Pico runs cascaded <strong>position + velocity</strong> control over a BTS7960 H-bridge and a quadrature encoder, with a host library and an iOS GUI. See <a href="firmware.html">Firmware</a>.</p></div></div><div class="point"><div class="num">03</div><div><h5>Coupled to stability</h5><p>Raising the lift raises the centre of mass, so the base's tip-safe limits tighten with height — modelled in <a href="wbc.html">whole-body control</a>.</p></div></div><div class="point"><div class="num">04</div><div><h5>Eye height for teleop</h5><p>Matching the operator's eye height shrinks the embodiment gap and makes <a href="teleop.html">teleop</a> feel like wearing the robot.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Up to the task.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="firmware.html" class="btn btn-primary">Firmware →</a>
+      <a href="hardware.html" class="btn btn-ghost">← Hardware overview</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Hardware</h6><a href="hardware-arms.html">Arms</a><a href="hardware-hands.html">Hands</a><a href="hardware-base.html">Base</a><a href="hardware-electronics.html">Electronics</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>

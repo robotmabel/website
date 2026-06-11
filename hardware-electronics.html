@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Electronics</title>
+<meta name="description" content="MABEL hardware · Electronics: Custom base and body PCBs tie every actuator together over a single low-latency local network — CAN for the motor buses, Ethernet for the high-bandwidth links — with one Jetson Thor running it all onboard." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-electronics.html" class="on">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="teleop.html">Teleop</a><a href="learning.html">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="teleop.html">Teleop</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / <a href="hardware.html">Hardware</a> / Electronics</div>
+    <span class="eyebrow">Hardware · Electronics</span>
+    <h1 class="display-lg">Custom boards, one low-latency net.</h1>
+    <p class="lede">Custom base and body PCBs tie every actuator together over a single low-latency local network — CAN for the motor buses, Ethernet for the high-bandwidth links — with one Jetson Thor running it all onboard.</p>
+    <div class="spec" style="margin-top:28px;"><span>Custom base + body PCB</span><span>CAN + Ethernet</span><span>Jetson Thor</span><span>Onboard · untethered</span><span>Single battery</span></div>
+  </div>
+</section>
+
+<!-- ─── DETAIL ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Electronics</span>
+        <h2 class="display-md title">Inside the <span class="italic accent">electronics.</span></h2>
+      </div>
+      <p class="lede">Real parts, open files. Here's what makes the electronics subsystem tick.</p>
+    </div>
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div><h5>Custom PCBs</h5><p>Purpose-built boards for the base and the body replace a rat's nest of breakouts — clean power distribution and bus routing for the whole robot.</p></div></div><div class="point"><div class="num">02</div><div><h5>One low-latency network</h5><p><strong>CAN</strong> carries the motor buses; <strong>Ethernet</strong> carries the high-bandwidth links. Keeping the local network unified cuts latency across the system.</p></div></div><div class="point"><div class="num">03</div><div><h5>Onboard compute</h5><p>A single <strong>Jetson Thor</strong> runs SLAM, navigation, perception, and <a href="wbc.html">whole-body control</a> — no cloud, no tether. See <a href="ros.html">ROS</a>.</p></div></div><div class="point"><div class="num">04</div><div><h5>Untethered</h5><p>One battery powers the whole platform; nothing trails behind it as it drives the room.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Wired for low latency.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="firmware.html" class="btn btn-primary">Firmware →</a>
+      <a href="hardware.html" class="btn btn-ghost">← Hardware overview</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Hardware</h6><a href="hardware-arms.html">Arms</a><a href="hardware-hands.html">Hands</a><a href="hardware-base.html">Base</a><a href="hardware-electronics.html">Electronics</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>
