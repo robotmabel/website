@@ -38,22 +38,24 @@ def dot(x, y, c, r=4): return f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c}"/>'
 
 
 def chrome(active):
-    """phone frame + status bar + bottom tab bar. active in tabs."""
+    """phone frame + status bar + global status row + bottom tab bar (real app)."""
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{SANS}">']
     o.append(rr(0, 0, W, H, 46, "#000"))
     o.append(rr(6, 6, W - 12, H - 12, 42, BG))
-    # dynamic island
     o.append(rr(W / 2 - 52, 18, 104, 30, 15, "#000"))
-    # status bar
     o.append(tx(34, 36, "9:41", TX, 14, 600))
-    o.append(tx(W - 78, 36, "5G", TX2, 11, 600))
     o.append(rr(W - 56, 26, 22, 11, 3, "none", stroke=TX2, sw=1))
     o.append(rr(W - 54, 28, 16, 7, 1.5, LIVE))
-    # bottom tab bar
+    # global status row (Connected · battery · STOP) like the real app
+    o.append(rr(20, 56, 86, 24, 12, CARD, stroke=HAIR, sw=1)); o.append(dot(34, 68, LIVE, 3.5))
+    o.append(tx(44, 72, "Connected", TX, 10, 600))
+    o.append(rr(112, 56, 48, 24, 12, CARD, stroke=HAIR, sw=1)); o.append(tx(136, 72, "77%", TX, 10, 600, font=MONO, anc="middle"))
+    o.append(rr(W - 96, 56, 76, 24, 12, DANGER)); o.append(tx(W - 58, 72, "STOP", "#fff", 11, 700, anc="middle"))
+    # bottom tab bar (real)
     ty = H - 78
     o.append(rr(6, ty, W - 12, 72, 0, BG))
     o.append(f'<line x1="6" y1="{ty}" x2="{W-6}" y2="{ty}" stroke="{HAIR}" stroke-width="1"/>')
-    tabs = ["Home", "Teleop", "Navigate", "Policies", "Settings"]
+    tabs = ["Drive", "Body", "Maps", "Policies", "Robot"]
     tw = (W - 12) / 5
     for i, t in enumerate(tabs):
         cx = 6 + tw * (i + 0.5)
@@ -64,12 +66,9 @@ def chrome(active):
     return o
 
 
-def header(o, title, sub, conn="Demo · sim"):
-    o.append(tx(28, 92, title, TX, 26, 700))
-    if sub: o.append(tx(28, 114, sub, TX2, 13, 500))
-    o.append(rr(W - 150, 74, 122, 26, 13, CARD, stroke=HAIR, sw=1))
-    o.append(dot(W - 138, 87, LIVE, 4))
-    o.append(tx(W - 128, 91, conn, TX, 11, 600, font=MONO))
+def header(o, title, sub, conn=None):
+    o.append(tx(28, 116, title, TX, 26, 700))
+    if sub: o.append(tx(28, 138, sub, TX2, 13, 500))
 
 
 def seg(o, y, items, active):
@@ -225,7 +224,7 @@ def policies():
         ("Track Subject", "Scripted", 94, "live", LIVE),
         ("Return to Dock", "Navigation", 99, "55 s", ACCENT),
     ]
-    yy = 134
+    yy = 158
     for name, kind, rate, hz, c in lib:
         o.append(rr(28, yy, W - 56, 92, 16, CARD, stroke=HAIR, sw=1))
         o.append(rr(40, yy + 14, 10, 64, 4, c))
