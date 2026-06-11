@@ -720,9 +720,80 @@ def retarget_svg():
     o.append("</svg>")
     return chr(10).join(o)
 
+def bridge_svg():
+    """The server abstraction layer: one two-port contract (WS uplink + MJPEG
+    downlink) so any client drives sim or the real robot without touching ROS."""
+    g=_arch_common(); PAPER,WHITE,BONE,INK,INKS,ASH,ASHL,RUST,HAIR,FS,FM = (
+        g['PAPER'],g['WHITE'],g['BONE'],g['INK'],g['INKS'],g['ASH'],g['ASHL'],g['RUST'],g['HAIR'],g['FS'],g['FM'])
+    W,H=1240,560
+    def R(x,y,w,h,r,fill,stroke=None,sw=1,dash=None):
+        s=f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}"'
+        if stroke: s+=f' stroke="{stroke}" stroke-width="{sw}"'
+        if dash: s+=f' stroke-dasharray="{dash}"'
+        return s+"/>"
+    def T(x,y,s,fill=INK,size=12,w=400,font=FS,anc="start",sp=None):
+        sps=f' letter-spacing="{sp}"' if sp else ""
+        return f'<text x="{x}" y="{y}" fill="{fill}" font-size="{size}" font-weight="{w}" font-family="{font}" text-anchor="{anc}"{sps}>{s}</text>'
+    def Dt(x,y,c,r=3.5): return f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c}"/>'
+    def head(x,y,title,sub,c=RUST):
+        o.append(Dt(x+10,y+13,c)); o.append(T(x+24,y+18,title,INKS,11,600,sp="0.5"))
+        if sub: o.append(T(x+24,y+34,sub,ASH,10,500,font=FM))
+    def chip(x,y,w,t,c=INKS):
+        o.append(R(x,y,w,28,8,BONE,stroke=HAIR,sw=1)); o.append(T(x+12,y+18,t,c,11,500,font=FM))
+    def aR(x1,x2,y,c=RUST):  # arrow pointing right
+        return (f'<line x1="{x1}" y1="{y}" x2="{x2-8}" y2="{y}" stroke="{c}" stroke-width="1.8"/>'
+                f'<path d="M {x2-10} {y-5} L {x2} {y} L {x2-10} {y+5}" stroke="{c}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
+    def aL(x1,x2,y,c=RUST):  # arrow pointing left (x1>x2)
+        return (f'<line x1="{x1}" y1="{y}" x2="{x2+8}" y2="{y}" stroke="{c}" stroke-width="1.8"/>'
+                f'<path d="M {x2+10} {y-5} L {x2} {y} L {x2+10} {y+5}" stroke="{c}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
+    def aD(x,y1,y2,c=RUST):  # arrow pointing down
+        return (f'<line x1="{x}" y1="{y1}" x2="{x}" y2="{y2-8}" stroke="{c}" stroke-width="1.8"/>'
+                f'<path d="M {x-5} {y2-10} L {x} {y2} L {x+5} {y2-10}" stroke="{c}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
+    o=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{FS}">',
+       R(0,0,W,H,16,PAPER,stroke=HAIR,sw=1),
+       T(40,46,"Figure — the server: one two-port contract, no ROS on the client",ASH,13,500,font=FM,sp="0.3")]
+    # APPS (tall, left — touches both lanes)
+    ax,aw,ay,ah=40,210,120,380
+    o.append(R(ax,ay,aw,ah,14,WHITE,stroke=HAIR,sw=1.2)); head(ax,ay+8,"OPERATOR APPS","no ROS on the client")
+    chip(ax+18,ay+70,aw-36,"Apple Vision Pro · 60 Hz")
+    chip(ax+18,ay+108,aw-36,"iPhone · 20 Hz")
+    chip(ax+18,ay+146,aw-36,"any future client")
+    o.append(T(ax+24,ay+210,"emit one JSON",ASH,11,400)); o.append(T(ax+24,ay+228,"TeleopFrame; render",ASH,11,400)); o.append(T(ax+24,ay+246,"MJPEG in a WKWebView.",ASH,11,400))
+    # BRIDGE (center top)
+    bx,bw,by,bh=370,330,120,168
+    o.append(R(bx,by,bw,bh,14,WHITE,stroke=HAIR,sw=1.2)); head(bx,by+8,"THE BRIDGE","sim_teleop_bridge.py")
+    for i,t in enumerate(["adapt headset hands → AVPFrame","clutch retarget → whole-body IK","step MuJoCo · real-time accumulator","newest-frame only · drop stale"]):
+        o.append(Dt(bx+26,by+66+i*24,RUST,2.6)); o.append(T(bx+38,by+70+i*24,t,INKS,11,500,font=FM))
+    # ROBOT (top right)
+    rx,rw,ry,rh=760,200,120,168
+    o.append(R(rx,ry,rw,rh,14,WHITE,stroke=HAIR,sw=1.2,dash="2 5")); head(rx,ry+8,"MuJoCo SIM","or REAL ROBOT")
+    o.append(T(rx+24,ry+72,"116-DOF physics on",INKS,11,500)); o.append(T(rx+24,ry+90,"the Mac — or the",INKS,11,500)); o.append(T(rx+24,ry+108,"51-DOF robot.",INKS,11,500))
+    o.append(T(rx+24,ry+138,"same control code,",RUST,10.5,600,font=FM)); o.append(T(rx+24,ry+154,"same two ports.",RUST,10.5,600,font=FM))
+    # CAMERA BOX (bottom)
+    cx,cw,cy,ch=370,590,400,118
+    o.append(R(cx,cy,cw,ch,14,WHITE,stroke=HAIR,sw=1.2)); head(cx,cy+8,"CAMERA BOX","sim_camera_server.py · own core")
+    o.append(T(cx+24,cy+74,"mmap qpos  →  render head ZED + wrist cams  →  serve MJPEG",INKS,11.5,500,font=FM))
+    o.append(T(cx+24,cy+98,"separate process: the ~50–67 ms GPU readback never stalls physics",ASH,10.5,500,font=FM))
+    # ── command lane (top, →) ──
+    o.append(aR(ax+aw, bx, ay+92))
+    o.append(T((ax+aw+bx)/2, ay+78, "ws :9090", RUST,10.5,700,font=FM,anc="middle"))
+    o.append(T((ax+aw+bx)/2, ay+118, "TeleopFrame", ASH,9.5,500,font=FM,anc="middle"))
+    o.append(aR(bx+bw, rx, by+90))
+    o.append(T((bx+bw+rx)/2, by+78, "drives", RUST,10.5,700,font=FM,anc="middle"))
+    # ── qpos down (robot → camera) ──
+    o.append(aD(rx+rw/2, ry+rh, cy))
+    o.append(T(rx+rw/2+10, (ry+rh+cy)/2+4, "qpos · mmap", ASH,10,600,font=FM))
+    # ── video lane (bottom, ←) ──
+    o.append(aL(cx, ax+aw, cy+ch-26))
+    o.append(T((ax+aw+cx)/2, cy+ch-40, "http :8080/camera/*", RUST,10.5,700,font=FM,anc="middle"))
+    o.append(T((ax+aw+cx)/2, cy+ch-12, "MJPEG · multipart", ASH,9.5,500,font=FM,anc="middle"))
+    o.append(T(W/2, H-22, "uplink = operator intent (one WebSocket) · downlink = cameras (plain HTTP MJPEG) · Bonjour finds the Mac, no IP typing", ASHL,12,400,anc="middle"))
+    o.append("</svg>")
+    return chr(10).join(o)
+
 def main():
     for name, fn in (("gui-swerve.svg", swerve_svg), ("gui-hand.svg", hand_svg),
-                     ("retarget.svg", retarget_svg),
+                     ("retarget.svg", retarget_svg), ("bridge.svg", bridge_svg),
                      ("gui-swerve-demo.svg", swerve_demo_svg),
                      ("teleop-dataflow.svg", dataflow_svg),
                      ("ros-graph.svg", ros_graph_svg),

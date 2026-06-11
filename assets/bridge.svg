@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 560" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1240" height="560" rx="16" fill="#FAF8F2" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="40" y="46" fill="#6B6660" font-size="13" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure — the server: one two-port contract, no ROS on the client</text>
+<rect x="40" y="120" width="210" height="380" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="50" cy="141" r="3.5" fill="#C25B2A"/>
+<text x="64" y="146" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">OPERATOR APPS</text>
+<text x="64" y="162" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">no ROS on the client</text>
+<rect x="58" y="190" width="174" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="70" y="208" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Apple Vision Pro · 60 Hz</text>
+<rect x="58" y="228" width="174" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="70" y="246" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">iPhone · 20 Hz</text>
+<rect x="58" y="266" width="174" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="70" y="284" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">any future client</text>
+<text x="64" y="330" fill="#6B6660" font-size="11" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">emit one JSON</text>
+<text x="64" y="348" fill="#6B6660" font-size="11" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">TeleopFrame; render</text>
+<text x="64" y="366" fill="#6B6660" font-size="11" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">MJPEG in a WKWebView.</text>
+<rect x="370" y="120" width="330" height="168" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="380" cy="141" r="3.5" fill="#C25B2A"/>
+<text x="394" y="146" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">THE BRIDGE</text>
+<text x="394" y="162" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim_teleop_bridge.py</text>
+<circle cx="396" cy="186" r="2.6" fill="#C25B2A"/>
+<text x="408" y="190" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">adapt headset hands → AVPFrame</text>
+<circle cx="396" cy="210" r="2.6" fill="#C25B2A"/>
+<text x="408" y="214" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">clutch retarget → whole-body IK</text>
+<circle cx="396" cy="234" r="2.6" fill="#C25B2A"/>
+<text x="408" y="238" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step MuJoCo · real-time accumulator</text>
+<circle cx="396" cy="258" r="2.6" fill="#C25B2A"/>
+<text x="408" y="262" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">newest-frame only · drop stale</text>
+<rect x="760" y="120" width="200" height="168" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2" stroke-dasharray="2 5"/>
+<circle cx="770" cy="141" r="3.5" fill="#C25B2A"/>
+<text x="784" y="146" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">MuJoCo SIM</text>
+<text x="784" y="162" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">or REAL ROBOT</text>
+<text x="784" y="192" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">116-DOF physics on</text>
+<text x="784" y="210" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">the Mac — or the</text>
+<text x="784" y="228" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">51-DOF robot.</text>
+<text x="784" y="258" fill="#C25B2A" font-size="10.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">same control code,</text>
+<text x="784" y="274" fill="#C25B2A" font-size="10.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">same two ports.</text>
+<rect x="370" y="400" width="590" height="118" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="380" cy="421" r="3.5" fill="#C25B2A"/>
+<text x="394" y="426" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">CAMERA BOX</text>
+<text x="394" y="442" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim_camera_server.py · own core</text>
+<text x="394" y="474" fill="#2A2622" font-size="11.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">mmap qpos  →  render head ZED + wrist cams  →  serve MJPEG</text>
+<text x="394" y="498" fill="#6B6660" font-size="10.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">separate process: the ~50–67 ms GPU readback never stalls physics</text>
+<line x1="250" y1="212" x2="362" y2="212" stroke="#C25B2A" stroke-width="1.8"/><path d="M 360 207 L 370 212 L 360 217" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="310.0" y="198" fill="#C25B2A" font-size="10.5" font-weight="700" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">ws :9090</text>
+<text x="310.0" y="238" fill="#6B6660" font-size="9.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">TeleopFrame</text>
+<line x1="700" y1="210" x2="752" y2="210" stroke="#C25B2A" stroke-width="1.8"/><path d="M 750 205 L 760 210 L 750 215" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="730.0" y="198" fill="#C25B2A" font-size="10.5" font-weight="700" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">drives</text>
+<line x1="860.0" y1="288" x2="860.0" y2="392" stroke="#C25B2A" stroke-width="1.8"/><path d="M 855.0 390 L 860.0 400 L 865.0 390" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="870.0" y="348.0" fill="#6B6660" font-size="10" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">qpos · mmap</text>
+<line x1="370" y1="492" x2="258" y2="492" stroke="#C25B2A" stroke-width="1.8"/><path d="M 260 487 L 250 492 L 260 497" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="310.0" y="478" fill="#C25B2A" font-size="10.5" font-weight="700" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">http :8080/camera/*</text>
+<text x="310.0" y="506" fill="#6B6660" font-size="9.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">MJPEG · multipart</text>
+<text x="620.0" y="538" fill="#A09A91" font-size="12" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">uplink = operator intent (one WebSocket) · downlink = cameras (plain HTTP MJPEG) · Bonjour finds the Mac, no IP typing</text>
+</svg>

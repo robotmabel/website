@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Software · Server &amp; Bridge</title>
+<meta name="description" content="The MABEL server: a Mac-resident abstraction layer that lets Apple Vision Pro, iPhone, or any client teleoperate the MuJoCo sim or the real robot over one two-port contract — WebSocket TeleopFrames in, HTTP MJPEG out — with no ROS on the client." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="server.html" class="on">Server & Bridge</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="navigation.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="learning.html">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server & Bridge</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<aside class="sidenav" aria-label="Software section navigation">
+  <div class="sidenav-title">Software</div>
+  <a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="server.html" class="on">Server & Bridge</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a>
+</aside>
+
+<!-- HERO -->
+<section class="page-hero"><div class="page-hero-inner">
+  <div class="crumbs"><a href="index.html">Overview</a> / Software / Server &amp; Bridge</div>
+  <span class="eyebrow">Software · Server &amp; Bridge</span>
+  <h1 class="display-lg">One contract.<br>No ROS required.</h1>
+  <p class="lede">The <strong>server</strong> is a Mac-resident abstraction layer that lets an <strong>Apple Vision Pro</strong>, an <strong>iPhone</strong>, or any future client drive the MuJoCo-simulated MABEL — or, with no protocol change, the real robot — and watch its cameras live. The whole thing is <strong>one two-port contract</strong>: typed JSON intent up, plain video down. A client never touches ROS, DDS, or the robot's wiring.</p>
+  <div class="spec" style="margin-top:28px;"><span>ws://mac:9090/teleop</span><span>http://mac:8080/camera/*</span><span>JSON in · MJPEG out</span><span>Bonjour discovery</span><span>sim or real</span></div>
+</div></section>
+
+<!-- CONTRACT FIGURE -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The contract</span><h2 class="display-md title">Intent up, <span class="italic accent">video down.</span></h2></div>
+    <p class="lede">A single running server feeds every client at once. Operator intent arrives on one WebSocket; the robot's cameras leave as ordinary HTTP MJPEG, kept off the command socket so a heavy video decode can never delay control.</p></div>
+  <div class="arch-fig fade-up"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" viewBox="0 0 1240 560" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1240" height="560" rx="16" fill="#FAF8F2" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="40" y="46" fill="#6B6660" font-size="13" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure — the server: one two-port contract, no ROS on the client</text>
+<rect x="40" y="120" width="210" height="380" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="50" cy="141" r="3.5" fill="#C25B2A"/>
+<text x="64" y="146" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">OPERATOR APPS</text>
+<text x="64" y="162" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">no ROS on the client</text>
+<rect x="58" y="190" width="174" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="70" y="208" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Apple Vision Pro · 60 Hz</text>
+<rect x="58" y="228" width="174" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="70" y="246" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">iPhone · 20 Hz</text>
+<rect x="58" y="266" width="174" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="70" y="284" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">any future client</text>
+<text x="64" y="330" fill="#6B6660" font-size="11" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">emit one JSON</text>
+<text x="64" y="348" fill="#6B6660" font-size="11" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">TeleopFrame; render</text>
+<text x="64" y="366" fill="#6B6660" font-size="11" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">MJPEG in a WKWebView.</text>
+<rect x="370" y="120" width="330" height="168" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="380" cy="141" r="3.5" fill="#C25B2A"/>
+<text x="394" y="146" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">THE BRIDGE</text>
+<text x="394" y="162" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim_teleop_bridge.py</text>
+<circle cx="396" cy="186" r="2.6" fill="#C25B2A"/>
+<text x="408" y="190" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">adapt headset hands → AVPFrame</text>
+<circle cx="396" cy="210" r="2.6" fill="#C25B2A"/>
+<text x="408" y="214" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">clutch retarget → whole-body IK</text>
+<circle cx="396" cy="234" r="2.6" fill="#C25B2A"/>
+<text x="408" y="238" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step MuJoCo · real-time accumulator</text>
+<circle cx="396" cy="258" r="2.6" fill="#C25B2A"/>
+<text x="408" y="262" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">newest-frame only · drop stale</text>
+<rect x="760" y="120" width="200" height="168" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2" stroke-dasharray="2 5"/>
+<circle cx="770" cy="141" r="3.5" fill="#C25B2A"/>
+<text x="784" y="146" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">MuJoCo SIM</text>
+<text x="784" y="162" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">or REAL ROBOT</text>
+<text x="784" y="192" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">116-DOF physics on</text>
+<text x="784" y="210" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">the Mac — or the</text>
+<text x="784" y="228" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">51-DOF robot.</text>
+<text x="784" y="258" fill="#C25B2A" font-size="10.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">same control code,</text>
+<text x="784" y="274" fill="#C25B2A" font-size="10.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">same two ports.</text>
+<rect x="370" y="400" width="590" height="118" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="380" cy="421" r="3.5" fill="#C25B2A"/>
+<text x="394" y="426" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">CAMERA BOX</text>
+<text x="394" y="442" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim_camera_server.py · own core</text>
+<text x="394" y="474" fill="#2A2622" font-size="11.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">mmap qpos  →  render head ZED + wrist cams  →  serve MJPEG</text>
+<text x="394" y="498" fill="#6B6660" font-size="10.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">separate process: the ~50–67 ms GPU readback never stalls physics</text>
+<line x1="250" y1="212" x2="362" y2="212" stroke="#C25B2A" stroke-width="1.8"/><path d="M 360 207 L 370 212 L 360 217" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="310.0" y="198" fill="#C25B2A" font-size="10.5" font-weight="700" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">ws :9090</text>
+<text x="310.0" y="238" fill="#6B6660" font-size="9.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">TeleopFrame</text>
+<line x1="700" y1="210" x2="752" y2="210" stroke="#C25B2A" stroke-width="1.8"/><path d="M 750 205 L 760 210 L 750 215" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="730.0" y="198" fill="#C25B2A" font-size="10.5" font-weight="700" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">drives</text>
+<line x1="860.0" y1="288" x2="860.0" y2="392" stroke="#C25B2A" stroke-width="1.8"/><path d="M 855.0 390 L 860.0 400 L 865.0 390" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="870.0" y="348.0" fill="#6B6660" font-size="10" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">qpos · mmap</text>
+<line x1="370" y1="492" x2="258" y2="492" stroke="#C25B2A" stroke-width="1.8"/><path d="M 260 487 L 250 492 L 260 497" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="310.0" y="478" fill="#C25B2A" font-size="10.5" font-weight="700" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">http :8080/camera/*</text>
+<text x="310.0" y="506" fill="#6B6660" font-size="9.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">MJPEG · multipart</text>
+<text x="620.0" y="538" fill="#A09A91" font-size="12" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">uplink = operator intent (one WebSocket) · downlink = cameras (plain HTTP MJPEG) · Bonjour finds the Mac, no IP typing</text>
+</svg></div>
+</div></section>
+
+<!-- WHY -->
+<section class="soft-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Why a bridge</span><h2 class="display-md title">Skip ROS to <span class="italic accent">drive the robot.</span></h2></div>
+    <p class="lede">ROS 2 is the robot's internal nervous system — but you don't want a headset or a phone speaking DDS. The bridge is the seam: apps speak a tiny app-friendly protocol, and the bridge does the robot-side work.</p></div>
+  <div class="points fade-up">
+    <div class="point"><div class="num">01</div><div><h5>Teleop from Apple devices</h5><p>Vision Pro and iPhone send JSON over a WebSocket and render MJPEG in a <code>WKWebView</code> — no ROS client, no DDS discovery, no message-type compilation on the device.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Test the sim on a Mac</h5><p>One command (<code>./run.sh</code>) brings up physics + cameras on the laptop. Add <code>--mock</code> to drive synthetic hands and exercise the entire stack with no headset attached.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Same contract reaches the real robot</h5><p>The WebSocket + MJPEG contract is hardware-agnostic and the control math is <a href="wbc.html" style="color:var(--rust);">shared</a>. Point a robot-side process at the same two ports and the apps connect unchanged — sim and hardware run identical logic.</p></div></div>
+  </div>
+</div></section>
+
+<!-- THE BRIDGE -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">sim_teleop_bridge.py</span><h2 class="display-md title">What the bridge <span class="italic accent">actually does.</span></h2></div>
+    <p class="lede">One process closes the operator→robot half of the loop. It receives the newest frame, turns it into robot motion, and publishes the result for the cameras to render.</p></div>
+  <div class="points fade-up">
+    <div class="point"><div class="num">A</div><div><h5>Receive &amp; adapt</h5><p>Take the newest <code>TeleopFrame</code> off the socket and adapt the headset's hand model into the controller's <code>AVPFrame</code> — each joint's world pose is <code>anchorTransform · localTransform</code>.</p></div></div>
+    <div class="point"><div class="num">B</div><div><h5>Retarget &amp; solve</h5><p>Run the <em>shared</em> whole-body controller — clutch-based hand <a href="retargeting.html" style="color:var(--rust);">retargeting → whole-body IK</a>, plus a lazy swerve base and a look-at neck. The same controller the desktop viewer uses, so they can't drift.</p></div></div>
+    <div class="point"><div class="num">C</div><div><h5>Step in real time</h5><p>Advance MuJoCo under a real-time accumulator that matches simulated time to wall-clock — clamped, so the robot never builds a latency backlog. <code>mj_step</code> is ≈ 3.9 ms for the 116-DOF model.</p></div></div>
+    <div class="point"><div class="num">D</div><div><h5>Publish qpos</h5><p>Write the robot's <code>qpos</code> to a memory-mapped file. The camera box and the optional desktop viewer mmap it and mirror the robot — physics and video run on separate cores, in parallel.</p></div></div>
+  </div>
+  <div class="callout fade-up" style="margin-top:26px;"><p><strong>The key latency decision:</strong> the bridge keeps a <em>one-slot</em> &ldquo;newest frame&rdquo; buffer and drops stale frames. Effective control latency is the uplink period (16.7 ms at 60 Hz, 50 ms at 20 Hz) plus one physics substep — never a queue backlog. On macOS the GL context must live on the main thread, so physics + IK + render run there while an asyncio thread hosts the WebSocket and MJPEG servers; they share only that one-slot buffer.</p></div>
+</div></section>
+
+<!-- PROTOCOL -->
+<section class="dark-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The wire protocol</span><h2 class="display-md title" style="color:var(--bone);">Eight messages, <span class="italic accent">mirrored in Swift.</span></h2></div>
+    <p class="lede">Every message is a two-layer JSON envelope, <code>{ "type", "payload" }</code>, with field names that match the Swift <code>Codable</code> types byte-for-byte — so a client and the bridge can never silently disagree. The Python side is stdlib-<code>json</code> only, so it drops straight into a ROS 2 node.</p></div>
+  <div class="feature fade-up">
+    <div class="feature-copy">
+      <table class="tt">
+        <thead><tr><th>Type</th><th>Dir</th><th>Carries</th></tr></thead>
+        <tbody>
+          <tr><td>teleop_frame</td><td><span class="sub">c→s</span></td><td>head + per-hand poses, mode, nav joystick</td></tr>
+          <tr><td>joint_command</td><td><span class="sub">c→s</span></td><td>direct joint targets <code>{id:rad}</code></td></tr>
+          <tr><td>control_mode</td><td><span class="sub">c→s</span></td><td>navigation · gravity_comp · compliance · joints</td></tr>
+          <tr><td>reset</td><td><span class="sub">c→s</span></td><td>home the simulation</td></tr>
+          <tr><td>robot_state</td><td><span class="pub">s→c</span></td><td>battery, joint positions, latency</td></tr>
+          <tr><td>hello</td><td><span class="pub">s→c</span></td><td>handshake: server name + version</td></tr>
+          <tr><td>ping · pong</td><td>both</td><td>application-level liveness</td></tr>
+          <tr><td>error</td><td><span class="pub">s→c</span></td><td>diagnostic string</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="feature-copy">
+      <span class="eyebrow">the teleop_frame</span>
+      <h3>One frame, two ways to drive.</h3>
+      <p>Populate the <strong>hands</strong> to drive manipulation, or the <strong>joystick</strong> to drive the base — same message either way. Every pose is a row-major 4×4 (16 floats) in the ARKit world frame; a hand is an <code>anchorTransform</code> plus 27 named joint transforms.</p>
+      <div class="bib" style="margin-top:18px;">
+        <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+        <pre>{ "type": "teleop_frame",
+  "payload": {
+    "sequence": 412, "timestamp": 7.71e8,
+    "head": { "transform": { "matrix": [/*16*/] } },
+    "mode": "Base Driving",
+    "navJoystick": { "lx":0, "ly":0.8, "rx":-0.2, "ry":0 }
+  } }</pre>
+      </div>
+    </div>
+  </div>
+  <div class="points fade-up" style="margin-top:32px;">
+    <div class="point"><div class="num">01</div><div><h5 style="color:var(--bone);">Discovery, no IP typing</h5><p>The server advertises <code>_mabel-teleop._tcp</code> over Bonjour; clients browse and resolve it. Pick the server from a list — or type the Mac's LAN IP.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5 style="color:var(--bone);">Resilient by design</h5><p>An 8 s handshake watchdog, a 5 s non-fatal ping, and auto-reconnect with linear backoff capped at 4 s. One dropped frame out of a 20 Hz stream never tears the session down.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5 style="color:var(--bone);">Forward-compatible</h5><p>A new message is one enum entry on each side; unknown types are rejected at decode, so compatibility is explicit rather than silent.</p></div></div>
+  </div>
+</div></section>
+
+<!-- VIDEO + RATES -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The video channel</span><h2 class="display-md title">Cameras as <span class="italic accent">plain HTTP.</span></h2></div>
+    <p class="lede">Each camera is a standalone <code>multipart/x-mixed-replace</code> MJPEG stream the headset pulls into a <code>WKWebView &lt;img&gt;</code> — the exact path it would use for a hardware camera. Rendered in a separate process because the off-screen MuJoCo render is a fixed ~50–67 ms GPU-readback stall per camera; running it on the physics thread would starve real-time control.</p></div>
+  <div class="stats-grid fade-up">
+    <div class="stat"><div class="stat-num">60 / 20 Hz</div><div class="stat-label">Vision Pro · iPhone uplink</div></div>
+    <div class="stat"><div class="stat-num">~13 fps</div><div class="stat-label">head stream (weighted)</div></div>
+    <div class="stat"><div class="stat-num">~3.9 ms</div><div class="stat-label">one mj_step · 116 DOF</div></div>
+    <div class="stat"><div class="stat-num">≈ 1.0×</div><div class="stat-label">real-time factor @ 4 ms</div></div>
+  </div>
+  <div class="fade-up" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:30px;">
+    <a href="teleop-visionpro.html" class="btn btn-primary">Vision Pro teleop →</a>
+    <a href="teleop-ios.html" class="btn btn-ghost">iPhone teleop →</a>
+    <a href="simulation.html" class="btn btn-ghost">The simulation →</a>
+    <a href="ros.html" class="btn btn-ghost">The ROS path →</a>
+  </div>
+</div></section>
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
+      <div class="foot-col"><h6>Software</h6><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="server.html">Server &amp; Bridge</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+</body>
+</html>
