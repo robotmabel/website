@@ -358,8 +358,12 @@ def ros_graph_svg():
     o.append(rr(0, 0, W, H, 18, "#0B0A09", stroke=SEP, sw=1))
     o.append(txt(36, 42, "mabel_ws · live graph", LABEL2, 12, 700, font=MONO, spacing="1.5"))
 
-    def nodebox(cx, y, w, h, title, sub, accent, tag=None):
+    def esc(s):
+        return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace('"',"&quot;")
+    def nodebox(cx, y, w, h, title, sub, accent, tag=None, desc=None):
         x = cx - w / 2
+        if desc is not None:
+            o.append(f'<g class="rg-node" data-title="{esc(title)}" data-desc="{esc(desc)}" data-accent="{accent}">')
         o.append(rr(x, y, w, h, 12, SURF, stroke=accent, sw=1.4))
         o.append(dot(cx, y + 16, accent, 3.5))   # centered above the title
         o.append(txt(cx, y + 34, title, LABEL, 11, 600, font=MONO, anchor="middle"))
@@ -368,11 +372,17 @@ def ros_graph_svg():
         if tag:
             o.append(rr(x + w - 52, y - 9, 52, 18, 9, accent))
             o.append(txt(x + w - 26, y + 2, tag, "#0B0A09", 9, 700, anchor="middle"))
+        if desc is not None:
+            o.append('</g>')
 
-    def rail(y, h, fill, stroke, head, topics):
+    def rail(y, h, fill, stroke, head, topics, desc=None):
+        if desc is not None:
+            o.append(f'<g class="rg-node" data-title="{esc(head.split("  ·")[0].strip())}" data-desc="{esc(desc)}" data-accent="{stroke}">')
         o.append(rr(50, y, W - 100, h, 14, fill, stroke=stroke, sw=1.3))
         o.append(txt(70, y + 22, head, stroke, 10.5, 700, spacing="1.5"))
         o.append(txt(70, y + h - 14, topics, LABEL, 12.5, 500, font=MONO))
+        if desc is not None:
+            o.append('</g>')
 
     def vstub(x, y1, y2, color, delay=0.0, dur=1.8):
         ya, yb = (y1, y2) if y1 < y2 else (y2, y1)
@@ -383,34 +393,46 @@ def ros_graph_svg():
 
     # ── bands (top → bottom) ───────────────────────────────────────────────
     # inputs
-    nodebox(440, 60, 200, 62, "teleop", ["Vision Pro · iOS · keys"], BLUE)
-    nodebox(700, 60, 200, 62, "autonomy", ["Nav2 · policy · WBC"], BLUE)
+    nodebox(440, 60, 200, 62, "teleop", ["Vision Pro · iOS · keys"], BLUE,
+            desc="Vision Pro, the iPhone app, and a keyboard fallback publish operator intent — body twist, arm targets, and hand poses — straight onto the command bus.")
+    nodebox(700, 60, 200, 62, "autonomy", ["Nav2 · policy · WBC"], BLUE,
+            desc="Nav2, the policy runtime, and whole-body control write the same command topics autonomously — the robot drives itself with no operator in the loop.")
     # command bus
     cb_y = 156
     rail(cb_y, 64, "#10161F", BLUE,
          "COMMAND TOPICS  ·  subscribed by the driver nodes",
-         "/mabel_cmd   /body/command   /arms/command   /left_hand/command   /right_hand/command")
+         "/mabel_cmd   /body/command   /arms/command   /left_hand/command   /right_hand/command",
+         desc="The command bus — the handful of topics every driver (and the sim) subscribes to. It is the only path that ever writes to hardware.")
     # producer node row
     ny, nw, nh = 300, 132, 74
     centers = [120 + i * 132 for i in range(9)]   # 9 nodes
     drivers = [
-        (centers[0], "swerve_node", ["base + lift", "REV CAN"]),
-        (centers[1], "body_node", ["torso · neck", "Damiao · Dynamixel"]),
-        (centers[2], "arms_node", ["14-DOF arms", "Damiao CAN"]),
-        (centers[3], "orca_hand_node", ["2× 17-DOF", "Feetech"]),
+        (centers[0], "swerve_node", ["base + lift", "REV CAN"],
+         "Owns the three-module swerve base and the lift column over REV CAN — runs swerve IK and the tip-safe envelope, publishes /joint_states + /odom at 200 Hz."),
+        (centers[1], "body_node", ["torso · neck", "Damiao · Dynamixel"],
+         "Drives the tilting torso (Damiao CAN) and the pan/tilt/roll neck (Dynamixel), exposing both as ordinary joints on /joint_states."),
+        (centers[2], "arms_node", ["14-DOF arms", "Damiao CAN"],
+         "Streams the two backdriveable 7-DOF arms (14 DOF total, OpenArm-derived) over Damiao CAN at 200 Hz."),
+        (centers[3], "orca_hand_node", ["2× 17-DOF", "Feetech"],
+         "Runs both 17-DOF ORCA hands over Feetech serial — 16 tendon-driven finger joints plus an active wrist roll per hand."),
     ]
     sensors = [
-        (centers[4], "head_stereo", ["ZED stereo", "L + R eyes"]),
-        (centers[5], "left_wrist_cam", ["v4l2 · rectify"]),
-        (centers[6], "right_wrist_cam", ["v4l2 · rectify"]),
-        (centers[7], "rplidar", ["base 2-D LiDAR", "RPLIDAR A3"]),
+        (centers[4], "head_stereo", ["ZED stereo", "L + R eyes"],
+         "ZED stereo camera on the neck — publishes rectified left/right images for perception and Vision Pro passthrough."),
+        (centers[5], "left_wrist_cam", ["v4l2 · rectify"],
+         "Eye-in-hand camera in the left wrist; v4l2 capture, rectified, for close-in manipulation."),
+        (centers[6], "right_wrist_cam", ["v4l2 · rectify"],
+         "Eye-in-hand camera in the right wrist; v4l2 capture, rectified, for close-in manipulation."),
+        (centers[7], "rplidar", ["base 2-D LiDAR", "RPLIDAR A3"],
+         "RPLIDAR A3 under the base — publishes /scan for SLAM, localization, and obstacle avoidance."),
     ]
-    for cx, t, s in drivers:
-        nodebox(cx, ny, nw, nh, t, s, ORANGE)
-    for cx, t, s in sensors:
-        nodebox(cx, ny, nw, nh, t, s, CYAN)
+    for cx, t, s, d in drivers:
+        nodebox(cx, ny, nw, nh, t, s, ORANGE, desc=d)
+    for cx, t, s, d in sensors:
+        nodebox(cx, ny, nw, nh, t, s, CYAN, desc=d)
     # unified sim node
-    nodebox(centers[8], ny, nw, nh, "mujoco_sim", ["whole robot", "use_sim:=true"], SIM, tag="SIM")
+    nodebox(centers[8], ny, nw, nh, "mujoco_sim", ["whole robot", "use_sim:=true"], SIM, tag="SIM",
+            desc="With use_sim:=true this single node replaces every driver above — it owns the MuJoCo physics and publishes the exact same topics, so nothing upstream can tell sim from real.")
     # group labels + dividers
     o.append(txt((centers[0] + centers[3]) / 2, ny - 18, "ACTUATOR DRIVERS", ORANGE, 10, 700, anchor="middle", spacing="1.2"))
     o.append(txt((centers[4] + centers[7]) / 2, ny - 18, "SENSOR NODES", CYAN, 10, 700, anchor="middle", spacing="1.2"))
@@ -421,16 +443,24 @@ def ros_graph_svg():
         o.append(f'<line x1="{dx}" y1="{ny-30}" x2="{dx}" y2="{sb_y-14}" stroke="{SEP}" stroke-width="1" stroke-dasharray="3 5"/>')
     rail(sb_y, 86, "#0E1A13", GREEN,
          "STATE + SENSOR TOPICS  ·  published up to consumers",
-         "/joint_states   /odom   /sensors/head/left·right/image   /sensors/{left,right}_wrist/image   /scan")
+         "/joint_states   /odom   /sensors/head/left·right/image   /sensors/{left,right}_wrist/image   /scan",
+         desc="The state + sensor bus — joint states, odometry, the camera images, and the LiDAR scan, published up to every consumer at once.")
     o.append(txt(70, sb_y + 56, "sensor_msgs/JointState · nav_msgs/Odometry · sensor_msgs/Image · LaserScan", LABEL3, 10.5, 500, font=MONO))
     # consumers
     cy2 = 640
-    cons = [("robot_state_publisher", ["URDF → /tf"]), ("rviz2 · Foxglove", ["visualize"]),
-            ("whole_body_control", ["IK · compliance"]), ("nav2 · slam", ["map · localize"]),
-            ("learning", ["log · train"])]
+    cons = [("robot_state_publisher", ["URDF → /tf"],
+             "Reads the URDF plus /joint_states and broadcasts /tf — the live kinematic tree every other node depends on."),
+            ("rviz2 · Foxglove", ["visualize"],
+             "Visualizes the topics live — joints, frames, cameras, and the LiDAR scan — for debugging in sim or on the real robot."),
+            ("whole_body_control", ["IK · compliance"],
+             "Solves IK and compliance across all 51 joints, turning one Cartesian goal into coordinated base, lift, arm, and hand commands."),
+            ("nav2 · slam", ["map · localize"],
+             "Builds a map and localizes from /scan + /odom, then plans a path and publishes velocity commands back onto the command bus."),
+            ("learning", ["log · train"],
+             "Logs synchronized observations and actions for imitation learning, and replays trained policies as just another command publisher.")]
     ccenters = [180 + i * 240 for i in range(5)]
-    for cx, (t, s) in zip(ccenters, cons):
-        nodebox(cx, cy2, 210, 66, t, s, "#9aa0a6")
+    for cx, (t, s, d) in zip(ccenters, cons):
+        nodebox(cx, cy2, 210, 66, t, s, "#9aa0a6", desc=d)
 
     # ── vertical stubs (no diagonals) ──────────────────────────────────────
     # inputs -> command bus

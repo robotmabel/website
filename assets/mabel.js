@@ -248,6 +248,47 @@
     setInterval(swap, 4400);
   }
 
+  /* ── ROS graph: hover/tap a node → glass popup near the card ── */
+  var rgWrap = document.getElementById('rosGraph');
+  if (rgWrap) {
+    var pop = document.createElement('div');
+    pop.className = 'rg-pop';
+    pop.innerHTML = '<div class="rg-pop-t"></div><div class="rg-pop-d"></div>';
+    rgWrap.appendChild(pop);
+    var popT = pop.querySelector('.rg-pop-t');
+    var popD = pop.querySelector('.rg-pop-d');
+    var rgNodes = rgWrap.querySelectorAll('.rg-node');
+    var rgActive = null;
+
+    var showPop = function (g) {
+      popT.textContent = g.getAttribute('data-title') || '';
+      popD.textContent = g.getAttribute('data-desc') || '';
+      pop.style.setProperty('--rg-accent', g.getAttribute('data-accent') || '#C25B2A');
+      pop.classList.add('on');
+      var cr = rgWrap.getBoundingClientRect();
+      var br = g.getBoundingClientRect();
+      var cx = (br.left - cr.left) + br.width / 2;
+      var pw = pop.offsetWidth, ph = pop.offsetHeight;
+      var left = Math.max(8, Math.min(cx - pw / 2, cr.width - pw - 8));
+      var top = (br.top - cr.top) - ph - 12;          // above the node
+      if (top < 6) top = (br.bottom - cr.top) + 12;   // flip below if no room
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+    };
+    var hidePop = function () { pop.classList.remove('on'); rgActive = null; };
+
+    rgNodes.forEach(function (g) {
+      g.addEventListener('mouseenter', function () { rgActive = g; showPop(g); });
+      g.addEventListener('mouseleave', function () { if (canHover) hidePop(); });
+      g.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (rgActive === g) { hidePop(); } else { rgActive = g; showPop(g); }
+      });
+    });
+    document.addEventListener('click', function () { if (rgActive) hidePop(); });
+    window.addEventListener('resize', function () { if (rgActive) showPop(rgActive); });
+  }
+
   /* ── Single rAF scroll loop: progress + nav + parallax ── */
   var heroInner = document.querySelector('.hero-home-inner');
   var coordRow = document.querySelector('.hero-coord-row');
