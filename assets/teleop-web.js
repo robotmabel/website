@@ -1,55 +1,63 @@
 /* ═══════════════════════════════════════════════════════════════════
-   MABEL — browser teleop cockpit (teleop-web.html)
+   MABEL — browser teleop (teleop-web.html)
 
-   One canonical robot state (60 joints + planar base pose) drives TWO
-   synced 3D stages of the articulated rig:
+   A web sibling of the iOS app, speaking the IDENTICAL wire protocol to
+   the same backend (server/sim_teleop_bridge.py, ws://host:9090/teleop):
 
-     #twCockpit   the teleop cockpit — iOS-style dual joysticks
-                  (NAV: translate / yaw+lift · ARMS: palm XY + Z + grip)
-     #twControl   the robot-control panel — FIRM (wrist Cartesian drag,
-                  per-joint sliders) and SOFT (gravity comp, compliance)
+     uplink (20 Hz)  teleop_frame   {sequence, timestamp, head(4×4),
+                                     mode:"Base Driving", navJoystick}
+                     joint_command  {joints:{ios_id: rad | grip 0..1}}
+                     control_mode   {method, controlType, region, stiffness}
+                     external_force {forces:{body:[fx,fy,fz]}}  (Soft drag)
+                     reset · ping
+     downlink        hello          {server, version}
+                     robot_state    {jointPositions, base{x,y,yaw,quat,
+                                     steer,drive}, latencyMs, battery}
+                     pong · error
 
-   Two sources of truth, never both:
-     · LOCAL SIM   an in-browser kinematic re-implementation (hinge-CCD
-                   IK, swerve integration, lazy lift) steps the state —
-                   the same stand-in used by the WBC page.
-     · ONLINE      the Connect bar opens the documented WebSocket
-                   contract (ws://host:9090/teleop): teleop_frame /
-                   joint_command / control_mode / reset go up at 20 Hz,
-                   and every incoming robot_state OVERWRITES the canon
-                   state — so the model is exactly what the MuJoCo sim
-                   says, never a local prediction.
+   Link behaviour is ported from WebSocketLink.swift: AUTO-CONNECTS on
+   load, 20 Hz frame stream, 5 s ping, 3.5 s silence heartbeat, 6 s
+   handshake watchdog, and reconnects forever (delay min(3, 0.3·n) s)
+   until the operator explicitly disconnects.
 
-   Everything is narrated into the status console (#twLog).
+   Two synced 3D stages render ONE canonical robot state:
+     #twCockpit  the Drive/Arms cockpit (CockpitView.swift): two corner
+                 joysticks; in Arms each side gains up/down + grip.
+     #twControl  the manipulation console (WholeBodyView.swift) on the
+                 three orthogonal axes — Teleop (Guide|Joints), Feel
+                 (Hold|Soft), Reach (Arm|Upper|Whole).
+
+   Offline the state is stepped by a local kinematic stand-in; while
+   robot_state frames flow, the model is posed ONLY from the server.
 ═══════════════════════════════════════════════════════════════════ */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const RUST = 0xC25B2A;
-const GREEN = 0x3FB56B;
+const GREEN = 0x3FB56B;          // Theme.Palette.live
+const CLAY = 0xC25B2A;           // Theme.Palette.clay / rust
 
-// command caps — mirror config.py / the iOS speed governor
-const CAPS = {
-  VMAX: 0.8,            // m/s linear
-  WMAX: 2.0,            // rad/s yaw
-  LIFT_MAX: 0.635,      // m total prismatic travel
-  LIFT_RATE: 0.22,      // m/s lift command rate (right-stick Y)
-  REACH_FRAC: 0.4,      // arm pad full deflection, fraction of model size
-};
-// firm ↔ soft tracking laws; the stiffness slider lerps between them
-const FIRM = { ikGain: 0.55, ikPasses: 3, qRate: 1.8 };
-const SOFT = { ikGain: 0.10, ikPasses: 1, qRate: 0.45 };
-// base admittance for COMPLIANCE (mabel/admittance.py, as on the WBC page)
+// caps + rates, matched to the iOS app (WebSocketLink / CockpitView)
+const MAX_LIN = 1.2;             // m/s     (WebSocketLink.maxLin)
+const MAX_ANG = 1.8;             // rad/s   (WebSocketLink.maxAng)
+const LIFT_RATE = 0.22;          // m/s     lift command rate (right stick Y)
+const LIFT_MAX = 0.635;          // m       total prismatic travel
+const ARM_RATE = 1.4;            // rad/s   joystick → joint nudge (CockpitView.armRate)
+const MAX_STIFF = 45.0;          // Nm/rad  at stiffness slider = 1 (RobotController.maxStiffness)
+const PUSH_K = 60.0;             // N/m     Soft drag → external_force magnitude
+const PUSH_MAX = 90.0;           // N       force cap
+const TX_HZ = 20;
+const PING_S = 5;
+
+// soft-mode base admittance stand-in (mabel/admittance.py, as on the WBC page)
 const ADMIT = { M: 4.5, BL: 22.0, FS: 3.0, VSTOP: 0.02, KDRAG: 45.0, BOX: 0.03, RAMP: 0.04 };
 
-const TX_HZ = 20;        // teleop_frame uplink rate when connected
-const PING_MS = 2000;    // application-level liveness
+const IDENTITY16 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
 /* ═══ status console + telemetry ═══════════════════════════════════ */
 const Log = {
   el: document.getElementById('twLog'),
-  max: 250,
+  max: 300,
   line(level, msg) {
     if (!this.el) return;
     const d = new Date();
@@ -79,10 +87,11 @@ const Tele = {
 
 /* ═══ a 3D stage: scene scaffold + one rig instance ════════════════ */
 class Stage {
-  constructor(box) {
+  constructor(box, { follow = false } = {}) {
     this.box = box;
     this.stage = box.querySelector('.wbc-stage') || box;
     this.canvas = box.querySelector('canvas');
+    this.follow = follow;
 
     const renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -105,18 +114,10 @@ class Stage {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.7;
     controls.minDistance = 0.4;
     controls.maxDistance = 8;
     controls.target.set(0, 0.5, 0);
     this.controls = controls;
-
-    let idle;
-    this.wake = () => { controls.autoRotate = false; clearTimeout(idle); };
-    this.sleep = () => { clearTimeout(idle); idle = setTimeout(() => { controls.autoRotate = true; }, 4000); };
-    controls.addEventListener('start', this.wake);
-    controls.addEventListener('end', this.sleep);
 
     const resize = () => {
       const w = this.stage.clientWidth, h = this.stage.clientHeight;
@@ -141,8 +142,14 @@ class Stage {
     const c = bb.getCenter(new THREE.Vector3());
     const sz = bb.getSize(new THREE.Vector3());
     this.maxd = Math.max(sz.x, sz.y, sz.z) || 1;
+    this.center0 = c.clone();
     this.controls.target.copy(c);
-    this.camera.position.copy(c).add(new THREE.Vector3(this.maxd * 0.85, this.maxd * 0.5, this.maxd * 1.25));
+    // cockpit: a chase view from behind the robot (it faces world −X at yaw 0);
+    // control console: the familiar three-quarter view.
+    const off = this.follow
+      ? new THREE.Vector3(this.maxd * 1.5, this.maxd * 0.7, this.maxd * 0.95)
+      : new THREE.Vector3(this.maxd * 0.85, this.maxd * 0.5, this.maxd * 1.25);
+    this.camera.position.copy(c).add(off);
     this.camera.near = this.maxd / 100; this.camera.far = this.maxd * 60;
     this.camera.updateProjectionMatrix();
     this.controls.update();
@@ -180,16 +187,24 @@ class Stage {
     }
   }
 
-  // pose the whole rig from canonical state (q map + base offset/yaw)
+  // pose the rig from canonical state. The base pose (bx, by, yaw) lives in
+  // the URDF/MuJoCo world frame (z-up); the GLB root carries the Z-up→Y-up
+  // fix, so composing T0 ∘ B maps it exactly: p = p0 + q0·(bx,by,0),
+  // q = q0 · Rz(yaw).
   pose(state) {
     for (const name in state.q) this.setJoint(name, state.q[name]);
-    this.root.position.copy(this.rootP0).add(state.baseOffset);
-    this.root.quaternion.copy(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), state.baseYaw))
-      .multiply(this.rootQ0);
+    const off = new THREE.Vector3(state.bx, state.by, 0).applyQuaternion(this.rootQ0);
+    this.root.position.copy(this.rootP0).add(off);
+    this.root.quaternion.copy(this.rootQ0)
+      .multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), state.yaw));
     this.root.updateMatrixWorld(true);
   }
 
-  // pointer → world point on the camera-facing plane through `anchor`
+  // robot root world position (for the cockpit chase camera)
+  rootWorld(state) {
+    return new THREE.Vector3(state.bx, state.by, 0).applyQuaternion(this.rootQ0).add(this.center0);
+  }
+
   planePoint(ev, anchor) {
     const r = this.canvas.getBoundingClientRect();
     const ndc = new THREE.Vector2(
@@ -216,18 +231,16 @@ class Stage {
     return hits.length ? hits[0].object : null;
   }
 
-  marker(color, radius, ring) {
+  marker(color, radius) {
     const m = new THREE.Mesh(
       new THREE.SphereGeometry(radius, 24, 24),
-      new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.5, roughness: 0.45 }),
+      new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.55, roughness: 0.4 }),
     );
-    if (ring) {
-      const rg = new THREE.Mesh(
-        new THREE.RingGeometry(radius * 1.35, radius * 1.6, 32),
-        new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5, side: THREE.DoubleSide }),
-      );
-      m.add(rg);
-    }
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(radius * 1.35, radius * 1.6, 32),
+      new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5, side: THREE.DoubleSide }),
+    );
+    m.add(ring);
     this.scene.add(m);
     return m;
   }
@@ -235,48 +248,90 @@ class Stage {
   render() { this.controls.update(); this.renderer.render(this.scene, this.camera); }
 }
 
-/* ═══ virtual joystick pad ═════════════════════════════════════════ */
-function makePad(el, { spring = true } = {}, onChange) {
-  const knob = el.querySelector('.wbc-knob');
-  const state = { x: 0, y: 0 };
+/* ═══ round virtual joystick (the iOS Joystick component) ══════════ */
+function makeJoystick(el, onChange) {
+  const knob = el.querySelector('.ck-knob');
+  const v = { x: 0, y: 0 };
   const paint = () => {
-    knob.style.left = `${(state.x * 0.5 + 0.5) * 100}%`;
-    knob.style.top = `${(-state.y * 0.5 + 0.5) * 100}%`;
+    knob.style.left = `${(v.x * 0.36 + 0.5) * 100}%`;
+    knob.style.top = `${(-v.y * 0.36 + 0.5) * 100}%`;
   };
-  const emit = () => { paint(); onChange(state.x, state.y); };
+  const emit = () => { paint(); onChange(v.x, v.y); };
   const fromEvent = (ev) => {
     const r = el.getBoundingClientRect();
-    state.x = Math.max(-1, Math.min(1, ((ev.clientX - r.left) / r.width) * 2 - 1));
-    state.y = Math.max(-1, Math.min(1, -(((ev.clientY - r.top) / r.height) * 2 - 1)));
+    let x = ((ev.clientX - r.left) / r.width) * 2 - 1;
+    let y = -(((ev.clientY - r.top) / r.height) * 2 - 1);
+    const m = Math.hypot(x, y);
+    if (m > 1) { x /= m; y /= m; }
+    v.x = x; v.y = y;
     emit();
   };
   let active = false;
-  el.addEventListener('pointerdown', (e) => { active = true; el.setPointerCapture(e.pointerId); fromEvent(e); });
+  el.addEventListener('pointerdown', (e) => { active = true; el.setPointerCapture(e.pointerId); el.classList.add('live'); fromEvent(e); });
   el.addEventListener('pointermove', (e) => { if (active) fromEvent(e); });
   const stop = () => {
     if (!active) return;
     active = false;
-    if (spring) { state.x = 0; state.y = 0; emit(); }
+    el.classList.remove('live');
+    v.x = 0; v.y = 0;                  // spring back — velocity command
+    emit();
   };
   el.addEventListener('pointerup', stop);
   el.addEventListener('pointercancel', stop);
-  return {
-    set(x, y) { state.x = x; state.y = y; paint(); },
-    zero() { state.x = 0; state.y = 0; emit(); },
-  };
+  paint();
+  return { zero() { v.x = 0; v.y = 0; emit(); } };
 }
 
-/* ═══ WebSocket link — the documented two-port contract ════════════ */
+/* hold-to-repeat chevron button (CockpitView.holdButton) */
+function makeHold(el, set) {
+  const down = (e) => { e.preventDefault(); el.classList.add('live'); set(parseFloat(el.dataset.dir)); };
+  const up = () => { el.classList.remove('live'); set(0); };
+  el.addEventListener('pointerdown', down);
+  el.addEventListener('pointerup', up);
+  el.addEventListener('pointercancel', up);
+  el.addEventListener('pointerleave', up);
+}
+
+/* vertical grip trigger (CockpitView.gripTrigger) */
+function makeGrip(el, onChange) {
+  const fill = el.querySelector('.ck-grip-fill');
+  const out = el.querySelector('.ck-grip-val');
+  const paint = (g) => {
+    fill.style.height = `${Math.max(10, g * 100)}%`;
+    out.textContent = `${Math.round(g * 100)}%`;
+  };
+  const fromEvent = (ev) => {
+    const r = el.querySelector('.ck-grip-track').getBoundingClientRect();
+    const g = Math.min(1, Math.max(0, 1 - (ev.clientY - r.top) / r.height));
+    paint(g); onChange(g);
+  };
+  let active = false;
+  el.addEventListener('pointerdown', (e) => { active = true; el.setPointerCapture(e.pointerId); fromEvent(e); });
+  el.addEventListener('pointermove', (e) => { if (active) fromEvent(e); });
+  const stop = () => { active = false; };
+  el.addEventListener('pointerup', stop);
+  el.addEventListener('pointercancel', stop);
+  paint(0);
+  return { set(g) { paint(g); } };
+}
+
+/* ═══ WebSocket link — ported from WebSocketLink.swift ═════════════ */
 class Link {
   constructor(app) {
     this.app = app;
     this.ws = null;
-    this.live = false;        // true once robot_state frames are flowing
+    this.wantConnection = false;   // false only after explicit disconnect
+    this.connected = false;
+    this.live = false;             // robot_state frames flowing
+    this.attempts = 0;
     this.seq = 0;
     this.rtt = null;
-    this.txCount = 0; this.rxCount = 0;
-    this.lastStateLog = 0;
-    this._pingTimer = null;
+    this.lastRecv = 0;
+    this.serverName = null;
+    this._timers = [];
+    this._pingSent = 0;
+    this._lastStateLog = 0;
+    this._retry = null;
   }
 
   normalize(raw) {
@@ -288,87 +343,142 @@ class Link {
     return u;
   }
 
+  /** Operator (or page load) asks for a link; retried forever until disconnect(). */
   connect(raw) {
-    const url = this.normalize(raw);
-    if (location.protocol === 'https:' && url.startsWith('ws://')
-        && !/^ws:\/\/(localhost|127\.0\.0\.1)/.test(url)) {
-      Log.warn('This page is https — browsers only allow plain ws:// to localhost. Use wss:// or open the site over http for LAN robots.');
+    this.url = this.normalize(raw);
+    try { localStorage.setItem('mabel-ws-url', this.url); } catch (e) { /* private mode */ }
+    if (location.protocol === 'https:' && this.url.startsWith('ws://')
+        && !/^ws:\/\/(localhost|127\.0\.0\.1)/.test(this.url)) {
+      Log.warn('https page → browsers only allow ws:// to localhost. For a LAN robot use wss:// or open the site over http.');
     }
-    Log.sys(`Connecting to ${url} …`);
-    this.app.setPill('connecting', 'CONNECTING');
-    let ws;
-    try { ws = new WebSocket(url); }
-    catch (e) { Log.err(`WebSocket refused: ${e.message}`); this.app.setPill('err', 'ERROR'); return; }
-    this.ws = ws;
-
-    ws.onopen = () => {
-      Log.ok(`Link up — ${url}`);
-      Log.sys('Handshake: announcing client + control mode; uplink teleop_frame @ 20 Hz.');
-      this.app.setPill('online', 'ONLINE');
-      this.send('hello', { client: 'mabel-web', version: '1.0' });
-      this.app.sendControlMode();
-      this._pingTimer = setInterval(() => this.send('ping', { t: performance.now() }), PING_MS);
-      this.app.onLink(true);
-    };
-    ws.onmessage = (ev) => this._onMessage(ev);
-    ws.onerror = () => { Log.err('WebSocket error (see browser console). Is the bridge running? python -m mabel.server --sim'); };
-    ws.onclose = (ev) => {
-      clearInterval(this._pingTimer);
-      const was = this.live;
-      this.live = false;
-      this.ws = null;
-      this.rtt = null;
-      this.app.setPill('local', 'LOCAL SIM');
-      Log.warn(`Link closed (code ${ev.code}). ${was ? 'Server state stream stopped — ' : ''}falling back to the in-browser sim.`);
-      this.app.onLink(false);
-    };
+    this.wantConnection = true;
+    this.attempts = 0;
+    this._open();
   }
 
   disconnect() {
-    if (this.ws) { Log.sys('Disconnecting…'); this.ws.close(1000); }
+    this.wantConnection = false;
+    clearTimeout(this._retry);
+    this._teardown();
+    this.connected = false; this.live = false; this.rtt = null;
+    this.app.setPill('local', 'LOCAL SIM');
+    Log.sys('Disconnected — staying on the in-browser sim until you reconnect.');
+    this.app.onLink(false);
   }
 
-  get connected() { return !!this.ws && this.ws.readyState === WebSocket.OPEN; }
+  _open() {
+    if (!this.wantConnection) return;
+    this._teardown();
+    this.app.setPill('connecting', 'CONNECTING');
+    if (this.attempts < 3 || this.attempts % 10 === 0) {
+      Log.sys(`Connecting to ${this.url} … (attempt ${this.attempts + 1})`);
+    }
+    let ws;
+    try { ws = new WebSocket(this.url); }
+    catch (e) { Log.err(`WebSocket refused: ${e.message}`); this._dropped(); return; }
+    this.ws = ws;
+
+    // handshake watchdog (6 s, like the app)
+    this._timers.push(setTimeout(() => {
+      if (!this.connected) { Log.warn('Handshake watchdog (6 s) — retrying.'); this._dropped(); }
+    }, 6000));
+
+    ws.onopen = () => {
+      this.connected = true;
+      this.attempts = 0;
+      this.lastRecv = performance.now();
+      this.app.setPill('online', 'ONLINE');
+      Log.ok(`Link up — ${this.url}`);
+      this.send('hello', { client: 'mabel-web', version: '1' });
+      this.app.sendControlSpec();          // announce the active control mode
+      // 20 Hz frame stream + 5 s ping + 1.5 s heartbeat (3.5 s silence = dead)
+      this._timers.push(setInterval(() => this.app.pushFrame(), 1000 / TX_HZ));
+      this._timers.push(setInterval(() => {
+        this._pingSent = performance.now();
+        this.send('ping', { t: Date.now() / 1000 });
+      }, PING_S * 1000));
+      this._timers.push(setInterval(() => {
+        if (performance.now() - this.lastRecv > 3500) {
+          Log.warn('No data for >3.5 s — link is dead, reconnecting.');
+          this._dropped();
+        }
+      }, 1500));
+      this.app.onLink(true);
+    };
+    ws.onmessage = (ev) => this._onMessage(ev);
+    ws.onclose = () => this._dropped();
+    ws.onerror = () => { /* onclose follows; logged there */ };
+  }
+
+  _teardown() {
+    this._timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
+    this._timers = [];
+    if (this.ws) {
+      this.ws.onopen = this.ws.onmessage = this.ws.onclose = this.ws.onerror = null;
+      try { this.ws.close(1000); } catch (e) { /* already closed */ }
+      this.ws = null;
+    }
+  }
+
+  _dropped() {
+    const wasLive = this.live;
+    this._teardown();
+    this.connected = false; this.live = false; this.rtt = null;
+    if (!this.wantConnection) return;
+    this.attempts += 1;
+    const delay = Math.min(3, 0.3 * this.attempts);
+    if (wasLive) {
+      Log.warn(`Link lost — local sim takes over; reconnecting in ${delay.toFixed(1)} s (the bridge keeps being retried until you press Disconnect).`);
+      this.app.onLink(false);
+    } else if (this.attempts <= 3 || this.attempts % 10 === 0) {
+      Log.sys(`No bridge at ${this.url} yet — retrying (attempt ${this.attempts}). Local sim stays live meanwhile.`);
+    }
+    this.app.setPill('connecting', `RETRY ${this.attempts}`);
+    clearTimeout(this._retry);
+    this._retry = setTimeout(() => this._open(), delay * 1000);
+  }
 
   send(type, payload) {
-    if (!this.connected) return;
-    this.ws.send(JSON.stringify({ type, payload }));
-    this.txCount++;
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+    try { this.ws.send(JSON.stringify({ type, payload })); } catch (e) { /* heartbeat will catch it */ }
   }
 
   _onMessage(ev) {
+    this.lastRecv = performance.now();
     let msg;
     try { msg = JSON.parse(ev.data); }
-    catch (e) { Log.err('Non-JSON message from server dropped.'); return; }
+    catch (e) { return; }
     const p = msg.payload || {};
-    this.rxCount++;
     switch (msg.type) {
       case 'hello':
-        Log.rx(`hello — server "${p.name || 'mabel'}" v${p.version || '?'}`);
+        this.serverName = p.server || p.name || 'mabel';
+        Tele.set('server', `${this.serverName} v${p.version ?? '?'}`);
+        Log.rx(`hello — server "${this.serverName}" v${p.version ?? '?'}${this.serverName === 'mabel_sim_bridge' ? ' (MuJoCo sim)' : ''}`);
         break;
       case 'robot_state': {
         if (!this.live) {
           this.live = true;
-          Log.ok('robot_state stream started — the 3D model now mirrors the SERVER simulation exactly (local sim paused).');
+          this.app.setPill('online', 'ONLINE');
+          Log.ok('robot_state stream up — the 3D model now mirrors the SERVER simulation (local stepping paused).');
         }
         this.app.applyRobotState(p);
         const now = performance.now();
-        if (now - this.lastStateLog > 1000) {           // summarize the stream, don't spam
-          this.lastStateLog = now;
-          const nq = p.joints ? Object.keys(p.joints).length : 0;
-          const b = p.base ? ` base(${(+p.base.x).toFixed(2)}, ${(+p.base.y).toFixed(2)}, ${(+p.base.yaw).toFixed(2)} rad)` : '';
-          Log.rx(`robot_state · ${nq} joints${b}${p.battery != null ? ` · batt ${p.battery}%` : ''}${p.mode ? ` · ${p.mode}` : ''}`);
+        if (now - this._lastStateLog > 2000) {
+          this._lastStateLog = now;
+          const nq = p.jointPositions ? Object.keys(p.jointPositions).length : 0;
+          const b = p.base ? ` · base (${(+p.base.x || 0).toFixed(2)}, ${(+p.base.y || 0).toFixed(2)}) m, yaw ${((+p.base.yaw || 0) * 180 / Math.PI).toFixed(0)}°` : '';
+          Log.rx(`robot_state · ${nq} joints${b} · bridge lat ${(+p.latencyMs || 0).toFixed(0)} ms`);
         }
         break;
       }
       case 'pong':
-        if (p.t != null) { this.rtt = performance.now() - p.t; }
+        if (this._pingSent) this.rtt = performance.now() - this._pingSent;
         break;
       case 'error':
         Log.err(`server: ${p.message || JSON.stringify(p)}`);
         break;
       default:
-        Log.warn(`Unknown message type "${msg.type}" ignored.`);
+        break;   // forward-compatible: ignore unknown types quietly
     }
   }
 }
@@ -377,79 +487,80 @@ class Link {
 class App {
   constructor(manifest, cockpit, control) {
     this.manifest = manifest;
-    this.cockpit = cockpit;      // primary stage — IK runs on this rig
+    this.cockpit = cockpit;          // primary rig — IK + world queries run here
     this.control = control;
 
-    // canonical robot state — the ONLY thing the rigs are posed from
-    this.state = { q: {}, baseOffset: new THREE.Vector3(), baseYaw: 0 };
+    // canonical robot state: joint map + base pose in the URDF world frame
+    this.state = { q: {}, bx: 0, by: 0, yaw: 0 };
     for (const j of manifest.joints) {
       this.state.q[j.name] = (j.lower != null && j.upper != null)
         ? Math.min(j.upper, Math.max(j.lower, 0)) : 0;
     }
     this.homeQ = { ...this.state.q };
 
-    // commands
-    this.nav = { vx: 0, vy: 0, w: 0, vlift: 0 };
+    // ── operator command state (mirrors RobotController) ──
+    this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };   // fwd m/s, strafe-right m/s, yaw-rate ccw, lift m/s
     this.lift = 0;
-    this.wheel = 0;
-    this.grip = { l: 0, r: 0 };
-    this.armOff = { l: { x: 0, y: 0, z: 0 }, r: { x: 0, y: 0, z: 0 } };
-    this.jointTarget = { ...this.homeQ };
-    this.stiffness = 0.85;          // firm-mode slider, lerps SOFT→FIRM
+    this.wheelSpin = 0;
+    this.grip = { left: 0, right: 0 };
+    this.armJoy = { left: { x: 0, y: 0 }, right: { x: 0, y: 0 } };
+    this.armPitch = { left: 0, right: 0 };
+    this.jointTarget = { ...this.homeQ };           // local impedance set-points
+    this.wireJoints = {};                            // accumulated joint_command dict
+    this.jointsDirty = false;
 
-    this.teleopMode = 'nav';        // cockpit: 'nav' | 'arm'
-    this.ctlMode = 'wrist';         // control: 'wrist' | 'joints' | 'gravity' | 'compliance'
-    this.armDriver = 'ik';          // 'ik' | 'joints' — who owns the arm joints
-    this.targetSource = 'pad';      // 'pad' | 'drag' — who owns the palm targets
-    this.hand = 'l';
-    this.drag = null;               // active drag side on the control stage
-    this.adm = { vx: 0, vy: 0 };    // compliance base admittance velocity
+    // the three orthogonal control axes (WholeBodyView)
+    this.cockpitMode = 'drive';                      // 'drive' | 'arms'
+    this.feel = 'impedance';                         // Hold | Soft
+    this.method = 'wrist';                           // Guide | Joints (Hold only)
+    this.region = 'arm';                             // arm | upper_body | whole_body
+    this.stiffness = 0.7;                            // slider 0..1 → ×45 Nm/rad on the wire
 
-    this.link = new Link(this);
-    this._txAcc = 0;
-    this._teleAcc = 0;
+    this.drag = null;                                // active Guide/Soft drag side
+    this.adm = { vx: 0, vy: 0 };                     // soft-mode base admittance
 
     this.chains = {
       l: ['left_arm_1', 'left_arm_2', 'left_arm_3', 'left_arm_4', 'left_arm_5', 'left_arm_6', 'left_arm_7'],
       r: ['right_arm_1', 'right_arm_2', 'right_arm_3', 'right_arm_4', 'right_arm_5', 'right_arm_6', 'right_arm_7'],
     };
 
-    // rest pose bookkeeping (world palm positions at home)
     this.cockpit.pose(this.state);
     this.rest = { l: new THREE.Vector3(), r: new THREE.Vector3() };
     for (const s of ['l', 'r']) this.cockpit.ee[s]?.getWorldPosition(this.rest[s]);
     this.restCentroid = new THREE.Vector3().addVectors(this.rest.l, this.rest.r).multiplyScalar(0.5);
     this.targets = { l: this.rest.l.clone(), r: this.rest.r.clone() };
 
-    // markers: green palm targets on both stages, rust grab handles on control
-    this.dots = {
-      cockpit: { l: cockpit.marker(GREEN, cockpit.maxd * 0.024, true), r: cockpit.marker(GREEN, cockpit.maxd * 0.024, true) },
-      control: { l: control.marker(GREEN, control.maxd * 0.024, true), r: control.marker(GREEN, control.maxd * 0.024, true) },
-    };
-    this.handles = { l: control.marker(RUST, control.maxd * 0.028), r: control.marker(RUST, control.maxd * 0.028) };
-    this.handles.l.userData.side = 'l'; this.handles.r.userData.side = 'r';
+    // green guide balls on the control stage (RealRobotView's gravityComp balls)
+    this.balls = { l: control.marker(GREEN, control.maxd * 0.026), r: control.marker(GREEN, control.maxd * 0.026) };
+    this.balls.l.userData.side = 'l'; this.balls.r.userData.side = 'r';
+
+    this.link = new Link(this);
+    this._teleAcc = 0;
 
     this._wireCockpit();
     this._wireControl();
     this._wireConnect();
     this._wireGrab();
-    this._applyModeVisibility();
+    this._applyVisibility();
 
-    Log.sys('Local sim ready — 60 joints, swerve base, dual 7-DOF arms. Drive it, or Connect to a live MuJoCo bridge.');
-    Tele.set('battery', '— (local)');
+    Log.sys('Browser teleop ready — same wire protocol as the iPhone & Vision Pro apps (ws://host:9090/teleop).');
+    Log.sim('Local kinematic sim live: 60 joints, swerve base, dual 7-DOF arms.');
+    this._autoConnect();
     this._raf();
   }
 
-  /* ── helpers ─────────────────────────────────────────────────────── */
-  gains() {
-    const t = this.stiffness;
-    return {
-      ikGain: SOFT.ikGain + (FIRM.ikGain - SOFT.ikGain) * t,
-      ikPasses: Math.round(SOFT.ikPasses + (FIRM.ikPasses - SOFT.ikPasses) * t),
-      qRate: SOFT.qRate + (FIRM.qRate - SOFT.qRate) * t,
-    };
+  /* ── auto-connect (the app's launch behaviour) ───────────────────── */
+  _autoConnect() {
+    let saved = null;
+    try { saved = localStorage.getItem('mabel-ws-url'); } catch (e) { /* private mode */ }
+    const url = saved || 'ws://localhost:9090/teleop';
+    const input = document.getElementById('twUrl');
+    if (input) input.value = url;
+    Log.sys(`Auto-connect: looking for a MABEL bridge at ${url} — start one with server/start_teleop.sh.`);
+    this.link.connect(url);
   }
 
+  /* ── small helpers ───────────────────────────────────────────────── */
   setQ(name, val) {
     const j = this.cockpit.joints[name]; if (!j) return;
     if (j.lower != null) val = Math.max(j.lower, Math.min(j.upper, val));
@@ -457,13 +568,33 @@ class App {
     this.cockpit.setJoint(name, val);
   }
 
+  clampJ(name, val) {
+    const j = this.cockpit.joints[name];
+    if (!j || j.lower == null) return val;
+    return Math.max(j.lower, Math.min(j.upper, val));
+  }
+
   setLift(v) {
-    this.lift = Math.max(0, Math.min(CAPS.LIFT_MAX, v));
+    this.lift = Math.max(0, Math.min(LIFT_MAX, v));
     this.setQ('lift_lower', this.lift / 2);
     this.setQ('lift_upper', this.lift / 2);
   }
 
-  // hinge-constrained CCD on the primary rig (same solver as the WBC page)
+  // nudge a local joint target AND queue it on the wire (CockpitView.nudge)
+  nudge(name, delta) {
+    if (Math.abs(delta) < 1e-6) return;
+    const v = this.clampJ(name, (this.jointTarget[name] ?? this.state.q[name] ?? 0) + delta);
+    this.jointTarget[name] = v;
+    this.wireJoints[name] = +v.toFixed(4);
+    this.jointsDirty = true;
+  }
+
+  setWire(name, v) {
+    this.wireJoints[name] = typeof v === 'number' ? +v.toFixed(4) : v;
+    this.jointsDirty = true;
+  }
+
+  // hinge-constrained CCD on the primary rig (the WBC page's solver)
   ik(side, goal, gain, passes) {
     const ee = this.cockpit.ee[side]; if (!ee) return;
     const piv = new THREE.Vector3(), eeW = new THREE.Vector3();
@@ -489,156 +620,133 @@ class App {
     }
   }
 
-  // sync palm targets to wherever the palms currently are (no-jump handoff)
-  syncTargetsToEE() {
-    this.cockpit.pose(this.state);
-    for (const s of ['l', 'r']) this.cockpit.ee[s]?.getWorldPosition(this.targets[s]);
+  // world (three) → URDF/MuJoCo world vector, for external_force
+  toUrdf(v) {
+    return v.clone().applyQuaternion(this.cockpit.rootQ0.clone().invert());
   }
 
-  /* ── cockpit (section 1) ─────────────────────────────────────────── */
+  /* ── cockpit (Drive | Arms) ──────────────────────────────────────── */
   _wireCockpit() {
     const root = document.getElementById('twCockpit');
 
-    root.querySelector('[data-tw-seg]').addEventListener('click', (e) => {
+    root.querySelector('[data-ck-seg]').addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
-      root.querySelectorAll('[data-tw-seg] button').forEach((x) => x.classList.toggle('on', x === b));
-      this.teleopMode = b.dataset.mode;
-      if (this.teleopMode === 'arm') {
-        if (this.armDriver !== 'ik') { this.armDriver = 'ik'; this.syncTargetsToEE(); }
-        this.targetSource = 'pad';
-        this._syncPadsFromTargets();
-        Log.sim('Cockpit → ARMS: left pad = palm X/Y, slider = palm Z. The selected palm tracks the green target.');
+      root.querySelectorAll('[data-ck-seg] button').forEach((x) => x.classList.toggle('on', x === b));
+      this.cockpitMode = b.dataset.mode;
+      this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
+      if (this.cockpitMode === 'arms') {
+        // seed the joint targets from wherever the arms are (no jump)
+        for (const c of [...this.chains.l, ...this.chains.r]) this.jointTarget[c] = this.state.q[c];
+        Log.sim('Cockpit → ARMS: per-wrist joysticks nudge the arm joints (1.4 rad/s), triggers set grip.');
       } else {
-        Log.sim('Cockpit → NAV: left stick translates the swerve base, right stick = yaw + lift.');
+        Log.sim('Cockpit → DRIVE: left stick translates the swerve base, right stick is yaw + lift.');
       }
-      this.sendControlMode();
-      this._applyModeVisibility();
+      this.sendControlSpec('cockpit');  // arms = wrist·impedance·arm, drive = navigation (like the app)
+      this._applyVisibility();
     });
 
-    // NAV pads (spring back to zero = velocity commands, like the iOS cockpit)
-    this.padL = makePad(root.querySelector('[data-tw-pad="navL"]'), { spring: true }, (x, y) => {
-      this.nav.vx = y * CAPS.VMAX;
-      this.nav.vy = -x * CAPS.VMAX;
-      this.cockpit.wake(); this.cockpit.sleep();
+    // drive sticks (outer corners, spring-loaded velocity commands)
+    makeJoystick(root.querySelector('[data-ck-joy="navL"]'), (x, y) => {
+      this.nav.f = y * MAX_LIN;
+      this.nav.s = x * MAX_LIN;
     });
-    this.padR = makePad(root.querySelector('[data-tw-pad="navR"]'), { spring: true }, (x, y) => {
-      this.nav.w = -x * CAPS.WMAX;
-      this.nav.vlift = y * CAPS.LIFT_RATE;
-      this.cockpit.wake(); this.cockpit.sleep();
+    makeJoystick(root.querySelector('[data-ck-joy="navR"]'), (x, y) => {
+      this.nav.w = -x * MAX_ANG;
+      this.nav.liftRate = y;
     });
 
-    // ARM pad (positional, stays where you leave it) + Z + grip
-    this.padA = makePad(root.querySelector('[data-tw-pad="arm"]'), { spring: false }, (x, y) => {
-      this.targetSource = 'pad';
-      this.armOff[this.hand].x = x;
-      this.armOff[this.hand].y = y;
-      this.cockpit.wake(); this.cockpit.sleep();
-    });
-    const zsl = root.querySelector('[data-tw-slider="armZ"]');
-    zsl.addEventListener('input', () => {
-      this.targetSource = 'pad';
-      this.armOff[this.hand].z = parseFloat(zsl.value);
-      root.querySelector('[data-tw-out="armZ"]').textContent = `${(parseFloat(zsl.value) * 100).toFixed(0)} cm`;
-    });
-    this._zsl = zsl;
-    const gsl = root.querySelector('[data-tw-slider="grip"]');
-    gsl.addEventListener('input', () => {
-      this.grip[this.hand] = parseFloat(gsl.value);
-      root.querySelector('[data-tw-out="grip"]').textContent = `${Math.round(parseFloat(gsl.value) * 100)} %`;
-    });
-    this._gsl = gsl;
-
-    root.querySelector('[data-tw-hand]').addEventListener('click', (e) => {
-      const b = e.target.closest('button'); if (!b) return;
-      root.querySelectorAll('[data-tw-hand] button').forEach((x) => x.classList.toggle('on', x === b));
-      this.hand = b.dataset.handSide;
-      const o = this.armOff[this.hand];
-      this.padA.set(o.x, o.y);
-      zsl.value = o.z;
-      gsl.value = this.grip[this.hand];
-      root.querySelector('[data-tw-out="armZ"]').textContent = `${(o.z * 100).toFixed(0)} cm`;
-      root.querySelector('[data-tw-out="grip"]').textContent = `${Math.round(this.grip[this.hand] * 100)} %`;
-      Log.sim(`Commanding ${this.hand === 'l' ? 'LEFT' : 'RIGHT'} palm.`);
-    });
+    // arm clusters: wrist joystick + up/down hold + grip trigger, per side
+    for (const side of ['left', 'right']) {
+      makeJoystick(root.querySelector(`[data-ck-joy="${side}"]`), (x, y) => {
+        this.armJoy[side].x = x; this.armJoy[side].y = y;
+      });
+      root.querySelectorAll(`[data-ck-hold="${side}"]`).forEach((el) =>
+        makeHold(el, (d) => { this.armPitch[side] = d; }));
+      this.grips = this.grips || {};
+      this.grips[side] = makeGrip(root.querySelector(`[data-ck-grip="${side}"]`), (g) => {
+        this.grip[side] = g;
+        this._applyGripLocal(side, g);
+        this.setWire(`${side}_grip`, +g.toFixed(3));   // the bridge's apply_grasp input
+      });
+    }
 
     document.getElementById('twStop').addEventListener('click', () => {
-      this.nav = { vx: 0, vy: 0, w: 0, vlift: 0 };
-      this.padL.zero(); this.padR.zero();
-      if (this.link.connected) this._sendTeleopFrame();   // push the zeros immediately
-      Log.warn('STOP — all base velocities zeroed.');
+      this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
+      this.armJoy = { left: { x: 0, y: 0 }, right: { x: 0, y: 0 } };
+      if (this.link.connected) this.pushFrame();     // push the zeros now
+      Log.warn('STOP — base + lift velocities zeroed.');
     });
   }
 
-  _syncPadsFromTargets() {
-    // express current targets as pad offsets along the camera-aligned basis
-    const { flat, right } = this._armBasis();
-    const reach = this.cockpit.maxd * CAPS.REACH_FRAC;
-    for (const s of ['l', 'r']) {
-      const d = new THREE.Vector3().subVectors(this.targets[s], this._armHome(s));
-      this.armOff[s].x = Math.max(-1, Math.min(1, d.dot(right) / reach));
-      this.armOff[s].y = Math.max(-1, Math.min(1, d.dot(flat) / reach));
-      this.armOff[s].z = Math.max(-0.3, Math.min(0.4, d.y));
+  // 0 = extended, 1 = fist: curl the flexion joints (RobotController.setGrip)
+  _applyGripLocal(side, g) {
+    for (const name in this.state.q) {
+      if (!name.startsWith(side) || !/(mcp|pip|dip)$/.test(name)) continue;
+      const j = this.cockpit.joints[name]; if (!j) continue;
+      this.jointTarget[name] = j.upper * g;
     }
-    const o = this.armOff[this.hand];
-    this.padA.set(o.x, o.y);
-    this._zsl.value = o.z;
   }
 
-  _armBasis() {
-    const camDir = this.cockpit.camera.getWorldDirection(new THREE.Vector3());
-    const flat = new THREE.Vector3(camDir.x, 0, camDir.z);
-    if (flat.lengthSq() < 1e-6) flat.set(0, 0, 1);
-    flat.normalize();
-    const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), flat).normalize();
-    return { flat, right };
-  }
-
-  _armHome(s) {
-    // the palm rest pose rides along with the base
-    return this.rest[s].clone().add(this.state.baseOffset);
-  }
-
-  /* ── robot control (section 2) ───────────────────────────────────── */
+  /* ── manipulation console (Guide/Joints × Hold/Soft × Reach) ─────── */
   _wireControl() {
     const root = document.getElementById('twControl');
 
-    root.querySelector('[data-tw-ctlseg]').addEventListener('click', (e) => {
+    // Feel — Hold | Soft (the prominent toggle floating over the viewer)
+    root.querySelector('[data-rc-feel]').addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
-      root.querySelectorAll('[data-tw-ctlseg] button').forEach((x) => x.classList.toggle('on', x === b));
-      this.ctlMode = b.dataset.mode;
-      if (this.ctlMode === 'joints') {
-        this.armDriver = 'joints';
-        this.jointTarget = { ...this.state.q };           // start from where it is
-        this._syncJointSliders();
-        Log.sim('Control → JOINT CONTROL (firm): sliders command joint targets; the sim slews to them rate-limited.');
+      root.querySelectorAll('[data-rc-feel] button').forEach((x) => x.classList.toggle('on', x === b));
+      this.feel = b.dataset.feel;
+      if (this.feel === 'compliance') {
+        Log.sim('Feel → SOFT (compliance): the arms are force-driven — drag a green ball to push; nothing springs back.');
       } else {
-        if (this.armDriver !== 'ik') { this.armDriver = 'ik'; this.syncTargetsToEE(); }
-        this.targetSource = 'drag';
-        const blurb = {
-          wrist: 'WRIST CONTROL (firm): drag a rust palm handle — the arm tracks the Cartesian target stiffly.',
-          gravity: 'GRAVITY COMP (soft): the arms are weightless and back-drivable — they stay wherever you leave them.',
-          compliance: 'COMPLIANCE (soft): push past the comfort box and the base admits the wrench, glides, and coasts to rest.',
-        }[this.ctlMode];
-        Log.sim(`Control → ${blurb}`);
+        // the Hold↔Soft handoff: targets continue from the *actual* pose
+        for (const c of [...this.chains.l, ...this.chains.r]) this.jointTarget[c] = this.state.q[c];
+        Log.sim('Feel → HOLD (impedance): the robot tracks commanded targets with a spring.');
       }
-      this.sendControlMode();
-      this._applyModeVisibility();
+      this.sendControlSpec('console');
+      this._applyVisibility();
     });
 
-    const ssl = root.querySelector('[data-tw-slider="stiff"]');
+    // Teleop — Guide | Joints
+    root.querySelector('[data-rc-method]').addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      root.querySelectorAll('[data-rc-method] button').forEach((x) => x.classList.toggle('on', x === b));
+      this.method = b.dataset.method;
+      if (this.method === 'joint') {
+        for (const k in this.state.q) this.jointTarget[k] = this.state.q[k];
+        this._syncJointSliders();
+        Log.sim('Teleop → JOINTS: sliders command targets; the robot slews to them.');
+      } else {
+        Log.sim('Teleop → GUIDE: drag a green palm ball — the arm follows it (IK here, WBC impedance on the bridge).');
+      }
+      this.sendControlSpec('console');
+      this._applyVisibility();
+    });
+
+    // Reach — Arm | Upper | Whole
+    root.querySelector('[data-rc-region]').addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      root.querySelectorAll('[data-rc-region] button').forEach((x) => x.classList.toggle('on', x === b));
+      this.region = b.dataset.region;
+      Log.sim(`Reach → ${{ arm: 'ARM (base + lift held)', upper_body: 'UPPER BODY (torso joins in)', whole_body: 'WHOLE BODY (the base glides along)' }[this.region]}.`);
+      this.sendControlSpec('console');
+    });
+
+    const ssl = root.querySelector('[data-rc-stiff]');
     ssl.addEventListener('input', () => {
       this.stiffness = parseFloat(ssl.value);
-      root.querySelector('[data-tw-out="stiff"]').textContent = `${Math.round(this.stiffness * 100)} %`;
+      root.querySelector('[data-rc-stiff-out]').textContent = `${(this.stiffness * MAX_STIFF).toFixed(0)} Nm/rad`;
+      clearTimeout(this._stiffT);
+      this._stiffT = setTimeout(() => this.sendControlSpec('console'), 150);
     });
 
     document.getElementById('twHome').addEventListener('click', () => this.resetAll(true));
-
     this._buildJointSliders(root);
   }
 
   _buildJointSliders(root) {
-    const tabs = root.querySelector('[data-tw-jtabs]');
-    const list = root.querySelector('[data-tw-jlist]');
+    const tabs = root.querySelector('[data-rc-jtabs]');
+    const list = root.querySelector('[data-rc-jlist]');
     const groups = [['arms', 'Arms'], ['body', 'Body'], ['hands', 'Hands'], ['base', 'Base']];
     this._jrows = [];
     const fmt = (j, v) => j.type === 'prismatic' ? `${(v * 100).toFixed(1)} cm` : `${(v * 180 / Math.PI).toFixed(0)}°`;
@@ -666,9 +774,8 @@ class App {
         sl.addEventListener('input', () => {
           const v = parseFloat(sl.value);
           this.jointTarget[j.name] = v;
+          this.setWire(j.name, v);
           vl.textContent = fmt(j, v);
-          if (this.armDriver !== 'joints') { this.armDriver = 'joints'; this.jointTarget = { ...this.state.q, [j.name]: v }; }
-          this._queueJointCommand(j.name, v);
         });
         row.appendChild(sl);
         pane.appendChild(row);
@@ -691,31 +798,16 @@ class App {
     }
   }
 
-  // batch slider moves into one joint_command per 100 ms
-  _queueJointCommand(name, val) {
-    if (!this.link.connected) return;
-    this._jcQueue = this._jcQueue || {};
-    this._jcQueue[name] = val;
-    if (this._jcTimer) return;
-    this._jcTimer = setTimeout(() => {
-      const q = this._jcQueue; this._jcQueue = null; this._jcTimer = null;
-      this.link.send('joint_command', { joints: q });
-      Log.tx(`joint_command · ${Object.keys(q).length} joint(s)`);
-    }, 100);
-  }
-
-  /* ── grab handles on the control stage ───────────────────────────── */
+  /* ── green-ball drag on the control stage ────────────────────────── */
   _wireGrab() {
     const st = this.control;
     st.renderer.domElement.addEventListener('pointerdown', (ev) => {
-      if (this.ctlMode === 'joints') return;
-      const hit = st.pick(ev, [this.handles.l, this.handles.r]);
+      if (!this._ballsVisible()) return;
+      const hit = st.pick(ev, [this.balls.l, this.balls.r]);
       if (!hit) return;
       this.drag = hit.userData.side;
-      this.targetSource = 'drag';
-      if (this.armDriver !== 'ik') { this.armDriver = 'ik'; this.syncTargetsToEE(); }
+      this.cockpit.ee[this.drag]?.getWorldPosition(this.targets[this.drag]);
       st.controls.enabled = false;
-      st.wake();
       st.stage.classList.add('grabbing');
       ev.stopPropagation();
     }, true);
@@ -726,13 +818,23 @@ class App {
     });
     const up = () => {
       if (!this.drag) return;
+      const side = this.drag;
       this.drag = null;
       st.controls.enabled = true;
-      st.sleep();
       st.stage.classList.remove('grabbing');
+      if (this.feel === 'compliance') {
+        this.link.send('external_force', { forces: {} });   // release the push
+      } else {
+        // Hold: the dragged pose IS the new impedance target
+        for (const c of this.chains[side]) { this.jointTarget[c] = this.state.q[c]; this.setWire(c, this.state.q[c]); }
+      }
     };
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', up);
+  }
+
+  _ballsVisible() {
+    return this.feel === 'compliance' || this.method === 'wrist';
   }
 
   /* ── connect bar ─────────────────────────────────────────────────── */
@@ -740,10 +842,12 @@ class App {
     const btn = document.getElementById('twConnect');
     const url = document.getElementById('twUrl');
     btn.addEventListener('click', () => {
-      if (this.link.connected) this.link.disconnect();
+      if (this.link.wantConnection) this.link.disconnect();
       else this.link.connect(url.value);
     });
-    url.addEventListener('keydown', (e) => { if (e.key === 'Enter') btn.click(); });
+    url.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { if (this.link.wantConnection) this.link.disconnect(); this.link.connect(url.value); }
+    });
     document.getElementById('twLogClear')?.addEventListener('click', () => {
       Log.el.innerHTML = ''; Log.sys('Log cleared.');
     });
@@ -751,201 +855,252 @@ class App {
   }
 
   setPill(state, label) {
-    const pill = document.getElementById('twPill');
-    pill.className = `tw-pill ${state}`;
-    pill.textContent = label;
-    document.getElementById('twConnect').textContent = (state === 'online' || state === 'connecting') ? 'Disconnect' : 'Connect';
+    document.querySelectorAll('.tw-pill').forEach((pill) => {
+      pill.className = `tw-pill ${state}`;
+      pill.textContent = label;
+    });
+    const btn = document.getElementById('twConnect');
+    if (btn) btn.textContent = this.link?.wantConnection ? 'Disconnect' : 'Connect';
     Tele.set('link', label);
   }
 
   onLink(up) {
     if (!up) {
       Tele.set('battery', '— (local)');
-      // re-seed local commands from wherever the server left the robot
-      this.syncTargetsToEE();
-      this.jointTarget = { ...this.state.q };
+      Tele.set('server', '—');
+      // local commands continue from wherever the server left the robot
+      for (const k in this.state.q) this.jointTarget[k] = this.state.q[k];
     }
   }
 
-  sendControlMode() {
-    if (!this.link.connected) return;
-    const mode = this.teleopMode === 'nav' ? 'navigation'
-      : { wrist: 'wrist', joints: 'joints', gravity: 'gravity_comp', compliance: 'compliance' }[this.ctlMode];
-    this.link.send('control_mode', { mode, stiffness: this.stiffness });
-    Log.tx(`control_mode · ${mode}`);
+  /* ── uplink (matches WebSocketLink.pushFrame byte-for-byte) ──────── */
+  pushFrame() {
+    this.link.seq += 1;
+    this.link.send('teleop_frame', {
+      sequence: this.link.seq,
+      timestamp: Date.now() / 1000,
+      head: { transform: { matrix: IDENTITY16 }, trackingState: 'normal' },
+      mode: 'Base Driving',
+      navJoystick: {
+        lx: +(this.nav.s / MAX_LIN).toFixed(3),
+        ly: +(-this.nav.f / MAX_LIN).toFixed(3),
+        rx: +(this.nav.w / MAX_ANG).toFixed(3),
+        ry: +this.nav.liftRate.toFixed(3),
+      },
+    });
+    if (this.jointsDirty) {
+      this.jointsDirty = false;
+      this.link.send('joint_command', { joints: this.wireJoints });
+    }
+  }
+
+  sendControlSpec(source) {
+    // One bridge, one active spec — the LAST surface touched wins (the bridge
+    // itself follows the active driver the same way). The cockpit announces
+    // navigation (Drive) or wrist·impedance·arm (Arms), exactly like the app;
+    // the console announces its three axes, with Soft pinning method to wrist
+    // just to engage the compliance law (WholeBodyView.applySpec does the same).
+    if (source === 'cockpit' || (!source && this._lastSpecSrc !== 'console')) {
+      this._lastSpecSrc = 'cockpit';
+      this._spec = this.cockpitMode === 'drive'
+        ? { method: 'navigation', controlType: 'impedance', region: 'whole_body', stiffness: this.stiffness * MAX_STIFF }
+        : { method: 'wrist', controlType: 'impedance', region: 'arm', stiffness: this.stiffness * MAX_STIFF };
+    } else {
+      this._lastSpecSrc = 'console';
+      const method = this.feel === 'compliance' ? 'wrist' : (this.method === 'joint' ? 'joint' : 'wrist');
+      this._spec = { method, controlType: this.feel, region: this.region, stiffness: this.stiffness * MAX_STIFF };
+    }
+    if (this.link.connected) {
+      this.link.send('control_mode', this._spec);
+      Log.tx(`control_mode · ${this._spec.method} · ${this._spec.controlType} · ${this._spec.region} · K=${this._spec.stiffness.toFixed(0)}`);
+    }
   }
 
   resetAll(announce) {
     for (const name in this.homeQ) this.setQ(name, this.homeQ[name]);
-    this.state.baseOffset.set(0, 0, 0);
-    this.state.baseYaw = 0;
-    this.lift = 0; this.wheel = 0;
-    this.nav = { vx: 0, vy: 0, w: 0, vlift: 0 };
+    this.state.bx = this.state.by = this.state.yaw = 0;
+    this.lift = 0; this.wheelSpin = 0;
+    this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
     this.adm = { vx: 0, vy: 0 };
-    this.grip = { l: 0, r: 0 };
-    this.armOff = { l: { x: 0, y: 0, z: 0 }, r: { x: 0, y: 0, z: 0 } };
+    this.grip = { left: 0, right: 0 };
+    this.grips?.left?.set(0); this.grips?.right?.set(0);
+    this.armJoy = { left: { x: 0, y: 0 }, right: { x: 0, y: 0 } };
     this.jointTarget = { ...this.homeQ };
-    this.padL.zero(); this.padR.zero(); this.padA.set(0, 0);
-    this._zsl.value = 0; this._gsl.value = 0;
+    this.wireJoints = {}; this.jointsDirty = false;
     this.cockpit.pose(this.state);
-    for (const s of ['l', 'r']) {
-      this.targets[s].copy(this.rest[s]);
-      this.cockpit.ee[s]?.getWorldPosition(this.rest[s]);
-    }
+    for (const s of ['l', 'r']) this.cockpit.ee[s]?.getWorldPosition(this.targets[s]);
     this._syncJointSliders();
-    if (this.link.connected) { this.link.send('reset', {}); Log.tx('reset — server sim re-homed.'); }
-    if (announce) Log.sim('Reset to home pose.');
+    if (this.link.connected) { this.link.send('reset', {}); Log.tx('reset — bridge homes the sim.'); }
+    if (announce) Log.sim('Robot reset to home.');
   }
 
   /* ── incoming robot_state → canonical state ──────────────────────── */
-  applyRobotState(p) {
-    if (p.joints) {
-      for (const name in p.joints) {
-        if (name in this.state.q) this.state.q[name] = +p.joints[name];
+  applyRobotState(p, dt = 0.05) {
+    if (p.jointPositions) {
+      for (const name in p.jointPositions) {
+        if (name in this.state.q) this.state.q[name] = +p.jointPositions[name];
       }
+      this.lift = (this.state.q.lift_lower || 0) + (this.state.q.lift_upper || 0);
     }
     if (p.base) {
-      // base given in the robot's own frame: x fwd, y left, yaw ccw
-      const x = +p.base.x || 0, y = +p.base.y || 0;
-      this.state.baseOffset.set(y, 0, x);
-      this.state.baseYaw = +p.base.yaw || 0;
+      this.state.bx = +p.base.x || 0;
+      this.state.by = +p.base.y || 0;
+      this.state.yaw = +p.base.yaw || 0;
+      const steer = p.base.steer, drive = p.base.drive;
+      if (Array.isArray(steer) && steer.length === 3) {
+        ['fl_steer', 'fr_steer', 'b_steer'].forEach((n, i) => { this.state.q[n] = +steer[i]; });
+      }
+      if (Array.isArray(drive) && drive.length === 3) {
+        // drive comes back as wheel VELOCITY — integrate for the spin animation
+        ['fl_drive', 'fr_drive', 'b_drive'].forEach((n, i) => {
+          this.state.q[n] = (this.state.q[n] || 0) + (+drive[i]) * dt;
+        });
+      }
     }
-    if (p.lift != null) this.lift = +p.lift;
-    if (p.battery != null) Tele.set('battery', `${p.battery} %`);
-    if (p.mode) Tele.set('srvmode', p.mode);
+    if (p.battery) {
+      const pc = +p.battery.percentage;
+      Tele.set('battery', `${(pc <= 1.5 ? pc * 100 : pc).toFixed(0)} % · ${(+p.battery.voltage || 0).toFixed(1)} V`);
+    }
+    if (p.latencyMs != null) Tele.set('lat', `${(+p.latencyMs).toFixed(0)} ms`);
+    // fingers/grips aren't in the telemetry set — keep the local grip pose so
+    // the hands don't snap open; everything telemetered above is server truth.
+    for (const side of ['left', 'right']) this._applyGripLocalToState(side);
   }
 
-  /* ── local sim step (only when not live) ─────────────────────────── */
+  _applyGripLocalToState(side) {
+    for (const name in this.state.q) {
+      if (!name.startsWith(side) || !/(mcp|pip|dip)$/.test(name)) continue;
+      const j = this.cockpit.joints[name]; if (!j) continue;
+      this.state.q[name] = j.upper * this.grip[side];
+    }
+  }
+
+  /* ── local sim step (runs only while no robot_state stream) ──────── */
   stepLocal(dt) {
-    // swerve base from nav velocities (robot frame → world plane)
-    this.state.baseYaw += this.nav.w * dt;
-    const c = Math.cos(this.state.baseYaw), s = Math.sin(this.state.baseYaw);
-    const fwd = new THREE.Vector3(s, 0, c);
-    const left = new THREE.Vector3(c, 0, -s);
-    this.state.baseOffset.addScaledVector(fwd, this.nav.vx * dt);
-    this.state.baseOffset.addScaledVector(left, this.nav.vy * dt);
-    const speed = Math.hypot(this.nav.vx, this.nav.vy);
+    const g = { ikGain: 0.25 + 0.45 * this.stiffness, qRate: 1.0 + 2.2 * this.stiffness };
+
+    // 1) swerve base. The chassis drives toward −X of its body frame (the
+    //    bridge's "forward is −vx"), so at yaw the world-frame axes are:
+    const fwd = { x: -Math.cos(this.state.yaw), y: -Math.sin(this.state.yaw) };
+    const right = { x: -Math.sin(this.state.yaw), y: Math.cos(this.state.yaw) };
+    this.state.yaw += this.nav.w * dt;
+    this.state.bx += (this.nav.f * fwd.x + this.nav.s * right.x) * dt;
+    this.state.by += (this.nav.f * fwd.y + this.nav.s * right.y) * dt;
+    const speed = Math.hypot(this.nav.f, this.nav.s);
     if (speed > 1e-3 || Math.abs(this.nav.w) > 1e-3) {
-      this.wheel += Math.max(speed, Math.abs(this.nav.w) * 0.3) * dt * 12;
-      const steer = (speed > 1e-3) ? Math.atan2(this.nav.vy, this.nav.vx) : 0;
+      this.wheelSpin += Math.max(speed, Math.abs(this.nav.w) * 0.3) * dt * 12;
+      const steer = (speed > 1e-3) ? Math.atan2(this.nav.s, this.nav.f) : 0;
       for (const n of ['fl_steer', 'fr_steer', 'b_steer']) this.setQ(n, steer);
-      for (const n of ['fl_drive', 'fr_drive', 'b_drive']) this.setQ(n, this.wheel);
-      // hands ride along with the body — keep targets attached to the base
-      const dx = fwd.clone().multiplyScalar(this.nav.vx * dt).addScaledVector(left, this.nav.vy * dt);
-      for (const s2 of ['l', 'r']) this.targets[s2].add(dx);
+      for (const n of ['fl_drive', 'fr_drive', 'b_drive']) this.setQ(n, this.wheelSpin);
     }
-    if (Math.abs(this.nav.vlift) > 1e-4) this.setLift(this.lift + this.nav.vlift * dt);
+    if (Math.abs(this.nav.liftRate) > 1e-3) this.setLift(this.lift + this.nav.liftRate * LIFT_RATE * dt);
 
-    // palm targets from the cockpit pads (when the pads own them)
-    if (this.targetSource === 'pad' && this.teleopMode === 'arm') {
-      const { flat, right } = this._armBasis();
-      const reach = this.cockpit.maxd * CAPS.REACH_FRAC;
-      for (const s2 of ['l', 'r']) {
-        const o = this.armOff[s2];
-        this.targets[s2].copy(this._armHome(s2))
-          .addScaledVector(flat, o.y * reach)
-          .addScaledVector(right, o.x * reach)
-          .add(new THREE.Vector3(0, o.z, 0));
+    // 2) cockpit ARMS joysticks → joint nudges (CockpitView.onTick, same signs)
+    if (this.cockpitMode === 'arms') {
+      for (const side of ['left', 'right']) {
+        const joy = this.armJoy[side], m = side === 'left' ? -1 : 1;
+        const dySwift = -joy.y;                       // SwiftUI y grows downward
+        this.nudge(`${side}_arm_3`, joy.x * m * ARM_RATE * dt);
+        this.nudge(`${side}_arm_2`, -dySwift * m * ARM_RATE * dt);
+        this.nudge(`${side}_arm_1`, -this.armPitch[side] * ARM_RATE * dt);
       }
     }
 
-    // compliance: the drag wrench drives the base as a virtual mass-damper
-    if (this.ctlMode === 'compliance') this._baseAdmittance(dt);
-
-    // arms
-    if (this.armDriver === 'ik') {
-      const soft = (this.ctlMode === 'gravity' || this.ctlMode === 'compliance');
-      const g = soft ? { ikGain: 0.5, ikPasses: 2 } : this.gains();
-      for (const s2 of ['l', 'r']) this.ik(s2, this.targets[s2], g.ikGain, g.ikPasses);
-    } else {
-      const rate = this.gains().qRate * dt;
-      for (const name in this.jointTarget) {
-        const cur = this.state.q[name], tgt = this.jointTarget[name];
-        if (cur === tgt) continue;
-        const d = tgt - cur;
-        this.setQ(name, Math.abs(d) <= rate ? tgt : cur + Math.sign(d) * rate);
+    // 3) manipulation console
+    if (this.drag) {
+      if (this.feel === 'compliance') {
+        // SOFT: the drag is a world-frame push (external_force on the bridge);
+        // locally the back-drivable arm yields toward the pull.
+        const side = this.drag;
+        const ee = new THREE.Vector3();
+        this.cockpit.ee[side].getWorldPosition(ee);
+        const pull = new THREE.Vector3().subVectors(this.targets[side], ee);
+        this.ik(side, this.targets[side], 0.18, 1);
+        const fUrdf = this.toUrdf(pull).multiplyScalar(PUSH_K).clampLength(0, PUSH_MAX);
+        this.link.send('external_force', {
+          forces: { [`${side === 'l' ? 'l' : 'r'}_hand_mount`]: [+fUrdf.x.toFixed(2), +fUrdf.y.toFixed(2), +fUrdf.z.toFixed(2)] },
+        });
+        if (this.region === 'whole_body') this._baseAdmittance(dt);
+        if (this.region !== 'arm') this._lazyTorso(dt);
+      } else if (this.method === 'wrist') {
+        // HOLD · GUIDE: stiff IK toward the ball; stream the realised joint
+        // targets so the bridge's WBC impedance tracks the same pose.
+        this.ik(this.drag, this.targets[this.drag], g.ikGain, 2);
+        for (const c of this.chains[this.drag]) { this.jointTarget[c] = this.state.q[c]; this.setWire(c, this.state.q[c]); }
+        if (this.region === 'whole_body') this._lazyBase(dt);
+        if (this.region !== 'arm') this._lazyTorso(dt);
       }
     }
 
-    // grip: curl the finger flexion joints toward grip × upper limit
-    for (const s2 of ['l', 'r']) {
-      const side = s2 === 'l' ? 'left' : 'right';
-      const gv = this.grip[s2];
-      for (const name in this.state.q) {
-        if (!name.startsWith(side) || !/(mcp|pip|dip)$/.test(name)) continue;
-        const j = this.cockpit.joints[name]; if (!j) continue;
-        const home = Math.min(j.upper, Math.max(j.lower, 0));
-        const tgt = home + gv * (j.upper - home);
-        const cur = this.state.q[name];
-        const rate = 4.0 * dt;
-        const d = tgt - cur;
-        this.setQ(name, Math.abs(d) <= rate ? tgt : cur + Math.sign(d) * rate);
-      }
+    // 4) impedance: slew every local joint toward its target, rate-limited
+    const skipIk = this.drag && this.feel !== 'compliance';
+    for (const name in this.jointTarget) {
+      if (skipIk && this.chains[this.drag].includes(name)) continue;
+      const cur = this.state.q[name], tgt = this.clampJ(name, this.jointTarget[name]);
+      if (cur === tgt || cur == null) continue;
+      const rate = (/(mcp|pip|dip)$/.test(name) ? 5.0 : g.qRate) * dt;
+      const d = tgt - cur;
+      this.setQ(name, Math.abs(d) <= rate ? tgt : cur + Math.sign(d) * rate);
     }
   }
 
+  // soft whole-body: the push drives the base as a virtual mass-damper
   _baseAdmittance(dt) {
-    const prev = this.state.baseOffset.clone();
-    const c = Math.cos(this.state.baseYaw), s = Math.sin(this.state.baseYaw);
-    const fwd = new THREE.Vector3(s, 0, c);
-    const left = new THREE.Vector3(c, 0, -s);
-    let fx = 0, fy = 0;
-    if (this.drag) {
-      const centroid = new THREE.Vector3().addVectors(this.targets.l, this.targets.r).multiplyScalar(0.5);
-      const neutral = this.restCentroid.clone().add(this.state.baseOffset);
-      const e = new THREE.Vector3().subVectors(centroid, neutral); e.y = 0;
-      const eF = e.dot(fwd), eL = e.dot(left);
-      const gate = Math.min(1, Math.max(0, (Math.hypot(eF, eL) - ADMIT.BOX) / ADMIT.RAMP));
-      fx = ADMIT.KDRAG * eF * gate; fy = ADMIT.KDRAG * eL * gate;
-      if (Math.abs(fx) <= ADMIT.FS) fx = 0;
-      if (Math.abs(fy) <= ADMIT.FS) fy = 0;
-    }
+    const side = this.drag;
+    const ee = new THREE.Vector3();
+    this.cockpit.ee[side].getWorldPosition(ee);
+    const pullU = this.toUrdf(new THREE.Vector3().subVectors(this.targets[side], ee));
+    let fx = ADMIT.KDRAG * 3 * pullU.x, fy = ADMIT.KDRAG * 3 * pullU.y;
+    if (Math.abs(fx) <= ADMIT.FS) fx = 0;
+    if (Math.abs(fy) <= ADMIT.FS) fy = 0;
     this.adm.vx += (fx - ADMIT.BL * this.adm.vx) / ADMIT.M * dt;
     this.adm.vy += (fy - ADMIT.BL * this.adm.vy) / ADMIT.M * dt;
     if (fx === 0 && Math.abs(this.adm.vx) < ADMIT.VSTOP) this.adm.vx = 0;
     if (fy === 0 && Math.abs(this.adm.vy) < ADMIT.VSTOP) this.adm.vy = 0;
-    this.state.baseOffset.addScaledVector(fwd, this.adm.vx * dt);
-    this.state.baseOffset.addScaledVector(left, this.adm.vy * dt);
-    const delta = new THREE.Vector3().subVectors(this.state.baseOffset, prev);
-    if (delta.lengthSq() > 0) for (const s2 of ['l', 'r']) if (this.drag !== s2) this.targets[s2].add(delta);
+    this.state.bx += this.adm.vx * dt;
+    this.state.by += this.adm.vy * dt;
   }
 
-  /* ── uplink ──────────────────────────────────────────────────────── */
-  _sendTeleopFrame() {
-    const toLocal = (v) => {
-      const p = this.cockpit.root.worldToLocal(v.clone());
-      return [+p.x.toFixed(4), +p.y.toFixed(4), +p.z.toFixed(4)];
-    };
-    this.link.send('teleop_frame', {
-      sequence: this.link.seq++,
-      timestamp: Date.now() / 1000,
-      mode: this.teleopMode === 'nav' ? 'Base Driving' : 'Arms & Hands',
-      navJoystick: {
-        lx: +( -this.nav.vy / CAPS.VMAX).toFixed(3),
-        ly: +(this.nav.vx / CAPS.VMAX).toFixed(3),
-        rx: +(-this.nav.w / CAPS.WMAX).toFixed(3),
-        ry: +(this.nav.vlift / CAPS.LIFT_RATE).toFixed(3),
-      },
-      palmTargets: { l: toLocal(this.targets.l), r: toLocal(this.targets.r) },
-      grip: { l: +this.grip.l.toFixed(3), r: +this.grip.r.toFixed(3) },
-    });
+  // hold whole-body: the base creeps after the dragged ball (lazy follower)
+  _lazyBase(dt) {
+    const side = this.drag;
+    const home = this.rest[side].clone();
+    const offW = new THREE.Vector3(this.state.bx, this.state.by, 0).applyQuaternion(this.cockpit.rootQ0);
+    home.add(offW);
+    const e = this.toUrdf(new THREE.Vector3().subVectors(this.targets[side], home));
+    const HALF = 0.18, KP = 1.5;
+    if (Math.abs(e.x) > HALF) this.state.bx += KP * (e.x - Math.sign(e.x) * HALF) * dt;
+    if (Math.abs(e.y) > HALF) this.state.by += KP * (e.y - Math.sign(e.y) * HALF) * dt;
   }
 
-  /* ── visibility per mode ─────────────────────────────────────────── */
-  _applyModeVisibility() {
-    document.querySelectorAll('[data-tw-group]').forEach((el) => {
-      el.style.display = el.dataset.twGroup.split(' ').includes(this.teleopMode) ? '' : 'none';
+  // upper-body reach: the torso takes a lazy share of the lateral error
+  _lazyTorso(dt) {
+    const tj = this.cockpit.joints.torso; if (!tj || !this.drag) return;
+    const ee = new THREE.Vector3();
+    this.cockpit.ee[this.drag].getWorldPosition(ee);
+    const e = this.toUrdf(new THREE.Vector3().subVectors(this.targets[this.drag], ee));
+    const want = this.clampJ('torso', this.state.q.torso + e.y * 0.4);
+    this.setQ('torso', this.state.q.torso + (want - this.state.q.torso) * Math.min(1, dt * 1.2));
+    this.jointTarget.torso = this.state.q.torso;
+  }
+
+  /* ── per-mode visibility ─────────────────────────────────────────── */
+  _applyVisibility() {
+    document.querySelectorAll('[data-ck-show]').forEach((el) => {
+      el.style.display = el.dataset.ckShow === this.cockpitMode ? '' : 'none';
     });
-    document.querySelectorAll('[data-tw-ctlgroup]').forEach((el) => {
-      el.style.display = el.dataset.twCtlgroup.split(' ').includes(this.ctlMode) ? '' : 'none';
+    const hold = this.feel === 'impedance';
+    document.querySelectorAll('[data-rc-show]').forEach((el) => {
+      const k = el.dataset.rcShow;
+      const show = (k === 'hold' && hold)
+        || (k === 'soft' && !hold)
+        || (k === 'guide' && hold && this.method === 'wrist')
+        || (k === 'joints' && hold && this.method === 'joint');
+      el.style.display = show ? '' : 'none';
     });
-    const showTargets = (this.armDriver === 'ik') && (this.teleopMode === 'arm'
-      || this.ctlMode === 'wrist' || this.ctlMode === 'gravity' || this.ctlMode === 'compliance');
-    for (const s of ['l', 'r']) {
-      this.dots.cockpit[s].visible = this.teleopMode === 'arm';
-      this.dots.control[s].visible = showTargets && this.ctlMode !== 'joints';
-      this.handles[s].visible = this.ctlMode !== 'joints';
-    }
+    const balls = this._ballsVisible();
+    this.balls.l.visible = balls;
+    this.balls.r.visible = balls;
   }
 
   /* ── main loop ───────────────────────────────────────────────────── */
@@ -960,39 +1115,37 @@ class App {
       this.cockpit.pose(this.state);
       this.control.pose(this.state);
 
-      // markers: green = commanded targets, rust handles glued to the palms
+      // cockpit chase camera: target rides with the robot
+      const want = this.cockpit.rootWorld(this.state);
+      want.y = this.cockpit.controls.target.y;
+      const dx = want.x - this.cockpit.controls.target.x;
+      const dz = want.z - this.cockpit.controls.target.z;
+      if (Math.abs(dx) + Math.abs(dz) > 1e-5) {
+        this.cockpit.controls.target.x += dx; this.cockpit.controls.target.z += dz;
+        this.cockpit.camera.position.x += dx; this.cockpit.camera.position.z += dz;
+      }
+
+      // guide balls glue to the palms unless actively dragged
       for (const s of ['l', 'r']) {
-        this.dots.cockpit[s].position.copy(this.targets[s]);
-        this.dots.control[s].position.copy(this.targets[s]);
-        const on = (s === this.hand);
-        this.dots.cockpit[s].material.emissiveIntensity = on ? 0.6 : 0.25;
-        if (this.control.ee[s]) {
-          this.control.ee[s].getWorldPosition(ee);
-          this.handles[s].position.copy(ee);
-        }
+        if (this.drag === s) this.balls[s].position.copy(this.targets[s]);
+        else if (this.control.ee[s]) { this.control.ee[s].getWorldPosition(ee); this.balls[s].position.copy(ee); }
       }
 
       this.cockpit.render();
       this.control.render();
 
-      // uplink at TX_HZ while connected
-      if (this.link.connected) {
-        this._txAcc += dt;
-        if (this._txAcc >= 1 / TX_HZ) { this._txAcc = 0; this._sendTeleopFrame(); }
-      }
-
-      // telemetry strip at ~5 Hz
       this._teleAcc += dt;
-      if (this._teleAcc > 0.2) {
+      if (this._teleAcc > 0.25) {
         this._teleAcc = 0;
-        const o = this.state.baseOffset;
-        Tele.set('pose', `x ${o.z.toFixed(2)} m · y ${o.x.toFixed(2)} m · yaw ${(this.state.baseYaw * 180 / Math.PI).toFixed(0)}°`);
+        Tele.set('pose', `x ${this.state.bx.toFixed(2)} · y ${this.state.by.toFixed(2)} m · ${(this.state.yaw * 180 / Math.PI).toFixed(0)}°`);
         Tele.set('lift', `${(this.lift * 100).toFixed(1)} cm`);
-        Tele.set('mode', this.teleopMode === 'nav' ? 'NAV' : `ARMS · ${this.hand === 'l' ? 'L' : 'R'} palm`);
-        Tele.set('ctl', { wrist: 'Wrist (firm)', joints: 'Joints (firm)', gravity: 'Gravity comp (soft)', compliance: 'Compliance (soft)' }[this.ctlMode]);
+        Tele.set('speed', `${Math.hypot(this.nav.f, this.nav.s).toFixed(2)} m/s`);
+        Tele.set('mode', this.cockpitMode === 'drive' ? 'DRIVE' : 'ARMS');
+        Tele.set('ctl', `${this.feel === 'impedance' ? 'Hold' : 'Soft'} · ${this.method === 'joint' && this.feel === 'impedance' ? 'Joints' : 'Guide'} · ${{ arm: 'Arm', upper_body: 'Upper', whole_body: 'Whole' }[this.region]}`);
         Tele.set('rtt', this.link.rtt != null ? `${this.link.rtt.toFixed(0)} ms` : '—');
-        Tele.set('rate', this.link.live ? `${TX_HZ} Hz up · server state down` : '60 Hz local');
         Tele.set('src', this.link.live ? 'SERVER (MuJoCo)' : 'BROWSER (kinematic)');
+        Tele.set('rate', this.link.connected ? `${TX_HZ} Hz up · 20 Hz state down` : '60 Hz local');
+        if (!this.link.live) Tele.set('lat', '—');
       }
 
       requestAnimationFrame(loop);
@@ -1008,7 +1161,7 @@ class App {
   if (!cockpitBox || !controlBox) return;
   try {
     const manifest = await fetch('assets/mabel_joints.json').then((r) => r.json());
-    const cockpit = new Stage(cockpitBox);
+    const cockpit = new Stage(cockpitBox, { follow: true });
     const control = new Stage(controlBox);
     await Promise.all([cockpit.load(manifest), control.load(manifest)]);
     new App(manifest, cockpit, control);
