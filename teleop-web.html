@@ -152,7 +152,7 @@
     <div class="ta-estop-veil"><span class="tag">E-STOP — OUTPUTS HALTED</span></div>
   </div>
 
-  <!-- ── THE DOCK — floating liquid-glass nav + status, persists over scroll ── -->
+  <!-- ── THE DOCK — floating liquid glass, two rows: views on top, status below ── -->
   <div class="ta-dock" id="taDock">
     <nav class="ta-tabs" data-tabs>
       <button class="on" data-go="teleop">
@@ -168,19 +168,20 @@
         Navigate
       </button>
     </nav>
-    <span class="ta-divider"></span>
-    <span class="ta-pill" id="taPill"><span class="dot"></span><span>LOCAL SIM</span></span>
-    <input class="ta-url" id="taUrl" type="text" value="ws://localhost:9090/teleop" spellcheck="false" autocomplete="off" aria-label="Bridge WebSocket URL" />
-    <button class="ta-connect" id="taConnect">Connect</button>
-    <div class="ta-metrics">
-      <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
-      <span class="ta-metric">LAT<b data-ta="lat">—</b></span>
-      <span class="ta-metric">BATT<b data-ta="batt">—</b></span>
+    <div class="ta-dock-row">
+      <span class="ta-pill" id="taPill"><span class="dot"></span><span>LOCAL SIM</span></span>
+      <input class="ta-url" id="taUrl" type="text" value="ws://localhost:9090/teleop" spellcheck="false" autocomplete="off" aria-label="Bridge WebSocket URL" />
+      <button class="ta-connect" id="taConnect">Connect</button>
+      <div class="ta-metrics">
+        <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
+        <span class="ta-metric">LAT<b data-ta="lat">—</b></span>
+        <span class="ta-metric">BATT<b data-ta="batt">—</b></span>
+      </div>
+      <span class="ta-divider"></span>
+      <button class="ta-sbtn" id="taReset">Reset</button>
+      <button class="ta-estop" id="taEstop">E-STOP</button>
+      <button class="ta-sbtn ta-fs" id="taFs" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></button>
     </div>
-    <span class="ta-divider"></span>
-    <button class="ta-sbtn" id="taReset">Reset</button>
-    <button class="ta-estop" id="taEstop">E-STOP</button>
-    <button class="ta-sbtn ta-fs" id="taFs" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></button>
   </div>
 
   <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code>, and mirror the same <code>robot_state</code>. Start it with <code>server/start_teleop.sh</code> — the page links up by itself. Cameras stream as MJPEG from port 8080, exactly as the headset pulls them.</p>

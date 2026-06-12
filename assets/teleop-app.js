@@ -399,6 +399,7 @@ class App {
     this.wireJoints = {}; this.jointsDirty = false;
     this.drag = null;                           // body-view active drag side
     this._lastSpec = '';
+    this.driving = true; this.clientCount = 1;  // arbitration state from robot_state
 
     this._buildDock();
     this._txAcc = 0; this._last = performance.now();
@@ -468,21 +469,44 @@ class App {
   }
   _paintLink() {
     const pill = $('#taPill'), btn = $('#taConnect');
+    const label = pill.querySelector('span:last-child');   // NOT the status dot
     pill.classList.remove('link', 'wait');
-    if (this.link.connected) { pill.classList.add('link'); pill.querySelector('span').textContent = 'BRIDGE'; }
-    else if (this.link.want) { pill.classList.add('wait'); pill.querySelector('span').textContent = 'SEARCHING'; }
-    else pill.querySelector('span').textContent = 'LOCAL SIM';
+    if (this._mixedBlocked()) {
+      pill.classList.add('wait');
+      label.textContent = 'HTTPS BLOCKS ws://';
+      pill.title = 'A page served over https cannot open an insecure WebSocket to a LAN host. '
+        + 'Open the console from your bridge instead: http://<bridge-host>:8080/console';
+    } else if (this.link.connected) {
+      pill.classList.add('link');
+      label.textContent = this.driving === false
+        ? `BRIDGE · OBSERVING${this.clientCount > 1 ? ` (${this.clientCount})` : ''}`
+        : 'BRIDGE · DRIVING';
+      pill.title = this.driving === false
+        ? 'Another client (iOS / Vision Pro) is driving — move a stick or drag the model to take over.'
+        : 'You are the active driver.';
+    } else if (this.link.want) { pill.classList.add('wait'); label.textContent = 'SEARCHING'; pill.title = ''; }
+    else { label.textContent = 'LOCAL SIM'; pill.title = ''; }
     btn.textContent = this.link.want ? 'Disconnect' : 'Connect';
+  }
+  /** https pages cannot open ws:// to a non-localhost host — detect and say so. */
+  _mixedBlocked() {
+    const url = ($('#taUrl').value || '').trim();
+    return location.protocol === 'https:' && url.startsWith('ws://')
+      && !/^(ws:\/\/)(localhost|127\.0\.0\.1)/.test(url);
   }
   _autoConnect() {
     let saved = null;
     try { saved = localStorage.getItem('mabel-ws-url'); } catch (e) {}
-    const url = saved || 'ws://localhost:9090/teleop';
+    // Default: same host the page came from (the bridge serves the console at
+    // http://<host>:8080/console), falling back to localhost for local dev.
+    const host = (location.protocol.startsWith('http') && location.hostname) || 'localhost';
+    const url = saved || `ws://${host}:9090/teleop`;
     $('#taUrl').value = url;
     this.link.connect(url);
     this._paintLink();
   }
   onLink(up) {
+    if (!up) { this.driving = true; this.clientCount = 1; }
     this._paintLink(); this._syncCams();
     if (!up) {
       this.sim.remote = false;
@@ -1041,6 +1065,12 @@ class App {
     if (p.battery) {
       const pc = +p.battery.percentage;
       UI.set('batt', `${(pc <= 1.5 ? pc * 100 : pc).toFixed(0)}%`);
+    }
+    if (p.driver) {                       // arbitration: am I the active driver?
+      const was = this.driving;
+      this.driving = !!p.driver.you;
+      this.clientCount = +p.driver.clients || 1;
+      if (was !== this.driving) this._paintLink();
     }
     this.sim.applyGrips();
   }
