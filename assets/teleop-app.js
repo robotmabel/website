@@ -217,10 +217,15 @@ class Rig {
   }
 
   /** Pose from canonical state — base pose in PURE MuJoCo coordinates,
-      composed through base_link's baked Z-up→Y-up transform. */
-  pose(state) {
+      composed through base_link's baked Z-up→Y-up transform.
+      `pinned` renders in the robot's odom frame (iOS RealRobotView style):
+      heading and joints still apply, but the world translation is dropped,
+      so the model stays centered in view no matter where the base drives. */
+  pose(state, { pinned = false } = {}) {
     for (const n in state.q) this.setJoint(n, state.q[n]);
-    const off = new THREE.Vector3(state.bx, state.by, 0).applyQuaternion(this.baseQ0);
+    const off = pinned
+      ? new THREE.Vector3()
+      : new THREE.Vector3(state.bx, state.by, 0).applyQuaternion(this.baseQ0);
     this.base.position.copy(this.baseP0).add(off);
     this.base.quaternion.copy(this.baseQ0)
       .multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), state.yaw));
@@ -1039,7 +1044,7 @@ class App {
     this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
     if (this.goalRing) this.clearGoal();
     if (this.bodyRig && this.targets) {
-      this.bodyRig.pose(this.sim.state);
+      this.bodyRig.pose(this.sim.state, { pinned: true });
       for (const s of ['l', 'r']) this.bodyRig.ee[s]?.getWorldPosition(this.targets[s]);
     }
     this.link.send('reset', {});
@@ -1148,7 +1153,8 @@ class App {
       this.miniStage.render();
       if (uiTick) UI.set('speed', `${Math.hypot(this.nav.f, this.nav.s).toFixed(2)} m/s`);
     } else if (this.view === 'body') {
-      this.bodyRig.pose(this.sim.state);
+      // odom-pinned: the Body twin stays centered even while the base drives
+      this.bodyRig.pose(this.sim.state, { pinned: true });
       const ee = new THREE.Vector3();
       for (const s of ['l', 'r']) {
         if (this.drag === s) this.balls[s].position.copy(this.targets[s]);
