@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
 <title>MABEL — Teleop · Browser</title>
-<meta name="description" content="Teleoperate MABEL in your browser: the iOS app's Drive/Arms cockpit and Hold/Soft manipulation console rebuilt for the web, speaking the identical wire protocol to the same MuJoCo teleop bridge (ws://host:9090/teleop) — with auto-connect and a live status console." />
+<meta name="description" content="The MABEL browser operator console: live camera teleop with joysticks, impedance/compliance body control on a draggable 3D model, and point-cloud room navigation — speaking the identical wire protocol to the same teleop bridge as the iOS and Vision Pro apps." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
+<link rel="stylesheet" href="assets/teleop-app.css" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -41,188 +42,149 @@
   <a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="teleop-web.html" class="on">Browser</a>
 </aside>
 
-<!-- HERO -->
-<section class="page-hero"><div class="page-hero-inner">
+<!-- HERO (short — the console is the page) -->
+<section class="page-hero" style="padding-bottom:28px;"><div class="page-hero-inner">
   <div class="crumbs"><a href="index.html">Overview</a> / <a href="teleop.html">Teleop</a> / Browser</div>
   <span class="eyebrow">Teleop · Browser</span>
-  <h1 class="display-lg">Teleop it. Right here.</h1>
-  <p class="lede">The <a href="teleop-ios.html">iPhone app's</a> cockpit and manipulation console, rebuilt for the web — <strong>and wired to the same backend</strong>. It speaks the identical protocol to the same teleop bridge the iOS and Vision&nbsp;Pro apps use, <strong>auto-connecting</strong> the moment a bridge is reachable. No bridge? An in-browser sim keeps everything live.</p>
-  <div class="spec" style="margin-top:28px;"><span>Same server as iOS &amp; Vision Pro</span><span>Auto-connect</span><span>Drive + Arms cockpit</span><span>Hold / Soft control</span><span>Live status console</span></div>
+  <h1 class="display-lg">The operator console.</h1>
+  <p class="lede">Three views — <strong>Teleop</strong>, <strong>Body</strong>, <strong>Navigate</strong> — over one robot, speaking the identical wire protocol to the same bridge as the <a href="teleop-ios.html">iPhone</a> and <a href="teleop-visionpro.html">Vision&nbsp;Pro</a> apps. Auto-connects when a bridge is reachable; an in-browser kinematic twin keeps every control live without one.</p>
 </div></section>
 
-<!-- ─── CONNECT BAR ─── -->
-<section class="pad-y" id="connect" style="padding-bottom:0;"><div class="wrap">
-  <div class="tw-connect fade-up">
-    <span class="tw-pill local" id="twPill">LOCAL SIM</span>
-    <input class="tw-url" id="twUrl" type="text" value="ws://localhost:9090/teleop" spellcheck="false" autocomplete="off" aria-label="Bridge WebSocket URL" />
-    <button class="btn btn-primary tw-btn" id="twConnect">Connect</button>
-    <span class="tw-rtt">RTT <b data-tw="rtt">—</b></span>
-  </div>
-  <p class="table-note fade-up" style="margin-top:10px;">The page <strong>auto-connects</strong> on load and keeps retrying quietly in the background — start the bridge (<code>server/start_teleop.sh</code>, the same one the apps use; see <a href="server.html">Server&nbsp;&amp;&nbsp;Bridge</a>) and it links up by itself. Once <code>robot_state</code> flows, the 3D model mirrors the server's MuJoCo sim exactly; press <strong>Disconnect</strong> to stay on the in-browser sim.</p>
-</div></section>
+<!-- ═══ THE CONSOLE ═══ -->
+<section class="ta-wrap" id="taSection">
+  <div class="ta-app" id="taApp">
 
-<!-- ─── 1 · COCKPIT ─── -->
-<section class="pad-y" id="cockpit"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">01 · Cockpit</span><h2 class="display-md title">Drive. <span class="italic accent">Or reach.</span></h2></div>
-    <p class="lede">The iOS Drive cockpit, joysticks and all. <strong>Drive</strong>: left stick translates the swerve base, right stick turns and lifts. <strong>Arms</strong>: each side gets a wrist joystick, up/down nudges, and a grip trigger — exactly the phone's layout.</p></div>
+    <!-- ── TELEOP ───────────────────────────────────────────────── -->
+    <div class="ta-view on" data-view="teleop">
+      <div class="ta-video">
+        <img id="taCamMain" alt="" style="display:none;" />
+        <div class="ta-novid" id="taNoVid"><div class="inner">
+          <b>No video — bridge offline</b>
+          Start the camera server (<code>server/start_teleop.sh</code>) and connect below.
+          Controls stay live against the in-browser twin meanwhile.
+        </div></div>
+      </div>
+      <div class="ta-pip l"><img id="taCamL" alt="" /><span class="tag">L WRIST</span></div>
+      <div class="ta-pip r"><img id="taCamR" alt="" /><span class="tag">R WRIST</span></div>
 
-  <div class="ck fade-up" id="twCockpit">
-    <div class="viewer-3d wbc-stage ck-stage">
-      <canvas></canvas>
-      <div class="ph dark viewer-loading"><div class="ph-label">Loading MABEL · cockpit</div></div>
-
-      <!-- top bar: status chips + Drive/Arms picker -->
-      <div class="ck-top">
-        <div class="ck-chips">
-          <span class="tw-pill local">LOCAL SIM</span>
-          <span class="ck-chip">BATT <b data-tw="battery">—</b></span>
-          <span class="ck-chip">LAT <b data-tw="lat">—</b></span>
-          <span class="ck-chip">SPD <b data-tw="speed">0.00 m/s</b></span>
-        </div>
-        <div class="ck-seg" data-ck-seg>
+      <div class="ta-top">
+        <span class="ta-title">TELEOP</span>
+        <div class="ta-seg" data-ck>
           <button class="on" data-mode="drive">Drive</button>
           <button data-mode="arms">Arms</button>
         </div>
+        <span class="ta-title" data-ta="speed">0.00 m/s</span>
       </div>
 
-      <!-- bottom controls, anchored at the outer edges like the app -->
-      <div class="ck-bottom">
-        <div class="ck-corner">
-          <div class="ck-joy" data-ck-joy="navL" data-ck-show="drive"><span class="ck-knob live-tint"></span><span class="ck-joy-lab">TRANSLATE</span></div>
-          <div class="ck-cluster" data-ck-show="arms" style="display:none;">
-            <div class="ck-holds">
-              <button class="ck-hold" data-ck-hold="left" data-dir="1" aria-label="Left arm up">⌃</button>
-              <button class="ck-hold" data-ck-hold="left" data-dir="-1" aria-label="Left arm down">⌄</button>
-            </div>
-            <div class="ck-joy" data-ck-joy="left"><span class="ck-knob live-tint"></span><span class="ck-joy-lab">L WRIST</span></div>
-            <div class="ck-grip" data-ck-grip="left">
-              <span class="ck-grip-val">0%</span>
-              <div class="ck-grip-track"><div class="ck-grip-fill"></div></div>
-              <span class="ck-grip-lab">L GRIP</span>
-            </div>
-          </div>
-        </div>
+      <!-- drive sticks -->
+      <div class="ta-joy l" data-joy="navL" data-show="drive"><span class="knob"></span><span class="lab">TRANSLATE</span></div>
+      <div class="ta-joy r accent" data-joy="navR" data-show="drive"><span class="knob"></span><span class="lab">ROTATE · LIFT</span></div>
 
-        <button class="ck-stop" id="twStop">STOP</button>
+      <!-- arm clusters -->
+      <div class="ta-cluster l" data-show="arms" style="display:none;">
+        <div class="ta-nudge"><button data-side="left" data-dir="1">⌃</button><button data-side="left" data-dir="-1">⌄</button><span class="lab">RAISE</span></div>
+        <div class="ta-joy" style="position:static;" data-joy="armL"><span class="knob"></span><span class="lab">L WRIST</span></div>
+        <div class="ta-grip" data-side="left"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">L GRIP</span></div>
+      </div>
+      <div class="ta-cluster r" data-show="arms" style="display:none;">
+        <div class="ta-nudge"><button data-side="right" data-dir="1">⌃</button><button data-side="right" data-dir="-1">⌄</button><span class="lab">RAISE</span></div>
+        <div class="ta-joy accent" style="position:static;" data-joy="armR"><span class="knob"></span><span class="lab">R WRIST</span></div>
+        <div class="ta-grip" data-side="right"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">R GRIP</span></div>
+      </div>
 
-        <div class="ck-corner right">
-          <div class="ck-joy" data-ck-joy="navR" data-ck-show="drive"><span class="ck-knob clay-tint"></span><span class="ck-joy-lab">ROTATE · LIFT</span></div>
-          <div class="ck-cluster" data-ck-show="arms" style="display:none;">
-            <div class="ck-grip" data-ck-grip="right">
-              <span class="ck-grip-val">0%</span>
-              <div class="ck-grip-track"><div class="ck-grip-fill"></div></div>
-              <span class="ck-grip-lab">R GRIP</span>
-            </div>
-            <div class="ck-joy" data-ck-joy="right"><span class="ck-knob clay-tint"></span><span class="ck-joy-lab">R WRIST</span></div>
-            <div class="ck-holds">
-              <button class="ck-hold" data-ck-hold="right" data-dir="1" aria-label="Right arm up">⌃</button>
-              <button class="ck-hold" data-ck-hold="right" data-dir="-1" aria-label="Right arm down">⌄</button>
-            </div>
-          </div>
+      <!-- synced miniature -->
+      <div class="ta-mini">
+        <div class="ta-stage"><canvas></canvas><div class="ta-loading">RIG</div></div>
+        <span class="tag">ROBOT STATE</span>
+      </div>
+    </div>
+
+    <!-- ── BODY ─────────────────────────────────────────────────── -->
+    <div class="ta-view" data-view="body">
+      <div class="ta-stage"><canvas></canvas><div class="ta-loading">LOADING MABEL</div></div>
+
+      <div class="ta-top">
+        <span class="ta-title">BODY CONTROL</span>
+        <span></span>
+      </div>
+      <div class="ta-feelbar">
+        <div class="ta-seg" data-feel>
+          <button class="on" data-val="impedance">✊ Hold</button>
+          <button data-val="compliance">✋ Soft</button>
         </div>
       </div>
 
-      <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
+      <aside class="ta-side">
+        <div class="ta-panel">
+          <div class="row"><span class="k">STIFFNESS</span><span class="v" data-stiff-out>32 Nm/rad</span></div>
+          <input class="ta-slider" type="range" data-stiff min="0.1" max="1" step="0.01" value="0.7" />
+        </div>
+        <div class="ta-panel ta-joints">
+          <div class="ta-jtabs" data-jtabs></div>
+          <div class="ta-jlist" data-jlist></div>
+        </div>
+      </aside>
+
+      <div class="ta-hint" id="taHintHold">Drag a <b>palm handle</b> to command the arm in Cartesian space — or set any joint on the right.</div>
+      <div class="ta-hint" id="taHintSoft" style="display:none;">Just push. Grab a <b>handle</b> and the whole robot yields — arms give, the base glides. Nothing springs back.</div>
+    </div>
+
+    <!-- ── NAVIGATE ─────────────────────────────────────────────── -->
+    <div class="ta-view" data-view="nav">
+      <div class="ta-stage"><canvas></canvas><div class="ta-loading">BUILDING ROOM</div></div>
+
+      <div class="ta-top">
+        <span class="ta-title" data-ta="navroom">—</span>
+        <span class="ta-title" data-ta="navpts">—</span>
+      </div>
+
+      <div class="ta-rooms"></div>
+
+      <div class="ta-navhud">
+        <span class="stat">POSE <b data-ta="navpose">x 0.0 · y 0.0 m</b></span>
+        <span class="stat">GOAL <b data-ta="navdist">—</b></span>
+        <button class="ta-btn primary" id="taFollow" disabled>Follow path</button>
+        <button class="ta-btn" id="taClearGoal">Clear</button>
+      </div>
+    </div>
+
+    <!-- ── E-STOP veil ──────────────────────────────────────────── -->
+    <div class="ta-estop-veil"><span class="tag">E-STOP — OUTPUTS HALTED</span></div>
+  </div>
+
+  <!-- ── THE DOCK — floating liquid-glass nav + status, persists over scroll ── -->
+  <div class="ta-dock" id="taDock">
+    <nav class="ta-tabs" data-tabs>
+      <button class="on" data-go="teleop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2.5"/><circle cx="9" cy="12" r="2.2"/><path d="M15.5 10.5h.01M18 12.5h.01"/></svg>
+        Teleop
       </button>
-    </div>
-  </div>
-  <p class="table-note fade-up" style="margin-top:14px;">Sticks are spring-loaded velocity commands with the app's caps (1.2&nbsp;m/s · 1.8&nbsp;rad/s); the camera chases the robot, and you can orbit it any time. In Arms, the joysticks nudge the arm joints at 1.4&nbsp;rad/s and the triggers set grip — byte-for-byte the phone's <code>teleop_frame</code> + <code>joint_command</code> stream when a bridge is connected.</p>
-</div></section>
-
-<!-- ─── 2 · MANIPULATION CONSOLE ─── -->
-<section class="dark-sec pad-y" id="control"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow" style="color:#e9a679;">02 · Robot control</span><h2 class="display-md title" style="color:var(--bone);">Hold it. Or <span class="italic accent">push it.</span></h2></div>
-    <p class="lede">The app's manipulation console, on its three orthogonal axes. <strong>Teleop</strong> — Guide a palm or set Joints. <strong>Feel</strong> — Hold (impedance spring) or Soft (it yields to your push). <strong>Reach</strong> — how much of the body joins in: arm, torso, or the whole base.</p></div>
-
-  <div class="rc fade-up" id="twControl">
-    <div class="viewer-3d wbc-stage rc-stage">
-      <canvas></canvas>
-      <div class="ph dark viewer-loading"><div class="ph-label">Loading MABEL · console</div></div>
-
-      <!-- the prominent Hold/Soft toggle floating over the viewer, like the app -->
-      <div class="rc-float">
-        <div class="rc-feel" data-rc-feel>
-          <button class="on" data-feel="impedance">✊&nbsp;Hold</button>
-          <button data-feel="compliance">✋&nbsp;Soft</button>
-        </div>
-      </div>
-
-      <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
+      <button data-go="body">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.3"/><path d="M12 7.5v6M12 13.5l-3.5 6M12 13.5l3.5 6M6 9.5l6-1.5 6 1.5"/></svg>
+        Body
       </button>
-      <div class="viewer-hint"><span class="dot-live"></span> Same robot as the cockpit — one state</div>
+      <button data-go="nav">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l6-2.5 6 2.5 6-2.5V5l-6 2.5L9 5 3 7.5z"/><path d="M9 5v12M15 7.5v12"/></svg>
+        Navigate
+      </button>
+    </nav>
+    <span class="ta-divider"></span>
+    <span class="ta-pill" id="taPill"><span class="dot"></span><span>LOCAL SIM</span></span>
+    <input class="ta-url" id="taUrl" type="text" value="ws://localhost:9090/teleop" spellcheck="false" autocomplete="off" aria-label="Bridge WebSocket URL" />
+    <button class="ta-connect" id="taConnect">Connect</button>
+    <div class="ta-metrics">
+      <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
+      <span class="ta-metric">LAT<b data-ta="lat">—</b></span>
+      <span class="ta-metric">BATT<b data-ta="batt">—</b></span>
     </div>
-
-    <aside class="rc-panel">
-      <div class="rc-head">
-        <span class="rc-title">Manipulation</span>
-        <button class="rc-home" id="twHome">⌂ Home</button>
-      </div>
-
-      <div class="rc-axis" data-rc-show="hold">
-        <span class="rc-axis-lab">Teleop</span>
-        <div class="rc-seg" data-rc-method>
-          <button class="on" data-method="wrist">Guide</button>
-          <button data-method="joint">Joints</button>
-        </div>
-      </div>
-
-      <div class="rc-axis">
-        <span class="rc-axis-lab">Reach</span>
-        <div class="rc-seg" data-rc-region>
-          <button class="on" data-region="arm">Arm</button>
-          <button data-region="upper_body">Upper</button>
-          <button data-region="whole_body">Whole</button>
-        </div>
-      </div>
-
-      <div class="rc-axis" data-rc-show="hold">
-        <div class="rc-axis-row"><span class="rc-axis-lab">Stiffness</span><b class="rc-out" data-rc-stiff-out>32 Nm/rad</b></div>
-        <input class="wbc-slider" type="range" data-rc-stiff min="0.1" max="1" step="0.01" value="0.7" />
-      </div>
-
-      <p class="rc-note" data-rc-show="guide">Drag a <span style="color:#3FB56B;font-weight:500;">green palm ball</span> — the arm tracks it like a spring. The realised pose streams to the bridge as the impedance target.</p>
-
-      <div data-rc-show="joints" style="display:none;">
-        <div class="jp-tabs rc-jtabs" data-rc-jtabs></div>
-        <div class="jp-list rc-jlist" data-rc-jlist></div>
-        <p class="rc-note" style="margin-top:8px;">Sliders set joint <strong>targets</strong>; the robot slews to them rate-limited.</p>
-      </div>
-
-      <p class="rc-note" data-rc-show="soft" style="display:none;">The robot only moves under <strong>external force</strong> — grab a <span style="color:#3FB56B;font-weight:500;">ball</span> and push. Your drag goes up as a world-frame wrench (<code>external_force</code>) and the back-drivable body yields: arms always, torso in <em>Upper</em>, the gliding base in <em>Whole</em>. Nothing springs back.</p>
-    </aside>
+    <span class="ta-divider"></span>
+    <button class="ta-sbtn" id="taReset">Reset</button>
+    <button class="ta-estop" id="taEstop">E-STOP</button>
+    <button class="ta-sbtn ta-fs" id="taFs" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></button>
   </div>
-  <p class="table-note fade-up" style="margin-top:14px; color:var(--ash-light);">One canonical robot state drives both viewers — pose it here, scroll up, the cockpit shows the same robot. Connected, the axes go up as a structured <code>control_mode</code> spec (method · controlType · region · stiffness), Guide/Joints stream <code>joint_command</code>, and Soft pushes stream <code>external_force</code> — the exact messages <code>WholeBodyView.swift</code> sends.</p>
-</div></section>
 
-<!-- ─── 3 · STATUS CONSOLE ─── -->
-<section class="pad-y" id="status"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">03 · Telemetry</span><h2 class="display-md title">The robot, <span class="italic accent">narrated.</span></h2></div>
-    <p class="lede">Every event — connect attempts, mode switches, uplink commands, incoming state — lands in the console, timestamped. The strip on top is live telemetry.</p></div>
-
-  <div class="tw-console fade-up">
-    <div class="tw-tele">
-      <div><span class="k">Link</span><b data-tw="link">LOCAL SIM</b></div>
-      <div><span class="k">Server</span><b data-tw="server">—</b></div>
-      <div><span class="k">State source</span><b data-tw="src">BROWSER (kinematic)</b></div>
-      <div><span class="k">Rate</span><b data-tw="rate">60 Hz local</b></div>
-      <div><span class="k">RTT</span><b data-tw="rtt">—</b></div>
-      <div><span class="k">Bridge lat</span><b data-tw="lat">—</b></div>
-      <div><span class="k">Cockpit</span><b data-tw="mode">DRIVE</b></div>
-      <div><span class="k">Console</span><b data-tw="ctl">Hold · Guide · Arm</b></div>
-      <div><span class="k">Base pose</span><b data-tw="pose">x 0.00 · y 0.00 m · 0°</b></div>
-      <div><span class="k">Lift</span><b data-tw="lift">0.0 cm</b></div>
-      <div><span class="k">Speed cmd</span><b data-tw="speed">0.00 m/s</b></div>
-      <div><span class="k">Battery</span><b data-tw="battery">— (local)</b></div>
-    </div>
-    <div class="tw-log" id="twLog" aria-live="polite"></div>
-    <div class="tw-log-actions">
-      <button class="wbc-reset" id="twLogClear">Clear log</button>
-      <button class="wbc-reset" id="twReset">Reset robot</button>
-    </div>
-  </div>
-</div></section>
+  <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code>, and mirror the same <code>robot_state</code>. Start it with <code>server/start_teleop.sh</code> — the page links up by itself. Cameras stream as MJPEG from port 8080, exactly as the headset pulls them.</p>
+</section>
 
 <!-- CTA -->
 <section class="soft-sec pad-y"><div class="wrap-narrow" style="text-align:center;">
@@ -247,6 +209,6 @@
 </footer>
 
 <script src="assets/mabel.js"></script>
-<script type="module" src="assets/teleop-web.js"></script>
+<script type="module" src="assets/teleop-app.js"></script>
 </body>
 </html>
