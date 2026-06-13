@@ -33,7 +33,6 @@ const MAX_LIN = 1.2;        // m/s
 const MAX_ANG = 1.8;        // rad/s
 const LIFT_RATE = 0.22;     // m/s
 const LIFT_MAX = 0.635;     // m
-const ARM_RATE = 1.4;       // rad/s  joystick → joint nudge
 const MAX_STIFF = 45.0;     // Nm/rad at stiffness slider = 1
 const PUSH_K = 60.0, PUSH_MAX = 90.0;   // N/m, N — Soft drag → external_force
 const TX_HZ = 20, PING_S = 5;
@@ -64,6 +63,7 @@ const Q_ZUP = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0)
 const Q_ZUP_INV = Q_ZUP.clone().invert();
 const toThree = (v) => v.clone().applyQuaternion(Q_ZUP);
 const toMj = (v) => v.clone().applyQuaternion(Q_ZUP_INV);
+const UP_Y = new THREE.Vector3(0, 1, 0);   // three.js world up (for RAISE up/down)
 
 // localhost-family hosts: the browser treats these as "potentially trustworthy",
 // so a plain ws:// to them is allowed even from an https page (mixed-content rules
@@ -429,6 +429,8 @@ class App {
     this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
     this.cockpitMode = 'drive';                 // teleop view: drive | arms
     this.armJoy = { left: { x: 0, y: 0 }, right: { x: 0, y: 0 } };
+    this.armRaise = { left: 0, right: 0 };      // RAISE buttons: +1 up / -1 down (world)
+    this.armTgt = {};                           // l/r palm targets (three world) for Cartesian arm drive
     this.feel = 'impedance';                    // body view: impedance | compliance
     this.stiffness = 0.7;
     this.wireJoints = {}; this.jointsDirty = false;
@@ -786,6 +788,7 @@ class App {
       $$('[data-show]', v).forEach((el) => { el.style.display = el.dataset.show === this.cockpitMode ? '' : 'none'; });
       if (this.cockpitMode === 'arms') {
         for (const c of [...this.sim.chains.l, ...this.sim.chains.r]) this.sim.jointTarget[c] = this.sim.state.q[c];
+        this.armTgt = {};                       // re-sync palm targets to the live pose
       }
       this._announceSpec();
     }));
@@ -797,18 +800,16 @@ class App {
     new Joy($('[data-joy="armL"]', v), (x, y) => { this.armJoy.left = { x, y }; });
     new Joy($('[data-joy="armR"]', v), (x, y) => { this.armJoy.right = { x, y }; });
 
-    // up/down nudges + grips
+    // RAISE up/down — hold to move the palm target straight up/down (world Z);
+    // the Cartesian arm driver (_armCartesian) integrates it, IK does the rest.
     $$('.ta-nudge button', v).forEach((b) => {
-      let t = null;
       const side = b.dataset.side, dir = +b.dataset.dir;
-      const fire = () => {
-        const name = `${side}_arm_1`;
-        this.sim.jointTarget[name] = this.sim.clampJ(name, (this.sim.jointTarget[name] || 0) - dir * 0.12);
-        this.setWire(name, this.sim.jointTarget[name]);
-      };
-      b.addEventListener('pointerdown', () => { fire(); t = setInterval(fire, 120); });
-      const stop = () => clearInterval(t);
-      b.addEventListener('pointerup', stop); b.addEventListener('pointercancel', stop); b.addEventListener('pointerleave', stop);
+      const press = () => { this.armRaise[side] = dir; b.classList.add('on'); };
+      const release = () => { this.armRaise[side] = 0; b.classList.remove('on'); };
+      b.addEventListener('pointerdown', press);
+      b.addEventListener('pointerup', release);
+      b.addEventListener('pointercancel', release);
+      b.addEventListener('pointerleave', release);
     });
     $$('.ta-grip', v).forEach((g) => {
       const side = g.dataset.side, track = $('.track', g), fill = $('.fill', g), out = $('.val', g);
@@ -1341,28 +1342,65 @@ class App {
     this.sim.applyGrips();
   }
 
+  /** Robot-local horizontal axes expressed in three.js world space (from the
+      base node's world orientation, projected to the ground plane). `lat` is the
+      robot's left/right axis, `fwd` its fore/aft axis — so joystick motion maps
+      to the ROBOT's frame regardless of how the chase camera or base is turned. */
+  _robotAxes(rig) {
+    const q = rig.base.getWorldQuaternion(new THREE.Quaternion());
+    const fwd = new THREE.Vector3(1, 0, 0).applyQuaternion(q); fwd.y = 0;
+    const lat = new THREE.Vector3(0, 1, 0).applyQuaternion(q); lat.y = 0;
+    fwd.lengthSq() > 1e-6 ? fwd.normalize() : fwd.set(0, 0, 1);
+    lat.lengthSq() > 1e-6 ? lat.normalize() : lat.set(1, 0, 0);
+    return { fwd, lat };
+  }
+
+  /** Teleop Arms: drive each palm in the ROBOT's local frame from its joystick
+      (horizontal → lateral, vertical → fore/aft) plus the RAISE buttons (world
+      up/down), via IK. Runs whether connected or local — the resolved joint
+      targets stream as joint_command so the real robot moves too. */
+  _armCartesian(dt) {
+    const RATE = 0.42;                       // m/s at full joystick deflection
+    this.miniRig.pose(this.sim.state);       // FK current before IK
+    const { fwd, lat } = this._robotAxes(this.miniRig);
+    const ee = new THREE.Vector3();
+    for (const side of ['left', 'right']) {
+      const s = side === 'left' ? 'l' : 'r';
+      if (!this.miniRig.ee[s]) continue;
+      this.miniRig.ee[s].getWorldPosition(ee);
+      if (!this.armTgt[s]) this.armTgt[s] = ee.clone();
+      const joy = this.armJoy[side];
+      const rz = this.armRaise[side] || 0;
+      const moving = Math.abs(joy.x) > 0.06 || Math.abs(joy.y) > 0.06 || rz !== 0;
+      if (!moving) { this.armTgt[s].copy(ee); continue; }  // idle → track the live palm, no drift
+      this.armTgt[s]
+        .addScaledVector(lat, -joy.x * RATE * dt)   // stick right → palm to the robot's right
+        .addScaledVector(fwd, -joy.y * RATE * dt)   // stick up    → palm forward (away from body)
+        .addScaledVector(UP_Y, rz * RATE * dt);     // RAISE       → straight up/down
+      // When connected, the display follows robot_state — so snapshot the live
+      // arm pose, run IK only to DERIVE the joint targets to stream, then restore
+      // it so the model doesn't jitter ahead of the real robot.
+      const saved = this.sim.remote ? this.sim.chains[s].map((c) => this.sim.state.q[c]) : null;
+      this.sim.ik(this.miniRig, s, this.armTgt[s], 0.5, 3);
+      for (const c of this.sim.chains[s]) {
+        this.sim.jointTarget[c] = this.sim.state.q[c];
+        this.setWire(c, this.sim.state.q[c]);       // stream as joint_command (works connected)
+      }
+      if (saved) this.sim.chains[s].forEach((c, i) => { this.sim.state.q[c] = saved[i]; });
+    }
+  }
+
   /* ── per-frame tick ─────────────────────────────────────────────── */
   _tick(dt) {
     if (this.view === 'nav') this._followStep(dt);
 
+    // Arm Cartesian drive runs regardless of the link: the joysticks always move
+    // the arms (locally on the twin, and over the wire when connected).
+    if (this.view === 'teleop' && this.cockpitMode === 'arms' && !this.estop) this._armCartesian(dt);
+
     if (!this.sim.remote && !this.estop) {
       // local kinematic mirror (identical command semantics to the bridge)
       this.sim.stepBase(this.nav, dt);
-      if (this.view === 'teleop' && this.cockpitMode === 'arms') {
-        for (const side of ['left', 'right']) {
-          const joy = this.armJoy[side], m = side === 'left' ? -1 : 1;
-          if (Math.abs(joy.x) > 0.06) {
-            const n = `${side}_arm_3`;
-            this.sim.jointTarget[n] = this.sim.clampJ(n, (this.sim.jointTarget[n] || 0) + joy.x * m * ARM_RATE * dt);
-            this.setWire(n, this.sim.jointTarget[n]);
-          }
-          if (Math.abs(joy.y) > 0.06) {
-            const n = `${side}_arm_2`;
-            this.sim.jointTarget[n] = this.sim.clampJ(n, (this.sim.jointTarget[n] || 0) + joy.y * m * ARM_RATE * dt);
-            this.setWire(n, this.sim.jointTarget[n]);
-          }
-        }
-      }
       if (this.drag && this.view === 'body') {
         if (this.feel === 'impedance') {
           this.sim.ik(this.bodyRig, this.drag, this.targets[this.drag], 0.3 + 0.4 * this.stiffness, 2);
