@@ -206,7 +206,7 @@
   position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
   z-index: 999;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
-  max-width: min(96vw, 1180px);
+  max-width: min(96vw, 1340px);
   padding: 10px 14px 9px;
   border-radius: 26px;
   /* liquid glass: deep blur + saturation, layered translucency, inner light */
@@ -221,7 +221,7 @@
   color: #efeae3;
   user-select: none; -webkit-user-select: none;
 }
-.ta-dock-row { display: flex; align-items: center; gap: 9px; }
+.ta-dock-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 9px; }
 .ta-divider { width: 1px; height: 26px; background: rgba(255,255,255,.1); flex: none; }
 
 /* view tabs — row one, front and centre */
@@ -261,6 +261,11 @@
 .ta-host.trying > span { color: #e9a679; }
 .ta-host.live { border-color: rgba(63,181,107,.55); }
 .ta-host.live > span { color: #3FB56B; }
+/* the secure-relay path: host + token, tinted to read as the "internet" route */
+.ta-host-relay > span, .ta-host-key > span { color: #9a86c8; }
+.ta-host-relay input { width: clamp(78px, 8vw, 132px); }
+.ta-host-key input { width: clamp(64px, 6vw, 104px); }
+.ta-host-relay:focus-within, .ta-host-key:focus-within { border-color: rgba(154,134,200,.55); }
 .ta-connect {
   height: 30px; padding: 0 15px; border-radius: 15px; border: none; cursor: pointer;
   background: #efeae3; color: #161412; font: 500 12px 'Geist', sans-serif; flex: none;

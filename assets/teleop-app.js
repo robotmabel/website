@@ -455,8 +455,8 @@ class App {
       else this.connectAuto();
       this._paintLink();
     });
-    ['taHostLocal', 'taHostVpn'].forEach((id) =>
-      $(`#${id}`).addEventListener('keydown', (ev) => { if (ev.key === 'Enter') this.connectAuto(); }));
+    ['taHostLocal', 'taHostVpn', 'taHostRelay', 'taRelayKey'].forEach((id) =>
+      $(`#${id}`)?.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') this.connectAuto(); }));
     $('#taReset').addEventListener('click', () => this.resetAll());
     $('#taFs').addEventListener('click', () => {
       // fullscreen the SECTION so the floating dock rides along
@@ -482,42 +482,74 @@ class App {
       } else this._announceSpec(true);
     });
   }
-  /* ── two-path connect: local Wi-Fi first, Tailscale VPN after 5 s ─
-     Same story as the Vision Pro app (RobotController.connectAuto):
-     the LAN path wins on latency, the Tailscale IP works from any
-     network. The web console keeps alternating between the two until
-     one answers, so it links up wherever the Mac is reachable. */
-  _hosts() { return { local: $('#taHostLocal').value.trim(), vpn: $('#taHostVpn').value.trim() }; }
-  /** Host field → bridge URL: bare host/IP gets the standard :9090/teleop;
-      a full ws(s):// URL passes through for non-standard setups.
-      From an https page (the GitHub Pages copy) the browser refuses plain
-      ws://, so a bare host upgrades to the TLS proxy the Mac publishes with
-      `tailscale serve --bg --https=8443 localhost:9090` — enter the Mac's
-      ts.net name (the cert is issued for it, not for raw IPs). */
-  _wsUrl(host) {
-    host = (host || '').trim();
+  /* ── three-path connect: Wi-Fi → VPN → secure relay, cycling every 5 s ─
+     Same story as the Vision Pro / iPhone apps (RobotController.connectAuto):
+       · WI-FI  — the Mac's LAN IP, lowest latency on the same network.
+       · VPN    — its Tailscale IP / ts.net name, reachable from any network
+                  on the same tailnet (one-time install, no public exposure).
+       · RELAY  — the secure internet relay (relay/README.md): a token-gated
+                  wss endpoint on a public VPS that the robot dials OUT to,
+                  so ANYONE can drive from ANYWHERE with just a host + token,
+                  the control loop never facing the public internet.
+     The console rotates through whichever paths are configured until one
+     answers, so it links up wherever the Mac is reachable. */
+  _hosts() {
+    return {
+      local: $('#taHostLocal').value.trim(),
+      vpn: $('#taHostVpn').value.trim(),
+      relay: $('#taHostRelay')?.value.trim() || '',
+    };
+  }
+  _relayKey() { return $('#taRelayKey')?.value.trim() || ''; }
+  /** Path → bridge URL.
+      · WI-FI / VPN: a bare host/IP gets the standard :9090/teleop; from an
+        https page the browser refuses plain ws://, so a bare host upgrades to
+        the TLS proxy the Mac publishes with `tailscale serve --bg --https=8443
+        localhost:9090` (enter the Mac's ts.net name — the cert is issued for
+        it, not raw IPs). A full ws(s):// URL passes through unchanged.
+      · RELAY: always wss to the public VPS on :443 (Caddy), with the access
+        token in the `?key=` query that gates every request — `wss://<relay>/
+        teleop?key=<APP_TOKEN>`. */
+  _urlFor(path) {
+    const host = (this._hosts()[path] || '').trim();
     if (!host) return null;
-    if (/^wss?:\/\//.test(host)) return host;
+    if (/^wss?:\/\//.test(host)) return host;          // full URL passthrough
+    if (path === 'relay') {
+      const h = host.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+      const key = this._relayKey();
+      return `wss://${h}/teleop${key ? `?key=${encodeURIComponent(key)}` : ''}`;
+    }
     return location.protocol === 'https:'
       ? `wss://${host}:8443/teleop`
       : `ws://${host}:9090/teleop`;
+  }
+  /** Configured paths, in failover order (Wi-Fi → VPN → relay). */
+  _pathOrder() {
+    const h = this._hosts();
+    return ['local', 'vpn', 'relay'].filter((p) => h[p]);
   }
   connectAuto() {
     const h = this._hosts();
     try {
       localStorage.setItem('mabel-host-local', h.local);
       localStorage.setItem('mabel-host-vpn', h.vpn);
+      localStorage.setItem('mabel-host-relay', h.relay);
+      localStorage.setItem('mabel-relay-key', this._relayKey());
     } catch (e) { /* private mode */ }
     clearInterval(this._planT);
-    this.path = h.local || !h.vpn ? 'local' : 'vpn';
-    this.link.connect(this._wsUrl(h[this.path]) || 'ws://localhost:9090/teleop');
+    const order = this._pathOrder();
+    this.path = order[0] || 'local';
+    this.link.connect(this._urlFor(this.path) || 'ws://localhost:9090/teleop');
     this._planT = setInterval(() => this._failover(), 5000);
     this._paintLink();
   }
   _failover() {
     if (this.link.connected || !this.link.want) return;
-    const h = this._hosts(), other = this.path === 'local' ? 'vpn' : 'local';
-    if (h[other]) { this.path = other; this.link.connect(this._wsUrl(h[other])); }
+    const order = this._pathOrder();
+    if (order.length < 2) return;                      // nothing else to try
+    const i = order.indexOf(this.path);
+    this.path = order[(i + 1) % order.length];         // advance the rotation
+    this.link.connect(this._urlFor(this.path));
     this._paintLink();
   }
   _disconnect() {
@@ -527,10 +559,11 @@ class App {
   _paintLink() {
     const pill = $('#taPill'), btn = $('#taConnect');
     const label = pill.querySelector('span:last-child');   // NOT the status dot
-    const pathName = this.path === 'vpn' ? 'VPN' : 'WI-FI';
+    const pathName = { local: 'WI-FI', vpn: 'VPN', relay: 'RELAY' }[this.path] || 'WI-FI';
     pill.classList.remove('link', 'wait');
     $$('.ta-host').forEach((el) => el.classList.remove('live', 'trying'));
-    const field = $(this.path === 'vpn' ? '#taHostVpn' : '#taHostLocal')?.closest('.ta-host');
+    const fieldId = { local: '#taHostLocal', vpn: '#taHostVpn', relay: '#taHostRelay' }[this.path];
+    const field = $(fieldId)?.closest('.ta-host');
     const issue = this._httpsIssue();
     if (issue) {
       pill.classList.add('wait');
@@ -548,16 +581,27 @@ class App {
     } else if (this.link.want) {
       pill.classList.add('wait'); field?.classList.add('trying');
       label.textContent = `TRYING ${pathName}`;
-      pill.title = 'Local Wi-Fi first; the Tailscale IP takes over after 5 s if it has not answered.';
+      pill.title = this._pathOrder().length > 1
+        ? 'Cycling the configured paths every 5 s — Wi-Fi, then VPN, then the secure relay — until one answers.'
+        : 'Trying to reach the bridge; it keeps retrying until you press Disconnect.';
     } else { label.textContent = 'LOCAL SIM'; pill.title = ''; }
     btn.textContent = this.link.want ? 'Disconnect' : 'Connect';
   }
-  /** What an https page cannot do, and how to fix it — null when fine.
-      ws:// is mixed content (only typed full URLs hit this now); wss:// to a
-      raw IP fails TLS because the Tailscale cert names the ts.net host. */
+  /** What's wrong with the chosen path, and how to fix it — null when fine.
+      Covers the relay's missing-token case, plus the two https-page hazards:
+      ws:// is mixed content, and wss:// to a raw IP fails TLS (the Tailscale
+      cert names the ts.net host, not an IP). */
   _httpsIssue() {
+    // The relay gates every request with the access token, on any page protocol.
+    if (this.path === 'relay' && this._hosts().relay && !this._relayKey()) {
+      return {
+        label: 'RELAY NEEDS A KEY',
+        title: 'The secure internet relay gates every request with an access token (?key=). '
+          + 'Paste the APP_TOKEN your relay setup printed — see relay/README.md.',
+      };
+    }
     if (location.protocol !== 'https:') return null;
-    const url = this.link.url || this._wsUrl(this._hosts().local) || '';
+    const url = this.link.url || this._urlFor(this.path) || '';
     if (url.startsWith('ws://') && !/^(ws:\/\/)(localhost|127\.0\.0\.1)/.test(url)) {
       return {
         label: 'HTTPS BLOCKS ws://',
@@ -565,7 +609,9 @@ class App {
           + '(auto-upgrades to wss) or open the console from your bridge: http://<bridge-host>:8080/console',
       };
     }
-    if (/^wss:\/\/(\d|\[|localhost)/.test(url)) {
+    // The relay's wss host is a real DNS name with a Let's Encrypt cert, so a
+    // leading digit there is fine — only flag raw-IP wss on the LAN/VPN paths.
+    if (this.path !== 'relay' && /^wss:\/\/(\d|\[|localhost)/.test(url)) {
       return {
         label: 'WSS NEEDS ts.net NAME',
         title: 'TLS certificates are issued for the Mac\'s Tailscale DNS name, not raw IPs. '
@@ -576,11 +622,13 @@ class App {
     return null;
   }
   _autoConnect() {
-    let local = null, vpn = null, legacy = null;
+    let local = null, vpn = null, relay = null, key = null, legacy = null;
     try {
       local = localStorage.getItem('mabel-host-local');
       vpn = localStorage.getItem('mabel-host-vpn');
-      legacy = localStorage.getItem('mabel-ws-url');   // pre-two-path versions
+      relay = localStorage.getItem('mabel-host-relay');
+      key = localStorage.getItem('mabel-relay-key');
+      legacy = localStorage.getItem('mabel-ws-url');   // pre-multi-path versions
     } catch (e) {}
     if (local == null && legacy) {
       try { local = new URL(legacy.replace(/^ws/, 'http')).hostname; } catch (e) {}
@@ -590,6 +638,8 @@ class App {
     if (!local) local = (location.protocol.startsWith('http') && location.hostname) || 'localhost';
     $('#taHostLocal').value = local;
     $('#taHostVpn').value = vpn || '';
+    if ($('#taHostRelay')) $('#taHostRelay').value = relay || '';
+    if ($('#taRelayKey')) $('#taRelayKey').value = key || '';
     this.connectAuto();
   }
   onLink(up) {
@@ -662,17 +712,24 @@ class App {
   _syncCams() {
     // MJPEG streams come from the bridge host, port 8080 — attach only while
     // connected (and only in the teleop view) so we never leak bandwidth.
-    // Over the wss TLS proxy they ride https on :443 instead
-    // (tailscale serve --bg --https=443 localhost:8080).
+    // Over a wss path the cameras ride https on :443 instead: the Tailscale
+    // proxy (tailscale serve --bg --https=443 localhost:8080) or, on the
+    // secure relay, the same token-gated Caddy edge — so the `?key=` from the
+    // teleop URL is carried straight onto each /camera request.
     const on = this.link.connected && this.view === 'teleop';
-    let host = 'localhost';
-    try { host = new URL(this.link.url.replace('ws', 'http')).hostname || 'localhost'; } catch (e) {}
+    let host = 'localhost', key = '';
+    try {
+      const u = new URL(this.link.url.replace(/^ws/, 'http'));
+      host = u.hostname || 'localhost';
+      key = u.searchParams.get('key') || '';
+    } catch (e) {}
     const base = this.link.url.startsWith('wss')
       ? `https://${host}/camera`
       : `http://${host}:8080/camera`;
+    const q = key ? `?key=${encodeURIComponent(key)}` : '';
     const set = (sel, path) => {
       const img = $(sel); if (!img) return;
-      const want = on ? `${base}/${path}/stream.mjpg` : '';
+      const want = on ? `${base}/${path}/stream.mjpg${q}` : '';
       if (img.dataset.src !== want) {
         img.dataset.src = want;
         if (want) { img.src = want; img.style.display = ''; }

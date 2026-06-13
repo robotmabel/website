@@ -174,6 +174,10 @@
         <span>WI-FI</span><input id="taHostLocal" type="text" placeholder="192.168.1.20" spellcheck="false" autocomplete="off" aria-label="Local Wi-Fi host" /></label>
       <label class="ta-host" title="From any network: the Mac's Tailscale IP (tailscale ip -4) — or, from this https page, its ts.net name (tailscale status). One-time setup — Tailscale on the Mac and this device, same account.">
         <span>VPN</span><input id="taHostVpn" type="text" placeholder="100.x.y.z · mac.ts.net" spellcheck="false" autocomplete="off" aria-label="Tailscale VPN host" /></label>
+      <label class="ta-host ta-host-relay" title="From anywhere on the public internet: the secure relay hostname (e.g. mabel.duckdns.org). The robot dials OUT to a token-gated VPS — no VPN app, no open inbound port. See relay/README.md.">
+        <span>RELAY</span><input id="taHostRelay" type="text" placeholder="mabel.duckdns.org" spellcheck="false" autocomplete="off" aria-label="Secure relay host" /></label>
+      <label class="ta-host ta-host-key" title="The relay access token (APP_TOKEN). Every request must carry it as ?key= or the VPS returns 403 before reaching the robot. Treat it like a password.">
+        <span>KEY</span><input id="taRelayKey" type="text" placeholder="access token" spellcheck="false" autocomplete="off" aria-label="Relay access token" /></label>
       <button class="ta-connect" id="taConnect">Connect</button>
       <div class="ta-metrics">
         <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
@@ -187,7 +191,7 @@
     </div>
   </div>
 
-  <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code>, and mirror the same <code>robot_state</code>. Start it with <code>server/start_teleop.sh</code> — the page links up by itself, trying the <strong>Wi-Fi</strong> host first (the Mac's LAN IP) and falling over to the <strong>VPN</strong> host (the Mac's Tailscale IP, <code>tailscale ip -4</code>) after 5&nbsp;s, exactly like the Vision&nbsp;Pro app. Cameras stream as MJPEG from port 8080 on whichever path won.</p>
+  <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code>, and mirror the same <code>robot_state</code>. Start it with <code>server/start_teleop.sh</code> — the page links up by itself, cycling three paths every 5&nbsp;s, exactly like the apps: <strong>Wi-Fi</strong> (the Mac's LAN IP) → <strong>VPN</strong> (its Tailscale IP / <code>ts.net</code> name) → <strong>Relay</strong> (the <a href="server.html#relay">secure internet relay</a> — a token-gated <code>wss://&lt;host&gt;/teleop?key=…</code> on a public VPS the robot dials out to, so you can drive from anywhere with no VPN app and nothing exposed inbound). Cameras follow the winning path — MJPEG on port&nbsp;8080 over Wi-Fi, or the same token-gated HTTPS edge over the relay.</p>
 </section>
 
 <!-- CTA -->
