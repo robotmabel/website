@@ -489,11 +489,18 @@ class App {
      one answers, so it links up wherever the Mac is reachable. */
   _hosts() { return { local: $('#taHostLocal').value.trim(), vpn: $('#taHostVpn').value.trim() }; }
   /** Host field → bridge URL: bare host/IP gets the standard :9090/teleop;
-      a full ws:// URL passes through for non-standard setups. */
+      a full ws(s):// URL passes through for non-standard setups.
+      From an https page (the GitHub Pages copy) the browser refuses plain
+      ws://, so a bare host upgrades to the TLS proxy the Mac publishes with
+      `tailscale serve --bg --https=8443 localhost:9090` — enter the Mac's
+      ts.net name (the cert is issued for it, not for raw IPs). */
   _wsUrl(host) {
     host = (host || '').trim();
     if (!host) return null;
-    return /^wss?:\/\//.test(host) ? host : `ws://${host}:9090/teleop`;
+    if (/^wss?:\/\//.test(host)) return host;
+    return location.protocol === 'https:'
+      ? `wss://${host}:8443/teleop`
+      : `ws://${host}:9090/teleop`;
   }
   connectAuto() {
     const h = this._hosts();
@@ -524,11 +531,11 @@ class App {
     pill.classList.remove('link', 'wait');
     $$('.ta-host').forEach((el) => el.classList.remove('live', 'trying'));
     const field = $(this.path === 'vpn' ? '#taHostVpn' : '#taHostLocal')?.closest('.ta-host');
-    if (this._mixedBlocked()) {
+    const issue = this._httpsIssue();
+    if (issue) {
       pill.classList.add('wait');
-      label.textContent = 'HTTPS BLOCKS ws://';
-      pill.title = 'A page served over https cannot open an insecure WebSocket to a LAN host. '
-        + 'Open the console from your bridge instead: http://<bridge-host>:8080/console';
+      label.textContent = issue.label;
+      pill.title = issue.title;
     } else if (this.link.connected) {
       pill.classList.add('link');
       field?.classList.add('live');
@@ -545,11 +552,28 @@ class App {
     } else { label.textContent = 'LOCAL SIM'; pill.title = ''; }
     btn.textContent = this.link.want ? 'Disconnect' : 'Connect';
   }
-  /** https pages cannot open ws:// to a non-localhost host — detect and say so. */
-  _mixedBlocked() {
+  /** What an https page cannot do, and how to fix it — null when fine.
+      ws:// is mixed content (only typed full URLs hit this now); wss:// to a
+      raw IP fails TLS because the Tailscale cert names the ts.net host. */
+  _httpsIssue() {
+    if (location.protocol !== 'https:') return null;
     const url = this.link.url || this._wsUrl(this._hosts().local) || '';
-    return location.protocol === 'https:' && url.startsWith('ws://')
-      && !/^(ws:\/\/)(localhost|127\.0\.0\.1)/.test(url);
+    if (url.startsWith('ws://') && !/^(ws:\/\/)(localhost|127\.0\.0\.1)/.test(url)) {
+      return {
+        label: 'HTTPS BLOCKS ws://',
+        title: 'A page served over https cannot open an insecure WebSocket. Enter a bare host '
+          + '(auto-upgrades to wss) or open the console from your bridge: http://<bridge-host>:8080/console',
+      };
+    }
+    if (/^wss:\/\/(\d|\[|localhost)/.test(url)) {
+      return {
+        label: 'WSS NEEDS ts.net NAME',
+        title: 'TLS certificates are issued for the Mac\'s Tailscale DNS name, not raw IPs. '
+          + 'Enter the name `tailscale status` shows (e.g. my-mac.tailxxxx.ts.net) and publish the '
+          + 'proxy on the Mac once: tailscale serve --bg --https=8443 localhost:9090',
+      };
+    }
+    return null;
   }
   _autoConnect() {
     let local = null, vpn = null, legacy = null;
@@ -638,10 +662,14 @@ class App {
   _syncCams() {
     // MJPEG streams come from the bridge host, port 8080 — attach only while
     // connected (and only in the teleop view) so we never leak bandwidth.
+    // Over the wss TLS proxy they ride https on :443 instead
+    // (tailscale serve --bg --https=443 localhost:8080).
     const on = this.link.connected && this.view === 'teleop';
     let host = 'localhost';
     try { host = new URL(this.link.url.replace('ws', 'http')).hostname || 'localhost'; } catch (e) {}
-    const base = `http://${host}:8080/camera`;
+    const base = this.link.url.startsWith('wss')
+      ? `https://${host}/camera`
+      : `http://${host}:8080/camera`;
     const set = (sel, path) => {
       const img = $(sel); if (!img) return;
       const want = on ? `${base}/${path}/stream.mjpg` : '';

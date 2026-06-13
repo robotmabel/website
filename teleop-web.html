@@ -172,8 +172,8 @@
       <span class="ta-pill" id="taPill"><span class="dot"></span><span>LOCAL SIM</span></span>
       <label class="ta-host" title="Same Wi-Fi as the robot: the Mac's LAN IP (run.sh prints it), or localhost on the bridge machine.">
         <span>WI-FI</span><input id="taHostLocal" type="text" placeholder="192.168.1.20" spellcheck="false" autocomplete="off" aria-label="Local Wi-Fi host" /></label>
-      <label class="ta-host" title="From any network: the Mac's Tailscale IP (tailscale ip -4). One-time setup — Tailscale on the Mac and this device, same account.">
-        <span>VPN</span><input id="taHostVpn" type="text" placeholder="100.x.y.z" spellcheck="false" autocomplete="off" aria-label="Tailscale VPN host" /></label>
+      <label class="ta-host" title="From any network: the Mac's Tailscale IP (tailscale ip -4) — or, from this https page, its ts.net name (tailscale status). One-time setup — Tailscale on the Mac and this device, same account.">
+        <span>VPN</span><input id="taHostVpn" type="text" placeholder="100.x.y.z · mac.ts.net" spellcheck="false" autocomplete="off" aria-label="Tailscale VPN host" /></label>
       <button class="ta-connect" id="taConnect">Connect</button>
       <div class="ta-metrics">
         <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
