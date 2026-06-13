@@ -56,6 +56,13 @@ const KNOWN_HOSTS = [
   // NYU Wi-Fi: client isolation usually blocks LAN — rely on the Tailscale IP above
 ];
 
+// The Mac's Tailscale DNS name — the ONLY host that works from the public https
+// site (its TLS cert is issued for this name). Needs the wss proxy published once
+// on the Mac: `tailscale serve --bg --https=8443 localhost:9090` (+ :443→8080 for
+// cameras), and Tailscale "Serve/HTTPS" enabled in the admin console. Pre-seeded
+// into the VPN field so the published site has a remote path with zero typing.
+const DEFAULT_VPN = 'jerrys-macbook-pro.taile5c63a.ts.net';
+
 const ACCENT = 0xe9a679, GREEN = 0x3FB56B, RED = 0xb3402e, BONE = 0xefeae3;
 
 /* MuJoCo Z-up → three.js Y-up. (x,y,z)ᵐʲ ↦ (x,z,−y)ᵗʰʳᵉᵉ */
@@ -749,10 +756,26 @@ class App {
     // answers, so the operator never has to type a LAN IP.
     this._lastGoodLocal = local || '';
     $('#taHostLocal').value = local || '';
-    $('#taHostVpn').value = vpn || '';
+    $('#taHostVpn').value = vpn || DEFAULT_VPN;   // documented remote path, pre-filled
     if ($('#taHostRelay')) $('#taHostRelay').value = relay || '';
     if ($('#taRelayKey')) $('#taRelayKey').value = key || '';
     this.connectAuto();
+    // On the public https site the browser BLOCKS ws:// to any local robot
+    // (Private Network Access), so a same-machine bridge is unreachable from
+    // here — steer the operator to the bridge-served http console, which works.
+    if (location.protocol === 'https:') this._warnHttps();
+  }
+  _warnHttps() {
+    setTimeout(() => {
+      if (this.link.connected) return;              // a wss path (VPN/relay) got through — fine
+      const nov = $('#taNoVid');
+      if (nov) nov.innerHTML = '<div class="inner"><b>Open this from your robot, not the public site</b>'
+        + 'Browsers block a secure web page from reaching a robot on your own network, so '
+        + '<code>robotmabel.github.io</code> can’t connect to a local bridge. Open the console the '
+        + 'bridge serves instead: <b>http://&lt;your-mac&gt;:8080/console</b> (or http://localhost:8080/console '
+        + 'on the Mac). For a remote robot, fill the <b>VPN</b> (Tailscale) or <b>RELAY</b> field above.</div>';
+      UI.set('link', 'USE http://…:8080/console');
+    }, 6000);
   }
   onLink(up) {
     if (!up) { this.driving = true; this.clientCount = 1; }
