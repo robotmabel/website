@@ -65,6 +65,11 @@ const Q_ZUP_INV = Q_ZUP.clone().invert();
 const toThree = (v) => v.clone().applyQuaternion(Q_ZUP);
 const toMj = (v) => v.clone().applyQuaternion(Q_ZUP_INV);
 
+// localhost-family hosts: the browser treats these as "potentially trustworthy",
+// so a plain ws:// to them is allowed even from an https page (mixed-content rules
+// exempt them). LAN / Tailscale IPs are NOT exempt → blocked from https.
+const _isLocalHost = (h) => /^(localhost|127\.0\.0\.1|\[::1\]|::1)$/.test((h || '').trim());
+
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const wrapPi = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const $ = (sel, root) => (root || document).querySelector(sel);
@@ -538,13 +543,18 @@ class App {
       const key = this._relayKey();
       return `wss://${h}/teleop${key ? `?key=${encodeURIComponent(key)}` : ''}`;
     }
+    // localhost / 127.0.0.1 are "potentially trustworthy" origins, so the
+    // browser allows a PLAIN ws:// to them even from an https page (the GitHub
+    // Pages copy). Everything else on https must go over the TLS proxy (wss).
+    if (_isLocalHost(host)) return `ws://${host}:9090/teleop`;
     return location.protocol === 'https:'
       ? `wss://${host}:8443/teleop`
       : `ws://${host}:9090/teleop`;
   }
-  /** Wi-Fi auto-discovery is only possible over http — an https page (the
-      GitHub Pages copy) can't open a plain ws:// to a LAN robot at all. */
-  _canDiscover() { return location.protocol !== 'https:'; }
+  /** Discovery can always probe localhost (ws:// to it is allowed even from
+      https); on http it can also probe LAN / Tailscale hosts. So it's never
+      fully off — only the candidate SET narrows on https (see _discoverLocal). */
+  _canDiscover() { return true; }
   /** Configured paths, in failover order (Wi-Fi → VPN → relay). On http the
       Wi-Fi leg is always present even with an empty field — discovery fills it. */
   _pathOrder() {
@@ -606,10 +616,16 @@ class App {
   }
   async _discoverLocal() {
     const seq = ++this._discSeq;
+    const https = location.protocol === 'https:';
     const seen = new Set(), cands = [];
     const add = (host) => {
       host = (host || '').trim().replace(/^wss?:\/\//, '').replace(/[:/].*$/, '');
       if (!host || seen.has(host)) return;
+      // From an https page only localhost is reachable over ws:// — the browser
+      // blocks ws:// to LAN / Tailscale IPs (mixed content). Probing them would
+      // just fail, so skip them and keep the localhost path (which DOES work,
+      // e.g. the bridge running on the same Mac as the browser).
+      if (https && !_isLocalHost(host)) return;
       seen.add(host); cands.push({ host, url: `ws://${host}:9090/teleop` });
     };
     add(this._lastGoodLocal);                                   // remembered winner first
@@ -623,7 +639,7 @@ class App {
     this._lastGoodLocal = win.host;
     try { localStorage.setItem('mabel-host-local', win.host); } catch (e) {}
     if ($('#taHostLocal')) $('#taHostLocal').value = win.host;
-    // Promote the LAN path (it wins on latency) unless we're already live on it.
+    // Promote the winning path (it wins on latency) unless we're already live on it.
     const want = `ws://${win.host}:9090/teleop`;
     if (this.path !== 'local' || this.link.url !== want || !this.link.connected) {
       this.path = 'local';
