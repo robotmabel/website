@@ -39,6 +39,24 @@ const PUSH_K = 60.0, PUSH_MAX = 90.0;   // N/m, N — Soft drag → external_for
 const TX_HZ = 20, PING_S = 5;
 const IDENTITY16 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
+/* ── Known bridge addresses (operator's networks) ─────────────────────
+   Wi-Fi auto-discovery probes these in parallel (over http) on top of the
+   live candidates, so a fresh network — or a stale bookmark from another
+   one — connects without searching forever. All private / CGNAT ranges,
+   not routable from the public internet.
+     · The TAILSCALE IP is network-independent: it answers on home, lab,
+       NYU, and the iPhone hotspot alike (whenever Tailscale is up on both
+       ends), so it's listed first as the universal path.
+     · LAN IPs are the lowest-latency local path on each specific network.
+   Edit freely as networks change; the ts.net name goes in the VPN field. */
+const KNOWN_HOSTS = [
+  '100.68.140.105',                              // Tailscale IP — works on ANY network
+  '192.168.123.34',                              // lab Wi-Fi (192.168.123.0/24)
+  '172.20.10.2', '172.20.10.3', '172.20.10.4',   // iPhone hotspot (Mac gets 172.20.10.2–14)
+  // home Wi-Fi: add the Mac's LAN IP once captured (`ipconfig getifaddr en0`)
+  // NYU Wi-Fi: client isolation usually blocks LAN — rely on the Tailscale IP above
+];
+
 const ACCENT = 0xe9a679, GREEN = 0x3FB56B, RED = 0xb3402e, BONE = 0xefeae3;
 
 /* MuJoCo Z-up → three.js Y-up. (x,y,z)ᵐʲ ↦ (x,z,−y)ᵗʰʳᵉᵉ */
@@ -597,6 +615,7 @@ class App {
     add($('#taHostLocal').value);                               // typed hint, if any
     if (location.hostname && location.hostname !== 'localhost') add(location.hostname);  // served from the bridge
     add('localhost'); add('127.0.0.1');
+    KNOWN_HOSTS.forEach(add);                                   // the operator's known networks
     if (!cands.length) return;
     const win = await this._raceProbe(cands);
     if (!win || seq !== this._discSeq || !this.link.want) return;   // superseded / disconnected
