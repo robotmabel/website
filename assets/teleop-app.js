@@ -430,7 +430,8 @@ class App {
     this.drag = null;                           // body-view active drag side
     this._lastSpec = '';
     this.driving = true; this.clientCount = 1;  // arbitration state from robot_state
-    this.path = 'local'; this._planT = null;    // two-path connect: local | vpn
+    this.path = 'local'; this._planT = null;    // multi-path connect: local | vpn | relay
+    this._discSeq = 0;                          // Wi-Fi discovery supersede counter
 
     this._buildDock();
     this._txAcc = 0; this._last = performance.now();
@@ -632,6 +633,10 @@ class App {
   }
   _failover() {
     if (this.link.connected || !this.link.want) return;
+    // Re-probe the LAN every cycle so a mid-session Wi-Fi change (or a stale
+    // stored host from another network) auto-heals — the browser analog of the
+    // Vision Pro app re-running Bonjour on a network change.
+    if (this._canDiscover()) this._discoverLocal();
     const order = this._pathOrder();
     if (order.length < 2) return;                      // nothing else to try
     const i = order.indexOf(this.path);
