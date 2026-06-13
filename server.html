@@ -211,10 +211,10 @@
 <!-- VIDEO + RATES -->
 <section class="pad-y"><div class="wrap">
   <div class="sec-head fade-up"><div><span class="eyebrow">The video channel</span><h2 class="display-md title">Cameras as <span class="italic accent">plain HTTP.</span></h2></div>
-    <p class="lede">Each camera is a standalone <code>multipart/x-mixed-replace</code> MJPEG stream the headset pulls into a <code>WKWebView &lt;img&gt;</code> — the exact path it would use for a hardware camera. Rendered in a separate process because the off-screen MuJoCo render is a fixed ~50–67 ms GPU-readback stall per camera; running it on the physics thread would starve real-time control.</p></div>
+    <p class="lede">Each camera is a standalone <code>multipart/x-mixed-replace</code> MJPEG stream the headset pulls into a <code>WKWebView &lt;img&gt;</code> — the exact path it would use for a hardware camera. Rendered in a separate process because the off-screen MuJoCo render is a fixed per-frame GPU-readback stall (≈73 ms with shadows, ≈41 ms without); running it on the physics thread would starve real-time control. The feeds render <strong>shadows off by default</strong> — the shadow pass alone costs ~32 ms/frame, so dropping it nearly doubles the budget and keeps the head <em>and</em> wrist streams responsive.</p></div>
   <div class="stats-grid fade-up">
     <div class="stat"><div class="stat-num">60 / 20 Hz</div><div class="stat-label">Vision Pro · iPhone uplink</div></div>
-    <div class="stat"><div class="stat-num">~13 fps</div><div class="stat-label">head stream (weighted)</div></div>
+    <div class="stat"><div class="stat-num">~12 / 6 fps</div><div class="stat-label">head / each wrist stream</div></div>
     <div class="stat"><div class="stat-num">~3.9 ms</div><div class="stat-label">one mj_step · 116 DOF</div></div>
     <div class="stat"><div class="stat-num">≈ 1.0×</div><div class="stat-label">real-time factor @ 4 ms</div></div>
   </div>
