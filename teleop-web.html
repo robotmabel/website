@@ -170,7 +170,10 @@
     </nav>
     <div class="ta-dock-row">
       <span class="ta-pill" id="taPill"><span class="dot"></span><span>LOCAL SIM</span></span>
-      <input class="ta-url" id="taUrl" type="text" value="ws://localhost:9090/teleop" spellcheck="false" autocomplete="off" aria-label="Bridge WebSocket URL" />
+      <label class="ta-host" title="Same Wi-Fi as the robot: the Mac's LAN IP (run.sh prints it), or localhost on the bridge machine.">
+        <span>WI-FI</span><input id="taHostLocal" type="text" placeholder="192.168.1.20" spellcheck="false" autocomplete="off" aria-label="Local Wi-Fi host" /></label>
+      <label class="ta-host" title="From any network: the Mac's Tailscale IP (tailscale ip -4). One-time setup — Tailscale on the Mac and this device, same account.">
+        <span>VPN</span><input id="taHostVpn" type="text" placeholder="100.x.y.z" spellcheck="false" autocomplete="off" aria-label="Tailscale VPN host" /></label>
       <button class="ta-connect" id="taConnect">Connect</button>
       <div class="ta-metrics">
         <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
@@ -184,7 +187,7 @@
     </div>
   </div>
 
-  <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code>, and mirror the same <code>robot_state</code>. Start it with <code>server/start_teleop.sh</code> — the page links up by itself. Cameras stream as MJPEG from port 8080, exactly as the headset pulls them.</p>
+  <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code>, and mirror the same <code>robot_state</code>. Start it with <code>server/start_teleop.sh</code> — the page links up by itself, trying the <strong>Wi-Fi</strong> host first (the Mac's LAN IP) and falling over to the <strong>VPN</strong> host (the Mac's Tailscale IP, <code>tailscale ip -4</code>) after 5&nbsp;s, exactly like the Vision&nbsp;Pro app. Cameras stream as MJPEG from port 8080 on whichever path won.</p>
 </section>
 
 <!-- CTA -->

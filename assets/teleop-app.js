@@ -74,7 +74,14 @@ class Link {
   }
   connect(url) {
     this.url = url; this.want = true;
-    try { localStorage.setItem('mabel-ws-url', url); } catch (e) { /* private mode */ }
+    clearTimeout(this._retryT);
+    // Detach + close any in-flight socket so a path failover (Wi-Fi → VPN)
+    // can't leave a zombie retrying the old URL.
+    if (this.ws) {
+      const old = this.ws; this.ws = null;
+      old.onopen = old.onmessage = old.onclose = old.onerror = null;
+      try { old.close(); } catch (e) {}
+    }
     this._open();
   }
   disconnect() {
@@ -405,6 +412,7 @@ class App {
     this.drag = null;                           // body-view active drag side
     this._lastSpec = '';
     this.driving = true; this.clientCount = 1;  // arbitration state from robot_state
+    this.path = 'local'; this._planT = null;    // two-path connect: local | vpn
 
     this._buildDock();
     this._txAcc = 0; this._last = performance.now();
@@ -443,10 +451,12 @@ class App {
     $$('[data-tabs] button').forEach((b) =>
       b.addEventListener('click', () => this.switchView(b.dataset.go)));
     $('#taConnect').addEventListener('click', () => {
-      if (this.link.want) { this.link.disconnect(); }
-      else this.link.connect($('#taUrl').value.trim());
+      if (this.link.want) this._disconnect();
+      else this.connectAuto();
       this._paintLink();
     });
+    ['taHostLocal', 'taHostVpn'].forEach((id) =>
+      $(`#${id}`).addEventListener('keydown', (ev) => { if (ev.key === 'Enter') this.connectAuto(); }));
     $('#taReset').addEventListener('click', () => this.resetAll());
     $('#taFs').addEventListener('click', () => {
       // fullscreen the SECTION so the floating dock rides along
@@ -472,10 +482,48 @@ class App {
       } else this._announceSpec(true);
     });
   }
+  /* ── two-path connect: local Wi-Fi first, Tailscale VPN after 5 s ─
+     Same story as the Vision Pro app (RobotController.connectAuto):
+     the LAN path wins on latency, the Tailscale IP works from any
+     network. The web console keeps alternating between the two until
+     one answers, so it links up wherever the Mac is reachable. */
+  _hosts() { return { local: $('#taHostLocal').value.trim(), vpn: $('#taHostVpn').value.trim() }; }
+  /** Host field → bridge URL: bare host/IP gets the standard :9090/teleop;
+      a full ws:// URL passes through for non-standard setups. */
+  _wsUrl(host) {
+    host = (host || '').trim();
+    if (!host) return null;
+    return /^wss?:\/\//.test(host) ? host : `ws://${host}:9090/teleop`;
+  }
+  connectAuto() {
+    const h = this._hosts();
+    try {
+      localStorage.setItem('mabel-host-local', h.local);
+      localStorage.setItem('mabel-host-vpn', h.vpn);
+    } catch (e) { /* private mode */ }
+    clearInterval(this._planT);
+    this.path = h.local || !h.vpn ? 'local' : 'vpn';
+    this.link.connect(this._wsUrl(h[this.path]) || 'ws://localhost:9090/teleop');
+    this._planT = setInterval(() => this._failover(), 5000);
+    this._paintLink();
+  }
+  _failover() {
+    if (this.link.connected || !this.link.want) return;
+    const h = this._hosts(), other = this.path === 'local' ? 'vpn' : 'local';
+    if (h[other]) { this.path = other; this.link.connect(this._wsUrl(h[other])); }
+    this._paintLink();
+  }
+  _disconnect() {
+    clearInterval(this._planT); this._planT = null;
+    this.link.disconnect();
+  }
   _paintLink() {
     const pill = $('#taPill'), btn = $('#taConnect');
     const label = pill.querySelector('span:last-child');   // NOT the status dot
+    const pathName = this.path === 'vpn' ? 'VPN' : 'WI-FI';
     pill.classList.remove('link', 'wait');
+    $$('.ta-host').forEach((el) => el.classList.remove('live', 'trying'));
+    const field = $(this.path === 'vpn' ? '#taHostVpn' : '#taHostLocal')?.closest('.ta-host');
     if (this._mixedBlocked()) {
       pill.classList.add('wait');
       label.textContent = 'HTTPS BLOCKS ws://';
@@ -483,32 +531,42 @@ class App {
         + 'Open the console from your bridge instead: http://<bridge-host>:8080/console';
     } else if (this.link.connected) {
       pill.classList.add('link');
+      field?.classList.add('live');
       label.textContent = this.driving === false
-        ? `BRIDGE · OBSERVING${this.clientCount > 1 ? ` (${this.clientCount})` : ''}`
-        : 'BRIDGE · DRIVING';
+        ? `${pathName} · OBSERVING${this.clientCount > 1 ? ` (${this.clientCount})` : ''}`
+        : `${pathName} · DRIVING`;
       pill.title = this.driving === false
         ? 'Another client (iOS / Vision Pro) is driving — move a stick or drag the model to take over.'
         : 'You are the active driver.';
-    } else if (this.link.want) { pill.classList.add('wait'); label.textContent = 'SEARCHING'; pill.title = ''; }
-    else { label.textContent = 'LOCAL SIM'; pill.title = ''; }
+    } else if (this.link.want) {
+      pill.classList.add('wait'); field?.classList.add('trying');
+      label.textContent = `TRYING ${pathName}`;
+      pill.title = 'Local Wi-Fi first; the Tailscale IP takes over after 5 s if it has not answered.';
+    } else { label.textContent = 'LOCAL SIM'; pill.title = ''; }
     btn.textContent = this.link.want ? 'Disconnect' : 'Connect';
   }
   /** https pages cannot open ws:// to a non-localhost host — detect and say so. */
   _mixedBlocked() {
-    const url = ($('#taUrl').value || '').trim();
+    const url = this.link.url || this._wsUrl(this._hosts().local) || '';
     return location.protocol === 'https:' && url.startsWith('ws://')
       && !/^(ws:\/\/)(localhost|127\.0\.0\.1)/.test(url);
   }
   _autoConnect() {
-    let saved = null;
-    try { saved = localStorage.getItem('mabel-ws-url'); } catch (e) {}
-    // Default: same host the page came from (the bridge serves the console at
-    // http://<host>:8080/console), falling back to localhost for local dev.
-    const host = (location.protocol.startsWith('http') && location.hostname) || 'localhost';
-    const url = saved || `ws://${host}:9090/teleop`;
-    $('#taUrl').value = url;
-    this.link.connect(url);
-    this._paintLink();
+    let local = null, vpn = null, legacy = null;
+    try {
+      local = localStorage.getItem('mabel-host-local');
+      vpn = localStorage.getItem('mabel-host-vpn');
+      legacy = localStorage.getItem('mabel-ws-url');   // pre-two-path versions
+    } catch (e) {}
+    if (local == null && legacy) {
+      try { local = new URL(legacy.replace(/^ws/, 'http')).hostname; } catch (e) {}
+    }
+    // Default local path: the host the page came from (the bridge serves this
+    // console at http://<host>:8080/console), or localhost for local dev.
+    if (!local) local = (location.protocol.startsWith('http') && location.hostname) || 'localhost';
+    $('#taHostLocal').value = local;
+    $('#taHostVpn').value = vpn || '';
+    this.connectAuto();
   }
   onLink(up) {
     if (!up) { this.driving = true; this.clientCount = 1; }
