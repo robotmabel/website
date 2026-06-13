@@ -523,10 +523,15 @@ class App {
       ? `wss://${host}:8443/teleop`
       : `ws://${host}:9090/teleop`;
   }
-  /** Configured paths, in failover order (Wi-Fi → VPN → relay). */
+  /** Wi-Fi auto-discovery is only possible over http — an https page (the
+      GitHub Pages copy) can't open a plain ws:// to a LAN robot at all. */
+  _canDiscover() { return location.protocol !== 'https:'; }
+  /** Configured paths, in failover order (Wi-Fi → VPN → relay). On http the
+      Wi-Fi leg is always present even with an empty field — discovery fills it. */
   _pathOrder() {
     const h = this._hosts();
-    return ['local', 'vpn', 'relay'].filter((p) => h[p]);
+    return ['local', 'vpn', 'relay'].filter((p) =>
+      p === 'local' ? (h.local || this._canDiscover()) : h[p]);
   }
   connectAuto() {
     const h = this._hosts();
@@ -542,6 +547,69 @@ class App {
     this.link.connect(this._urlFor(this.path) || 'ws://localhost:9090/teleop');
     this._planT = setInterval(() => this._failover(), 5000);
     this._paintLink();
+    // Bonjour analog (ServerDiscovery.swift): race the candidate LAN hosts in
+    // the background; the first that answers becomes the live Wi-Fi host — no
+    // IP typing, and it re-resolves on every connect so it auto-heals across
+    // networks. Skipped on https, where ws:// to the LAN is blocked.
+    if (this._canDiscover()) this._discoverLocal();
+  }
+  /** Open a throwaway WebSocket to a candidate; resolve true iff the bridge
+      accepts the upgrade on /teleop (the analog of Bonjour's "open a TCP
+      connection — the one that answers is the server"). */
+  _probe(url, timeoutMs = 3500) {
+    return new Promise((resolve) => {
+      let ws, done = false;
+      const finish = (ok) => {
+        if (done) return; done = true;
+        try { if (ws) { ws.onopen = ws.onerror = ws.onclose = null; ws.close(); } } catch (e) {}
+        resolve(ok);
+      };
+      try { ws = new WebSocket(url); } catch (e) { return resolve(false); }
+      ws.onopen = () => finish(true);
+      ws.onerror = () => finish(false);
+      ws.onclose = () => finish(false);
+      setTimeout(() => finish(false), timeoutMs);
+    });
+  }
+  /** Race a candidate set; resolve the FIRST host that answers (not the first
+      to settle), else null after the timeout. */
+  _raceProbe(cands, timeoutMs = 4500) {
+    return new Promise((resolve) => {
+      let pending = cands.length, done = false;
+      const finish = (v) => { if (!done) { done = true; resolve(v); } };
+      if (!pending) return finish(null);
+      const t = setTimeout(() => finish(null), timeoutMs);
+      cands.forEach((c) => this._probe(c.url).then((ok) => {
+        if (ok) { clearTimeout(t); finish(c); }
+        else if (--pending === 0) { clearTimeout(t); finish(null); }
+      }));
+    });
+  }
+  async _discoverLocal() {
+    const seq = ++this._discSeq;
+    const seen = new Set(), cands = [];
+    const add = (host) => {
+      host = (host || '').trim().replace(/^wss?:\/\//, '').replace(/[:/].*$/, '');
+      if (!host || seen.has(host)) return;
+      seen.add(host); cands.push({ host, url: `ws://${host}:9090/teleop` });
+    };
+    add(this._lastGoodLocal);                                   // remembered winner first
+    add($('#taHostLocal').value);                               // typed hint, if any
+    if (location.hostname && location.hostname !== 'localhost') add(location.hostname);  // served from the bridge
+    add('localhost'); add('127.0.0.1');
+    if (!cands.length) return;
+    const win = await this._raceProbe(cands);
+    if (!win || seq !== this._discSeq || !this.link.want) return;   // superseded / disconnected
+    this._lastGoodLocal = win.host;
+    try { localStorage.setItem('mabel-host-local', win.host); } catch (e) {}
+    if ($('#taHostLocal')) $('#taHostLocal').value = win.host;
+    // Promote the LAN path (it wins on latency) unless we're already live on it.
+    const want = `ws://${win.host}:9090/teleop`;
+    if (this.path !== 'local' || this.link.url !== want || !this.link.connected) {
+      this.path = 'local';
+      this.link.connect(want);
+      this._paintLink();
+    }
   }
   _failover() {
     if (this.link.connected || !this.link.want) return;
@@ -633,10 +701,12 @@ class App {
     if (local == null && legacy) {
       try { local = new URL(legacy.replace(/^ws/, 'http')).hostname; } catch (e) {}
     }
-    // Default local path: the host the page came from (the bridge serves this
-    // console at http://<host>:8080/console), or localhost for local dev.
-    if (!local) local = (location.protocol.startsWith('http') && location.hostname) || 'localhost';
-    $('#taHostLocal').value = local;
+    // Remember the last Wi-Fi host that answered, so discovery probes it first
+    // (instant reconnect on the same network). The field is left to whatever's
+    // stored — empty is fine; discovery auto-fills it the moment a bridge
+    // answers, so the operator never has to type a LAN IP.
+    this._lastGoodLocal = local || '';
+    $('#taHostLocal').value = local || '';
     $('#taHostVpn').value = vpn || '';
     if ($('#taHostRelay')) $('#taHostRelay').value = relay || '';
     if ($('#taRelayKey')) $('#taRelayKey').value = key || '';
@@ -644,6 +714,14 @@ class App {
   }
   onLink(up) {
     if (!up) { this.driving = true; this.clientCount = 1; }
+    // Remember a Wi-Fi host that just went live (auto-heal on return).
+    if (up && this.path === 'local') {
+      try {
+        const host = new URL(this.link.url.replace(/^ws/, 'http')).hostname;
+        if (host) { this._lastGoodLocal = host; localStorage.setItem('mabel-host-local', host); }
+        if ($('#taHostLocal') && !$('#taHostLocal').value.trim()) $('#taHostLocal').value = host;
+      } catch (e) {}
+    }
     this._paintLink(); this._syncCams();
     if (!up) {
       this.sim.remote = false;
