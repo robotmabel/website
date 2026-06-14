@@ -340,6 +340,17 @@ html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
   .ta-tabs button { flex: 1; padding: 0 8px; justify-content: center; }
   .ta-pip { width: 104px; top: 52px; }
 
+  /* Arm-control clusters: each holds a wrist stick + RAISE + grip slider. At the
+     default 108px stick the LEFT and RIGHT clusters (and their grip sliders) meet
+     and overlap in the middle on a phone — shrink everything (stick scales with the
+     viewport) so they never touch, down to the smallest 320px iPhone. */
+  .ta-cluster { gap: 5px; bottom: 90px; }
+  .ta-cluster.l { left: 6px; } .ta-cluster.r { right: 6px; }
+  .ta-cluster .ta-joy { width: clamp(52px, 16vw, 72px); }   /* in-cluster wrist stick */
+  .ta-cluster .ta-nudge button { width: 26px; height: 26px; font-size: 12px; border-radius: 9px; }
+  .ta-cluster .ta-grip .track { width: 18px; height: 56px; }
+  .ta-cluster .lab { font-size: 7px; letter-spacing: .02em; white-space: nowrap; }
+
   /* Body view: feel toggle on top, model fills, controls in a bottom sheet —
      the iOS WholeBodyView shape (stage over a control panel). */
   .ta-feelbar { top: 14px; }
