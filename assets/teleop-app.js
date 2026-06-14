@@ -512,9 +512,21 @@ class App {
     });
     $('#taReset').addEventListener('click', () => this.resetAll());
     $('#taFs').addEventListener('click', () => {
-      // fullscreen the SECTION so the floating dock rides along
-      if (document.fullscreenElement) document.exitFullscreen();
-      else $('#taSection')?.requestFullscreen?.();
+      // Prefer the native Fullscreen API (desktop, iPad). iPhone Safari has NO
+      // Fullscreen API at all, so fall back to a CSS "immersive" mode that fills
+      // the viewport — the floating dock rides along either way.
+      const sec = $('#taSection');
+      const reqFs = sec && (sec.requestFullscreen || sec.webkitRequestFullscreen);
+      const inFs = document.fullscreenElement || document.webkitFullscreenElement;
+      if (inFs) {
+        (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+      } else if (reqFs && !document.documentElement.classList.contains('ta-immersive')) {
+        reqFs.call(sec);
+      } else {
+        document.documentElement.classList.toggle('ta-immersive');
+        // nudge the renderers to re-fit the new viewport size
+        window.dispatchEvent(new Event('resize'));
+      }
     });
     $('#taEstop').addEventListener('click', () => {
       this.estop = !this.estop;
@@ -985,6 +997,14 @@ class App {
       tabs.appendChild(b);
     }
     renderGroup('arms');
+
+    // joint sliders collapse behind a header on phone (kept open on desktop) —
+    // Body view defaults to model + Hold/Soft, the iOS WholeBodyView shape.
+    const jpanel = $('.ta-joints', v), jhd = $('[data-jcollapse]', v);
+    if (jhd && jpanel) {
+      if (window.matchMedia('(max-width: 700px)').matches) jpanel.classList.add('collapsed');
+      jhd.addEventListener('click', () => jpanel.classList.toggle('collapsed'));
+    }
 
     // drag the palm handles
     const ray = new THREE.Raycaster(); const ndc = new THREE.Vector2();

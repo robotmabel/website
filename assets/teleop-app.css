@@ -300,16 +300,68 @@
 .ta-fs { width: 32px; padding: 0; display: grid; place-items: center; }
 .ta-fs svg { width: 15px; height: 15px; }
 
+/* collapsible joints header — hidden on desktop (panel is always open there),
+   shown on phone where the joint sliders collapse to keep Body view clean */
+.ta-joints-hd { display: none; }
+
+/* CSS immersive fullscreen — the fallback for iPhone Safari, which has NO
+   Fullscreen API on the iPhone (only iPad). Toggled by the FS button when the
+   native API is unavailable: the console fills the viewport, page chrome hidden. */
+html.ta-immersive, html.ta-immersive body { overflow: hidden; height: 100%; }
+html.ta-immersive #taSection {
+  position: fixed; inset: 0; z-index: 900; margin: 0; padding: 0; max-width: none;
+  background: #0d0c0b;
+}
+html.ta-immersive #taSection .ta-app {
+  height: 100vh; height: 100dvh; min-height: 0; border-radius: 0; border: none;
+}
+html.ta-immersive header.nav, html.ta-immersive .sidenav,
+html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
+
 @media (max-width: 1120px) { .ta-metrics { display: none; } }
 @media (max-width: 940px) {
   .ta-host { display: none; }
   .ta-tabs button { padding: 0 11px; }
   .ta-tabs button svg { display: none; }
 }
+
+/* ════ PHONE (≤700px) — declutter: 2-line dock, model-first Body sheet ════ */
 @media (max-width: 700px) {
-  .ta-dock { gap: 6px; padding: 7px 9px; bottom: 10px; }
-  .ta-pill span:last-child { display: none; }
-  .ta-pip { width: 110px; top: 54px; }
+  /* dock: exactly TWO lines (tabs + one status row) — never let row 2 wrap */
+  .ta-dock { gap: 6px; padding: 7px 10px 6px; bottom: 10px; max-width: 96vw; }
+  .ta-dock-row { flex-wrap: nowrap; gap: 7px; width: 100%; justify-content: center; }
+  .ta-pill span:last-child { display: none; }   /* status dot only */
+  .ta-pill { padding: 0 9px; flex: none; }
+  #taReset, .ta-divider { display: none; }       /* drop secondary controls here */
+  .ta-connect { padding: 0 14px; }
+  .ta-estop { height: 32px; padding: 0 13px; }
+  .ta-tabs { width: 100%; }
+  .ta-tabs button { flex: 1; padding: 0 8px; justify-content: center; }
+  .ta-pip { width: 104px; top: 52px; }
+
+  /* Body view: feel toggle on top, model fills, controls in a bottom sheet —
+     the iOS WholeBodyView shape (stage over a control panel). */
+  .ta-feelbar { top: 14px; }
+  .ta-side {
+    left: 10px; right: 10px; top: auto; bottom: 80px; width: auto;
+    flex-direction: column; gap: 8px; max-height: 46vh;
+  }
+  .ta-panel { padding: 12px; }
+  /* joints collapse behind a tappable header; collapsed by default (set in JS) */
+  .ta-joints-hd {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; height: 32px; padding: 0 2px; border: none; background: none;
+    color: #efeae3; font: 600 12.5px 'Geist', sans-serif; cursor: pointer;
+  }
+  .ta-joints-hd .chev { color: #6d6660; transition: transform .2s; font-size: 14px; }
+  .ta-joints.collapsed .ta-joints-hd .chev { transform: rotate(-90deg); }
+  .ta-joints.collapsed { flex: none; }
+  .ta-joints.collapsed .ta-jtabs, .ta-joints.collapsed .ta-jlist { display: none; }
+  .ta-jtabs { margin-top: 8px; }
+  .ta-jlist { max-height: 30vh; }
+  /* the Hold hint is replaced by the sheet; keep only the Soft hint (no sheet there) */
+  #taHintHold { display: none !important; }
+  .ta-hint { bottom: 80px; font-size: 12px; }
 }
 
 /* e-stop overlay */
