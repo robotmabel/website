@@ -63,6 +63,20 @@ const KNOWN_HOSTS = [
 // into the VPN field so the published site has a remote path with zero typing.
 const DEFAULT_VPN = 'jerrys-macbook-pro.taile5c63a.ts.net';
 
+// ── PUBLIC "try it live" endpoint (the reference site's "cloud server") ──────
+// The ONLY path that works for an arbitrary visitor on the public https site:
+// Wi-Fi is blocked (ws:// to a LAN), and VPN needs them on the tailnet. The
+// secure relay (server/relay/README.md) is the universal one — the robot dials
+// OUT to a token-gated public VPS, so https://robotmabel.github.io can drive
+// with zero typing. Fill these ONCE the relay VPS is up:
+//   · DEFAULT_RELAY      — the public hostname (NOT secret), e.g. mabel.duckdns.org
+//   · DEFAULT_RELAY_KEY  — the relay APP_TOKEN. ⚠ this lands in the public repo,
+//     so use a token scoped to the SIM demo bridge, never the physical robot,
+//     and rotate it like a password (setup-vps.sh).
+// Leave both '' to keep the public site on the always-live in-browser twin.
+const DEFAULT_RELAY = '';
+const DEFAULT_RELAY_KEY = '';
+
 const ACCENT = 0xe9a679, GREEN = 0x3FB56B, RED = 0xb3402e, BONE = 0xefeae3;
 
 /* MuJoCo Z-up → three.js Y-up. (x,y,z)ᵐʲ ↦ (x,z,−y)ᵗʰʳᵉᵉ */
@@ -490,6 +504,12 @@ class App {
     });
     ['taHostLocal', 'taHostVpn', 'taHostRelay', 'taRelayKey'].forEach((id) =>
       $(`#${id}`)?.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') this.connectAuto(); }));
+    // The big visitor affordance (the reference site's "Connect"): one click
+    // (re)runs the same path cycle the page auto-starts with.
+    $('#taTryLive')?.addEventListener('click', () => {
+      if (!this.link.want) this.connectAuto(); else this._disconnect();
+      this._paintLink();
+    });
     $('#taReset').addEventListener('click', () => this.resetAll());
     $('#taFs').addEventListener('click', () => {
       // fullscreen the SECTION so the floating dock rides along
@@ -564,11 +584,16 @@ class App {
       https); on http it can also probe LAN / Tailscale hosts. So it's never
       fully off — only the candidate SET narrows on https (see _discoverLocal). */
   _canDiscover() { return true; }
-  /** Configured paths, in failover order (Wi-Fi → VPN → relay). On http the
-      Wi-Fi leg is always present even with an empty field — discovery fills it. */
+  /** Configured paths, in failover order. On the bridge-served http console the
+      LAN is the fast path, so Wi-Fi → VPN → relay. On the PUBLIC https site a
+      visitor can't reach a LAN bridge (ws:// blocked) or a tailnet (VPN), so
+      the relay is the only universal path — lead with it: relay → VPN → Wi-Fi.
+      On http the Wi-Fi leg is always present even empty — discovery fills it. */
   _pathOrder() {
     const h = this._hosts();
-    return ['local', 'vpn', 'relay'].filter((p) =>
+    const publicHttps = location.protocol === 'https:' && !_isLocalHost(location.hostname);
+    const order = publicHttps ? ['relay', 'vpn', 'local'] : ['local', 'vpn', 'relay'];
+    return order.filter((p) =>
       p === 'local' ? (h.local || this._canDiscover()) : h[p]);
   }
   connectAuto() {
@@ -703,6 +728,9 @@ class App {
         : 'Trying to reach the bridge; it keeps retrying until you press Disconnect.';
     } else { label.textContent = 'LOCAL SIM'; pill.title = ''; }
     btn.textContent = this.link.want ? 'Disconnect' : 'Connect';
+    const tl = $('#taTryLive');
+    if (tl) tl.textContent = this.link.connected ? 'Connected'
+      : this.link.want ? 'Connecting…' : '▶  Try it live';
   }
   /** What's wrong with the chosen path, and how to fix it — null when fine.
       Covers the relay's missing-token case, plus the two https-page hazards:
@@ -757,8 +785,10 @@ class App {
     this._lastGoodLocal = local || '';
     $('#taHostLocal').value = local || '';
     $('#taHostVpn').value = vpn || DEFAULT_VPN;   // documented remote path, pre-filled
-    if ($('#taHostRelay')) $('#taHostRelay').value = relay || '';
-    if ($('#taRelayKey')) $('#taRelayKey').value = key || '';
+    // Relay host + token come pre-baked on the public build (DEFAULT_RELAY*),
+    // so a visitor lands on a one-click "try it live" path with nothing to type.
+    if ($('#taHostRelay')) $('#taHostRelay').value = relay || DEFAULT_RELAY;
+    if ($('#taRelayKey')) $('#taRelayKey').value = key || DEFAULT_RELAY_KEY;
     this.connectAuto();
     // On the public https site the browser BLOCKS ws:// to any local robot
     // (Private Network Access), so a same-machine bridge is unreachable from
@@ -767,14 +797,17 @@ class App {
   }
   _warnHttps() {
     setTimeout(() => {
-      if (this.link.connected) return;              // a wss path (VPN/relay) got through — fine
-      const nov = $('#taNoVid');
-      if (nov) nov.innerHTML = '<div class="inner"><b>Open this from your robot, not the public site</b>'
-        + 'Browsers block a secure web page from reaching a robot on your own network, so '
-        + '<code>robotmabel.github.io</code> can’t connect to a local bridge. Open the console the '
-        + 'bridge serves instead: <b>http://&lt;your-mac&gt;:8080/console</b> (or http://localhost:8080/console '
-        + 'on the Mac). For a remote robot, fill the <b>VPN</b> (Tailscale) or <b>RELAY</b> field above.</div>';
-      UI.set('link', 'USE http://…:8080/console');
+      if (this.link.connected) return;              // a wss path (relay/VPN) got through — fine
+      const msg = $('#taNoVidMsg');
+      if (!msg) return;
+      // The button + heading stay; only the explainer changes. A visitor on
+      // the public site is ALREADY driving the in-browser twin — lead with that.
+      msg.innerHTML = this._hosts().relay
+        ? 'The hosted sim looks offline right now — but you’re already driving the '
+          + 'in-browser model below. It’ll pick up the live sim automatically when it’s back.'
+        : 'You’re driving the in-browser model. A secure web page can’t reach a robot on your '
+          + 'own network, so to drive a <b>real</b> bridge open the console it serves — '
+          + '<b>http://&lt;your-mac&gt;:8080/console</b> — or fill the <b>VPN</b> / <b>RELAY</b> field in the dock.';
     }, 6000);
   }
   onLink(up) {

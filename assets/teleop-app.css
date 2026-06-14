@@ -65,8 +65,19 @@
     radial-gradient(80% 90% at 50% 30%, #15131180, transparent),
     #0a0908;
 }
-.ta-novid .inner { color: #6d6660; font: 400 13px 'Geist', sans-serif; max-width: 36ch; line-height: 1.6; }
+.ta-novid .inner { color: #6d6660; font: 400 13px 'Geist', sans-serif; max-width: 38ch; line-height: 1.6; }
 .ta-novid .inner b { color: #97908a; font-weight: 500; display: block; margin-bottom: 6px; font-size: 14px; }
+.ta-novid .inner p { margin: 0 0 16px; }
+.ta-trylive {
+  display: inline-flex; align-items: center; height: 42px; padding: 0 24px;
+  border-radius: 21px; border: none; cursor: pointer;
+  background: linear-gradient(180deg, #f0b68b, #e9a679); color: #161412;
+  font: 600 14px 'Geist', sans-serif; letter-spacing: .01em;
+  box-shadow: 0 10px 26px -10px rgba(233,166,121,.6);
+  transition: transform .12s, box-shadow .18s, filter .18s;
+}
+.ta-trylive:hover { filter: brightness(1.05); transform: translateY(-1px); box-shadow: 0 14px 32px -10px rgba(233,166,121,.7); }
+.ta-trylive:active { transform: translateY(0); }
 .ta-pip {
   position: absolute; top: 60px; width: clamp(120px, 17%, 230px); aspect-ratio: 4/3; z-index: 5;
   border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,.14);
