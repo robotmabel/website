@@ -651,6 +651,7 @@ class App {
     this._curTarget = t;
     try { localStorage.setItem('mabel-target', t.id); } catch (e) {}
     clearInterval(this._planT); this._planT = null;
+    this._lanConsoleUrl = null;
     this.link.want = true;
     if (t.kind === 'auto') {
       this.path = 'local';
@@ -663,23 +664,42 @@ class App {
       this.path = 'relay';
       this.link.connect(this._urlFor('relay'));
     } else {                                                  // a specific LAN / robot host
-      // A page served over HTTPS (the public github.io copy) can't open ws:// to
-      // a LAN/Tailscale robot — browsers block it (mixed content + Private
-      // Network Access). The robot's OWN bridge serves THIS SAME console over
-      // http on :8080, where the LAN link works, so hop there. (Only for real
-      // hosts — localhost is exempt from the block and connects in place.)
+      // A page served over HTTPS (the public github.io copy) cannot open ws://
+      // to a LAN/Tailscale robot — browsers block it (mixed content + Private
+      // Network Access). The robot's OWN bridge serves this same console over
+      // http on :8080, where the LAN link works. Don't navigate there
+      // automatically (it may be unreachable and would strand the page) — show
+      // it as a link the operator opens in a new tab. localhost is exempt from
+      // the block and still connects in place.
       if (location.protocol === 'https:' && !_isLocalHost(t.host)) {
-        const url = `http://${t.host}:8080/console`;
-        UI.set('link', 'OPENING LAN CONSOLE…');
-        location.href = url;
+        this._curTarget = t; this.link.want = false; this.sim.remote = false;
+        this._lanConsoleUrl = `http://${t.host}:8080/console`;
+        this._showLanConsoleHint(t.host);
+        this._closeHostMenu(); this._paintLink();
         return;
       }
+      this._lanConsoleUrl = null;
       $('#taHostLocal').value = t.host; this._lastGoodLocal = t.host;
       this.path = 'local';
       this.link.connect(this._urlFor('local'));
     }
     this._closeHostMenu();
     this._paintLink();
+  }
+  /** Real robot picked from the https page: ws:// to a LAN host is blocked here,
+      so surface the robot's own http console as a clickable link (new tab) plus
+      the network caveat. Non-destructive — never navigates this tab. */
+  _showLanConsoleHint(host) {
+    this.switchView('teleop');
+    const url = `http://${host}:8080/console`;
+    const msg = $('#taNoVidMsg');
+    if (msg) {
+      msg.innerHTML = `<b style="color:#e9a679;">Real robots open over http, on their own network</b>`
+        + `This secure page can’t reach a robot at <code>${host}</code> — browsers block a LAN socket from https. `
+        + `Open the robot’s own console instead (new tab): `
+        + `<a href="${url}" target="_blank" rel="noopener" style="color:#e9a679;text-decoration:underline;">${url} ↗</a><br>`
+        + `<span style="color:#6d6660;">You must be on the robot’s network for that to load — same Wi-Fi as the robot, or its Tailscale IP — and its bridge must be running.</span>`;
+    }
   }
   _toggleHostMenu() {
     const m = $('#taHostMenu'); if (!m) return;
@@ -832,6 +852,10 @@ class App {
       pill.title = this._pathOrder().length > 1
         ? 'Cycling the configured paths every 5 s — Wi-Fi, then VPN, then the secure relay — until one answers.'
         : 'Trying to reach the bridge; it keeps retrying until you press Disconnect.';
+    } else if (this._lanConsoleUrl) {
+      pill.classList.add('wait');
+      label.textContent = 'OPEN OVER HTTP';
+      pill.title = `Real robots can't be reached from this https page — open ${this._lanConsoleUrl} on the robot's network.`;
     } else { label.textContent = 'OFFLINE'; pill.title = ''; }
     // The host-picker button shows the chosen target + a status tint.
     const hpLbl = $('#taConnect .hp-lbl');
@@ -910,6 +934,7 @@ class App {
   _warnHttps() {
     setTimeout(() => {
       if (this.link.connected) return;              // a wss path (relay/VPN) got through — fine
+      if (this._lanConsoleUrl) return;              // a LAN-robot hint is showing — leave it
       const msg = $('#taNoVidMsg');
       if (!msg) return;
       // The button + heading stay; only the explainer changes. A visitor on
