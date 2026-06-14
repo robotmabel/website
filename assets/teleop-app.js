@@ -500,17 +500,13 @@ class App {
   _buildDock() {
     $$('[data-tabs] button').forEach((b) =>
       b.addEventListener('click', () => this.switchView(b.dataset.go)));
-    $('#taConnect').addEventListener('click', () => {
-      if (this.link.want) this._disconnect();
-      else this.connectAuto();
-      this._paintLink();
-    });
-    ['taHostLocal', 'taHostVpn', 'taHostRelay', 'taRelayKey'].forEach((id) =>
-      $(`#${id}`)?.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') this.connectAuto(); }));
-    // The big visitor affordance (the reference site's "Connect"): one click
-    // (re)runs the same path cycle the page auto-starts with.
+    // Connect is now a host PICKER: click to choose / switch a target (the sim,
+    // this computer, or a LAN robot you added) and connect to it.
+    $('#taConnect').addEventListener('click', (e) => { e.stopPropagation(); this._toggleHostMenu(); });
+    document.addEventListener('click', (e) => { if (!e.target.closest('#taHostPick')) this._closeHostMenu(); });
+    // The visitor CTA (no-video panel) connects the default target.
     $('#taTryLive')?.addEventListener('click', () => {
-      if (!this.link.want) this.connectAuto(); else this._disconnect();
+      if (!this.link.want) this.connectAuto(); else { this._disconnect(); this._curTarget = null; }
       this._paintLink();
     });
     $('#taReset').addEventListener('click', () => this.resetAll());
@@ -615,25 +611,105 @@ class App {
     return order.filter((p) =>
       p === 'local' ? (h.local || this._canDiscover()) : h[p]);
   }
+  /* ── Host picker: a dropdown of named targets you connect to ──────────
+     SECURITY MODEL. The "Local network" targets — Auto-discover, This
+     computer, and any robot you add — are plain ws:// to a LAN / Tailscale
+     address: reachable ONLY from the same network, and the browser blocks
+     them outright from the public https page. So the real robot is never
+     exposed to the internet — nobody off your LAN can connect to it. The
+     relay is the ONE public target and is the SIMULATION demo only; keep it
+     off real hardware (run the robot with `./run.sh --no-relay`). */
+  _userHosts() {
+    try { return JSON.parse(localStorage.getItem('mabel-hosts') || '[]'); } catch (e) { return []; }
+  }
+  _saveUserHosts(list) { try { localStorage.setItem('mabel-hosts', JSON.stringify(list)); } catch (e) {} }
+  _targets() {
+    const lan = [
+      { id: 'auto',  label: 'Auto-discover', sub: 'a robot on this network', kind: 'auto' },
+      { id: 'local', label: 'This computer', sub: 'localhost', kind: 'lan', host: 'localhost' },
+      ...this._userHosts().map((h) => ({ id: h.id, label: h.label, sub: h.host, kind: 'lan', host: h.host, user: true })),
+    ];
+    const pub = [];
+    if (DEFAULT_RELAY) pub.push({ id: 'demo', label: 'Sim demo', sub: 'public cloud · sim only', kind: 'relay', host: DEFAULT_RELAY, key: DEFAULT_RELAY_KEY });
+    return { lan, pub };
+  }
+  _findTarget(id) { const { lan, pub } = this._targets(); return [...lan, ...pub].find((t) => t.id === id); }
+  /** Default target: the last one used, else the relay sim on the public site
+      or auto-discovery on a LAN / the bridge-served console. */
   connectAuto() {
-    const h = this._hosts();
-    try {
-      localStorage.setItem('mabel-host-local', h.local);
-      localStorage.setItem('mabel-host-vpn', h.vpn);
-      localStorage.setItem('mabel-host-relay', h.relay);
-      localStorage.setItem('mabel-relay-key', this._relayKey());
-    } catch (e) { /* private mode */ }
-    clearInterval(this._planT);
-    const order = this._pathOrder();
-    this.path = order[0] || 'local';
-    this.link.connect(this._urlFor(this.path) || 'ws://localhost:9090/teleop');
-    this._planT = setInterval(() => this._failover(), 5000);
+    let id = null; try { id = localStorage.getItem('mabel-target'); } catch (e) {}
+    let t = (id && this._findTarget(id)) || null;
+    if (!t) {
+      const pub = location.protocol === 'https:' && !_isLocalHost(location.hostname);
+      t = this._findTarget(pub ? 'demo' : 'auto') || this._findTarget('auto');
+    }
+    this._selectTarget(t);
+  }
+  /** Connect to ONE chosen target (no path-cycling — the operator picks). */
+  _selectTarget(t) {
+    if (!t) return;
+    this._curTarget = t;
+    try { localStorage.setItem('mabel-target', t.id); } catch (e) {}
+    clearInterval(this._planT); this._planT = null;
+    this.link.want = true;
+    if (t.kind === 'auto') {
+      this.path = 'local';
+      this.link.connect(this._urlFor('local') || 'ws://localhost:9090/teleop');
+      this._discoverLocal();                                  // race the LAN for a bridge
+      this._planT = setInterval(() => { if (!this.link.connected && this.link.want) this._discoverLocal(); }, 5000);
+    } else if (t.kind === 'relay') {
+      if ($('#taHostRelay')) $('#taHostRelay').value = t.host;
+      if ($('#taRelayKey')) $('#taRelayKey').value = t.key || '';
+      this.path = 'relay';
+      this.link.connect(this._urlFor('relay'));
+    } else {                                                  // a specific LAN / robot host
+      $('#taHostLocal').value = t.host; this._lastGoodLocal = t.host;
+      this.path = 'local';
+      this.link.connect(this._urlFor('local'));
+    }
+    this._closeHostMenu();
     this._paintLink();
-    // Bonjour analog (ServerDiscovery.swift): race the candidate LAN hosts in
-    // the background; the first that answers becomes the live Wi-Fi host — no
-    // IP typing, and it re-resolves on every connect so it auto-heals across
-    // networks. Skipped on https, where ws:// to the LAN is blocked.
-    if (this._canDiscover()) this._discoverLocal();
+  }
+  _toggleHostMenu() {
+    const m = $('#taHostMenu'); if (!m) return;
+    if (m.hasAttribute('hidden')) { this._buildHostMenu(); m.removeAttribute('hidden'); $('#taConnect')?.setAttribute('aria-expanded', 'true'); }
+    else this._closeHostMenu();
+  }
+  _closeHostMenu() { const m = $('#taHostMenu'); if (m) { m.setAttribute('hidden', ''); $('#taConnect')?.setAttribute('aria-expanded', 'false'); } }
+  _buildHostMenu() {
+    const menu = $('#taHostMenu'); if (!menu) return;
+    const { lan, pub } = this._targets();
+    const cur = this._curTarget?.id;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const row = (t) => `<button class="hm-row${t.id === cur ? ' on' : ''}" data-tid="${esc(t.id)}" type="button">
+        <span class="hm-dot"></span>
+        <span class="hm-main"><span class="hm-label">${esc(t.label)}</span><span class="hm-sub">${esc(t.sub)}</span></span>
+        ${t.user ? `<span class="hm-del" data-del="${esc(t.id)}" title="Remove" role="button">×</span>` : ''}</button>`;
+    menu.innerHTML =
+      `<div class="hm-head">Local network<span>secure · LAN only</span></div>` +
+      lan.map(row).join('') +
+      `<form class="hm-add" data-addform autocomplete="off"><input class="hm-name" placeholder="Name" aria-label="Robot name" /><input class="hm-ip" placeholder="192.168.1.x" aria-label="Robot LAN IP" /><button type="submit" class="hm-addbtn" title="Add robot">＋</button></form>` +
+      (pub.length ? `<div class="hm-head">Public<span>simulation only</span></div>` + pub.map(row).join('') : '') +
+      (this.link.want ? `<button class="hm-row hm-disc" data-disc type="button"><span class="hm-dot"></span><span class="hm-main"><span class="hm-label">Disconnect</span></span></button>` : '');
+    $$('.hm-row[data-tid]', menu).forEach((b) => b.addEventListener('click', (e) => {
+      if (e.target.closest('[data-del]')) return;
+      this._selectTarget(this._findTarget(b.dataset.tid));
+    }));
+    $$('[data-del]', menu).forEach((d) => d.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this._saveUserHosts(this._userHosts().filter((h) => h.id !== d.dataset.del));
+      this._buildHostMenu();
+    }));
+    $('[data-disc]', menu)?.addEventListener('click', () => { this._disconnect(); this._curTarget = null; this._buildHostMenu(); this._paintLink(); });
+    $('[data-addform]', menu)?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const ip = $('.hm-ip', menu).value.trim(); if (!ip) return;
+      const name = $('.hm-name', menu).value.trim();
+      const id = 'h' + Date.now().toString(36);
+      const list = this._userHosts(); list.push({ id, label: name || ip, host: ip });
+      this._saveUserHosts(list);
+      this._selectTarget(this._findTarget(id));               // connect to the new robot now
+    });
   }
   /** Open a throwaway WebSocket to a candidate; resolve true iff the bridge
       accepts the upgrade on /teleop (the analog of Bonjour's "open a TCP
@@ -720,7 +796,7 @@ class App {
   _paintLink() {
     const pill = $('#taPill'), btn = $('#taConnect');
     const label = pill.querySelector('span:last-child');   // NOT the status dot
-    const pathName = { local: 'WI-FI', vpn: 'VPN', relay: 'RELAY' }[this.path] || 'WI-FI';
+    const pathName = { local: 'LAN', vpn: 'VPN', relay: 'CLOUD' }[this.path] || 'LAN';
     pill.classList.remove('link', 'wait');
     $$('.ta-host').forEach((el) => el.classList.remove('live', 'trying'));
     const fieldId = { local: '#taHostLocal', vpn: '#taHostVpn', relay: '#taHostRelay' }[this.path];
@@ -745,8 +821,14 @@ class App {
       pill.title = this._pathOrder().length > 1
         ? 'Cycling the configured paths every 5 s — Wi-Fi, then VPN, then the secure relay — until one answers.'
         : 'Trying to reach the bridge; it keeps retrying until you press Disconnect.';
-    } else { label.textContent = 'LOCAL SIM'; pill.title = ''; }
-    btn.textContent = this.link.want ? 'Disconnect' : 'Connect';
+    } else { label.textContent = 'OFFLINE'; pill.title = ''; }
+    // The host-picker button shows the chosen target + a status tint.
+    const hpLbl = $('#taConnect .hp-lbl');
+    if (hpLbl) hpLbl.textContent = this._curTarget?.label || 'Connect';
+    if (btn) {
+      btn.classList.toggle('live', this.link.connected);
+      btn.classList.toggle('wait', this.link.want && !this.link.connected);
+    }
     const tl = $('#taTryLive');
     if (tl) tl.textContent = this.link.connected ? 'Connected'
       : this.link.want ? 'Connecting…' : '▶  Try it live';

@@ -179,7 +179,10 @@
         <span>RELAY</span><input id="taHostRelay" type="text" placeholder="mabel.duckdns.org" spellcheck="false" autocomplete="off" aria-label="Secure relay host" /></label>
       <label class="ta-host ta-host-key" title="The relay access token (APP_TOKEN). Every request must carry it as ?key= or the VPS returns 403 before reaching the robot. Treat it like a password.">
         <span>KEY</span><input id="taRelayKey" type="text" placeholder="access token" spellcheck="false" autocomplete="off" aria-label="Relay access token" /></label>
-      <button class="ta-connect" id="taConnect">Connect</button>
+      <div class="ta-hostpick" id="taHostPick">
+        <button class="ta-connect" id="taConnect" type="button" aria-haspopup="true" aria-expanded="false" title="Choose which robot / sim to drive"><span class="hp-lbl">Connect</span><span class="hp-cv">▾</span></button>
+        <div class="ta-hostmenu" id="taHostMenu" role="menu" hidden></div>
+      </div>
       <div class="ta-metrics">
         <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
         <span class="ta-metric">LAT<b data-ta="lat">—</b></span>

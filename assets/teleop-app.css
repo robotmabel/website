@@ -295,8 +295,60 @@
 .ta-host-key input { width: clamp(64px, 6vw, 104px); }
 .ta-host-relay:focus-within, .ta-host-key:focus-within { border-color: rgba(154,134,200,.55); }
 .ta-connect {
-  height: 30px; padding: 0 15px; border-radius: 15px; border: none; cursor: pointer;
+  height: 30px; padding: 0 13px; border-radius: 15px; border: none; cursor: pointer;
   background: #efeae3; color: #161412; font: 500 12px 'Geist', sans-serif; flex: none;
+  display: inline-flex; align-items: center; gap: 6px; max-width: 180px;
+}
+.ta-connect .hp-lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ta-connect .hp-cv { font-size: 10px; opacity: .65; flex: none; }
+.ta-connect.live { background: #3FB56B; color: #06210f; }
+.ta-connect.wait { background: #e9a679; color: #2a1206; }
+
+/* ── host picker dropdown ──────────────────────────────────────────── */
+.ta-hostpick { position: relative; flex: none; }
+.ta-hostmenu {
+  position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+  width: min(264px, 86vw); max-height: 56vh; overflow-y: auto; z-index: 1000;
+  padding: 6px; border-radius: 16px;
+  background: linear-gradient(180deg, rgba(42,38,33,.95), rgba(18,16,14,.97));
+  backdrop-filter: blur(26px) saturate(1.8); -webkit-backdrop-filter: blur(26px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 26px 60px -20px rgba(0,0,0,.82), inset 0 1px 0 rgba(255,255,255,.1);
+}
+.ta-hostmenu[hidden] { display: none; }
+.hm-head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  padding: 9px 10px 4px; font: 600 9.5px 'Geist Mono', monospace; letter-spacing: .12em;
+  color: #9a938c; text-transform: uppercase;
+}
+.hm-head span { font-weight: 400; letter-spacing: .03em; color: #6d6660; text-transform: none; }
+.hm-row {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 9px 10px; border: none; border-radius: 11px; cursor: pointer;
+  background: transparent; color: #efeae3; text-align: left; font-family: 'Geist', sans-serif;
+}
+.hm-row:hover { background: rgba(255,255,255,.07); }
+.hm-row.on { background: rgba(63,181,107,.14); }
+.hm-dot { width: 7px; height: 7px; border-radius: 50%; background: #4d4742; flex: none; }
+.hm-row.on .hm-dot { background: #3FB56B; box-shadow: 0 0 7px #3FB56B88; }
+.hm-main { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.hm-label { font: 500 13px 'Geist', sans-serif; }
+.hm-sub { font: 400 10.5px 'Geist Mono', monospace; color: #8a837c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hm-del { color: #6d6660; font-size: 17px; line-height: 1; padding: 0 4px; flex: none; }
+.hm-del:hover { color: #ff6f57; }
+.hm-disc { justify-content: flex-start; margin-top: 2px; }
+.hm-disc .hm-label { color: #e9a679; }
+.hm-add { display: flex; gap: 5px; padding: 6px 4px 4px; }
+.hm-add input {
+  height: 30px; min-width: 0; border-radius: 9px; padding: 0 9px;
+  background: rgba(0,0,0,.32); border: 1px solid rgba(255,255,255,.1); color: #efeae3;
+  font: 400 11px 'Geist Mono', monospace; outline: none;
+}
+.hm-name { flex: 1; } .hm-ip { flex: 1.25; }
+.hm-add input:focus { border-color: rgba(233,166,121,.5); }
+.hm-addbtn {
+  width: 30px; flex: none; border-radius: 9px; border: none; cursor: pointer;
+  background: #efeae3; color: #161412; font-size: 17px; line-height: 1;
 }
 .ta-metrics { display: flex; gap: 12px; align-items: center; }
 .ta-metric { font: 500 10px 'Geist Mono', monospace; letter-spacing: .08em; color: #6d6660; white-space: nowrap; }
