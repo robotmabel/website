@@ -331,10 +331,11 @@ html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
   .ta-dock { gap: 6px; padding: 7px 10px 6px; bottom: 10px; max-width: 96vw; }
   .ta-dock-row { flex-wrap: nowrap; gap: 7px; width: 100%; justify-content: center; }
   .ta-pill span:last-child { display: none; }   /* status dot only */
-  .ta-pill { padding: 0 9px; flex: none; }
-  #taReset, .ta-divider { display: none; }       /* drop secondary controls here */
-  .ta-connect { padding: 0 14px; }
-  .ta-estop { height: 32px; padding: 0 13px; }
+  .ta-pill { padding: 0 8px; flex: none; }
+  .ta-divider { display: none; }                 /* drop only the separator — keep Reset */
+  .ta-connect { padding: 0 12px; }
+  .ta-sbtn { padding: 0 11px; }                  /* compact Reset */
+  .ta-estop { height: 32px; padding: 0 12px; }
   .ta-tabs { width: 100%; }
   .ta-tabs button { flex: 1; padding: 0 8px; justify-content: center; }
   .ta-pip { width: 104px; top: 52px; }
