@@ -37,6 +37,9 @@ const MAX_STIFF = 45.0;     // Nm/rad at stiffness slider = 1
 const PUSH_K = 60.0, PUSH_MAX = 90.0;   // N/m, N — Soft drag → external_force
 const TX_HZ = 20, PING_S = 5;
 const IDENTITY16 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+// Per-tab session id — random per page load, so the command monitor can tell
+// multiple browser openings (same machine, same browser) apart.
+const _SID = Math.random().toString(36).slice(2, 6);
 
 /* ── Known bridge addresses (operator's networks) ─────────────────────
    Wi-Fi auto-discovery probes these in parallel (over http) on top of the
@@ -578,9 +581,10 @@ class App {
   _urlFor(path) {
     const host = (this._hosts()[path] || '').trim();
     if (!host) return null;
-    // `client=web` lets the server's command monitor name this device exactly
-    // (Website) instead of guessing — appended after any existing query.
-    const tag = (u) => u + (u.includes('?') ? '&' : '?') + 'client=web';
+    // `client=web` names this device exactly (Website); `sid` is a per-tab id so
+    // the command monitor can tell multiple browser openings apart. Appended
+    // after any existing query (e.g. the relay's ?key=…), never overwriting it.
+    const tag = (u) => u + (u.includes('?') ? '&' : '?') + `client=web&sid=${_SID}`;
     if (/^wss?:\/\//.test(host)) return tag(host);     // full URL passthrough
     if (path === 'relay') {
       const h = host.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
@@ -998,11 +1002,11 @@ class App {
     }
     renderGroup('arms');
 
-    // joint sliders collapse behind a header on phone (kept open on desktop) —
-    // Body view defaults to model + Hold/Soft, the iOS WholeBodyView shape.
+    // Joint sliders collapse behind a header, closed by default on EVERY viewport
+    // so the Body view is just the robot model + Hold/Soft + a tiny corner card.
     const jpanel = $('.ta-joints', v), jhd = $('[data-jcollapse]', v);
     if (jhd && jpanel) {
-      if (window.matchMedia('(max-width: 700px)').matches) jpanel.classList.add('collapsed');
+      jpanel.classList.add('collapsed');
       jhd.addEventListener('click', () => jpanel.classList.toggle('collapsed'));
     }
 

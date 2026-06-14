@@ -155,33 +155,45 @@
   white-space: nowrap; max-width: 92%; overflow: hidden; text-overflow: ellipsis;
 }
 .ta-hint b { color: #3FB56B; font-weight: 500; }
+/* Body controls: a SMALL floating card in the top-right corner, so the robot
+   model is the view. Stiffness sits on top; the joint sliders collapse behind a
+   header and are closed by default — minimal obstruction. Same on every size. */
 .ta-side {
-  position: absolute; right: 14px; top: 50px; bottom: 92px; width: 252px; z-index: 6;
-  display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+  position: absolute; right: 12px; top: 48px; width: clamp(146px, 20vw, 184px);
+  max-height: calc(100% - 140px); z-index: 6;
+  display: flex; flex-direction: column; gap: 7px; pointer-events: none;
 }
 .ta-side > * { pointer-events: auto; }
 .ta-panel {
-  border-radius: 16px; padding: 14px;
+  border-radius: 13px; padding: 9px 11px;
   background: rgba(18,16,15,.72); border: 1px solid rgba(255,255,255,.09);
   backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5);
 }
-.ta-panel .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.ta-panel .k { font: 500 10.5px 'Geist Mono', monospace; letter-spacing: .14em; color: #6d6660; }
-.ta-panel .v { font: 500 12px 'Geist Mono', monospace; color: #e9a679; }
-.ta-slider { width: 100%; accent-color: #e9a679; height: 22px; }
-.ta-joints { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
-.ta-jtabs { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+.ta-panel .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.ta-panel .k { font: 500 9px 'Geist Mono', monospace; letter-spacing: .1em; color: #6d6660; }
+.ta-panel .v { font: 500 10.5px 'Geist Mono', monospace; color: #e9a679; }
+.ta-slider { width: 100%; accent-color: #e9a679; height: 18px; }
+.ta-joints { min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+/* collapsible joints header — present on every viewport, collapsed by default */
+.ta-joints-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; height: 24px; padding: 0; border: none; background: none;
+  color: #efeae3; font: 600 11px 'Geist', sans-serif; cursor: pointer;
+}
+.ta-joints-hd .chev { color: #6d6660; transition: transform .2s; font-size: 13px; }
+.ta-joints.collapsed .ta-joints-hd .chev { transform: rotate(-90deg); }
+.ta-joints.collapsed .ta-jtabs, .ta-joints.collapsed .ta-jlist { display: none; }
+.ta-jtabs { display: flex; gap: 4px; margin: 8px 0; flex-wrap: wrap; }
 .ta-jtabs button {
-  height: 24px; padding: 0 10px; border-radius: 12px; border: none; cursor: pointer;
-  background: rgba(255,255,255,.06); color: #97908a; font: 500 11px 'Geist', sans-serif;
+  height: 22px; padding: 0 9px; border-radius: 11px; border: none; cursor: pointer;
+  background: rgba(255,255,255,.06); color: #97908a; font: 500 10px 'Geist', sans-serif;
 }
 .ta-jtabs button.on { background: #efeae3; color: #161412; }
-.ta-jlist { overflow-y: auto; flex: 1; min-height: 0; padding-right: 4px; scrollbar-width: thin; }
-.ta-jrow { margin-bottom: 6px; }
+.ta-jlist { overflow-y: auto; max-height: 36vh; min-height: 0; padding-right: 4px; scrollbar-width: thin; }
+.ta-jrow { margin-bottom: 5px; }
 .ta-jrow .row { margin-bottom: 0; }
-.ta-jrow .k { letter-spacing: .04em; text-transform: none; font-size: 11px; color: #97908a; }
-.ta-jrow input { width: 100%; accent-color: #e9a679; height: 18px; }
-@media (max-width: 880px) { .ta-side { width: 210px; } }
+.ta-jrow .k { letter-spacing: .02em; text-transform: none; font-size: 10px; color: #97908a; }
+.ta-jrow input { width: 100%; accent-color: #e9a679; height: 16px; }
 
 /* ── navigate view ─────────────────────────────────────────────────── */
 .ta-rooms { position: absolute; top: 50px; left: 14px; z-index: 6; display: flex; flex-direction: column; gap: 6px; }
@@ -232,8 +244,13 @@
   color: #efeae3;
   user-select: none; -webkit-user-select: none;
 }
-.ta-dock-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 9px; }
+.ta-dock-row { display: flex; align-items: center; justify-content: center; flex-wrap: nowrap; gap: 9px; }
 .ta-divider { width: 1px; height: 26px; background: rgba(255,255,255,.1); flex: none; }
+/* The bar stays simple — indicator · Connect · Reset · E-STOP · fullscreen.
+   Auto-connect (baked relay + LAN auto-discovery) handles connectivity, so the
+   manual host/key inputs and the live metrics are not shown (kept in the DOM,
+   hidden, so the connection logic is untouched). Same on desktop and mobile. */
+.ta-host, .ta-metrics, .ta-divider { display: none !important; }
 
 /* view tabs — row one, front and centre */
 .ta-tabs { display: flex; gap: 3px; padding: 3px; border-radius: 21px; background: rgba(0,0,0,.28); }
@@ -300,10 +317,6 @@
 .ta-fs { width: 32px; padding: 0; display: grid; place-items: center; }
 .ta-fs svg { width: 15px; height: 15px; }
 
-/* collapsible joints header — hidden on desktop (panel is always open there),
-   shown on phone where the joint sliders collapse to keep Body view clean */
-.ta-joints-hd { display: none; }
-
 /* CSS immersive fullscreen — the fallback for iPhone Safari, which has NO
    Fullscreen API on the iPhone (only iPad). Toggled by the FS button when the
    native API is unavailable: the console fills the viewport, page chrome hidden. */
@@ -318,23 +331,16 @@ html.ta-immersive #taSection .ta-app {
 html.ta-immersive header.nav, html.ta-immersive .sidenav,
 html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
 
-@media (max-width: 1120px) { .ta-metrics { display: none; } }
-@media (max-width: 940px) {
-  .ta-host { display: none; }
-  .ta-tabs button { padding: 0 11px; }
-  .ta-tabs button svg { display: none; }
-}
+@media (max-width: 940px) { .ta-tabs button { padding: 0 14px; } }
 
-/* ════ PHONE (≤700px) — declutter: 2-line dock, model-first Body sheet ════ */
+/* ════ PHONE (≤700px) — same simple 2-line dock, just tighter to fit ════ */
 @media (max-width: 700px) {
-  /* dock: exactly TWO lines (tabs + one status row) — never let row 2 wrap */
   .ta-dock { gap: 6px; padding: 7px 10px 6px; bottom: 10px; max-width: 96vw; }
-  .ta-dock-row { flex-wrap: nowrap; gap: 7px; width: 100%; justify-content: center; }
-  .ta-pill span:last-child { display: none; }   /* status dot only */
-  .ta-pill { padding: 0 8px; flex: none; }
-  .ta-divider { display: none; }                 /* drop only the separator — keep Reset */
+  .ta-dock-row { gap: 7px; width: 100%; }
+  .ta-pill span:last-child { display: none; }    /* status dot only when tight */
+  .ta-pill { padding: 0 8px; }
   .ta-connect { padding: 0 12px; }
-  .ta-sbtn { padding: 0 11px; }                  /* compact Reset */
+  .ta-sbtn { padding: 0 11px; }
   .ta-estop { height: 32px; padding: 0 12px; }
   .ta-tabs { width: 100%; }
   .ta-tabs button { flex: 1; padding: 0 8px; justify-content: center; }
@@ -351,29 +357,10 @@ html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
   .ta-cluster .ta-grip .track { width: 18px; height: 56px; }
   .ta-cluster .lab { font-size: 7px; letter-spacing: .02em; white-space: nowrap; }
 
-  /* Body view: feel toggle on top, model fills, controls in a bottom sheet —
-     the iOS WholeBodyView shape (stage over a control panel). */
+  /* Body view: keep the small floating card top-right, just a hair narrower */
   .ta-feelbar { top: 14px; }
-  .ta-side {
-    left: 10px; right: 10px; top: auto; bottom: 80px; width: auto;
-    flex-direction: column; gap: 8px; max-height: 46vh;
-  }
-  .ta-panel { padding: 12px; }
-  /* joints collapse behind a tappable header; collapsed by default (set in JS) */
-  .ta-joints-hd {
-    display: flex; align-items: center; justify-content: space-between;
-    width: 100%; height: 32px; padding: 0 2px; border: none; background: none;
-    color: #efeae3; font: 600 12.5px 'Geist', sans-serif; cursor: pointer;
-  }
-  .ta-joints-hd .chev { color: #6d6660; transition: transform .2s; font-size: 14px; }
-  .ta-joints.collapsed .ta-joints-hd .chev { transform: rotate(-90deg); }
-  .ta-joints.collapsed { flex: none; }
-  .ta-joints.collapsed .ta-jtabs, .ta-joints.collapsed .ta-jlist { display: none; }
-  .ta-jtabs { margin-top: 8px; }
-  .ta-jlist { max-height: 30vh; }
-  /* the Hold hint is replaced by the sheet; keep only the Soft hint (no sheet there) */
-  #taHintHold { display: none !important; }
-  .ta-hint { bottom: 80px; font-size: 12px; }
+  .ta-side { top: 44px; right: 10px; width: clamp(132px, 42vw, 168px); }
+  .ta-hint { bottom: 84px; font-size: 12px; }
 }
 
 /* e-stop overlay */
