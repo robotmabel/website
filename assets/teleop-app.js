@@ -663,6 +663,17 @@ class App {
       this.path = 'relay';
       this.link.connect(this._urlFor('relay'));
     } else {                                                  // a specific LAN / robot host
+      // A page served over HTTPS (the public github.io copy) can't open ws:// to
+      // a LAN/Tailscale robot — browsers block it (mixed content + Private
+      // Network Access). The robot's OWN bridge serves THIS SAME console over
+      // http on :8080, where the LAN link works, so hop there. (Only for real
+      // hosts — localhost is exempt from the block and connects in place.)
+      if (location.protocol === 'https:' && !_isLocalHost(t.host)) {
+        const url = `http://${t.host}:8080/console`;
+        UI.set('link', 'OPENING LAN CONSOLE…');
+        location.href = url;
+        return;
+      }
       $('#taHostLocal').value = t.host; this._lastGoodLocal = t.host;
       this.path = 'local';
       this.link.connect(this._urlFor('local'));
