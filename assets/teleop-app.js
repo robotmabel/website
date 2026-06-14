@@ -74,8 +74,8 @@ const DEFAULT_VPN = 'jerrys-macbook-pro.taile5c63a.ts.net';
 //     so use a token scoped to the SIM demo bridge, never the physical robot,
 //     and rotate it like a password (setup-vps.sh).
 // Leave both '' to keep the public site on the always-live in-browser twin.
-const DEFAULT_RELAY = '';
-const DEFAULT_RELAY_KEY = '';
+const DEFAULT_RELAY = 'mabelrobot.duckdns.org';
+const DEFAULT_RELAY_KEY = '69f4ec12c13c627ecf3097f648b42b60649e72b6afc4c6f1';
 
 const ACCENT = 0xe9a679, GREEN = 0x3FB56B, RED = 0xb3402e, BONE = 0xefeae3;
 
@@ -566,19 +566,22 @@ class App {
   _urlFor(path) {
     const host = (this._hosts()[path] || '').trim();
     if (!host) return null;
-    if (/^wss?:\/\//.test(host)) return host;          // full URL passthrough
+    // `client=web` lets the server's command monitor name this device exactly
+    // (Website) instead of guessing — appended after any existing query.
+    const tag = (u) => u + (u.includes('?') ? '&' : '?') + 'client=web';
+    if (/^wss?:\/\//.test(host)) return tag(host);     // full URL passthrough
     if (path === 'relay') {
       const h = host.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
       const key = this._relayKey();
-      return `wss://${h}/teleop${key ? `?key=${encodeURIComponent(key)}` : ''}`;
+      return tag(`wss://${h}/teleop${key ? `?key=${encodeURIComponent(key)}` : ''}`);
     }
     // localhost / 127.0.0.1 are "potentially trustworthy" origins, so the
     // browser allows a PLAIN ws:// to them even from an https page (the GitHub
     // Pages copy). Everything else on https must go over the TLS proxy (wss).
-    if (_isLocalHost(host)) return `ws://${host}:9090/teleop`;
-    return location.protocol === 'https:'
+    if (_isLocalHost(host)) return tag(`ws://${host}:9090/teleop`);
+    return tag(location.protocol === 'https:'
       ? `wss://${host}:8443/teleop`
-      : `ws://${host}:9090/teleop`;
+      : `ws://${host}:9090/teleop`);
   }
   /** Discovery can always probe localhost (ws:// to it is allowed even from
       https); on http it can also probe LAN / Tailscale hosts. So it's never
