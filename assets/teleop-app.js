@@ -585,7 +585,11 @@ class App {
     if (path === 'relay') {
       const h = host.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
       const key = this._relayKey();
-      return tag(`wss://${h}/teleop${key ? `?key=${encodeURIComponent(key)}` : ''}`);
+      // The sim demo uses /teleop; the real robot uses /real/teleop (set per
+      // target). Caddy passes /real/* straight to the bridge, which enforces the
+      // secret access code carried here in ?key=.
+      const rp = (this._curTarget && this._curTarget.relayPath) || '/teleop';
+      return tag(`wss://${h}${rp}${key ? `?key=${encodeURIComponent(key)}` : ''}`);
     }
     // localhost / 127.0.0.1 are "potentially trustworthy" origins, so the
     // browser allows a PLAIN ws:// to them even from an https page (the GitHub
@@ -615,10 +619,13 @@ class App {
      SECURITY MODEL. The "Local network" targets — Auto-discover, This
      computer, and any robot you add — are plain ws:// to a LAN / Tailscale
      address: reachable ONLY from the same network, and the browser blocks
-     them outright from the public https page. So the real robot is never
-     exposed to the internet — nobody off your LAN can connect to it. The
-     relay is the ONE public target and is the SIMULATION demo only; keep it
-     off real hardware (run the robot with `./run.sh --no-relay`). */
+     them outright from the public https page — so on the LAN the real robot is
+     reachable but the internet can't touch it directly. Over the RELAY there are
+     two public targets: the open "Sim demo" (public token), and "MABEL Real
+     (thor)", which is gated by the robot's SECRET access code (the bridge
+     enforces it for every remote client) AND the local arm gate — so a stranger
+     with the relay URL still can't drive it. On the same Wi-Fi the bridge trusts
+     you without a code; remote requires the code. */
   _userHosts() {
     try { return JSON.parse(localStorage.getItem('mabel-hosts') || '[]'); } catch (e) { return []; }
   }
@@ -630,7 +637,15 @@ class App {
       ...this._userHosts().map((h) => ({ id: h.id, label: h.label, sub: h.host, kind: 'lan', host: h.host, user: true })),
     ];
     const pub = [];
-    if (DEFAULT_RELAY) pub.push({ id: 'demo', label: 'Sim demo', sub: 'public cloud · sim only', kind: 'relay', host: DEFAULT_RELAY, key: DEFAULT_RELAY_KEY });
+    if (DEFAULT_RELAY) {
+      pub.push({ id: 'demo', label: 'Sim demo', sub: 'public cloud · sim only', kind: 'relay', host: DEFAULT_RELAY, key: DEFAULT_RELAY_KEY, relayPath: '/teleop' });
+      // The REAL robot over the relay: gated by the SECRET access code (NOT the
+      // public demo token), which the bridge requires for every remote client.
+      // The code is never baked in — the operator types it once (stored locally).
+      // On the LAN the bridge trusts you without a code, so use a LAN host there.
+      let rc = ''; try { rc = localStorage.getItem('mabel-real-code') || ''; } catch (e) {}
+      pub.push({ id: 'real', label: 'MABEL Real (thor)', sub: 'secure relay · access code', kind: 'relay', host: DEFAULT_RELAY, key: rc, relayPath: '/real/teleop', real: true });
+    }
     return { lan, pub };
   }
   _findTarget(id) { const { lan, pub } = this._targets(); return [...lan, ...pub].find((t) => t.id === id); }
@@ -662,6 +677,9 @@ class App {
       if ($('#taHostRelay')) $('#taHostRelay').value = t.host;
       if ($('#taRelayKey')) $('#taRelayKey').value = t.key || '';
       this.path = 'relay';
+      // Real robot over the relay carries the SECRET access code (not the public
+      // token); persist whatever the operator typed so they enter it once.
+      if (t.real) { try { localStorage.setItem('mabel-real-code', this._relayKey()); } catch (e) {} }
       this.link.connect(this._urlFor('relay'));
     } else {                                                  // a specific LAN / robot host
       // A page served over HTTPS (the public github.io copy) cannot open ws://
@@ -873,9 +891,17 @@ class App {
       ws:// is mixed content, and wss:// to a raw IP fails TLS (the Tailscale
       cert names the ts.net host, not an IP). */
   _httpsIssue() {
-    // The relay gates every request with the access token, on any page protocol.
+    // The relay gates every request with a key (?key=). For the REAL robot that
+    // is the SECRET access code (the bridge enforces it for remote clients); for
+    // the sim demo it's the public APP_TOKEN. On the LAN no code is needed.
     if (this.path === 'relay' && this._hosts().relay && !this._relayKey()) {
-      return {
+      const real = this._curTarget && this._curTarget.real;
+      return real ? {
+        label: 'REAL ROBOT NEEDS THE ACCESS CODE',
+        title: 'Driving the real robot over the internet requires its secret access code. '
+          + 'Type it in the key field. (On the same Wi-Fi as the robot you don’t need it — '
+          + 'add the robot’s LAN IP as a Wi-Fi host instead.)',
+      } : {
         label: 'RELAY NEEDS A KEY',
         title: 'The secure internet relay gates every request with an access token (?key=). '
           + 'Paste the APP_TOKEN your relay setup printed — see relay/README.md.',

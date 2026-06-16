@@ -4,13 +4,17 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
-<title>MABEL — Teleoperation</title>
-<meta name="description" content="MABEL teleoperation: an Apple Vision Pro app streams head + 27-joint hand poses to the robot at 60 Hz and renders the robot's stereo cameras back; an iPhone app drives the base with on-screen joysticks. Full IoT loop — what the device sends, what the robot streams back." />
+<title>MABEL — Teleop</title>
+<meta name="description" content="Teleoperate MABEL: try the browser operator console live with no install, then drive it from Apple Vision Pro or iPhone — three clients, one wire protocol, sim or real robot." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
+<link rel="stylesheet" href="assets/teleop-app.css" />
 <script>document.documentElement.classList.add('js');</script>
+<script type="importmap">
+{ "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
+</script>
 </head>
 <body class="sec-page">
 
@@ -20,125 +24,276 @@
   <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
   <nav class="nav-links">
     <a href="index.html">Overview</a>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="server.html">Server & Bridge</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
-    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html" class="on">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="teleop-web.html">Browser</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="navigation.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="navigation.html">Navigation</a><a href="data.html">Data</a><a href="learning.html">Learning</a></div></div>
+    <a href="hardware.html">Hardware</a>
+    <a href="software.html">Software</a>
+    <a href="teleop.html" class="on">Teleop</a>
+    <a href="controller.html">Controller</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="autonomy.html">Autonomy</a>
     <a href="connect.html">Connect</a>
     <a href="#" class="ext">Paper ↗</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server & Bridge</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><a class="sub" href="teleop-web.html">Browser</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="data.html">Data</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
-
 <aside class="sidenav" aria-label="Teleop section navigation">
   <div class="sidenav-title">Teleop</div>
-  <a href="teleop.html" class="on">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="teleop-web.html">Browser</a>
+  <a href="#try">Try it now</a><a href="#visionpro">Vision Pro</a><a href="#ios">iPhone</a><a href="#macside">Mac-side setup</a>
 </aside>
 
-<!-- ─── PAGE HERO ─── -->
-<section class="page-hero"><div class="page-hero-inner">
+<!-- ─── HERO ─── -->
+<section class="page-hero" style="padding-bottom:30px;"><div class="page-hero-inner">
   <div class="crumbs"><a href="index.html">Overview</a> / Teleop</div>
-  <span class="eyebrow">04 · Teleop</span>
+  <span class="eyebrow">Teleop</span>
   <h1 class="display-lg">Wear the robot.</h1>
-  <p class="lede">Two platforms, one robot. Today MABEL teleoperates from <strong>Apple Vision Pro</strong> — head and both hands at 60&nbsp;Hz with stereo passthrough — and from <strong>iPhone</strong> — a pocket cockpit that drives, poses, plans, and runs policies. Both speak the same wire protocol.</p>
-  <div class="spec" style="margin-top:28px;"><span>Apple Vision Pro</span><span>iPhone / iPad</span><span>60 Hz · WebSocket</span><span>Stereo MJPEG</span><span>One wire protocol</span></div>
+  <p class="lede">Drive MABEL three ways — a <strong>browser console</strong> you can try right now, an <strong>iPhone</strong> in your pocket, and an <strong>Apple Vision Pro</strong> you reach through. All three speak one wire protocol to the same bridge, and point at the MuJoCo twin or the real robot with no change. Every session is also a training demo.</p>
+  <div class="spec" style="margin-top:28px;"><span>No-install browser console</span><span>iPhone · Vision Pro</span><span>One wire protocol</span><span>Sim or real</span><span>→ feeds <a href="autonomy.html" style="color:inherit;">autonomy</a></span></div>
 </div></section>
 
-<!-- ─── SUPPORTED PLATFORMS (side by side) ─── -->
-<section class="pad-y" id="platforms"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">Supported platforms</span><h2 class="display-md title">Two devices, <span class="italic accent">side by side.</span></h2></div>
-    <p class="lede">Pick the one in your hand. The headset for immersive bimanual manipulation; the phone for quick drive, pose, and dispatch.</p></div>
+<!-- ═══ TRY IT — THE BROWSER CONSOLE (live) ═══ -->
+<section class="pad-y" id="try" style="padding-top:8px;"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Try it now · no install</span><h2 class="display-md title">Drive it in <span class="italic accent">your browser.</span></h2></div>
+    <p class="lede">Three views — <strong>Teleop</strong>, <strong>Body</strong>, <strong>Navigate</strong> — over one robot. Press <strong>Connect</strong> to reach a live bridge; with none reachable, an in-browser kinematic twin keeps every control live. Same <code>teleop_frame</code> protocol as the iPhone and Vision&nbsp;Pro apps.</p></div>
+</div>
+</section>
+
+<section class="ta-wrap" id="taSection">
+  <div class="ta-app" id="taApp">
+
+    <!-- ── TELEOP ───────────────────────────────────────────────── -->
+    <div class="ta-view on" data-view="teleop">
+      <div class="ta-video">
+        <img id="taCamMain" alt="" style="display:none;" />
+        <div class="ta-novid" id="taNoVid"><div class="inner">
+          <b>Drive MABEL in your browser</b>
+          <p id="taNoVidMsg">Joysticks, body control, and navigation over a live MuJoCo simulation — the same wire protocol as the iPhone and Vision&nbsp;Pro apps. The hosted sim may be offline; either way the controls stay live on the in-browser model.</p>
+          <button class="ta-trylive" id="taTryLive">▶&nbsp; Try it live</button>
+        </div></div>
+      </div>
+      <div class="ta-pip l"><img id="taCamL" alt="" /><span class="tag">L WRIST</span></div>
+      <div class="ta-pip r"><img id="taCamR" alt="" /><span class="tag">R WRIST</span></div>
+
+      <div class="ta-top">
+        <span class="ta-title">TELEOP</span>
+        <div class="ta-seg" data-ck>
+          <button class="on" data-mode="drive">Drive</button>
+          <button data-mode="arms">Arms</button>
+        </div>
+        <span class="ta-title" data-ta="speed">0.00 m/s</span>
+      </div>
+
+      <!-- drive sticks -->
+      <div class="ta-joy l" data-joy="navL" data-show="drive"><span class="knob"></span><span class="lab">TRANSLATE</span></div>
+      <div class="ta-joy r accent" data-joy="navR" data-show="drive"><span class="knob"></span><span class="lab">ROTATE · LIFT</span></div>
+
+      <!-- arm clusters -->
+      <div class="ta-cluster l" data-show="arms" style="display:none;">
+        <div class="ta-nudge"><button data-side="left" data-dir="1">⌃</button><button data-side="left" data-dir="-1">⌄</button><span class="lab">RAISE</span></div>
+        <div class="ta-joy" style="position:static;" data-joy="armL"><span class="knob"></span><span class="lab">L WRIST</span></div>
+        <div class="ta-grip" data-side="left"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">L GRIP</span></div>
+      </div>
+      <div class="ta-cluster r" data-show="arms" style="display:none;">
+        <div class="ta-nudge"><button data-side="right" data-dir="1">⌃</button><button data-side="right" data-dir="-1">⌄</button><span class="lab">RAISE</span></div>
+        <div class="ta-joy accent" style="position:static;" data-joy="armR"><span class="knob"></span><span class="lab">R WRIST</span></div>
+        <div class="ta-grip" data-side="right"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">R GRIP</span></div>
+      </div>
+
+      <!-- synced miniature -->
+      <div class="ta-mini">
+        <div class="ta-stage"><canvas></canvas><div class="ta-loading">RIG</div></div>
+        <span class="tag">ROBOT STATE</span>
+      </div>
+    </div>
+
+    <!-- ── BODY ─────────────────────────────────────────────────── -->
+    <div class="ta-view" data-view="body">
+      <div class="ta-stage"><canvas></canvas><div class="ta-loading">LOADING MABEL</div></div>
+
+      <div class="ta-top">
+        <span class="ta-title">BODY CONTROL</span>
+        <span></span>
+      </div>
+      <div class="ta-feelbar">
+        <div class="ta-seg" data-feel>
+          <button class="on" data-val="impedance">✊ Hold</button>
+          <button data-val="compliance">✋ Soft</button>
+        </div>
+      </div>
+
+      <aside class="ta-side">
+        <div class="ta-panel">
+          <div class="row"><span class="k">STIFFNESS</span><span class="v" data-stiff-out>32 Nm/rad</span></div>
+          <input class="ta-slider" type="range" data-stiff min="0.1" max="1" step="0.01" value="0.7" />
+        </div>
+        <div class="ta-panel ta-joints">
+          <button class="ta-joints-hd" data-jcollapse type="button">Joint sliders<span class="chev">⌄</span></button>
+          <div class="ta-jtabs" data-jtabs></div>
+          <div class="ta-jlist" data-jlist></div>
+        </div>
+      </aside>
+
+      <div class="ta-hint" id="taHintHold">Drag a <b>palm handle</b> to command the arm in Cartesian space — or set any joint on the right.</div>
+      <div class="ta-hint" id="taHintSoft" style="display:none;">Just push. Grab a <b>handle</b> and the whole robot yields — arms give, the base glides. Nothing springs back.</div>
+    </div>
+
+    <!-- ── NAVIGATE ─────────────────────────────────────────────── -->
+    <div class="ta-view" data-view="nav">
+      <div class="ta-stage"><canvas></canvas><div class="ta-loading">BUILDING ROOM</div></div>
+
+      <div class="ta-top">
+        <span class="ta-title" data-ta="navroom">—</span>
+        <span class="ta-title" data-ta="navpts">—</span>
+      </div>
+
+      <div class="ta-rooms"></div>
+
+      <div class="ta-navhud">
+        <span class="stat">POSE <b data-ta="navpose">x 0.0 · y 0.0 m</b></span>
+        <span class="stat">GOAL <b data-ta="navdist">—</b></span>
+        <button class="ta-btn primary" id="taFollow" disabled>Follow path</button>
+        <button class="ta-btn" id="taClearGoal">Clear</button>
+      </div>
+    </div>
+
+    <!-- ── E-STOP veil ──────────────────────────────────────────── -->
+    <div class="ta-estop-veil"><span class="tag">E-STOP — OUTPUTS HALTED</span></div>
+  </div>
+
+  <!-- ── THE DOCK — floating liquid glass, two rows: views on top, status below ── -->
+  <div class="ta-dock" id="taDock">
+    <nav class="ta-tabs" data-tabs>
+      <button class="on" data-go="teleop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2.5"/><circle cx="9" cy="12" r="2.2"/><path d="M15.5 10.5h.01M18 12.5h.01"/></svg>
+        Teleop
+      </button>
+      <button data-go="body">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.3"/><path d="M12 7.5v6M12 13.5l-3.5 6M12 13.5l3.5 6M6 9.5l6-1.5 6 1.5"/></svg>
+        Body
+      </button>
+      <button data-go="nav">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l6-2.5 6 2.5 6-2.5V5l-6 2.5L9 5 3 7.5z"/><path d="M9 5v12M15 7.5v12"/></svg>
+        Navigate
+      </button>
+    </nav>
+    <div class="ta-dock-row">
+      <span class="ta-pill" id="taPill"><span class="dot"></span><span>LOCAL SIM</span></span>
+      <label class="ta-host" title="Wi-Fi auto-discovers — leave blank and the console races the bridge on this machine, the host it was served from, and your last-used LAN IP, connecting to whichever answers (the browser analog of the Vision Pro app's Bonjour scan). Type a LAN IP only to force one.">
+        <span>WI-FI</span><input id="taHostLocal" type="text" placeholder="auto-discover" spellcheck="false" autocomplete="off" aria-label="Local Wi-Fi host (auto-discovers)" /></label>
+      <label class="ta-host" title="From any network: the Mac's Tailscale IP (tailscale ip -4) — or, from this https page, its ts.net name (tailscale status). One-time setup — Tailscale on the Mac and this device, same account.">
+        <span>VPN</span><input id="taHostVpn" type="text" placeholder="100.x.y.z · mac.ts.net" spellcheck="false" autocomplete="off" aria-label="Tailscale VPN host" /></label>
+      <label class="ta-host ta-host-relay" title="From anywhere on the public internet: the secure relay hostname (e.g. mabel.duckdns.org). The robot dials OUT to a token-gated VPS — no VPN app, no open inbound port. See relay/README.md.">
+        <span>RELAY</span><input id="taHostRelay" type="text" placeholder="mabel.duckdns.org" spellcheck="false" autocomplete="off" aria-label="Secure relay host" /></label>
+      <label class="ta-host ta-host-key" title="The relay access token (APP_TOKEN). Every request must carry it as ?key= or the VPS returns 403 before reaching the robot. Treat it like a password.">
+        <span>KEY</span><input id="taRelayKey" type="text" placeholder="access token" spellcheck="false" autocomplete="off" aria-label="Relay access token" /></label>
+      <div class="ta-hostpick" id="taHostPick">
+        <button class="ta-connect" id="taConnect" type="button" aria-haspopup="true" aria-expanded="false" title="Choose which robot / sim to drive"><span class="hp-lbl">Connect</span><span class="hp-cv">▾</span></button>
+        <div class="ta-hostmenu" id="taHostMenu" role="menu" hidden></div>
+      </div>
+      <div class="ta-metrics">
+        <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
+        <span class="ta-metric">LAT<b data-ta="lat">—</b></span>
+        <span class="ta-metric">BATT<b data-ta="batt">—</b></span>
+      </div>
+      <span class="ta-divider"></span>
+      <button class="ta-sbtn" id="taReset">Reset</button>
+      <button class="ta-estop" id="taEstop">E-STOP</button>
+      <button class="ta-sbtn ta-fs" id="taFs" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></button>
+    </div>
+  </div>
+
+  <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code> and mirror the same <code>robot_state</code>. The page links up by itself, cycling three paths every 5&nbsp;s exactly like the apps — <strong>Wi-Fi</strong> (auto-discovered) → <strong>VPN</strong> (Tailscale) → <strong>Relay</strong> (the <a href="software.html#server">secure internet relay</a>). Full networking &amp; security in <a href="software.html#server">Software → Server &amp; bridge</a>.</p>
+</section>
+
+<!-- ═══ NATIVE APPS — VISION PRO + iPHONE ═══ -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Native apps</span><h2 class="display-md title">Or pick up <span class="italic accent">a device.</span></h2></div>
+    <p class="lede">The headset for immersive bimanual manipulation; the phone for quick drive, pose, and dispatch. Same bridge, same protocol, same robot.</p></div>
   <div class="device-grid fade-up">
-    <a href="teleop-visionpro.html" class="device-card res-card" style="text-decoration:none;">
+    <a href="#visionpro" class="device-card res-card" style="text-decoration:none;">
       <div class="media-frame sim-dark" style="aspect-ratio:16/10; margin-bottom:18px;"><video src="assets/sim/teleop_vp.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Apple Vision Pro</span></div>
       <div class="res-tag">Headset · visionOS</div>
       <h3>Apple Vision Pro</h3>
       <p>See MABEL's stereo feed wrapped around you; reach in and the arms follow. 27 hand joints, gaze, and head pose drive the whole body.</p>
-      <div class="res-arrow">Explore Vision Pro teleop →</div>
+      <div class="res-arrow">Jump to Vision Pro →</div>
     </a>
-    <a href="teleop-ios.html" class="device-card res-card" style="text-decoration:none;">
+    <a href="#ios" class="device-card res-card" style="text-decoration:none;">
       <div class="media-frame sim-dark" style="aspect-ratio:16/10; margin-bottom:18px;"><video src="assets/app/ios-drive.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>iPhone</span></div>
       <div class="res-tag">Phone · iOS</div>
       <h3>iPhone</h3>
       <p>A pocket console: joystick driving, a live 3D-twin for whole-body posing, tap-to-go A* navigation, and a one-tap policy library.</p>
-      <div class="res-arrow">Explore iPhone teleop →</div>
-    </a>
-    <a href="teleop-web.html" class="device-card res-card" style="text-decoration:none; grid-column:1 / -1;">
-      <div class="res-tag">Browser · no install · try it now</div>
-      <h3>Teleop it in your browser</h3>
-      <p>The same cockpit, rebuilt for the web: joystick the swerve base and arms, switch the controller between firm (wrist / joint) and soft (gravity comp / compliance) modes, and watch a live status console. Press Connect to drive the real MuJoCo bridge — the 3D twin then mirrors the sim state exactly.</p>
-      <div class="res-arrow">Open the browser cockpit →</div>
+      <div class="res-arrow">Jump to iPhone →</div>
     </a>
   </div>
 </div></section>
 
-<!-- ─── DATA FLOW (IoT) ─── -->
-<section class="pad-y" id="loop">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">The loop</span>
-        <h2 class="display-md title">What goes <span class="italic accent">over the wire.</span></h2>
-      </div>
-      <p class="lede">The device and the robot are two ends of one low-latency loop. Poses go up; video and
-        state come back. Same protocol whether the far end is the real robot or the MuJoCo twin.</p>
-    </div>
+<!-- ─── VISION PRO ─── -->
+<section class="dark-sec pad-y" id="visionpro"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Apple Vision Pro · visionOS</span><h2 class="display-md title" style="color:var(--bone);">Reach in. <span class="italic accent">It follows.</span></h2></div>
+    <p class="lede">Put the headset on and MABEL's stereo feed wraps around you. Reach into the scene — your hands drive the arms, a pinch closes the grasp, your gaze aims the neck. 27 joints per hand at 60&nbsp;Hz.</p></div>
+  <div class="reveal-media media-frame sim-dark" style="aspect-ratio:1120/680;"><video src="assets/sim/teleop_vp.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Vision Pro capture · head view + wrist cams + bimanual reach</span></div>
+  <div class="points fade-up" style="margin-top:30px;">
+    <div class="point"><div class="num">01</div><div><h5 style="color:var(--bone);">Stereo passthrough</h5><p>The head ZED's left/right streams map onto an inward-facing RealityKit sphere — you look around the robot's world in true stereo, with wrist-cam thumbnails for close work.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5 style="color:var(--bone);">Clutch retargeting</h5><p>A UMI-style <em>relative</em> mapping: pinch to clutch in, move, release to re-anchor — no jumps. Thumb-to-index distance becomes the grasp. See <a href="controller.html#retarget" style="color:#e9a679;">retargeting</a>.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5 style="color:var(--bone);">Whole body, one operator</h5><p>Hand targets feed the <a href="controller.html" style="color:#e9a679;">control cascade</a>; a lazy swerve base and a look-at neck come along for free. One headset drives all 51 joints.</p></div></div>
+  </div>
+</div></section>
 
-    <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:1280/560; margin-bottom:30px;">
-      <img src="assets/teleop-dataflow.svg" alt="Teleop data flow: operator device, Mac/Jetson bridge, MABEL — uplink TeleopFrame on WebSocket 9090, downlink stereo MJPEG video and RobotState" />
-    </div>
-
-    <div class="feature fade-up">
-      <div class="feature-copy">
-        <span class="eyebrow" style="color:#0A84FF;">Uplink · device → robot</span>
-        <h3>Your intent, 60 times a second.</h3>
-        <p>The app sends a <code>TeleopFrame</code> over a WebSocket (<code>ws://&lt;host&gt;:9090</code>):
-          a 4×4 <strong>head pose</strong>, a full <strong>27-joint skeleton for each hand</strong> in the
-          ARKit frame, the active <strong>mode</strong> (Arms&nbsp;&amp;&nbsp;Hands or Base&nbsp;Driving),
-          and — in driving mode — the <strong>nav-joystick</strong> axes. A <code>reset</code> message
-          re-homes the sim; <code>ping/pong</code> measures latency.</p>
-        <div class="spec"><span>Head 4×4</span><span>27 joints/hand</span><span>Mode + joysticks</span><span>JSON envelope</span></div>
-      </div>
-      <div class="feature-copy">
-        <span class="eyebrow" style="color:#30D158;">Downlink · robot → device</span>
-        <h3>Vision and state, straight back.</h3>
-        <p>The bridge renders the robot's cameras off-screen and serves them as plain
-          <strong>MJPEG over HTTP</strong> (<code>:8080</code>) — head-left and head-right for the two
-          eyes, plus wrist thumbnails — pulled directly into the app's web view, no custom decoder. A
-          parallel <code>RobotState</code> message returns <strong>battery, mode, joint positions,
-          diagnostics, and round-trip latency</strong>.</p>
-        <div class="spec"><span>Stereo MJPEG</span><span>Wrist cams</span><span>RobotState telemetry</span><span>Auto-reconnect</span></div>
-      </div>
+<!-- ─── iPHONE ─── -->
+<section class="pad-y" id="ios"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">iPhone · iOS</span><h2 class="display-md title">Your robot, <span class="italic accent">in your pocket.</span></h2></div>
+    <p class="lede">Drive, pose, plan, and run policies one-handed, with a live 3D twin and the camera feeds. It auto-discovers MABEL and falls back to an on-device simulator. <strong>Every screen below is a real capture.</strong></p></div>
+  <div class="reveal-media media-frame sim-dark fade-up" style="aspect-ratio:2622/1206;"><video src="assets/app/ios-drive.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Real capture · Drive cockpit — live joysticks (turn the phone sideways)</span></div>
+  <div class="points fade-up" style="margin-top:30px;">
+    <div class="point"><div class="num">01</div><div><h5>Joystick navigation</h5><p>Landscape cockpit: left stick translates, right stick turns and lifts, over live head and wrist feeds — with a speed governor and an always-present <strong>STOP</strong>.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Body · the 3D twin</h5><p>The Body tab renders a real-time twin — drag a wrist under Gravity Comp, switch to Compliance or Joint Control; the <a href="controller.html#feel" style="color:var(--rust);">controller</a> coordinates the rest.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Maps · tap-to-go</h5><p>On a real SLAM map, tap a goal: an <strong>A*</strong> plan routes around obstacles, then pure-pursuit drives it. See <a href="navigation.html" style="color:var(--rust);">navigation</a>.</p></div></div>
+    <div class="point"><div class="num">04</div><div><h5>Policies · dispatch a skill</h5><p>A library of learned and scripted skills, each with its control rate and offline-eval success rate. Tap ▶ to run. See <a href="autonomy.html#policies" style="color:var(--rust);">autonomy</a>.</p></div></div>
+  </div>
+  <div class="feature fade-up" style="margin-top:36px;">
+    <div class="feature-media phone-media"><img class="app-shot" src="assets/app-ios-policies.svg" alt="Policies library — learned CVAE, navigation, and scripted skills with offline-eval success rates" /></div>
+    <div class="feature-copy"><span class="eyebrow">Policies tab</span><h3>Dispatch autonomy from your hand.</h3>
+      <p>The library lists CVAE visuomotor policies, navigation routines, and scripted behaviours — each with its kind, control rate, and an offline-eval success rate. One tap dispatches; the same skills run on the robot or the twin.</p>
+      <div class="spec"><span>CVAE visuomotor</span><span>Navigation routines</span><span>Scripted skills</span><span>Eval success %</span></div>
     </div>
   </div>
-</section>
+</div></section>
+
+<!-- ═══ MAC-SIDE SETUP (additional) ═══ -->
+<section class="soft-sec pad-y" id="macside"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Additional · Mac-side setup</span><h2 class="display-md title">Run the bridge, <span class="italic accent">reach it anywhere.</span></h2></div>
+    <p class="lede">All three clients connect to one process — <code>server/sim_teleop_bridge.py</code> on a Mac — which drives the MuJoCo twin or the real robot and serves the cameras. You only need this to go past the in-browser sim. One command, three networks.</p></div>
+
+  <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:1280/560; margin-bottom:30px;">
+    <img src="assets/teleop-dataflow.svg" alt="Teleop data flow: operator device, Mac/Jetson bridge, MABEL — uplink TeleopFrame on WebSocket 9090, downlink stereo MJPEG video and RobotState" />
+  </div>
+
+  <div class="points fade-up">
+    <div class="point"><div class="num">01</div><div><h5>One command</h5><p><code>server/start_teleop.sh</code> brings up physics + cameras. Intent arrives on <code>ws://&lt;host&gt;:9090</code> as a <code>teleop_frame</code>; the cameras leave as plain <strong>MJPEG over HTTP</strong> on <code>:8080</code>, kept off the control socket.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Three ways in</h5><p><strong>Wi-Fi</strong> (Bonjour auto-discovery, lowest latency) → <strong>VPN</strong> (the Mac's Tailscale IP / <code>ts.net</code> name, any network) → <strong>Relay</strong> (token-gated public VPS). Each client just tries them in order — no mode switch.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Secure by construction</h5><p>For the public path the robot dials <em>out</em> to the relay; Caddy enforces TLS + a <code>?key=</code> token (<code>403</code> without it). Nothing is exposed inbound. Full architecture, security model, and the <strong>live monitor</strong> →&nbsp;<a href="software.html#server" style="color:var(--rust);">Software · Server &amp; bridge</a>.</p></div></div>
+  </div>
+</div></section>
 
 <!-- ─── DATA ENGINE ─── -->
-<section class="soft-sec pad-y">
-  <div class="wrap">
-    <div class="sec-head-center fade-up">
-      <span class="eyebrow">Built for data</span>
-      <h2 class="display-md">Every session is a dataset.</h2>
-    </div>
-  </div>
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head-center fade-up"><span class="eyebrow">Built for data</span><h2 class="display-md">Every session is a dataset.</h2></div>
   <div class="card-grid">
-    <div class="card fade-up"><span class="card-num">A</span><div><h4>Capture by default</h4><p>Head + wrist cameras, joint states, actions, and the goal frame stream to disk in lockstep — ALOHA/ACT-compatible HDF5.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">B</span><div><h4>Intent in, motion out</h4><p>Your hand and gaze become a 6-DOF target; the whole-body controller works out how 51 joints honor it.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">C</span><div><h4>Sim or real, same app</h4><p>Point the device at the MuJoCo bridge or the robot — identical wire protocol, so you debug retargeting safely first.</p></div></div>
+    <div class="card fade-up"><span class="card-num">A</span><div><h4>Capture by default</h4><p>Head + wrist cameras, joint states, actions, and the goal frame stream to disk in lockstep — one schema shared by sim and real.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">B</span><div><h4>Intent in, motion out</h4><p>Your hand and gaze become a 6-DOF target; the <a href="controller.html" style="color:var(--rust);">control cascade</a> works out how 51 joints honor it — safely.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">C</span><div><h4>Demos become skills</h4><p>Logged trajectories train Diffusion Policy and ACT — the same interfaces that drive the robot feed the <a href="autonomy.html" style="color:var(--rust);">learning loop</a>.</p></div></div>
   </div>
-</section>
+</div></section>
 
 <!-- ─── CTA ─── -->
-<section class="pad-y">
+<section class="soft-sec pad-y">
   <div class="wrap-narrow" style="text-align:center;">
     <h2 class="display-sm fade-up" style="margin-bottom:24px;">Put it on. Become the robot.</h2>
     <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
       <a href="connect.html" class="btn btn-primary">Get the apps →</a>
-      <a href="wbc.html" class="btn btn-ghost">← Whole-Body Control</a>
-      <a href="learning.html" class="btn btn-ghost">Next: Learning →</a>
+      <a href="controller.html" class="btn btn-ghost">How the controller works →</a>
+      <a href="autonomy.html" class="btn btn-ghost">Where the data goes →</a>
     </div>
   </div>
 </section>
@@ -146,19 +301,17 @@
 <footer>
   <div class="wrap">
     <div class="foot-grid">
-      <div>
-        <div class="foot-brand">MABEL</div>
-        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
-        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
-      </div>
-      <div class="foot-col"><h6>Subsystems</h6><a href="hardware.html">Hardware</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a><a href="learning.html">Learning</a></div>
-      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
-      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Contact ↗</a></div>
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="hardware.html#bom">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
     <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
   </div>
 </footer>
 
 <script src="assets/mabel.js"></script>
+<script type="module" src="assets/teleop-app.js"></script>
 </body>
 </html>
