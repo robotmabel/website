@@ -14,31 +14,52 @@
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
 </script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
 <style>
-/* ── control cascade (scoped) ── */
-.cas{border:1px solid rgba(22,20,18,.14);border-radius:16px;background:#FAF8F2;padding:clamp(14px,2.5vw,26px);}
-.cas-lead{font:500 11px/1.5 'Geist Mono','SF Mono',Menlo,monospace;letter-spacing:.3px;color:#6B6660;margin:0 2px 12px;}
-.cas-arrows{display:flex;justify-content:space-between;font:700 10px/1 'Geist Mono','SF Mono',Menlo,monospace;color:#C25B2A;letter-spacing:.5px;margin:0 6px 10px;}
-.cas-arrows .up{color:#3FB56B;}
-.cas-loop{position:relative;background:#fff;border:1.2px solid rgba(22,20,18,.14);border-radius:14px;padding:15px 18px;margin:10px 0;cursor:pointer;transition:border-color .15s,box-shadow .15s,background .15s;}
-.cas-loop:hover{border-color:#C25B2A;}
-.cas-loop.on{border-color:#C25B2A;box-shadow:0 0 0 1px #C25B2A;background:#FFFDFA;}
-.cas-loop-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.cas-tag{font:700 9.5px/1 'Geist Mono','SF Mono',Menlo,monospace;letter-spacing:1px;color:#C25B2A;border:1px solid #C25B2A;border-radius:6px;padding:5px 7px;white-space:nowrap;}
-.cas-name{font:600 15px/1.2 'Geist',-apple-system,sans-serif;color:#2A2622;}
-.cas-hz{margin-left:auto;font:600 11px/1 'Geist Mono','SF Mono',Menlo,monospace;color:#6B6660;background:#F2EEE6;border-radius:6px;padding:6px 9px;white-space:nowrap;}
-.cas-sum{font:400 13px/1.55 'Geist',-apple-system,sans-serif;color:#6B6660;margin:9px 0 0;max-width:78ch;}
-.cas-chev{position:absolute;right:16px;bottom:14px;color:#A09A91;transition:transform .2s;font:400 12px/1 'Geist Mono',monospace;}
-.cas-loop.on .cas-chev{transform:rotate(180deg);color:#C25B2A;}
-.cas-panel{display:none;margin-top:14px;border-top:1px solid rgba(22,20,18,.1);padding-top:14px;}
-.cas-loop.on .cas-panel{display:block;}
-.cas-eq{font:500 13px/1.9 'Geist Mono','SF Mono',Menlo,monospace;color:#2A2622;background:#F7F3EC;border:1px solid rgba(22,20,18,.1);border-radius:10px;padding:12px 15px;overflow-x:auto;}
-.cas-eq b{color:#C25B2A;font-weight:600;}
-.cas-eq .grn{color:#2f9d5b;font-weight:600;}
-.cas-why{font:400 13px/1.6 'Geist',-apple-system,sans-serif;color:#4A463F;margin:12px 0 0;max-width:80ch;}
-.cas-stack{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
-.cas-stack span{font:500 11px/1 'Geist Mono','SF Mono',Menlo,monospace;color:#2A2622;background:#F2EEE6;border:1px solid rgba(22,20,18,.12);border-radius:999px;padding:7px 11px;}
-@media(prefers-reduced-motion:reduce){.cas-chev{transition:none;}}
+/* ── control cascade: nested loops ── */
+.cl-wrap{border:1px solid rgba(22,20,18,.14);border-radius:18px;background:#FAF8F2;padding:clamp(14px,2.4vw,28px);}
+.cl-flow{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font:500 12px/1.4 'Geist Mono','SF Mono',Menlo,monospace;color:#6B6660;margin-bottom:16px;}
+.cl-flow b{color:#2A2622;}
+.cl-key{display:inline-flex;align-items:center;gap:7px;}
+.cl-dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
+.cl-dot.cmd{background:#C25B2A;} .cl-dot.fb{background:#2f9d5b;}
+/* page-level input / output banners */
+.cl-end{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 15px;border-radius:12px;font:600 13px/1.45 'Geist',-apple-system,sans-serif;}
+.cl-end .tag{font:700 9.5px/1 'Geist Mono','SF Mono',Menlo,monospace;letter-spacing:1.2px;padding:5px 8px;border-radius:6px;}
+.cl-end.in{background:#FBE9DF;color:#8a3f14;} .cl-end.in .tag{background:#C25B2A;color:#fff;}
+.cl-end.out{background:#E4F3EB;color:#1c6e3e;} .cl-end.out .tag{background:#2f9d5b;color:#fff;}
+.cl-down{text-align:center;color:#C25B2A;font-size:18px;line-height:1;margin:7px 0;}
+/* nested loop panels — inner sits inside outer's padding, so nesting reads visually */
+.cl-loop{position:relative;border-radius:15px;padding:clamp(13px,1.8vw,20px);border:1.4px solid;margin:12px 0;}
+.cl-loop .cl-loop{margin:14px 0 2px;}
+.cl-outer{background:#FFFFFF;border-color:#E8CDB9;}
+.cl-mid{background:#FBF4EC;border-color:#E2C09F;}
+.cl-inner{background:#FFF6EE;border-color:#C25B2A;box-shadow:0 0 0 1px rgba(194,91,42,.18);}
+.cl-head{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:8px;}
+.cl-tier{font:700 10px/1 'Geist Mono','SF Mono',Menlo,monospace;letter-spacing:1.3px;color:#C25B2A;border:1px solid #e0b89e;border-radius:6px;padding:5px 7px;}
+.cl-name{font:600 16px/1.25 'Geist',-apple-system,sans-serif;color:#2A2622;}
+.cl-hz{margin-left:auto;font:600 11px/1 'Geist Mono','SF Mono',Menlo,monospace;color:#8a5125;background:#F3E5D6;border:1px solid #e6ccb6;border-radius:999px;padding:6px 11px;white-space:nowrap;}
+.cl-does{font:400 14px/1.6 'Geist',-apple-system,sans-serif;color:#4A463F;margin:0 0 15px;max-width:82ch;}
+.cl-does b{color:#2A2622;font-weight:600;}
+/* input → output ports */
+.cl-io{display:grid;grid-template-columns:1fr 30px 1fr;gap:10px;align-items:stretch;margin-bottom:15px;}
+.cl-port{border-radius:11px;padding:11px 13px;background:#FAF8F2;border:1px solid rgba(22,20,18,.1);}
+.cl-port .lab{font:700 9.5px/1 'Geist Mono','SF Mono',Menlo,monospace;letter-spacing:1px;display:block;margin-bottom:9px;}
+.cl-port.in .lab{color:#C25B2A;} .cl-port.out .lab{color:#2f9d5b;}
+.cl-pv{display:flex;flex-direction:column;gap:7px;}
+.cl-chip{display:flex;align-items:baseline;gap:8px;background:#fff;border:1px solid rgba(22,20,18,.13);border-radius:9px;padding:7px 10px;font:400 12.5px/1.35 'Geist',-apple-system,sans-serif;color:#5a554d;}
+.cl-chip .sym{flex:none;}
+.cl-arrow{display:flex;align-items:center;justify-content:center;color:#C25B2A;font-size:22px;}
+.cl-eqlab{font:700 9.5px/1 'Geist Mono','SF Mono',Menlo,monospace;letter-spacing:.8px;color:#8a847a;margin-bottom:9px;text-transform:uppercase;}
+.cl-eq{background:#fff;border:1px solid rgba(22,20,18,.12);border-radius:11px;padding:8px 14px;overflow-x:auto;overflow-y:hidden;}
+.cl-eq .katex{font-size:1.12em;color:#221f1c;}
+.cl-eq .katex-display{margin:.5em 0;}
+.cl-libs{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px;}
+.cl-libs span{font:500 11px/1 'Geist Mono','SF Mono',Menlo,monospace;color:#2A2622;background:#F1ECE3;border:1px solid rgba(22,20,18,.12);border-radius:999px;padding:6px 10px;}
+@media(max-width:640px){
+  .cl-io{grid-template-columns:1fr;}
+  .cl-arrow{transform:rotate(90deg);height:22px;}
+}
 </style>
 </head>
 <body class="sec-page">
@@ -132,51 +153,84 @@
   </div>
 </div></section>
 
-<!-- ─── THE CONTROL CASCADE (interactive) ─── -->
+<!-- ─── THE CONTROL CASCADE (nested loops) ─── -->
 <section class="soft-sec pad-y" id="cascade"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">The cascade · interactive</span><h2 class="display-md title">Three loops, <span class="italic accent">one motion.</span></h2></div>
-    <p class="lede">Retargeted targets don't go straight to the motors. They descend through three nested loops — each a different rate, each a different job — bridged by <strong>zero-copy GPU memory</strong> so perception, motion generation, and compliance share one address space. <strong>Tap a loop</strong> to open its math.</p></div>
+  <div class="sec-head fade-up"><div><span class="eyebrow">The cascade</span><h2 class="display-md title">Three nested loops, <span class="italic accent">one motion.</span></h2></div>
+    <p class="lede">A command doesn't go straight to the motors. It descends through three loops nested one inside the next — the outer one slow and soft, the inner one fast and precise. Each takes a clear <strong style="color:#C25B2A;">input</strong>, does one job, and hands a clear <strong style="color:#2f9d5b;">output</strong> to the loop inside it. Sensed force climbs back out the way it came.</p></div>
 
-  <div class="cas fade-up" id="casWidget">
-    <p class="cas-lead">Operator / policy intent enters at the top as a Cartesian velocity command <code>v<sub>cmd</sub></code>; safe joint targets fall out the bottom. Force and a sensorless residual flow back up.</p>
-    <div class="cas-arrows"><span>↓ command · v<sub>cmd</sub> → q<sub>d</sub></span><span class="up">F<sub>ext</sub> · residual r ↑</span></div>
-
-    <div class="cas-loop on" data-cas="outer" tabindex="0" role="button" aria-expanded="true">
-      <div class="cas-loop-h"><span class="cas-tag">OUTER</span><span class="cas-name">GPU admittance — compliance filter</span><span class="cas-hz">runs in the perception loop</span></div>
-      <p class="cas-sum">The physical-interaction filter. It turns external force into compliant yielding, so the robot is soft to touch while it teleoperates — and the compliance offsets stay perfectly in sync with the intent stream for clean data collection.</p>
-      <div class="cas-panel">
-        <div class="cas-eq">virtual mass–spring–damper:&nbsp;&nbsp;<b>M</b><sub>d</sub> ẍ<sub>c</sub> + <b>D</b><sub>d</sub> ẋ<sub>c</sub> + <b>K</b><sub>d</sub> x<sub>c</sub> = <b>F</b><sub>ext</sub><br>reference twist (atomic buffer):&nbsp;&nbsp;<b>v</b><sub>ref</sub> = v<sub>cmd</sub> + ẋ<sub>c</sub></div>
-        <p class="cas-why">Runs directly in shared GPU memory alongside the ZED&nbsp;Mini perception stack — vectorized tensor math (PyTorch / cuTENSOR), not a CPU QP. Because compliance and perception live in the same memory, the yield is synchronized to the teleop intent with no copy and no bus hop.</p>
-        <div class="cas-stack"><span>Shared GPU memory</span><span>PyTorch / cuTENSOR</span><span>ZED Mini perception</span><span>F<sub>ext</sub> from the inner residual</span></div>
-      </div>
-      <span class="cas-chev" aria-hidden="true">▾</span>
+  <div class="cl-wrap fade-up">
+    <div class="cl-flow">
+      <span class="cl-key"><span class="cl-dot cmd"></span> <b>Command</b> flows down &amp; inward — slower → faster</span>
+      <span class="cl-key"><span class="cl-dot fb"></span> <b>Sensed force</b> climbs back up &amp; outward</span>
     </div>
 
-    <div class="cas-loop" data-cas="middle" tabindex="0" role="button" aria-expanded="false">
-      <div class="cas-loop-h"><span class="cas-tag">MIDDLE</span><span class="cas-name">cuRobo — whole-body safety filter</span><span class="cas-hz">100–200 Hz · &lt;20 ms</span></div>
-      <p class="cas-sum">Instead of one single-seed differential-IK QP, cuRobo evaluates the whole kinematic chain at once — spawning thousands of trajectory seeds on the GPU and distributing motion optimally between the 3-wheel swerve base and the arms.</p>
-      <div class="cas-panel">
-        <div class="cas-eq">parallel trajectory optimization (MPPI / L-BFGS):<br>&nbsp;&nbsp;<b>min</b><sub>seeds</sub> cost( q(t) )&nbsp;&nbsp;s.t.&nbsp;&nbsp;ESDF<sub>nvblox</sub>(q) ≥ 0,&nbsp;&nbsp;self-collision(q) ∈ <span class="grn">ACM</span></div>
-        <p class="cas-why">Every candidate is checked against the <strong>nvblox ESDF</strong> (the ZED point cloud as a live GPU signed-distance field) and the structural collision meshes. The <strong>Allowed Collision Matrix</strong> masks hand-to-hand pairs — e.g. left index ↔ right palm — so bimanual cooperation never trips the limiter. Target rate 100–200 Hz keeps reaction under 20 ms as the map evolves.</p>
-        <div class="cas-stack"><span>NVIDIA cuRobo</span><span>Isaac ROS nvblox ESDF</span><span>thousands of seeds</span><span>base + arms, one solve</span><span>ACM bimanual mask</span></div>
+    <!-- page-level INPUT -->
+    <div class="cl-end in"><span class="tag">INPUT</span><span>From <a href="#retarget" style="color:inherit;">retargeting</a> — where the operator (or a policy) wants the hands to go, as a Cartesian velocity command \(v_{cmd}\).</span></div>
+    <div class="cl-down">↓</div>
+
+    <!-- OUTER: admittance -->
+    <div class="cl-loop cl-outer">
+      <div class="cl-head"><span class="cl-tier">LOOP&nbsp;1 · OUTER</span><span class="cl-name">Admittance — “make it soft”</span><span class="cl-hz">perception rate · GPU</span></div>
+      <p class="cl-does"><b>What it does:</b> turns a <em>felt push</em> into <em>yielding motion</em>. The robot gives way to contact instead of fighting it — so it's safe to touch and every teleop demo is back-drivable.</p>
+      <div class="cl-io">
+        <div class="cl-port in"><span class="lab">INPUT</span><div class="cl-pv">
+          <span class="cl-chip"><span class="sym">\(v_{cmd}\)</span> desired hand velocity (your intent)</span>
+          <span class="cl-chip"><span class="sym">\(F_{ext}\)</span> the force it feels (from the inner loop)</span>
+        </div></div>
+        <div class="cl-arrow">→</div>
+        <div class="cl-port out"><span class="lab">OUTPUT</span><div class="cl-pv">
+          <span class="cl-chip"><span class="sym">\(v_{ref}\)</span> a compliant velocity that gives way to contact</span>
+        </div></div>
       </div>
-      <span class="cas-chev" aria-hidden="true">▾</span>
+      <div class="cl-eqlab">Virtual mass–spring–damper → reference twist</div>
+      <div class="cl-eq">$$M_d\,\ddot{x}_c + D_d\,\dot{x}_c + K_d\,x_c = F_{ext} \qquad\Longrightarrow\qquad v_{ref} = v_{cmd} + \dot{x}_c$$</div>
+      <div class="cl-libs"><span>shared GPU memory</span><span>PyTorch / cuTENSOR</span><span>ZED Mini perception</span></div>
+
+      <!-- MIDDLE: cuRobo (nested inside outer) -->
+      <div class="cl-loop cl-mid">
+        <div class="cl-head"><span class="cl-tier">LOOP&nbsp;2 · MIDDLE</span><span class="cl-name">cuRobo — “make it safe”</span><span class="cl-hz">100–200 Hz · &lt;20 ms</span></div>
+        <p class="cl-does"><b>What it does:</b> finds a <em>collision-free, whole-body</em> way to deliver that velocity — spreading the motion across the swerve base and both arms, checked against a live 3-D map of the room. Thousands of candidate trajectories, in parallel on the GPU.</p>
+        <div class="cl-io">
+          <div class="cl-port in"><span class="lab">INPUT</span><div class="cl-pv">
+            <span class="cl-chip"><span class="sym">\(v_{ref}\)</span> the compliant velocity to achieve</span>
+          </div></div>
+          <div class="cl-arrow">→</div>
+          <div class="cl-port out"><span class="lab">OUTPUT</span><div class="cl-pv">
+            <span class="cl-chip"><span class="sym">\(q_d,\ \dot q_d\)</span> safe joint targets for all 51 joints</span>
+          </div></div>
+        </div>
+        <div class="cl-eqlab">Parallel trajectory optimization, hard safety constraints</div>
+        <div class="cl-eq">$$\min_{\text{seeds}}\ \mathcal{C}\big(q(t)\big) \quad \text{s.t.} \quad \underbrace{\mathrm{ESDF}(q)\ge 0}_{\text{room obstacles}},\ \ \underbrace{\mathrm{collisions}(q)\in \mathrm{ACM}}_{\text{hands may cooperate}}$$</div>
+        <div class="cl-libs"><span>NVIDIA cuRobo</span><span>nvblox ESDF</span><span>thousands of seeds</span><span>base + arms, one solve</span><span>ACM bimanual mask</span></div>
+
+        <!-- INNER: joint loop (nested inside middle) -->
+        <div class="cl-loop cl-inner">
+          <div class="cl-head"><span class="cl-tier">LOOP&nbsp;3 · INNER</span><span class="cl-name">Joint loop + gravity comp — “make it move”</span><span class="cl-hz">1 kHz · RTOS thread</span></div>
+          <p class="cl-does"><b>What it does:</b> computes the exact <em>motor torque</em> to hit those targets while cancelling each link's own weight — and senses contact with <em>no force sensor</em>, feeding that force back out to Loop&nbsp;1.</p>
+          <div class="cl-io">
+            <div class="cl-port in"><span class="lab">INPUT</span><div class="cl-pv">
+              <span class="cl-chip"><span class="sym">\(q_d,\ \dot q_d\)</span> safe joint targets</span>
+            </div></div>
+            <div class="cl-arrow">→</div>
+            <div class="cl-port out"><span class="lab">OUTPUT</span><div class="cl-pv">
+              <span class="cl-chip"><span class="sym">\(\tau\)</span> torque to the 51 actuators</span>
+              <span class="cl-chip"><span class="sym">\(r \rightarrow F_{ext}\)</span> sensed contact, back to Loop&nbsp;1</span>
+            </div></div>
+          </div>
+          <div class="cl-eqlab">PD + feedforward gravity · sensorless momentum observer</div>
+          <div class="cl-eq">$$\tau_{cmd} = K_p\,(q_d - q) + K_d\,(\dot q_d - \dot q) + G(q)$$
+$$r \approx \tau_{meas} - \big(\, M(q)\,\ddot q + C(q,\dot q)\,\dot q + G(q) \,\big)$$</div>
+          <div class="cl-libs"><span>Pinocchio / mj_inverse</span><span>RNEA gravity G(q)</span><span>quasi-direct-drive torque</span><span>sensorless force r</span></div>
+        </div>
+      </div>
     </div>
 
-    <div class="cas-loop" data-cas="inner" tabindex="0" role="button" aria-expanded="false">
-      <div class="cas-loop-h"><span class="cas-tag">INNER</span><span class="cas-name">Joint control + gravity compensation</span><span class="cas-hz">1 kHz · RTOS thread</span></div>
-      <p class="cas-sum">An isolated real-time thread pulls the safe joint targets from GPU memory and computes motor torque that tracks them while cancelling the links' own weight — and watches for unexpected contact without a single force sensor.</p>
-      <div class="cas-panel">
-        <div class="cas-eq">PD + feedforward gravity:&nbsp;&nbsp;<b>τ</b><sub>cmd</sub> = K<sub>p</sub>(q<sub>d</sub>−q) + K<sub>d</sub>(q̇<sub>d</sub>−q̇) + <b>G</b>(q)<br>momentum observer (sensorless):&nbsp;&nbsp;<b>r</b> ≈ τ<sub>meas</sub> − ( M(q)q̈ + C(q,q̇)q̇ + G(q) )</div>
-        <p class="cas-why"><code>G(q)</code> comes from the Recursive Newton–Euler Algorithm at 1 kHz (Pinocchio, or MuJoCo's <code>mj_inverse</code>) on a CPU RTOS thread. Masking the residual <code>r</code> against the interaction volumes the ZED&nbsp;Mini expects lets the robot tell <em>intentional manipulation</em> from <em>accidental collision</em> — and drive <code>K<sub>d</sub>→0</code> on impact to yield safely. <code>r</code> is the <code>F<sub>ext</sub></code> the outer loop admits.</p>
-        <div class="cas-stack"><span>Pinocchio / mj_inverse</span><span>RNEA gravity G(q)</span><span>quasi-direct-drive torque</span><span>sensorless force from r</span></div>
-      </div>
-      <span class="cas-chev" aria-hidden="true">▾</span>
-    </div>
-
-    <p class="cas-lead" style="margin:14px 2px 0;">Deploys on <b>NVIDIA Jetson Thor</b> (Blackwell) — perception, motion generation, and admittance all in one GPU address space; only the 1 kHz dynamics thread sits on an isolated CPU core.</p>
+    <div class="cl-down">↓</div>
+    <!-- page-level OUTPUT -->
+    <div class="cl-end out"><span class="tag">OUTPUT</span><span>To the actuators — coordinated <strong>torque at 51 joints</strong>, gravity-compensated, collision-free, and compliant. The robot moves.</span></div>
   </div>
-  <p class="table-note fade-up" style="margin-top:14px;">Architecture per <em>Hierarchical GPU-Accelerated Control for Safe Teleoperation of Bimanual Mobile Manipulators</em> — see <a href="#refs" style="color:var(--rust);">references</a>. The live viewers below are lightweight in-browser stand-ins that convey the <em>feel</em> of the admittance and whole-body layers, not the cuRobo/MuJoCo controller itself.</p>
+
+  <p class="table-note fade-up" style="margin-top:16px;">All three loops live in one <strong>zero-copy GPU address space</strong> on <strong>NVIDIA Jetson Thor</strong> — perception, motion generation, and admittance share memory with no copy; only the 1&nbsp;kHz dynamics thread sits on an isolated CPU core. Architecture per <em>Hierarchical GPU-Accelerated Control for Safe Teleoperation of Bimanual Mobile Manipulators</em> (<a href="#refs" style="color:var(--rust);">references</a>). The live viewers below are in-browser stand-ins for the <em>feel</em> of these loops, not the cuRobo/MuJoCo controller itself.</p>
 </div></section>
 
 <!-- ─── COMMAND IT (operate viewer) ─── -->
@@ -348,18 +402,9 @@
 
 <script src="assets/mabel.js"></script>
 <script type="module" src="assets/wbc-viewer.js"></script>
-<script>
-/* control cascade: one loop open at a time */
-(function(){
-  var w = document.getElementById('casWidget');
-  if (!w) return;
-  var loops = Array.prototype.slice.call(w.querySelectorAll('.cas-loop'));
-  function open(el){ loops.forEach(function(l){ var on = l===el; l.classList.toggle('on', on); l.setAttribute('aria-expanded', on ? 'true' : 'false'); }); }
-  loops.forEach(function(l){
-    l.addEventListener('click', function(){ open(l); });
-    l.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(l); } });
-  });
-})();
-</script>
+<!-- KaTeX — compile the control-loop equations -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
 </body>
 </html>
