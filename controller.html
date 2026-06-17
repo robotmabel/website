@@ -90,29 +90,6 @@
   .cl-end{font-size:12.5px;padding:11px 13px;}
   .cl-flow{font-size:11px;gap:8px 14px;}
 }
-/* ── live admittance simulator ── */
-.adm{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;align-items:stretch;border:1px solid rgba(22,20,18,.14);border-radius:16px;background:#fff;padding:clamp(13px,1.8vw,20px);}
-@media(max-width:760px){.adm{grid-template-columns:1fr;}}
-.adm-canvas-wrap{position:relative;background:#FAF8F2;border:1px solid rgba(22,20,18,.1);border-radius:12px;overflow:hidden;min-height:230px;}
-.adm-canvas-wrap canvas{display:block;width:100%;height:100%;touch-action:none;}
-.adm-legend{position:absolute;top:11px;left:13px;display:flex;gap:16px;font:600 11px/1 'Geist Mono','SF Mono',Menlo,monospace;color:#5a554d;}
-.adm-legend i{display:inline-block;width:15px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px;}
-.adm-controls{display:flex;flex-direction:column;gap:15px;justify-content:center;}
-.adm-push{display:flex;gap:9px;flex-wrap:wrap;}
-.adm-btn{flex:1;min-width:118px;border:1px solid #C25B2A;background:#C25B2A;color:#fff;border-radius:11px;padding:13px 14px;font:600 13.5px/1 'Geist',-apple-system,sans-serif;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;}
-.adm-btn.ghost{background:#fff;color:#C25B2A;}
-.adm-btn:active{transform:translateY(1px);}
-.adm-row{display:flex;flex-direction:column;gap:7px;}
-.adm-row .lr{display:flex;justify-content:space-between;align-items:baseline;font:600 12.5px/1 'Geist',-apple-system,sans-serif;color:#2A2622;}
-.adm-row .lr b{font:500 12px/1 'Geist Mono','SF Mono',Menlo,monospace;color:#6B6660;}
-.adm-row input[type=range]{width:100%;accent-color:#C25B2A;height:22px;}
-.adm-metrics{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;}
-.adm-metrics > span{font:500 11px/1.3 'Geist Mono','SF Mono',Menlo,monospace;color:#2A2622;background:#F2EEE6;border:1px solid rgba(22,20,18,.12);border-radius:999px;padding:7px 11px;}
-.adm-metrics b{color:#C25B2A;font-weight:600;}
-.adm-regime{font-weight:700 !important;letter-spacing:.4px;border:none !important;}
-.adm-regime.under{background:#FBE7DD !important;color:#9A4518;}
-.adm-regime.crit{background:#E4F3EB !important;color:#1c6e3e;}
-.adm-regime.over{background:#EAE6F4 !important;color:#4b3b8a;}
 </style>
 </head>
 <body class="sec-page">
@@ -271,29 +248,6 @@ $$r \approx \tau_{meas} - \big(\, M(q)\,\ddot q + C(q,\dot q)\,\dot q + G(q) \,\
   </div>
 
   <p class="table-note fade-up" style="margin-top:16px;">All three loops live in one <strong>zero-copy GPU address space</strong> on <strong>NVIDIA Jetson Thor</strong> — perception, motion generation, and admittance share memory with no copy; only the 1&nbsp;kHz dynamics thread sits on an isolated CPU core. Architecture per <em>Hierarchical GPU-Accelerated Control for Safe Teleoperation of Bimanual Mobile Manipulators</em> (<a href="#refs" style="color:var(--rust);">references</a>). The live viewers below are in-browser stand-ins for the <em>feel</em> of these loops, not the cuRobo/MuJoCo controller itself.</p>
-  <div class="sec-head fade-up" style="margin-top:clamp(34px,5vh,58px);"><div><span class="eyebrow">Interactive · the outer loop, live</span><h2 class="display-md title">Push it. <span class="italic accent">Watch it comply.</span></h2></div>
-    <p class="lede">The outer loop is that virtual mass–spring–damper, integrated live below. <strong>Push the robot</strong> (or send an impulse) and it yields along \(x_c(t)\); tune stiffness \(K_d\) and damping \(D_d\) and the damping ratio \(\zeta = D_d/(2\sqrt{K_d M_d})\) shifts the response from springy overshoot to sluggish creep — the exact trade-off the controller is tuned against on hardware.</p></div>
-  <div class="adm fade-up" id="admSim">
-    <div class="adm-canvas-wrap">
-      <div class="adm-legend"><span><i style="background:#2f9d5b"></i>F<sub>ext</sub> applied force</span><span><i style="background:#C25B2A"></i>x<sub>c</sub> compliant yield</span></div>
-      <canvas></canvas>
-    </div>
-    <div class="adm-controls">
-      <div class="adm-push">
-        <button class="adm-btn" data-adm-push type="button">Push &amp; hold</button>
-        <button class="adm-btn ghost" data-adm-impulse type="button">Impulse</button>
-      </div>
-      <div class="adm-row"><div class="lr"><span>Stiffness K<sub>d</sub></span><b data-adm-out="k">120 N/m</b></div><input type="range" data-adm="k" min="20" max="400" step="1" value="120" aria-label="Stiffness K_d"></div>
-      <div class="adm-row"><div class="lr"><span>Damping D<sub>d</sub></span><b data-adm-out="d">40 N·s/m</b></div><input type="range" data-adm="d" min="4" max="140" step="1" value="40" aria-label="Damping D_d"></div>
-      <div class="adm-metrics">
-        <span class="adm-regime crit" data-adm-regime>≈ critically damped</span>
-        <span><b data-adm-out="zeta">ζ 0.86</b> damping ratio</span>
-        <span>yield <b data-adm-out="yield">0.0 cm</b></span>
-        <span>M<sub>d</sub> 4.5 kg</span>
-      </div>
-    </div>
-  </div>
-  <p class="table-note fade-up" style="margin-top:12px;">Real-time semi-implicit integration of \(M_d\,\ddot{x}_c + D_d\,\dot{x}_c + K_d\,x_c = F_{ext}\) at ≈360 sub-steps/s. On the robot this loop runs in GPU memory beside perception; here it runs in your browser, so the compliance is yours to probe.</p>
 </div></section>
 
 <!-- ─── COMMAND IT (operate viewer) ─── -->
@@ -466,7 +420,6 @@ $$r \approx \tau_{meas} - \big(\, M(q)\,\ddot q + C(q,\dot q)\,\dot q + G(q) \,\
 <script src="assets/mabel.js"></script>
 <script type="module" src="assets/wbc-viewer.js"></script>
 <!-- KaTeX — compile the control-loop equations -->
-<script src="assets/admittance-sim.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
   onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
