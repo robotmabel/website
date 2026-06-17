@@ -40,7 +40,7 @@
 </nav>
 <aside class="sidenav" aria-label="Hardware section navigation">
   <div class="sidenav-title">Hardware</div>
-  <a href="#model">3D model</a><a href="#anatomy">Subsystems</a><a href="#novelty">Why it's new</a><a href="#bom">Bill of materials</a><a href="#build">Build it</a>
+  <a href="#model">3D model</a><a href="#anatomy">Subsystems</a><a href="#firmware">Firmware</a><a href="#novelty">Why it's new</a><a href="#bom">Bill of materials</a><a href="#build">Build it</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
@@ -159,7 +159,7 @@
           <div class="point"><div class="num">01</div><div><h5>Built on open ORCA</h5><p>Each hand is the open-source <strong>ORCA</strong> hand — five fingers, tendon-routed, anthropomorphic. Print it, string it, run it; the design is fully released.</p></div></div>
           <div class="point"><div class="num">02</div><div><h5>17 DOF per hand</h5><p>Sixteen Feetech <strong>HLS3915</strong> finger servos plus an <strong>HLS3930</strong> wrist, all on one 1&nbsp;MHz TTL serial chain — abduction, MCP, and PIP per finger.</p></div></div>
           <div class="point"><div class="num">03</div><div><h5>Grasps that transfer</h5><p>Pinch, power, and tripod grasps; the same position commands drive the simulated and the real hand, so a grasp tuned in sim works on hardware.</p></div></div>
-          <div class="point"><div class="num">04</div><div><h5>Configured from our GUI</h5><p>Assign servo IDs, write registers, and read live load and temperature from the ORCA Hand Control Studio — no vendor tool. See <a href="software.html#firmware">Firmware</a>.</p></div></div>
+          <div class="point"><div class="num">04</div><div><h5>Configured from our GUI</h5><p>Assign servo IDs, write registers, and read live load and temperature from the ORCA Hand Control Studio — no vendor tool. See <a href="hardware.html#firmware">Firmware</a>.</p></div></div>
         </div>
         <div class="spec" style="margin-top:24px;"><span>2× ORCA · 34 DOF</span><span>16× HLS3915 + wrist</span><span>Tendon-routed</span><span>1 MHz TTL serial</span><span>Open-source</span></div>
       </div>
@@ -179,7 +179,7 @@
         <p class="lede" style="margin-bottom:24px;">A 3-module delta swerve on REV SPARK controllers gives true holonomic motion — strafe through a doorway, rotate in place, hold a heading while driving.</p>
         <div class="points">
           <div class="point"><div class="num">01</div><div><h5>Delta swerve</h5><p>Three independently steered-and-driven modules in a delta layout — full holonomic motion in any direction, decoupled from heading.</p></div></div>
-          <div class="point"><div class="num">02</div><div><h5>REV SPARK, owned</h5><p>NEO / NEO550 brushless on REV SPARK controllers — driven through a <strong>reverse-engineered CAN stack</strong>, zero dependency on REV's tools. See <a href="software.html#firmware">Firmware</a>.</p></div></div>
+          <div class="point"><div class="num">02</div><div><h5>REV SPARK, owned</h5><p>NEO / NEO550 brushless on REV SPARK controllers — driven through a <strong>reverse-engineered CAN stack</strong>, zero dependency on REV's tools. See <a href="hardware.html#firmware">Firmware</a>.</p></div></div>
           <div class="point"><div class="num">03</div><div><h5>Anti-slip kinematics</h5><p>Shortest-path steering and a cosine anti-slip choke keep the wheels from scrubbing; the math is shared with simulation.</p></div></div>
           <div class="point"><div class="num">04</div><div><h5>Tip-safe envelope</h5><p>A direction-aware tip-over model shrinks speed and braking limits as the lift raises the CoM — agile, but it won't tip.</p></div></div>
         </div>
@@ -190,7 +190,7 @@
         <p class="lede" style="margin-bottom:24px;">A cascaded Z-lift adds 0.635 m of vertical travel; an RP2040 Pico runs closed-loop position-plus-velocity control over a brushed actuator.</p>
         <div class="points">
           <div class="point"><div class="num">01</div><div><h5>Cascaded travel</h5><p>Telescoping stages give <strong>0.635&nbsp;m</strong> of vertical range in a compact stow height — counter height to over a table.</p></div></div>
-          <div class="point"><div class="num">02</div><div><h5>Closed-loop on a Pico</h5><p>An RP2040 Pico runs cascaded <strong>position + velocity</strong> control over a BTS7960 H-bridge and a quadrature encoder, with a host library and an iOS GUI. See <a href="software.html#firmware">Firmware</a>.</p></div></div>
+          <div class="point"><div class="num">02</div><div><h5>Closed-loop on a Pico</h5><p>An RP2040 Pico runs cascaded <strong>position + velocity</strong> control over a BTS7960 H-bridge and a quadrature encoder, with a host library and an iOS GUI. See <a href="hardware.html#firmware">Firmware</a>.</p></div></div>
           <div class="point"><div class="num">03</div><div><h5>Coupled to stability</h5><p>Raising the lift raises the centre of mass, so the base's tip-safe limits tighten with height — modelled in <a href="controller.html">whole-body control</a>.</p></div></div>
           <div class="point"><div class="num">04</div><div><h5>Eye height for teleop</h5><p>Matching the operator's eye height shrinks the embodiment gap and makes <a href="teleop.html">teleop</a> feel like wearing the robot.</p></div></div>
         </div>
@@ -236,6 +236,164 @@
 </section>
 
 <!-- ─── NOVELTY / CONTRIBUTIONS ─── -->
+<!-- ════════════════════════════ FIRMWARE · OWN EVERY ACTUATOR ════════════════════════════ -->
+<!-- ════════════════════════════ FIRMWARE ════════════════════════════ -->
+<section class="pad-y" id="firmware">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Firmware</span>
+        <h2 class="display-md title">Our firmware, <span class="italic accent">not theirs.</span></h2>
+      </div>
+      <p class="lede">MABEL mixes actuators from five vendors — each shipping its own closed Windows tool to
+        flash, tune, and ID them. We replace as much as we can with <strong>one modular firmware stack and
+        one cross-platform GUI</strong>: change a register, reassign a motor ID, read live status, jog a
+        joint — all from the same app, on macOS or Ubuntu.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Modular — one target per limb</h5>
+        <p>One folder per subsystem (<code>swerve_drive</code>, <code>openarm</code>, <code>orca_hand</code>,
+          <code>head</code>, <code>lift</code>); flash or swap a board without touching the rest.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Own the protocol</h5>
+        <p>Where a vendor hides setup in a closed app, we re-implement it natively — most of all the REV
+          SPARK CAN stack, reverse-engineered end-to-end (below).</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Cross-platform on purpose</h5>
+        <p>GUI and host libraries run on <strong>macOS and Ubuntu</strong>. <em>Windows isn't tested
+          yet.</em> No vendor binary, no OS lock-in.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Always-usable · SIM mode</h5>
+        <p>Bus down or driver unbuilt? The GUI opens in <strong>SIM mode</strong> with simulated
+          telemetry — design and test with zero hardware.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE GUI ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Control Studio</span>
+        <h2 class="display-md title" style="color:var(--bone);">One app, <span class="italic accent">every actuator.</span></h2>
+      </div>
+      <p class="lede">A shared iOS-styled GUI — same dark palette, sliders, and pill toggles across the
+        swerve, hand, and lift apps. Reassign IDs, write registers, read live status, and jog any joint.</p>
+    </div>
+
+    <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:16/9; margin-bottom:18px;">
+      <img src="assets/gui-swerve-demo.svg" alt="Using Swerve Studio — toggle a motor on, drag the steering axis to an absolute angle, throttle the drive wheel, all with live telemetry" />
+      <span class="sim-cap"><span class="dot"></span>Using it · enable → steer → throttle, live</span>
+    </div>
+
+    <div class="gui-grid fade-up">
+      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
+        <img src="assets/gui-swerve.svg" alt="MABEL Swerve Studio — per-module steer/drive control, live telemetry, E-STOP" />
+        <span class="sim-cap"><span class="dot"></span>Swerve Studio · REV SPARK base</span>
+      </div>
+      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
+        <img src="assets/gui-hand.svg" alt="MABEL ORCA Hand Control Studio — 17 per-finger joint sliders, grasp presets" />
+        <span class="sim-cap"><span class="dot"></span>ORCA Hand · 17 Feetech servos</span>
+      </div>
+    </div>
+
+    <div class="points fade-up" style="margin-top:30px;">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Reassign IDs &amp; write registers</h5>
+        <p>Give a fresh Feetech servo its ID or change a Damiao CAN ID; edit registers live — REV SPARK
+          control mode, idle brake, PID <code>kP</code>, the steering encoder zero — and burn them to flash.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Jog any joint · E-STOP</h5>
+        <p>Drag a steering axis to an absolute angle, throttle a drive wheel by duty-cycle, move a finger
+          or fire a grasp preset, enable / disable a motor, or hit <strong>E-STOP</strong> — instantly.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Read everything, live</h5>
+        <p>A telemetry sidebar streams position, velocity, current and temperature per controller,
+          colour-coded as values approach their limits — so you see a hot or stalling motor before it faults.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Bus &amp; bring-up tools</h5>
+        <p>Bring the CAN interface up / restart / scan / doctor it from a panel with a streaming console;
+          sine-sweep a motor, zero an encoder, clear faults, read limits — the vendor-app chores, built in.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── REV SWERVE REVERSE ENGINEERING ─── -->
+<section class="pad-y" id="rev">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Swerve drive · the deep cut</span>
+        <h2 class="display-md title">Reverse-engineering <span class="italic accent">REV SPARK.</span></h2>
+      </div>
+      <p class="lede">The base runs REV SPARK controllers on a 3-module delta swerve. REV only exposes them
+        through their Hardware Client and vendor libraries — so we read the <code>sparkcan</code> source,
+        documented the wire protocol, and re-implemented it raw in Python (SocketCAN) and C++ (Teensy
+        FlexCAN_T4). Zero dependency on REV's stack.</p>
+    </div>
+
+    <!-- arbitration callout -->
+    <div class="fade-up" style="background:linear-gradient(180deg,#1b1714,#100d0b); border:1px solid rgba(242,238,230,0.10); border-radius:18px; padding:22px 24px; margin:6px 0 30px; overflow-x:auto;">
+      <div style="font:500 11px/1 'Geist Mono',monospace; letter-spacing:0.12em; color:var(--rust); text-transform:uppercase; margin-bottom:12px;">29-bit extended arbitration ID</div>
+      <pre style="margin:0; font:500 13.5px/1.7 'Geist Mono',monospace; color:var(--bone); white-space:pre;">arbId = (0x02 &lt;&lt; 24)        <span style="color:var(--ash-light)">// DEVICE_TYPE  = motor controller</span>
+      | (0x05 &lt;&lt; 16)        <span style="color:var(--ash-light)">// MANUFACTURER = REV Robotics</span>
+      | (apiClass &lt;&lt; 10)
+      | (apiIndex &lt;&lt; 6)
+      |  deviceId           <span style="color:var(--ash-light)">// 1,3,5 = drive · 2,4,6 = steer</span></pre>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Control + register frames</h5>
+        <p>Velocity / Position / DutyCycle share one payload — an IEEE-754 LE float in bytes 0–3. Registers
+          live under API class 48 with a type tag, so we set <code>kCtrlType</code>, <code>kIdleMode</code>,
+          PID <code>kP_0</code>, and the steering zero <code>kDutyCycleZeroOffset</code> directly.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Telemetry frames</h5>
+        <p>Periodic status: Period&nbsp;0 (duty / volts / current / temp), Period&nbsp;2 (encoder vel +
+          pos), Period&nbsp;5 (absolute steer encoder) — the last only streams once you flip
+          <code>kForceEnableStatus5</code>.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>One socket, cached</h5>
+        <p>A single RX thread reads the bus non-blocking, masks the device ID (<code>can_id &amp; 0x3F</code>),
+          and caches each motor's latest value behind a mutex — <code>GetVelocity()</code> is a free read.
+          Full mapping in <code>rev_can_protocol.md</code>.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ACTUATOR FAMILIES ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">The fleet</span>
+      <h2 class="display-md">Every actuator, owned.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>Swerve base · REV SPARK</h4><p>NEO / NEO550 on 3 delta modules. Reverse-engineered SPARK CAN in Python + Teensy C++.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>Arms · Damiao DM</h4><p>OpenArm-derived 7-DOF arms, quasi-direct-drive over CAN (Teensy + FlexCAN_T4), MIT-mode.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Body &amp; torso · Damiao</h4><p>Torso pitch shares the arms' Damiao/CAN driver, status, and quick-control.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>Hands · Feetech</h4><p>16× HLS3915 fingers + 1× HLS3930 wrist on a 1 MHz TTL chain; USB adapter auto-detected.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Neck · Dynamixel</h4><p>3-DOF neck (yaw / pitch / roll) via our <code>dynamixel_neck</code> library.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Lift · RP2040 Pico</h4><p>MicroPython, BTS7960 + quad encoder, cascaded position + velocity, host lib + iOS GUI.</p></div></div>
+  </div>
+</section>
+
 <section class="soft-sec pad-y" id="novelty">
   <div class="wrap">
     <div class="sec-head fade-up">
@@ -356,7 +514,7 @@
     <div class="fade-up" style="margin-top:48px; display:flex; gap:10px; flex-wrap:wrap;">
       <a href="#" class="btn btn-primary">CAD &amp; STEP files ↗</a>
       <a href="#" class="btn btn-ghost">Assembly guide ↗</a>
-      <a href="software.html#firmware" class="btn btn-ghost">Next: Firmware →</a>
+      <a href="hardware.html#firmware" class="btn btn-ghost">Next: Firmware →</a>
     </div>
   </div>
 </section>

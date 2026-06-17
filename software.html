@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
 <title>MABEL — Software</title>
-<meta name="description" content="The MABEL software stack: one ROS 2 graph, per-MCU firmware, a MuJoCo digital twin, and the Mac-resident teleop server/bridge with live monitoring — sim or real behind one interface." />
+<meta name="description" content="The MABEL software stack: one ROS 2 graph, a MuJoCo digital twin, a bench system-ID / calibration pipeline, and the Mac-resident teleop server/bridge with live monitoring — sim or real behind one interface." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body class="sec-page">
@@ -35,7 +36,7 @@
 </nav>
 <aside class="sidenav" aria-label="Software section navigation">
   <div class="sidenav-title">Software</div>
-  <a href="#ros">ROS 2 graph</a><a href="#firmware">Firmware</a><a href="#sim">Simulation</a><a href="#server">Server &amp; bridge</a>
+  <a href="#ros">ROS 2 graph</a><a href="#sim">Simulation</a><a href="#calib">Calibration</a><a href="#server">Server &amp; bridge</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
@@ -46,13 +47,14 @@
     <h1 class="display-lg">One graph. Every joint.<br>Sim or real.</h1>
     <p class="lede">
       The MABEL stack is four layers behind one interface: a single ROS 2 graph that wraps every bus
-      behind standard topics, modular firmware that owns each actuator vendor's protocol, a MuJoCo
-      digital twin that runs the <strong>same control code</strong> as the robot, and a Mac-resident
-      teleop server that lets a Vision Pro, an iPhone, or a browser drive sim or hardware over one
-      contract. Flip one flag to choose the world.
+      behind standard topics, a MuJoCo digital twin that runs the <strong>same control code</strong> as
+      the robot, a <strong>bench-calibration</strong> pipeline that hands the twin and the controllers the
+      friction, inertia, and mass numbers CAD never gives you, and a Mac-resident teleop server that lets
+      a Vision Pro, an iPhone, or a browser drive sim or hardware over one contract. Flip one flag to
+      choose the world.
     </p>
     <div class="spec" style="margin-top:28px;">
-      <span>ROS 2 Humble</span><span>One GUI · all actuators</span><span>MuJoCo · 500 Hz</span><span>JSON in · MJPEG out</span><span>sim ⇄ real, one flag</span>
+      <span>ROS 2 Humble</span><span>MuJoCo · 500 Hz</span><span>System-ID · R²&nbsp;0.9998</span><span>JSON in · MJPEG out</span><span>sim ⇄ real, one flag</span>
     </div>
   </div>
 </section>
@@ -378,163 +380,6 @@ uint8   hardware_state</pre>
   </div>
 </section>
 
-<!-- ════════════════════════════ FIRMWARE ════════════════════════════ -->
-<section class="pad-y" id="firmware">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">L1 · Firmware</span>
-        <h2 class="display-md title">Our firmware, <span class="italic accent">not theirs.</span></h2>
-      </div>
-      <p class="lede">MABEL mixes actuators from five vendors — each shipping its own closed Windows tool to
-        flash, tune, and ID them. We replace as much as we can with <strong>one modular firmware stack and
-        one cross-platform GUI</strong>: change a register, reassign a motor ID, read live status, jog a
-        joint — all from the same app, on macOS or Ubuntu.</p>
-    </div>
-
-    <div class="points fade-up">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Modular — one target per limb</h5>
-        <p>One folder per subsystem (<code>swerve_drive</code>, <code>openarm</code>, <code>orca_hand</code>,
-          <code>head</code>, <code>lift</code>); flash or swap a board without touching the rest.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Own the protocol</h5>
-        <p>Where a vendor hides setup in a closed app, we re-implement it natively — most of all the REV
-          SPARK CAN stack, reverse-engineered end-to-end (below).</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Cross-platform on purpose</h5>
-        <p>GUI and host libraries run on <strong>macOS and Ubuntu</strong>. <em>Windows isn't tested
-          yet.</em> No vendor binary, no OS lock-in.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
-        <h5>Always-usable · SIM mode</h5>
-        <p>Bus down or driver unbuilt? The GUI opens in <strong>SIM mode</strong> with simulated
-          telemetry — design and test with zero hardware.</p>
-      </div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── THE GUI ─── -->
-<section class="dark-sec pad-y">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Control Studio</span>
-        <h2 class="display-md title" style="color:var(--bone);">One app, <span class="italic accent">every actuator.</span></h2>
-      </div>
-      <p class="lede">A shared iOS-styled GUI — same dark palette, sliders, and pill toggles across the
-        swerve, hand, and lift apps. Reassign IDs, write registers, read live status, and jog any joint.</p>
-    </div>
-
-    <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:16/9; margin-bottom:18px;">
-      <img src="assets/gui-swerve-demo.svg" alt="Using Swerve Studio — toggle a motor on, drag the steering axis to an absolute angle, throttle the drive wheel, all with live telemetry" />
-      <span class="sim-cap"><span class="dot"></span>Using it · enable → steer → throttle, live</span>
-    </div>
-
-    <div class="gui-grid fade-up">
-      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
-        <img src="assets/gui-swerve.svg" alt="MABEL Swerve Studio — per-module steer/drive control, live telemetry, E-STOP" />
-        <span class="sim-cap"><span class="dot"></span>Swerve Studio · REV SPARK base</span>
-      </div>
-      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
-        <img src="assets/gui-hand.svg" alt="MABEL ORCA Hand Control Studio — 17 per-finger joint sliders, grasp presets" />
-        <span class="sim-cap"><span class="dot"></span>ORCA Hand · 17 Feetech servos</span>
-      </div>
-    </div>
-
-    <div class="points fade-up" style="margin-top:30px;">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Reassign IDs &amp; write registers</h5>
-        <p>Give a fresh Feetech servo its ID or change a Damiao CAN ID; edit registers live — REV SPARK
-          control mode, idle brake, PID <code>kP</code>, the steering encoder zero — and burn them to flash.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Jog any joint · E-STOP</h5>
-        <p>Drag a steering axis to an absolute angle, throttle a drive wheel by duty-cycle, move a finger
-          or fire a grasp preset, enable / disable a motor, or hit <strong>E-STOP</strong> — instantly.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Read everything, live</h5>
-        <p>A telemetry sidebar streams position, velocity, current and temperature per controller,
-          colour-coded as values approach their limits — so you see a hot or stalling motor before it faults.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
-        <h5>Bus &amp; bring-up tools</h5>
-        <p>Bring the CAN interface up / restart / scan / doctor it from a panel with a streaming console;
-          sine-sweep a motor, zero an encoder, clear faults, read limits — the vendor-app chores, built in.</p>
-      </div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── REV SWERVE REVERSE ENGINEERING ─── -->
-<section class="pad-y" id="rev">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Swerve drive · the deep cut</span>
-        <h2 class="display-md title">Reverse-engineering <span class="italic accent">REV SPARK.</span></h2>
-      </div>
-      <p class="lede">The base runs REV SPARK controllers on a 3-module delta swerve. REV only exposes them
-        through their Hardware Client and vendor libraries — so we read the <code>sparkcan</code> source,
-        documented the wire protocol, and re-implemented it raw in Python (SocketCAN) and C++ (Teensy
-        FlexCAN_T4). Zero dependency on REV's stack.</p>
-    </div>
-
-    <!-- arbitration callout -->
-    <div class="fade-up" style="background:linear-gradient(180deg,#1b1714,#100d0b); border:1px solid rgba(242,238,230,0.10); border-radius:18px; padding:22px 24px; margin:6px 0 30px; overflow-x:auto;">
-      <div style="font:500 11px/1 'Geist Mono',monospace; letter-spacing:0.12em; color:var(--rust); text-transform:uppercase; margin-bottom:12px;">29-bit extended arbitration ID</div>
-      <pre style="margin:0; font:500 13.5px/1.7 'Geist Mono',monospace; color:var(--bone); white-space:pre;">arbId = (0x02 &lt;&lt; 24)        <span style="color:var(--ash-light)">// DEVICE_TYPE  = motor controller</span>
-      | (0x05 &lt;&lt; 16)        <span style="color:var(--ash-light)">// MANUFACTURER = REV Robotics</span>
-      | (apiClass &lt;&lt; 10)
-      | (apiIndex &lt;&lt; 6)
-      |  deviceId           <span style="color:var(--ash-light)">// 1,3,5 = drive · 2,4,6 = steer</span></pre>
-    </div>
-
-    <div class="points fade-up">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Control + register frames</h5>
-        <p>Velocity / Position / DutyCycle share one payload — an IEEE-754 LE float in bytes 0–3. Registers
-          live under API class 48 with a type tag, so we set <code>kCtrlType</code>, <code>kIdleMode</code>,
-          PID <code>kP_0</code>, and the steering zero <code>kDutyCycleZeroOffset</code> directly.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Telemetry frames</h5>
-        <p>Periodic status: Period&nbsp;0 (duty / volts / current / temp), Period&nbsp;2 (encoder vel +
-          pos), Period&nbsp;5 (absolute steer encoder) — the last only streams once you flip
-          <code>kForceEnableStatus5</code>.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>One socket, cached</h5>
-        <p>A single RX thread reads the bus non-blocking, masks the device ID (<code>can_id &amp; 0x3F</code>),
-          and caches each motor's latest value behind a mutex — <code>GetVelocity()</code> is a free read.
-          Full mapping in <code>rev_can_protocol.md</code>.</p>
-      </div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── ACTUATOR FAMILIES ─── -->
-<section class="soft-sec pad-y">
-  <div class="wrap">
-    <div class="sec-head-center fade-up">
-      <span class="eyebrow">The fleet</span>
-      <h2 class="display-md">Every actuator, owned.</h2>
-    </div>
-  </div>
-  <div class="card-grid">
-    <div class="card fade-up"><span class="card-num">01</span><div><h4>Swerve base · REV SPARK</h4><p>NEO / NEO550 on 3 delta modules. Reverse-engineered SPARK CAN in Python + Teensy C++.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>Arms · Damiao DM</h4><p>OpenArm-derived 7-DOF arms, quasi-direct-drive over CAN (Teensy + FlexCAN_T4), MIT-mode.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Body &amp; torso · Damiao</h4><p>Torso pitch shares the arms' Damiao/CAN driver, status, and quick-control.</p></div></div>
-    <div class="card fade-up"><span class="card-num">04</span><div><h4>Hands · Feetech</h4><p>16× HLS3915 fingers + 1× HLS3930 wrist on a 1 MHz TTL chain; USB adapter auto-detected.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Neck · Dynamixel</h4><p>3-DOF neck (yaw / pitch / roll) via our <code>dynamixel_neck</code> library.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Lift · RP2040 Pico</h4><p>MicroPython, BTS7960 + quad encoder, cascaded position + velocity, host lib + iOS GUI.</p></div></div>
-  </div>
-</section>
-
 <!-- ════════════════════════════ SIMULATION ════════════════════════════ -->
 <section class="pad-y" id="sim">
   <div class="wrap">
@@ -699,6 +544,275 @@ uint8   hardware_state</pre>
           learning pipeline.</p>
       </div></div>
     </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ CALIBRATION · SYSTEM ID ════════════════════════════ -->
+<style>
+  /* ── calibration section (scoped) ── */
+  #calib .cal-eq{background:linear-gradient(180deg,#fbf9f4,#efeae0);border:1px solid rgba(22,20,18,.10);
+    border-radius:20px;padding:30px 26px 22px;margin:6px 0 40px;text-align:center;overflow-x:auto;}
+  #calib .cal-eq-cap{font:500 11px/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--rust);margin-bottom:14px;}
+  #calib .cal-eq .katex{font-size:1.18em;color:var(--ink);}
+  #calib .cal-eq-note{max-width:660px;margin:16px auto 0;color:var(--ash);font-size:14.5px;line-height:1.6;}
+  #calib .cal-split{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:0 0 14px;}
+  #calib .cal-card{border:1px solid rgba(22,20,18,.12);border-radius:18px;padding:22px 22px 20px;
+    background:rgba(255,255,255,.5);}
+  #calib .cal-card h3{font:400 23px/1.15 var(--font-display);margin:8px 0 8px;color:var(--ink);}
+  #calib .cal-card p{color:var(--ash);font-size:14.5px;line-height:1.6;margin:0 0 14px;}
+  #calib .cal-tag{font:500 11px/1 var(--font-mono);letter-spacing:.06em;color:var(--rust-dim);}
+  #calib .cal-tag code{font-size:12px;}
+  #calib .cal-map{font:500 12.5px/1.5 var(--font-mono);color:var(--ink-soft);background:rgba(194,91,42,.08);
+    border-radius:10px;padding:9px 12px;}
+  #calib .cal-sub{display:flex;align-items:baseline;gap:14px;margin:46px 0 6px;flex-wrap:wrap;}
+  #calib .cal-sub h3{font:400 30px/1.1 var(--font-display);color:var(--ink);margin:0;}
+  #calib .cal-sub .cal-sub-tag{font:500 11px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--rust);}
+  #calib .cal-eq.sm{padding:20px 22px;margin:18px 0 24px;}
+  #calib .cal-eq.sm .katex{font-size:1.04em;}
+  #calib .cal-fig-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0 6px;}
+  #calib .cal-flag{width:100%;border-collapse:collapse;margin:8px 0 4px;font-size:13.5px;}
+  #calib .cal-flag th,#calib .cal-flag td{text-align:left;padding:10px 12px;border-bottom:1px solid rgba(22,20,18,.10);
+    vertical-align:top;}
+  #calib .cal-flag th{font:500 10.5px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ash);}
+  #calib .cal-flag td code{font-size:12.5px;color:var(--ink);}
+  #calib .cal-flag .badge{display:inline-block;font:500 10px/1 var(--font-mono);letter-spacing:.05em;
+    padding:4px 7px;border-radius:6px;text-transform:uppercase;}
+  #calib .cal-flag .badge.meas{background:rgba(60,130,80,.16);color:#2c6e3f;}
+  #calib .cal-flag .badge.sheet{background:rgba(194,91,42,.14);color:var(--rust-dim);}
+  /* friction explorer widget */
+  #calib .cal-fric{display:grid;grid-template-columns:1.25fr .85fr;gap:24px;align-items:center;
+    background:linear-gradient(180deg,#1b1714,#100d0b);border:1px solid rgba(242,238,230,.12);
+    border-radius:20px;padding:24px;margin:8px 0 8px;}
+  #calib .cal-fric canvas{width:100%;height:auto;display:block;border-radius:12px;background:#0b0908;}
+  #calib .cal-fric .ctrl h4{font:400 21px/1.1 var(--font-display);color:var(--bone);margin:0 0 4px;}
+  #calib .cal-fric .ctrl p{color:var(--ash-light);font-size:13px;line-height:1.55;margin:0 0 16px;}
+  #calib .cal-fric .sl{margin:0 0 13px;}
+  #calib .cal-fric .sl label{display:flex;justify-content:space-between;font:500 11.5px/1 var(--font-mono);
+    color:var(--bone);margin-bottom:6px;}
+  #calib .cal-fric .sl label b{color:var(--rust);}
+  #calib .cal-fric input[type=range]{width:100%;accent-color:var(--rust);}
+  #calib .cal-fric .row{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;}
+  #calib .cal-fric .mini{flex:1;min-width:120px;font:500 11px/1.4 var(--font-mono);color:var(--ash-light);
+    background:rgba(242,238,230,.05);border:1px solid rgba(242,238,230,.1);border-radius:9px;padding:8px 10px;}
+  #calib .cal-fric .mini b{color:var(--bone);}
+  #calib .cal-fric button{font:500 12px/1 var(--font-sans);background:var(--rust);color:#fff;border:none;
+    border-radius:9px;padding:10px 14px;cursor:pointer;transition:background .2s;}
+  #calib .cal-fric button:hover{background:var(--rust-dim);}
+  #calib .cal-fric .leg{display:flex;gap:16px;font:500 11px/1 var(--font-mono);color:var(--ash-light);margin-top:12px;}
+  #calib .cal-fric .leg i{display:inline-block;width:16px;height:0;border-top-width:2px;border-top-style:solid;
+    vertical-align:middle;margin-right:6px;}
+  @media(max-width:760px){
+    #calib .cal-split,#calib .cal-fig-2,#calib .cal-fric{grid-template-columns:1fr;}
+    #calib .cal-eq .katex{font-size:.96em;}
+    #calib .cal-eq.sm .katex{font-size:.86em;}
+  }
+</style>
+
+<section class="pad-y" id="calib">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Calibration · system identification</span>
+        <h2 class="display-md title">The numbers CAD <span class="italic accent">won't give you.</span></h2>
+      </div>
+      <p class="lede">A CAD model hands you geometry, not physics. The controllers and the MuJoCo twin still
+        need the messy real quantities — joint friction, reflected rotor inertia, true link mass and centre
+        of mass. Two bench calibrations <strong>identify them from motion</strong> and write them straight
+        back into the model.</p>
+    </div>
+
+    <!-- the feed-forward decomposition -->
+    <div class="cal-eq fade-up">
+      <div class="cal-eq-cap">The feed-forward torque MABEL actually commands</div>
+      $$\underbrace{\tau_{\text{cmd}}}_{\text{joint torque}}=\underbrace{M(q)\,\ddot q+C(q,\dot q)\,\dot q+g(q)}_{\textbf{arm calibration — mass, COM}}+\underbrace{\tau_{f}(\dot q)+J\,\ddot q}_{\textbf{motor calibration — friction, inertia}}$$
+      <p class="cal-eq-note">The two halves are independent and complementary. The arm fit <em>zeroes</em>
+        friction so its regression stays linear; the motor fit identifies exactly those zeroed terms. Stitched
+        together they close the model the inner control loop runs on
+        (<a href="controller.html#cascade" style="color:var(--rust);">see the cascade →</a>).</p>
+    </div>
+
+    <div class="cal-split fade-up">
+      <article class="cal-card">
+        <div class="cal-tag">motor_calibration · <code>mabel_actid</code></div>
+        <h3>Per-joint friction &amp; inertia</h3>
+        <p>What each Damiao actuator loses to dry friction, viscous drag, and reflected rotor inertia —
+          recovered on a free shaft, exported as MuJoCo joint attributes and an Isaac Lab actuator config.</p>
+        <div class="cal-map">F_c → frictionloss&nbsp;·&nbsp;F_v → damping&nbsp;·&nbsp;J → armature</div>
+      </article>
+      <article class="cal-card">
+        <div class="cal-tag">arm_calibration · <code>mabel_sysid</code></div>
+        <h3>Per-link mass &amp; centre of mass</h3>
+        <p>The inertial parameters of all 7 arm links, recovered by regression on excitation trajectories —
+          exported as MuJoCo <code>&lt;inertial&gt;</code> for gravity comp and inverse dynamics.</p>
+        <div class="cal-map">mᵢ → mass&nbsp;·&nbsp;mᵢcᵢ → first moment → g(q)</div>
+      </article>
+    </div>
+
+    <!-- ── MOTOR ── -->
+    <div class="cal-sub fade-up">
+      <span class="cal-sub-tag">01 · Actuators</span>
+      <h3>Constant velocity tells the truth.</h3>
+    </div>
+    <p class="body fade-up" style="max-width:760px;">Hold a free shaft at a <strong>constant speed</strong> and
+      the rigid-body inertia term vanishes — so the torque the motor reports over CAN <em>is</em> the friction
+      at that velocity. A bidirectional velocity staircase traces the whole curve directly; a follow-up
+      frequency <strong>chirp</strong> then injects acceleration, and the reflected inertia falls out of
+      \(\tau-\tau_f(\dot q)=J\,\ddot q\).</p>
+
+    <div class="cal-eq sm fade-up">
+      <div class="cal-eq-cap">Coulomb + viscous + Stribeck friction (direction-asymmetric)</div>
+      $$\tau_f(\dot q)=\Big[\,F_c+(F_s-F_c)\,e^{-\lvert \dot q/v_s\rvert^{\delta}}\,\Big]\operatorname{sgn}(\dot q)+F_v\,\dot q$$
+    </div>
+
+    <div class="cal-fig-2 fade-up">
+      <div class="reveal-media media-frame fig" style="aspect-ratio:920/690;background:#fff;">
+        <img src="assets/calib-motor-friction.png" alt="DM-J4340P friction curve: measured constant-velocity torque vs the identified Coulomb+viscous+Stribeck model, R²=0.9998" loading="lazy" />
+        <span class="sim-cap"><span class="dot"></span>Staircase · friction vs velocity</span>
+      </div>
+      <div class="reveal-media media-frame fig" style="aspect-ratio:1170/760;background:#fff;">
+        <img src="assets/calib-motor-inertia.png" alt="DM-J4340P dynamic torque fit: measured torque vs J·a + tau_f(w) over a frequency chirp" loading="lazy" />
+        <span class="sim-cap"><span class="dot"></span>Chirp · reflected inertia J</span>
+      </div>
+    </div>
+
+    <div class="spec fade-up" style="margin:18px 0 4px;">
+      <span>DM-J4340P</span><span>F_c ≈ 0.34 N·m</span><span>F_v = 0.215 N·m·s/rad</span><span>J = 0.0246 kg·m²</span><span>fit R² = 0.9998</span>
+    </div>
+
+    <!-- interactive friction explorer -->
+    <div class="cal-fric fade-up" aria-label="Interactive friction-model explorer">
+      <div>
+        <canvas id="calFricCanvas" width="720" height="460"></canvas>
+        <div class="leg">
+          <span><i style="border-color:var(--rust);"></i>your model</span>
+          <span><i style="border-color:#7fb98a;border-top-style:dashed;"></i>DM-J4340P bench fit</span>
+          <span><i style="border:none;">●</i> measured</span>
+        </div>
+      </div>
+      <div class="ctrl">
+        <h4>Drag the model onto the bench.</h4>
+        <p>Move the four friction parameters and watch the curve. Match the dashed line and the measured
+          staircase points — that's exactly what the identifier solves for you.</p>
+        <div class="sl"><label>Coulomb <code>F_c</code><b id="vFc">0.20</b></label><input type="range" id="fFc" min="0" max="0.6" step="0.005" value="0.20"></div>
+        <div class="sl"><label>Viscous <code>F_v</code><b id="vFv">0.10</b></label><input type="range" id="fFv" min="0" max="0.4" step="0.005" value="0.10"></div>
+        <div class="sl"><label>Break-away <code>F_s</code><b id="vFs">0.30</b></label><input type="range" id="fFs" min="0" max="0.7" step="0.005" value="0.30"></div>
+        <div class="sl"><label>Stribeck <code>v_s</code><b id="vVs">0.15</b></label><input type="range" id="fVs" min="0.02" max="0.3" step="0.002" value="0.15"></div>
+        <div class="row">
+          <button id="fSnap" type="button">Snap to DM-J4340P fit</button>
+          <div class="mini">MuJoCo →<br><b id="fMj">frictionloss 0.20 · damping 0.10</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- what a free shaft can't measure -->
+    <div class="sec-head" style="margin:42px 0 4px;"><div><span class="eyebrow">Honesty</span>
+      <h2 class="display-sm title" style="font-size:clamp(22px,3vw,30px);">What a free shaft <span class="italic accent">can't</span> measure.</h2></div></div>
+    <p class="body fade-up" style="max-width:760px;margin-bottom:16px;">Everything obtainable from one motor with
+      an unloaded output shaft is measured; anything that fundamentally needs a dynamometer, a brake, or a
+      thermal soak is taken from the datasheet and <strong>flagged in every export</strong> — no silent
+      guesses leak into the model.</p>
+    <table class="cal-flag fade-up">
+      <thead><tr><th>Isaac / MuJoCo field</th><th>Value</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><code>armature</code> (J)</td><td>0.0246</td><td><span class="badge meas">measured</span> chirp inertia sweep</td></tr>
+        <tr><td><code>friction</code> (F_c)</td><td>0.3379</td><td><span class="badge meas">measured</span> velocity staircase</td></tr>
+        <tr><td><code>velocity_limit</code></td><td>5.887</td><td><span class="badge meas">measured</span> max-effort terminal speed</td></tr>
+        <tr><td><code>saturation_effort</code></td><td>27.0</td><td><span class="badge sheet">datasheet</span> stall torque needs a load</td></tr>
+        <tr><td><code>effort_limit</code></td><td>9.0</td><td><span class="badge sheet">datasheet</span> continuous/thermal limit</td></tr>
+        <tr><td><code>stiffness</code> (K_p)</td><td>—</td><td><span class="badge sheet">policy</span> a control gain, not a physical parameter</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── ARM ── -->
+    <div class="cal-sub fade-up">
+      <span class="cal-sub-tag">02 · Arm</span>
+      <h3>Dynamics are linear in the parameters.</h3>
+    </div>
+    <p class="body fade-up" style="max-width:760px;">The Euler–Lagrange dynamics are <strong>linear in the
+      inertial parameters</strong>, so identification is a regression: stack motion data into \(Y\), solve for
+      \(\pi\). Gravity compensation needs only \(g(q)\), which depends solely on the first moments \(m_i c_i\)
+      — so a set of <strong>static holding poses</strong> already pins it down. Two estimators agree: a
+      closed-form linear least-squares on the gravity model, and a MuJoCo-in-the-loop nonlinear fit that also
+      separates mass from COM. The whole pipeline is <strong>proven in simulation first</strong> — known
+      masses are scrambled ±30 % and recovered.</p>
+
+    <div class="cal-eq sm fade-up">
+      <div class="cal-eq-cap">Inverse dynamics, factored over the inertial parameters</div>
+      $$M(q)\ddot q+C(q,\dot q)\dot q+g(q)=\tau\;\;\Longrightarrow\;\;\tau=Y(q,\dot q,\ddot q)\,\pi,\qquad g(q)\ \text{depends only on}\ m_i c_i$$
+    </div>
+
+    <div class="reveal-media media-frame fig fade-up" style="aspect-ratio:1500/360;background:#fff;margin:22px 0 6px;">
+      <img src="assets/calib-arm-sysid.png" alt="Arm system-ID results: identified link mass vs truth, per-link COM error, and the gravity-regressor singular spectrum showing 14 observable directions before the cliff" loading="lazy" />
+      <span class="sim-cap"><span class="dot"></span>Mass recovery · COM error · regressor spectrum</span>
+    </div>
+
+    <div class="data-table fade-up" style="margin:20px 0 6px;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr>
+          <th style="text-align:left;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.14);font:500 10.5px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ash);">Metric</th>
+          <th style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.14);font:500 10.5px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ash);">Before (CAD prior)</th>
+          <th style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.14);font:500 10.5px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--rust-dim);">After (identified)</th>
+        </tr></thead>
+        <tbody style="font:500 14px/1.3 var(--font-mono);color:var(--ink);">
+          <tr><td style="padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);font-family:var(--font-sans);">Gravity-torque RMS</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--ash);">0.2024 N·m</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--rust);">0.0037 N·m</td></tr>
+          <tr><td style="padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);font-family:var(--font-sans);">Inverse-dynamics torque RMS</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--ash);">0.4038 N·m</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--rust);">0.0038 N·m</td></tr>
+          <tr><td style="padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);font-family:var(--font-sans);">COM mean error</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--ash);">—</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--rust);">11.4 mm</td></tr>
+          <tr><td style="padding:11px 12px;font-family:var(--font-sans);">Observable parameter directions</td><td style="text-align:right;padding:11px 12px;color:var(--ash);">28 unknowns</td><td style="text-align:right;padding:11px 12px;color:var(--rust);">14 observable</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout fade-up" style="margin-top:18px;"><p><strong>Identifiability, stated honestly:</strong>
+      static/gravity data sees only the first moments \(m_i c_i\), so individual link masses are only partially
+      recoverable — <strong>14 of 28</strong> parameter directions are observable (the cliff in the regressor
+      spectrum above). The controller needs only those identifiable combinations, and they return to the noise
+      floor: gravity comp drops <strong>55×</strong> even where a single link mass stays uncertain.</p></div>
+
+    <!-- export artifacts -->
+    <div class="cal-sub fade-up">
+      <span class="cal-sub-tag">03 · Export</span>
+      <h3>Straight into the model.</h3>
+    </div>
+    <p class="body fade-up" style="max-width:760px;margin-bottom:18px;">Every run writes a self-contained record
+      under <code>results/&lt;motor&gt;/</code> — fitted params, fit quality, plots, and two ready-to-paste
+      artifacts. The same engine backs the CLI and an Apple-styled live GUI that draws the fit as the motor
+      moves.</p>
+    <div class="fade-up" data-tabs>
+      <div class="tab-bar" role="tablist">
+        <button class="tab-btn on" role="tab" data-tab="ex-mj">MuJoCo joint</button>
+        <button class="tab-btn" role="tab" data-tab="ex-il">Isaac Lab</button>
+      </div>
+      <div id="ex-mj" class="tab-panel on">
+        <div class="bib"><button class="bib-copy" onclick="copyCode(this)">Copy</button>
+<pre>&lt;!-- MABEL actuator calibration: DM-J4340P --&gt;
+&lt;!-- frictionloss=Coulomb · damping=viscous · armature=reflected inertia --&gt;
+&lt;joint name="DM-J4340P" frictionloss="0.337872" damping="0.215194" armature="0.02458655"/&gt;</pre>
+        </div>
+      </div>
+      <div id="ex-il" class="tab-panel">
+        <div class="bib"><button class="bib-copy" onclick="copyCode(this)">Copy</button>
+<pre>from isaaclab.actuators import DCMotorCfg   # † = measured on the bench
+
+DM_J4340P = DCMotorCfg(
+    joint_names_expr=[".*"],
+    armature=0.02458655,       # † chirp inertia sweep
+    friction=0.337872,         # † velocity staircase
+    velocity_limit=5.8872,     # † max-effort terminal speed
+    saturation_effort=27.0,    #   datasheet — stall needs a load
+    effort_limit=9.0,          #   datasheet — thermal limit
+    stiffness={".*": 0.0},     #   control policy — set per task
+    damping=0.215194,          #   physical F_v (Isaac PD damping is a control gain)
+)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout fade-up" style="margin-top:26px;"><p><strong>Where it lands:</strong> the motor terms
+      feed the inner 1&nbsp;kHz joint loop's gravity + friction compensation, and the arm inertials feed both
+      that loop and the <a href="#sim" style="color:var(--rust);">MuJoCo twin</a> above — so sim and hardware
+      run the <em>same</em> identified dynamics. Full derivations, tables, and plots live in the
+      <code>ACTUATOR_CALIBRATION</code> and <code>ARM_CALIBRATION</code> reports.</p></div>
   </div>
 </section>
 
@@ -930,5 +1044,9 @@ uint8   hardware_state</pre>
 </footer>
 
 <script src="assets/mabel.js"></script>
+<script src="assets/calib-friction.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
 </body>
 </html>
