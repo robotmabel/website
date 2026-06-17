@@ -60,6 +60,59 @@
   .cl-io{grid-template-columns:1fr;}
   .cl-arrow{transform:rotate(90deg);height:22px;}
 }
+
+/* ── retargeting: two parallel stages, same language as the loops ── */
+.cl-stages{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.cl-stages > .cl-loop{margin:0;}
+.cl-flat{background:#fff;border-color:#E3DED3;}
+@media(max-width:760px){.cl-stages{grid-template-columns:1fr;}}
+/* ── animated command(down)/force(up) flow on each loop edge; speed ∝ loop rate ── */
+.cl-loop::before,.cl-loop::after{content:"";position:absolute;top:12px;bottom:12px;width:3px;border-radius:3px;opacity:.45;pointer-events:none;}
+.cl-loop::before{left:-1px;background:linear-gradient(#C25B2A 0 38%,transparent 38% 100%);background-size:100% 24px;animation:clDown 1.5s linear infinite;}
+.cl-loop::after{right:-1px;background:linear-gradient(#2f9d5b 0 38%,transparent 38% 100%);background-size:100% 24px;animation:clUp 1.5s linear infinite;}
+.cl-mid::before,.cl-mid::after{animation-duration:1.0s;}
+.cl-inner::before,.cl-inner::after{animation-duration:.55s;}
+@keyframes clDown{to{background-position:0 24px;}}
+@keyframes clUp{to{background-position:0 -24px;}}
+@media(prefers-reduced-motion:reduce){.cl-loop::before,.cl-loop::after{animation:none;opacity:.28;}}
+/* ── mobile tightening for the whole cl- system ── */
+@media(max-width:640px){
+  .cl-wrap{padding:13px;border-radius:14px;}
+  .cl-loop{padding:13px;border-radius:13px;margin:11px 0;}
+  .cl-loop .cl-loop{margin:12px 0 2px;}
+  .cl-head{gap:7px 9px;}
+  .cl-tier{font-size:9px;}
+  .cl-name{font-size:14.5px;}
+  .cl-hz{margin-left:0;}
+  .cl-does{font-size:13.5px;}
+  .cl-eq{padding:6px 10px;}
+  .cl-eq .katex{font-size:.92em;}
+  .cl-end{font-size:12.5px;padding:11px 13px;}
+  .cl-flow{font-size:11px;gap:8px 14px;}
+}
+/* ── live admittance simulator ── */
+.adm{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;align-items:stretch;border:1px solid rgba(22,20,18,.14);border-radius:16px;background:#fff;padding:clamp(13px,1.8vw,20px);}
+@media(max-width:760px){.adm{grid-template-columns:1fr;}}
+.adm-canvas-wrap{position:relative;background:#FAF8F2;border:1px solid rgba(22,20,18,.1);border-radius:12px;overflow:hidden;min-height:230px;}
+.adm-canvas-wrap canvas{display:block;width:100%;height:100%;touch-action:none;}
+.adm-legend{position:absolute;top:11px;left:13px;display:flex;gap:16px;font:600 11px/1 'Geist Mono','SF Mono',Menlo,monospace;color:#5a554d;}
+.adm-legend i{display:inline-block;width:15px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px;}
+.adm-controls{display:flex;flex-direction:column;gap:15px;justify-content:center;}
+.adm-push{display:flex;gap:9px;flex-wrap:wrap;}
+.adm-btn{flex:1;min-width:118px;border:1px solid #C25B2A;background:#C25B2A;color:#fff;border-radius:11px;padding:13px 14px;font:600 13.5px/1 'Geist',-apple-system,sans-serif;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;}
+.adm-btn.ghost{background:#fff;color:#C25B2A;}
+.adm-btn:active{transform:translateY(1px);}
+.adm-row{display:flex;flex-direction:column;gap:7px;}
+.adm-row .lr{display:flex;justify-content:space-between;align-items:baseline;font:600 12.5px/1 'Geist',-apple-system,sans-serif;color:#2A2622;}
+.adm-row .lr b{font:500 12px/1 'Geist Mono','SF Mono',Menlo,monospace;color:#6B6660;}
+.adm-row input[type=range]{width:100%;accent-color:#C25B2A;height:22px;}
+.adm-metrics{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;}
+.adm-metrics > span{font:500 11px/1.3 'Geist Mono','SF Mono',Menlo,monospace;color:#2A2622;background:#F2EEE6;border:1px solid rgba(22,20,18,.12);border-radius:999px;padding:7px 11px;}
+.adm-metrics b{color:#C25B2A;font-weight:600;}
+.adm-regime{font-weight:700 !important;letter-spacing:.4px;border:none !important;}
+.adm-regime.under{background:#FBE7DD !important;color:#9A4518;}
+.adm-regime.crit{background:#E4F3EB !important;color:#1c6e3e;}
+.adm-regime.over{background:#EAE6F4 !important;color:#4b3b8a;}
 </style>
 </head>
 <body class="sec-page">
@@ -101,55 +154,42 @@
 <!-- ─── RETARGETING ─── -->
 <section class="pad-y" id="retarget"><div class="wrap">
   <div class="sec-head fade-up"><div><span class="eyebrow">Front end · retargeting</span><h2 class="display-md title">Human in, <span class="italic accent">targets out.</span></h2></div>
-    <p class="lede">The operator never commands joints. Their pose is retargeted into robot-frame targets — a per-frame hand keypoint solve and a Cartesian body QP — and only then does the cascade resolve them into motion.</p></div>
-  <div class="arch-fig fade-up"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" viewBox="0 0 1240 560" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif">
-<rect x="0" y="0" width="1240" height="560" rx="16" fill="#FAF8F2" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
-<style>a{cursor:pointer}a rect,a text{transition:fill .15s,stroke .15s}a:hover rect{stroke:#C25B2A;stroke-width:2;fill:#FBEFE7}a:hover text{fill:#C25B2A}</style>
-<text x="40" y="46" fill="#6B6660" font-size="13" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure — teleop retargeting: human keypoints → robot targets → joints</text>
-<rect x="40" y="150" width="250" height="232" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
-<circle cx="50" cy="171" r="3.5" fill="#C25B2A"/>
-<text x="64" y="176" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">OPERATOR</text>
-<text x="64" y="192" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Apple Vision Pro</text>
-<rect x="58" y="224" width="214" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
-<text x="70" y="242" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Head pose · 6-DoF</text>
-<rect x="58" y="260" width="214" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
-<text x="70" y="278" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Left + right wrist · 6-DoF</text>
-<rect x="58" y="296" width="214" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
-<text x="70" y="314" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Hand joints · 25 × 2</text>
-<rect x="58" y="332" width="214" height="28" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
-<text x="70" y="350" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">gaze · pinch state</text>
-<rect x="370" y="98" width="470" height="160" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
-<circle cx="380" cy="119" r="3.5" fill="#C25B2A"/>
-<text x="394" y="124" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">HAND RETARGETING</text>
-<text x="394" y="140" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">per-frame keypoint optimization</text>
-<text x="426" y="170" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Σ‖ vᵢʰ − vᵢʳ(q) ‖²  +  λ‖q − q₋₁‖²</text>
-<text x="394" y="166" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">min</text>
-<text x="408" y="178" fill="#6B6660" font-size="8" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">q</text>
-<text x="394" y="198" fill="#6B6660" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">s.t.  q⁻ ≤ q ≤ q⁺   joint limits</text>
-<text x="818" y="230" fill="#C25B2A" font-size="11" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="end">→ ORCA hand: 16 finger DOF + wrist roll</text>
-<rect x="370" y="288" width="470" height="168" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
-<circle cx="380" cy="309" r="3.5" fill="#C25B2A"/>
-<text x="394" y="314" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">WHOLE-BODY RETARGETING</text>
-<text x="394" y="330" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Cartesian QP · redundancy resolution</text>
-<text x="394" y="360" fill="#2A2622" font-size="11.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">head → neck      wrist → arm end-effector target</text>
-<text x="426" y="390" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">‖ J q̇ − ẋ* ‖²  +  regularize the null space</text>
-<text x="394" y="386" fill="#2A2622" font-size="12.5" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">min</text>
-<text x="409" y="398" fill="#6B6660" font-size="8" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">q̇</text>
-<text x="818" y="428" fill="#C25B2A" font-size="11" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="end">→ arms 7×2 · torso · lift · base</text>
-<a href="#cascade" target="_top"><rect x="900" y="150" width="300" height="232" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/><circle cx="910" cy="171" r="3.5" fill="#C25B2A"/><text x="924" y="176" fill="#2A2622" font-size="11" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">CONTROL CASCADE</text><text x="924" y="192" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">shared solver · click →</text></a>
-<text x="924" y="236" fill="#2A2622" font-size="11.5" font-weight="500" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">resolves every target together</text>
-<text x="924" y="258" fill="#6B6660" font-size="11" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">across all 51 joints, with the</text>
-<text x="924" y="276" fill="#6B6660" font-size="11" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">tip-safe + balance constraints</text>
-<rect x="918" y="300" width="264" height="30" rx="8" fill="#F2EEE6" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
-<text x="1050.0" y="320" fill="#C25B2A" font-size="11.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">→ 51 coordinated joint commands</text>
-<text x="924" y="370" fill="#A09A91" font-size="10" font-weight="400" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">the same solver autonomy uses</text>
-<line x1="290" y1="266.0" x2="363" y2="266.0" stroke="#C25B2A" stroke-width="1.6"/><path d="M 361 261.0 L 370 266.0 L 361 271.0" stroke="#C25B2A" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<line x1="840" y1="266.0" x2="893" y2="266.0" stroke="#C25B2A" stroke-width="1.6"/><path d="M 891 261.0 L 900 266.0 L 891 271.0" stroke="#C25B2A" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="620.0" y="538" fill="#A09A91" font-size="12" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">human keypoints become robot targets, then the cascade turns targets into joints — every frame at 60 Hz</text>
-</svg></div>
-  <div class="points fade-up" style="margin-top:34px;">
-    <div class="point"><div class="num">01</div><div><h5>Hands · match keypoints, not angles</h5><p>Human and ORCA kinematics differ, so equal joint angles ≠ the same grasp. We minimise the squared difference between human and robot landmark vectors over the robot's 16 finger DOF — the dex-retargeting formulation — with joint limits as hard bounds and a temporal term <code>λ‖q−q₋₁‖²</code> for smoothness. Warm-started, it finishes well inside one 60&nbsp;Hz tick.</p></div></div>
-    <div class="point"><div class="num">02</div><div><h5>Body · redundancy is the point</h5><p>Each wrist's 6-DoF pose becomes an arm end-effector target; the head pose drives the neck. Two 7-DOF arms, a torso, a lift, and a holonomic base are over-actuated for that — so a Cartesian QP picks the solution that stays off the limits, keeps the torso comfortable, and lets the base lazily follow to extend reach.</p></div></div>
+    <p class="lede">The operator never commands joints. Their measured pose is retargeted into robot-frame targets — two small optimizations, solved every frame at 60&nbsp;Hz — and only then does the <a href="#cascade" style="color:var(--rust);">cascade</a> below resolve them into motion.</p></div>
+
+  <div class="cl-wrap fade-up">
+    <div class="cl-end in"><span class="tag">INPUT</span><span>From the operator (Apple Vision Pro): a head pose, two 6-DoF wrist poses, 25 hand-joint poses per hand, and gaze + pinch state.</span></div>
+    <div class="cl-down">↓ &nbsp;two retargeters run in parallel&nbsp; ↓</div>
+
+    <div class="cl-stages">
+      <div class="cl-loop cl-flat">
+        <div class="cl-head"><span class="cl-tier">STAGE A · HANDS</span><span class="cl-name">Keypoint retargeting</span><span class="cl-hz">60 Hz</span></div>
+        <p class="cl-does"><b>What it does:</b> matches the <em>shape</em> of your hand, not its angles — human and ORCA kinematics differ, so equal joint angles would not make the same grasp. It fits the robot's fingers to your landmark vectors.</p>
+        <div class="cl-io">
+          <div class="cl-port in"><span class="lab">INPUT</span><div class="cl-pv"><span class="cl-chip"><span class="sym">\(v_i^{h}\)</span> 25 human hand-keypoint vectors</span></div></div>
+          <div class="cl-arrow">→</div>
+          <div class="cl-port out"><span class="lab">OUTPUT</span><div class="cl-pv"><span class="cl-chip"><span class="sym">\(q\)</span> 16 ORCA finger DOF + wrist roll</span></div></div>
+        </div>
+        <div class="cl-eqlab">Per-frame keypoint optimization — smoothed, joint-limited</div>
+        <div class="cl-eq">$$\min_{q}\ \sum_i \big\lVert v_i^{h} - v_i^{r}(q)\big\rVert^2 + \lambda\,\lVert q - q_{-1}\rVert^2 \quad \text{s.t.}\ \ q^- \le q \le q^+$$</div>
+        <div class="cl-libs"><span>dex-retargeting</span><span>warm-started</span><span>joint-limit bounds</span><span>temporal smoothing λ</span></div>
+      </div>
+
+      <div class="cl-loop cl-flat">
+        <div class="cl-head"><span class="cl-tier">STAGE B · BODY</span><span class="cl-name">Cartesian QP retargeting</span><span class="cl-hz">60 Hz</span></div>
+        <p class="cl-does"><b>What it does:</b> turns your head + two wrist poses into Cartesian targets, then resolves the robot's <em>redundancy</em> — picking the whole-body solution that stays off the limits and lets the base lazily follow to extend reach.</p>
+        <div class="cl-io">
+          <div class="cl-port in"><span class="lab">INPUT</span><div class="cl-pv"><span class="cl-chip"><span class="sym">\(\dot{x}^{*}\)</span> head + 2 wrist 6-DoF targets</span></div></div>
+          <div class="cl-arrow">→</div>
+          <div class="cl-port out"><span class="lab">OUTPUT</span><div class="cl-pv"><span class="cl-chip"><span class="sym">\(\dot{q}\)</span> arms 7×2 · torso · lift · base</span></div></div>
+        </div>
+        <div class="cl-eqlab">Redundancy resolution with null-space regularization</div>
+        <div class="cl-eq">$$\min_{\dot q}\ \big\lVert J\,\dot q - \dot{x}^{*}\big\rVert^2 + \alpha\,\big\lVert \dot q\big\rVert_N^2$$</div>
+        <div class="cl-libs"><span>Cartesian QP</span><span>null-space posture</span><span>lazy base follow</span><span>51-DOF redundancy</span></div>
+      </div>
+    </div>
+
+    <div class="cl-down">↓</div>
+    <div class="cl-end out"><span class="tag">OUTPUT</span><span>Robot-frame targets for every joint — handed to the <a href="#cascade" style="color:inherit;"><strong>control cascade</strong></a> below, which makes them compliant, collision-free, and real.</span></div>
   </div>
 </div></section>
 
@@ -231,6 +271,29 @@ $$r \approx \tau_{meas} - \big(\, M(q)\,\ddot q + C(q,\dot q)\,\dot q + G(q) \,\
   </div>
 
   <p class="table-note fade-up" style="margin-top:16px;">All three loops live in one <strong>zero-copy GPU address space</strong> on <strong>NVIDIA Jetson Thor</strong> — perception, motion generation, and admittance share memory with no copy; only the 1&nbsp;kHz dynamics thread sits on an isolated CPU core. Architecture per <em>Hierarchical GPU-Accelerated Control for Safe Teleoperation of Bimanual Mobile Manipulators</em> (<a href="#refs" style="color:var(--rust);">references</a>). The live viewers below are in-browser stand-ins for the <em>feel</em> of these loops, not the cuRobo/MuJoCo controller itself.</p>
+  <div class="sec-head fade-up" style="margin-top:clamp(34px,5vh,58px);"><div><span class="eyebrow">Interactive · the outer loop, live</span><h2 class="display-md title">Push it. <span class="italic accent">Watch it comply.</span></h2></div>
+    <p class="lede">The outer loop is that virtual mass–spring–damper, integrated live below. <strong>Push the robot</strong> (or send an impulse) and it yields along \(x_c(t)\); tune stiffness \(K_d\) and damping \(D_d\) and the damping ratio \(\zeta = D_d/(2\sqrt{K_d M_d})\) shifts the response from springy overshoot to sluggish creep — the exact trade-off the controller is tuned against on hardware.</p></div>
+  <div class="adm fade-up" id="admSim">
+    <div class="adm-canvas-wrap">
+      <div class="adm-legend"><span><i style="background:#2f9d5b"></i>F<sub>ext</sub> applied force</span><span><i style="background:#C25B2A"></i>x<sub>c</sub> compliant yield</span></div>
+      <canvas></canvas>
+    </div>
+    <div class="adm-controls">
+      <div class="adm-push">
+        <button class="adm-btn" data-adm-push type="button">Push &amp; hold</button>
+        <button class="adm-btn ghost" data-adm-impulse type="button">Impulse</button>
+      </div>
+      <div class="adm-row"><div class="lr"><span>Stiffness K<sub>d</sub></span><b data-adm-out="k">120 N/m</b></div><input type="range" data-adm="k" min="20" max="400" step="1" value="120" aria-label="Stiffness K_d"></div>
+      <div class="adm-row"><div class="lr"><span>Damping D<sub>d</sub></span><b data-adm-out="d">40 N·s/m</b></div><input type="range" data-adm="d" min="4" max="140" step="1" value="40" aria-label="Damping D_d"></div>
+      <div class="adm-metrics">
+        <span class="adm-regime crit" data-adm-regime>≈ critically damped</span>
+        <span><b data-adm-out="zeta">ζ 0.86</b> damping ratio</span>
+        <span>yield <b data-adm-out="yield">0.0 cm</b></span>
+        <span>M<sub>d</sub> 4.5 kg</span>
+      </div>
+    </div>
+  </div>
+  <p class="table-note fade-up" style="margin-top:12px;">Real-time semi-implicit integration of \(M_d\,\ddot{x}_c + D_d\,\dot{x}_c + K_d\,x_c = F_{ext}\) at ≈360 sub-steps/s. On the robot this loop runs in GPU memory beside perception; here it runs in your browser, so the compliance is yours to probe.</p>
 </div></section>
 
 <!-- ─── COMMAND IT (operate viewer) ─── -->
@@ -403,6 +466,7 @@ $$r \approx \tau_{meas} - \big(\, M(q)\,\ddot q + C(q,\dot q)\,\dot q + G(q) \,\
 <script src="assets/mabel.js"></script>
 <script type="module" src="assets/wbc-viewer.js"></script>
 <!-- KaTeX — compile the control-loop equations -->
+<script src="assets/admittance-sim.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
   onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
