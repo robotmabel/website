@@ -96,9 +96,15 @@ section { position: relative; }
 .nav {
   position: fixed; z-index: 100; top: 10px;
   left: 50%; transform: translateX(-50%);
-  width: min(calc(100% - 20px), var(--max));
-  padding: 10px 14px 10px 22px;
-  display: flex; align-items: center; justify-content: space-between;
+  /* hug the content + stay centered — so the bar physically shrinks to just
+     the logo + main action when the links collapse (driven by the children's
+     --spring transition; the pill tracks their width with no snap) */
+  width: -moz-fit-content;
+  width: fit-content;
+  max-width: min(calc(100% - 20px), var(--max));
+  padding: 10px 18px;
+  gap: clamp(16px, 3vw, 38px);
+  display: flex; align-items: center; justify-content: center;
   border-radius: 20px;
   /* iOS-style liquid glass: translucent material + blur + saturate + specular edge */
   background: rgba(242, 238, 230, 0.62);
@@ -203,7 +209,15 @@ section { position: relative; }
 .mob a.ext { color: var(--rust); margin-top: 4px; }
 .mob-grp { display: block; padding: 11px 8px 2px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ash); font-weight: 600; }
 .mob a.sub { padding: 6px 8px 6px 18px; font-size: 13px; font-weight: 400; opacity: 0.82; }
-@media (max-width: 1180px) { .nav-links { display: none; } .hbg { display: flex; } .mob { display: block; } }
+@media (max-width: 1180px) {
+  .nav-links { display: none; } .hbg { display: flex; } .mob { display: block; }
+  /* mobile: full-width bar again so the logo sits left and the burger sits right */
+  .nav {
+    width: min(calc(100% - 20px), var(--max));
+    justify-content: space-between; gap: 0;
+    padding: 10px 14px 10px 22px;
+  }
+}
 
 /* ── Dropdown nav groups ── */
 .nav-group { position: relative; display: inline-flex; }
