@@ -294,6 +294,8 @@
   var coordRow = document.querySelector('.hero-coord-row');
   var parallaxEls = Array.prototype.slice.call(document.querySelectorAll('[data-speed]'));
   var ticking = false;
+  var lastY = window.scrollY;      // for scroll-direction nav collapse
+  var navCollapsed = false;
 
   function frame() {
     var y = window.scrollY;
@@ -303,7 +305,20 @@
       var h = document.documentElement.scrollHeight - vh;
       prog.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
     }
-    if (nav) nav.classList.toggle('scrolled', y > 12);
+    if (nav) {
+      nav.classList.toggle('scrolled', y > 12);
+      // Collapse to title + main action when scrolling DOWN; restore on the way up.
+      // Always expanded near the top so the hero never sees a stub nav.
+      var dy = y - lastY;
+      if (y < 90) {
+        if (navCollapsed) { navCollapsed = false; nav.classList.remove('collapsed'); }
+      } else if (dy > 4 && !navCollapsed) {
+        navCollapsed = true; nav.classList.add('collapsed');
+      } else if (dy < -4 && navCollapsed) {
+        navCollapsed = false; nav.classList.remove('collapsed');
+      }
+      lastY = y;
+    }
 
     if (!reduceMotion) {
       // hero depth: content drifts up + fades as you leave the first screen
