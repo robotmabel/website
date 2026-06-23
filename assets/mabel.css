@@ -117,60 +117,6 @@ section { position: relative; }
     0 10px 30px -14px rgba(22, 20, 18, 0.22);
   transition: background 0.45s var(--ease-out), box-shadow 0.45s var(--ease-out), border-color 0.45s var(--ease-out), top 0.45s var(--ease-out);
 }
-/* Damped-spring scale on each collapse/expand: dip a touch smaller, rebound a
-   touch bigger, micro-settle, stop — multi-keyframe because a single cubic
-   bezier can only overshoot once. translateX(-50%) is carried through every
-   stop so the pill stays centered while it springs. JS adds the class per toggle. */
-/* Sampled from a real underdamped oscillator  s(t)=1 ∓ A·e^(-ζωₙt)·sin(ω_d t)
-   with natural frequency ωₙ=20 rad/s, damping ratio ζ=0.30, A=0.05.
-   Timing MUST be linear — the physical curve is already baked into the samples. */
-@keyframes nav-spring-in {
-  0% { transform: translateX(-50%) scale(1); }
-  5% { transform: translateX(-50%) scale(0.9738); }
-  10% { transform: translateX(-50%) scale(0.9684); }
-  15% { transform: translateX(-50%) scale(0.9786); }
-  20% { transform: translateX(-50%) scale(0.9944); }
-  25% { transform: translateX(-50%) scale(1.0069); }
-  30% { transform: translateX(-50%) scale(1.0118); }
-  35% { transform: translateX(-50%) scale(1.0099); }
-  40% { transform: translateX(-50%) scale(1.0044); }
-  45% { transform: translateX(-50%) scale(0.999); }
-  50% { transform: translateX(-50%) scale(0.996); }
-  55% { transform: translateX(-50%) scale(0.9958); }
-  60% { transform: translateX(-50%) scale(0.9975); }
-  65% { transform: translateX(-50%) scale(0.9997); }
-  70% { transform: translateX(-50%) scale(1.0012); }
-  75% { transform: translateX(-50%) scale(1.0017); }
-  80% { transform: translateX(-50%) scale(1.0012); }
-  90% { transform: translateX(-50%) scale(0.9997); }
-  100% { transform: translateX(-50%) scale(1); }
-}
-@keyframes nav-spring-out {
-  0% { transform: translateX(-50%) scale(1); }
-  5% { transform: translateX(-50%) scale(1.0262); }
-  10% { transform: translateX(-50%) scale(1.0316); }
-  15% { transform: translateX(-50%) scale(1.0214); }
-  20% { transform: translateX(-50%) scale(1.0056); }
-  25% { transform: translateX(-50%) scale(0.9931); }
-  30% { transform: translateX(-50%) scale(0.9882); }
-  35% { transform: translateX(-50%) scale(0.9901); }
-  40% { transform: translateX(-50%) scale(0.9956); }
-  45% { transform: translateX(-50%) scale(1.001); }
-  50% { transform: translateX(-50%) scale(1.004); }
-  55% { transform: translateX(-50%) scale(1.0042); }
-  60% { transform: translateX(-50%) scale(1.0025); }
-  65% { transform: translateX(-50%) scale(1.0003); }
-  70% { transform: translateX(-50%) scale(0.9988); }
-  75% { transform: translateX(-50%) scale(0.9983); }
-  80% { transform: translateX(-50%) scale(0.9988); }
-  90% { transform: translateX(-50%) scale(1.0003); }
-  100% { transform: translateX(-50%) scale(1); }
-}
-.nav.nav-spring-in  { animation: nav-spring-in  1s linear; }
-.nav.nav-spring-out { animation: nav-spring-out 1s linear; }
-@media (prefers-reduced-motion: reduce) {
-  .nav.nav-spring-in, .nav.nav-spring-out { animation: none; }
-}
 .nav.scrolled {
   top: 8px;
   background: rgba(242, 238, 230, 0.74);
@@ -192,55 +138,6 @@ section { position: relative; }
 .nav-links a.on { opacity: 1; background: rgba(22, 20, 18, 0.07); }
 .nav-links a.ext { color: var(--rust); opacity: 0.92; }
 .nav-links a.ext:hover { opacity: 1; background: rgba(194, 91, 42, 0.10); }
-
-/* ── Scroll-direction collapse — when scrolling DOWN the nav distils to just
-   the title + the main action (Paper ↗). Scroll up (or hover) and the links
-   spring back. The bounce comes from --spring overshoot on max-width. ── */
-.nav-links a:not(.ext),
-.nav-links .nav-group {
-  max-width: 240px;
-  transform-origin: center;
-  overflow: hidden;
-  /* this transition governs the RE-EXPAND (links coming back) — slower & gentle */
-  transition:
-    opacity 0.6s var(--ease-out),
-    max-width 1s var(--ease-out),
-    transform 1s var(--ease-out),
-    padding 1s var(--ease-out),
-    margin 1s var(--ease-out);
-}
-.nav.collapsed .nav-links { gap: 0; }
-.nav.collapsed .nav-links a:not(.ext),
-.nav.collapsed .nav-links .nav-group {
-  /* collapse keeps its original snappier timing */
-  transition:
-    opacity 0.42s var(--ease-out),
-    max-width 0.7s var(--ease-out),
-    transform 0.7s var(--ease-out),
-    padding 0.7s var(--ease-out),
-    margin 0.7s var(--ease-out);
-  max-width: 0;
-  opacity: 0;
-  transform: translateY(-8px) scale(0.82);
-  padding-left: 0; padding-right: 0;
-  margin-left: 0; margin-right: 0;
-  pointer-events: none;
-}
-/* the persistent action gets a soft glass pill so it reads as THE action */
-.nav.collapsed .nav-links a.ext {
-  margin-left: 6px;
-  background: rgba(194, 91, 42, 0.10);
-  box-shadow: inset 0 0 0 1px rgba(194, 91, 42, 0.16);
-  transition: background 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out), margin 0.5s var(--spring);
-}
-/* Hovering the collapsed pill fully re-expands it (handled in JS via
-   setNavCollapsed(false)) and it STAYS expanded — it only re-collapses when
-   the user scrolls the page down again. */
-@media (prefers-reduced-motion: reduce) {
-  .nav-links a:not(.ext), .nav-links .nav-group { transition-duration: 0.2s; }
-  .nav.collapsed .nav-links a:not(.ext),
-  .nav.collapsed .nav-links .nav-group { transform: none; }
-}
 
 /* hamburger / mobile */
 .hbg { display: none; width: 38px; height: 38px; border: none; background: none; cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border-radius: 12px; }

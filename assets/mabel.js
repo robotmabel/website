@@ -294,22 +294,6 @@
   var coordRow = document.querySelector('.hero-coord-row');
   var parallaxEls = Array.prototype.slice.call(document.querySelectorAll('[data-speed]'));
   var ticking = false;
-  var lastY = window.scrollY;      // for scroll-direction nav collapse
-  var navCollapsed = false;
-
-  // Toggle the collapse + fire the matching damped-spring scale animation.
-  // Removing both classes and forcing a reflow restarts the keyframes cleanly
-  // even when the scroll direction flips mid-animation.
-  function setNavCollapsed(c) {
-    if (!nav || c === navCollapsed) return;
-    navCollapsed = c;
-    nav.classList.toggle('collapsed', c);
-    if (!reduceMotion) {
-      nav.classList.remove('nav-spring-in', 'nav-spring-out');
-      void nav.offsetWidth;                 // reflow → restart animation
-      nav.classList.add(c ? 'nav-spring-in' : 'nav-spring-out');
-    }
-  }
 
   function frame() {
     var y = window.scrollY;
@@ -320,18 +304,11 @@
       prog.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
     }
     if (nav) {
+      // Stable centered pill: the bar stays a fixed width and never resizes on
+      // scroll. (The old scroll-direction collapse shrank a center-anchored bar,
+      // sliding the logo ~330px sideways — the "moves side to side" glitch.)
+      // Only the translucent glass background intensifies once scrolled.
       nav.classList.toggle('scrolled', y > 12);
-      // Collapse to title + main action when scrolling DOWN; restore on the way up.
-      // Always expanded near the top so the hero never sees a stub nav.
-      var dy = y - lastY;
-      if (y < 90) {
-        if (navCollapsed) setNavCollapsed(false);
-      } else if (dy > 4 && !navCollapsed) {
-        setNavCollapsed(true);
-      } else if (dy < -4 && navCollapsed) {
-        setNavCollapsed(false);
-      }
-      lastY = y;
     }
 
     if (!reduceMotion) {
@@ -358,14 +335,6 @@
   function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll, { passive: true });
-
-  // Hovering the collapsed bar fully re-expands it — and it stays expanded;
-  // only scrolling the page down collapses it again (handled in frame()).
-  if (nav) {
-    nav.addEventListener('mouseenter', function () {
-      if (navCollapsed) setNavCollapsed(false);
-    });
-  }
 
   frame();
 })();
