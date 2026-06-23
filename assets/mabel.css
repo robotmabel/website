@@ -201,16 +201,24 @@ section { position: relative; }
   max-width: 240px;
   transform-origin: center;
   overflow: hidden;
+  /* this transition governs the RE-EXPAND (links coming back) — slower & gentle */
+  transition:
+    opacity 0.6s var(--ease-out),
+    max-width 1s var(--ease-out),
+    transform 1s var(--ease-out),
+    padding 1s var(--ease-out),
+    margin 1s var(--ease-out);
+}
+.nav.collapsed .nav-links { gap: 0; }
+.nav.collapsed .nav-links a:not(.ext),
+.nav.collapsed .nav-links .nav-group {
+  /* collapse keeps its original snappier timing */
   transition:
     opacity 0.42s var(--ease-out),
     max-width 0.7s var(--ease-out),
     transform 0.7s var(--ease-out),
     padding 0.7s var(--ease-out),
     margin 0.7s var(--ease-out);
-}
-.nav.collapsed .nav-links { gap: 0; }
-.nav.collapsed .nav-links a:not(.ext),
-.nav.collapsed .nav-links .nav-group {
   max-width: 0;
   opacity: 0;
   transform: translateY(-8px) scale(0.82);
@@ -225,17 +233,9 @@ section { position: relative; }
   box-shadow: inset 0 0 0 1px rgba(194, 91, 42, 0.16);
   transition: background 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out), margin 0.5s var(--spring);
 }
-/* hover the collapsed pill to peek the full menu back (no scroll needed) */
-.nav.collapsed:hover .nav-links { gap: 3px; }
-.nav.collapsed:hover .nav-links a:not(.ext),
-.nav.collapsed:hover .nav-links .nav-group {
-  max-width: 240px;
-  opacity: 0.66;
-  transform: none;
-  padding-left: 10px; padding-right: 10px;
-  pointer-events: auto;
-}
-.nav.collapsed:hover .nav-links .nav-group { padding-left: 0; padding-right: 0; }
+/* Hovering the collapsed pill fully re-expands it (handled in JS via
+   setNavCollapsed(false)) and it STAYS expanded — it only re-collapses when
+   the user scrolls the page down again. */
 @media (prefers-reduced-motion: reduce) {
   .nav-links a:not(.ext), .nav-links .nav-group { transition-duration: 0.2s; }
   .nav.collapsed .nav-links a:not(.ext),

@@ -358,5 +358,14 @@
   function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll, { passive: true });
+
+  // Hovering the collapsed bar fully re-expands it — and it stays expanded;
+  // only scrolling the page down collapses it again (handled in frame()).
+  if (nav) {
+    nav.addEventListener('mouseenter', function () {
+      if (navCollapsed) setNavCollapsed(false);
+    });
+  }
+
   frame();
 })();
