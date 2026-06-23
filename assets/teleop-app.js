@@ -19,10 +19,12 @@
    is applied INSIDE the wrapper in MuJoCo coordinates; nothing else ever
    converts frames except toMj()/toThree() at this seam.
 
-   Bridge joystick semantics (TeleopController._navigate):
-     tvx = ly·MAX_LIN  (front is −X ⇒ forward stick ⇒ ly = −fwd)
-     tvy = lx·MAX_LIN  (left is −Y ⇒ right strafe ⇒ lx = +strafe)
-     tw  = rx·MAX_ANG  (+ = CCW yaw)        lift = ry·NAV_MAX_LIFT
+   Wire navJoystick signs — MUST match the iOS / Vision Pro apps (NetworkConfig
+   TwistSigns for the sim robot = fwd:+1, strafe:-1, yaw:-1). wire.py negates
+   (-lx,-ly); _navigate does tvx=ly·MAX, tvy=lx·MAX; swerve_ik: vx>0=+X=back,
+   vy>0=+Y=right. Net wire convention the client must emit:
+     forward stick ⇒ ly = +fwd      right strafe ⇒ lx = -strafe
+     rx = yaw (stick-right ⇒ rx<0 ⇒ CW)        ry = lift rate (up ⇒ +)
    ════════════════════════════════════════════════════════════════════ */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -35,7 +37,7 @@ const LIFT_RATE = 0.22;     // m/s
 const LIFT_MAX = 0.635;     // m
 const MAX_STIFF = 45.0;     // Nm/rad at stiffness slider = 1
 const PUSH_K = 60.0, PUSH_MAX = 90.0;   // N/m, N — Soft drag → external_force
-const TX_HZ = 20, PING_S = 5;
+const TX_HZ = 60, PING_S = 5;   // 60 Hz uplink: command staleness ~16 ms (was 20 Hz / 50 ms)
 const IDENTITY16 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 // Per-tab session id — random per page load, so the command monitor can tell
 // multiple browser openings (same machine, same browser) apart.
@@ -474,10 +476,11 @@ class App {
     this._autoConnect();
     const loop = (t) => {
       // Substep so motion stays wall-clock-correct even when rAF throttles
-      // (background tab / headless); each substep ≤ 50 ms keeps it stable.
+      // (background tab / headless); each substep ≤ 20 ms keeps the local mirror
+      // and the 60 Hz uplink snappy (smaller cap = lower perceived control lag).
       let elapsed = Math.min(0.25, (t - this._last) / 1000); this._last = t;
       while (elapsed > 1e-4) {
-        const dt = Math.min(0.05, elapsed); elapsed -= dt;
+        const dt = Math.min(0.02, elapsed); elapsed -= dt;
         this._tick(dt);
       }
       this._render();
@@ -1061,13 +1064,21 @@ class App {
       host = u.hostname || 'localhost';
       key = u.searchParams.get('key') || '';
     } catch (e) {}
-    const base = this.link.url.startsWith('wss')
+    const remote = this.link.url.startsWith('wss');
+    const base = remote
       ? `https://${host}/camera`
       : `http://${host}:8080/camera`;
-    const q = key ? `?key=${encodeURIComponent(key)}` : '';
     const set = (sel, path) => {
       const img = $(sel); if (!img) return;
-      const want = on ? `${base}/${path}/stream.mjpg${q}` : '';
+      const params = [];
+      if (key) params.push(`key=${encodeURIComponent(key)}`);
+      // Relay path (wss → Caddy/MJPEG over TCP across the internet): ask the
+      // server to shrink the frame per-client so the big head feed doesn't stall
+      // and queue. Head downscales + drops quality; wrists just drop quality.
+      // LAN (ws) leaves the stream full-res.
+      if (remote) params.push(path === 'main' ? 'q=50&scale=0.5' : 'q=50');
+      const qs = params.length ? `?${params.join('&')}` : '';
+      const want = on ? `${base}/${path}/stream.mjpg${qs}` : '';
       if (img.dataset.src !== want) {
         img.dataset.src = want;
         if (want) { img.src = want; img.style.display = ''; }
@@ -1508,7 +1519,12 @@ class App {
   pushFrame() {
     if (this.estop) return;
     this.link.seq += 1;
-    // wire signs derived from the bridge (see header): forward = −ly, strafe = +lx
+    // Base linear wire signs are inverted relative to nav.{f,s}: forward stick
+    // (nav.f>0) ⇒ ly = -fwd, right strafe (nav.s>0) ⇒ lx = +strafe. This is what
+    // the deployed robot actually expects — the previous ly=+fwd / lx=-strafe drove
+    // forward/back and left/right reversed. Yaw (rx) and lift (ry) are unchanged.
+    // (NOTE: this now differs from the iOS/Vision Pro NetworkConfig TwistSigns; if
+    // those apps also drive reversed, mirror this flip there.)
     this.link.send('teleop_frame', {
       sequence: this.link.seq,
       timestamp: Date.now() / 1000,
