@@ -166,8 +166,8 @@ section { position: relative; }
   90% { transform: translateX(-50%) scale(1.0003); }
   100% { transform: translateX(-50%) scale(1); }
 }
-.nav.nav-spring-in  { animation: nav-spring-in  0.75s linear; }
-.nav.nav-spring-out { animation: nav-spring-out 0.75s linear; }
+.nav.nav-spring-in  { animation: nav-spring-in  1s linear; }
+.nav.nav-spring-out { animation: nav-spring-out 1s linear; }
 @media (prefers-reduced-motion: reduce) {
   .nav.nav-spring-in, .nav.nav-spring-out { animation: none; }
 }
@@ -202,11 +202,11 @@ section { position: relative; }
   transform-origin: center;
   overflow: hidden;
   transition:
-    opacity 0.32s var(--ease-out),
-    max-width 0.5s var(--ease-out),
-    transform 0.5s var(--ease-out),
-    padding 0.5s var(--ease-out),
-    margin 0.5s var(--ease-out);
+    opacity 0.42s var(--ease-out),
+    max-width 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out),
+    padding 0.7s var(--ease-out),
+    margin 0.7s var(--ease-out);
 }
 .nav.collapsed .nav-links { gap: 0; }
 .nav.collapsed .nav-links a:not(.ext),
