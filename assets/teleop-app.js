@@ -1519,20 +1519,18 @@ class App {
   pushFrame() {
     if (this.estop) return;
     this.link.seq += 1;
-    // Base linear wire signs are inverted relative to nav.{f,s}: forward stick
-    // (nav.f>0) ⇒ ly = -fwd, right strafe (nav.s>0) ⇒ lx = +strafe. This is what
-    // the deployed robot actually expects — the previous ly=+fwd / lx=-strafe drove
-    // forward/back and left/right reversed. Yaw (rx) and lift (ry) are unchanged.
-    // (NOTE: this now differs from the iOS/Vision Pro NetworkConfig TwistSigns; if
-    // those apps also drive reversed, mirror this flip there.)
+    // Base linear wire signs — set to match the ROBOT's OBSERVED motion (verified
+    // on the live setup, which is the source of truth over the bridge-code comments):
+    //   forward stick (nav.f>0) ⇒ ly = +fwd      left strafe (nav.s<0) ⇒ lx = -strafe
+    // i.e. lx = -nav.s, ly = +nav.f. Yaw (rx) and lift (ry) are unchanged.
     this.link.send('teleop_frame', {
       sequence: this.link.seq,
       timestamp: Date.now() / 1000,
       head: { transform: { matrix: IDENTITY16 }, trackingState: 'normal' },
       mode: 'Base Driving',
       navJoystick: {
-        lx: +(this.nav.s / MAX_LIN).toFixed(3),
-        ly: +(-this.nav.f / MAX_LIN).toFixed(3),
+        lx: +(-this.nav.s / MAX_LIN).toFixed(3),
+        ly: +(this.nav.f / MAX_LIN).toFixed(3),
         rx: +(this.nav.w / MAX_ANG).toFixed(3),
         ry: +this.nav.liftRate.toFixed(3),
       },
