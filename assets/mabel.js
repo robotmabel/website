@@ -297,6 +297,20 @@
   var lastY = window.scrollY;      // for scroll-direction nav collapse
   var navCollapsed = false;
 
+  // Toggle the collapse + fire the matching damped-spring scale animation.
+  // Removing both classes and forcing a reflow restarts the keyframes cleanly
+  // even when the scroll direction flips mid-animation.
+  function setNavCollapsed(c) {
+    if (!nav || c === navCollapsed) return;
+    navCollapsed = c;
+    nav.classList.toggle('collapsed', c);
+    if (!reduceMotion) {
+      nav.classList.remove('nav-spring-in', 'nav-spring-out');
+      void nav.offsetWidth;                 // reflow → restart animation
+      nav.classList.add(c ? 'nav-spring-in' : 'nav-spring-out');
+    }
+  }
+
   function frame() {
     var y = window.scrollY;
     var vh = window.innerHeight;
@@ -311,11 +325,11 @@
       // Always expanded near the top so the hero never sees a stub nav.
       var dy = y - lastY;
       if (y < 90) {
-        if (navCollapsed) { navCollapsed = false; nav.classList.remove('collapsed'); }
+        if (navCollapsed) setNavCollapsed(false);
       } else if (dy > 4 && !navCollapsed) {
-        navCollapsed = true; nav.classList.add('collapsed');
+        setNavCollapsed(true);
       } else if (dy < -4 && navCollapsed) {
-        navCollapsed = false; nav.classList.remove('collapsed');
+        setNavCollapsed(false);
       }
       lastY = y;
     }

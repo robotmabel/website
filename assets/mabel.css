@@ -117,6 +117,60 @@ section { position: relative; }
     0 10px 30px -14px rgba(22, 20, 18, 0.22);
   transition: background 0.45s var(--ease-out), box-shadow 0.45s var(--ease-out), border-color 0.45s var(--ease-out), top 0.45s var(--ease-out);
 }
+/* Damped-spring scale on each collapse/expand: dip a touch smaller, rebound a
+   touch bigger, micro-settle, stop — multi-keyframe because a single cubic
+   bezier can only overshoot once. translateX(-50%) is carried through every
+   stop so the pill stays centered while it springs. JS adds the class per toggle. */
+/* Sampled from a real underdamped oscillator  s(t)=1 ∓ A·e^(-ζωₙt)·sin(ω_d t)
+   with natural frequency ωₙ=20 rad/s, damping ratio ζ=0.30, A=0.05.
+   Timing MUST be linear — the physical curve is already baked into the samples. */
+@keyframes nav-spring-in {
+  0% { transform: translateX(-50%) scale(1); }
+  5% { transform: translateX(-50%) scale(0.9738); }
+  10% { transform: translateX(-50%) scale(0.9684); }
+  15% { transform: translateX(-50%) scale(0.9786); }
+  20% { transform: translateX(-50%) scale(0.9944); }
+  25% { transform: translateX(-50%) scale(1.0069); }
+  30% { transform: translateX(-50%) scale(1.0118); }
+  35% { transform: translateX(-50%) scale(1.0099); }
+  40% { transform: translateX(-50%) scale(1.0044); }
+  45% { transform: translateX(-50%) scale(0.999); }
+  50% { transform: translateX(-50%) scale(0.996); }
+  55% { transform: translateX(-50%) scale(0.9958); }
+  60% { transform: translateX(-50%) scale(0.9975); }
+  65% { transform: translateX(-50%) scale(0.9997); }
+  70% { transform: translateX(-50%) scale(1.0012); }
+  75% { transform: translateX(-50%) scale(1.0017); }
+  80% { transform: translateX(-50%) scale(1.0012); }
+  90% { transform: translateX(-50%) scale(0.9997); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+@keyframes nav-spring-out {
+  0% { transform: translateX(-50%) scale(1); }
+  5% { transform: translateX(-50%) scale(1.0262); }
+  10% { transform: translateX(-50%) scale(1.0316); }
+  15% { transform: translateX(-50%) scale(1.0214); }
+  20% { transform: translateX(-50%) scale(1.0056); }
+  25% { transform: translateX(-50%) scale(0.9931); }
+  30% { transform: translateX(-50%) scale(0.9882); }
+  35% { transform: translateX(-50%) scale(0.9901); }
+  40% { transform: translateX(-50%) scale(0.9956); }
+  45% { transform: translateX(-50%) scale(1.001); }
+  50% { transform: translateX(-50%) scale(1.004); }
+  55% { transform: translateX(-50%) scale(1.0042); }
+  60% { transform: translateX(-50%) scale(1.0025); }
+  65% { transform: translateX(-50%) scale(1.0003); }
+  70% { transform: translateX(-50%) scale(0.9988); }
+  75% { transform: translateX(-50%) scale(0.9983); }
+  80% { transform: translateX(-50%) scale(0.9988); }
+  90% { transform: translateX(-50%) scale(1.0003); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+.nav.nav-spring-in  { animation: nav-spring-in  0.75s linear; }
+.nav.nav-spring-out { animation: nav-spring-out 0.75s linear; }
+@media (prefers-reduced-motion: reduce) {
+  .nav.nav-spring-in, .nav.nav-spring-out { animation: none; }
+}
 .nav.scrolled {
   top: 8px;
   background: rgba(242, 238, 230, 0.74);
@@ -133,7 +187,7 @@ section { position: relative; }
 .nav-logo .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rust); display: inline-block; animation: pulse 2.4s ease-in-out infinite; box-shadow: 0 0 0 3px rgba(194,91,42,0.16); }
 @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.35); opacity: 0.65; } }
 .nav-links { display: flex; gap: 3px; font-size: 13.5px; align-items: center; }
-.nav-links a { color: var(--ink); text-decoration: none; opacity: 0.66; transition: opacity 0.2s ease, background 0.3s var(--ease-out); padding: 7px 10px; border-radius: 999px; white-space: nowrap; }
+.nav-links a { color: var(--ink); text-decoration: none; opacity: 0.66; transition: opacity 0.2s ease, background 0.3s var(--ease-out); padding: 7px 10px; border-radius: 13px; white-space: nowrap; }
 .nav-links a:hover { opacity: 1; background: rgba(22, 20, 18, 0.06); }
 .nav-links a.on { opacity: 1; background: rgba(22, 20, 18, 0.07); }
 .nav-links a.ext { color: var(--rust); opacity: 0.92; }
@@ -149,10 +203,10 @@ section { position: relative; }
   overflow: hidden;
   transition:
     opacity 0.32s var(--ease-out),
-    max-width 0.55s var(--spring),
-    transform 0.55s var(--spring),
-    padding 0.5s var(--spring),
-    margin 0.5s var(--spring);
+    max-width 0.5s var(--ease-out),
+    transform 0.5s var(--ease-out),
+    padding 0.5s var(--ease-out),
+    margin 0.5s var(--ease-out);
 }
 .nav.collapsed .nav-links { gap: 0; }
 .nav.collapsed .nav-links a:not(.ext),
@@ -221,7 +275,7 @@ section { position: relative; }
 
 /* ── Dropdown nav groups ── */
 .nav-group { position: relative; display: inline-flex; }
-.nav-grp-btn { font-family: inherit; font-size: 13.5px; color: var(--ink); opacity: 0.66; background: none; border: none; cursor: pointer; padding: 7px 10px; border-radius: 999px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; transition: opacity 0.2s ease, background 0.3s var(--ease-out); }
+.nav-grp-btn { font-family: inherit; font-size: 13.5px; color: var(--ink); opacity: 0.66; background: none; border: none; cursor: pointer; padding: 7px 10px; border-radius: 13px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; transition: opacity 0.2s ease, background 0.3s var(--ease-out); }
 .nav-grp-btn:hover { opacity: 1; background: rgba(22,20,18,0.06); }
 .nav-group.on .nav-grp-btn { opacity: 1; background: rgba(22,20,18,0.07); }
 .nav-caret { font-size: 9px; opacity: 0.7; transition: transform 0.25s var(--ease-out); }
