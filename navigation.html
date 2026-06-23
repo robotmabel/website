@@ -37,7 +37,7 @@
 
 <aside class="sidenav" aria-label="Navigation section navigation">
   <div class="sidenav-title">Navigation</div>
-  <a href="#map">Mapping &amp; SLAM</a><a href="#plan">Path planning</a><a href="#swerve">Playground</a><a href="autonomy.html">Autonomy →</a>
+  <a href="#slam">Two SLAM stacks</a><a href="#output">What it measured</a><a href="#plan">Path planning</a><a href="#swerve">Playground</a><a href="autonomy.html">Autonomy →</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
@@ -47,33 +47,110 @@
     <span class="eyebrow">L3 · Navigation</span>
     <h1 class="display-lg">Knows where it is.</h1>
     <p class="lede">
-      Map the space with the base's own sensors, localize within it, and plan a holonomic path through it.
-      SLAM Toolbox below, Nav2 above — building-scale, all onboard.
+      MABEL ships <em>two</em> independent SLAM backends and picks one per run: a CPU
+      2-D LiDAR mapper and a GPU visual stack that reconstructs the room in 3-D.
+      Either one corrects the drift the swerve wheels accumulate — then Nav2 plans a
+      holonomic path through the map. All onboard.
     </p>
     <div class="spec" style="margin-top:28px;">
-      <span>SLAM Toolbox</span><span>2-D LiDAR</span><span>RGB-D</span><span>Nav2</span><span>Holonomic footprint</span>
+      <span>slam_toolbox</span><span>cuVSLAM + nvblox</span><span>RPLIDAR A3</span><span>RealSense D435i</span><span>Nav2 · MPPI</span>
     </div>
   </div>
 </section>
 
-<!-- ─── MAPPING & SLAM ─── -->
-<section class="dark-sec pad-y" id="map">
+<!-- ─── DUAL-SLAM INTERACTIVE LAB ─── -->
+<section class="dark-sec pad-y" id="slam">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">Mapping &amp; SLAM</span>
-        <h2 class="display-md title" style="color:var(--bone);">Built from the <span class="italic accent">base up.</span></h2>
+        <span class="eyebrow"><code>mabel_slam</code></span>
+        <h2 class="display-md title" style="color:var(--bone);">Two ways to <span class="italic accent">know the world.</span></h2>
       </div>
-      <p class="lede">The robot maps and localizes with sensors that ride on the mobile base — no external motion capture, no tether.</p>
+      <p class="lede">One package, two interchangeable backends. The same launch works in sim and on the robot — it auto-detects the clock and the GPU. Pick a backend and watch the map form.</p>
     </div>
 
-    <div class="feature fade-up">
-      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">SLAM map · occupancy grid + RGB-D cloud</div></div></div>
-      <div class="feature-copy">
-        <span class="eyebrow"><code>mabel_slam</code></span>
-        <h3>Two maps, one world.</h3>
-        <p>The base 2-D LiDAR feeds <code>SLAM Toolbox</code>, turning raw scans into a clean occupancy grid with loop closure for fast, reliable planning. The onboard RGB-D cameras add a dense visual layer — so MABEL maps and localizes by what it senses, not just what it bumps into.</p>
-        <div class="spec"><span>SLAM Toolbox</span><span>Occupancy grid</span><span>RGB-D</span><span>Loop closure</span></div>
+    <div class="fade-up" style="text-align:center;">
+      <div class="slam-seg" role="tablist" aria-label="SLAM backend">
+        <button data-slam-mode="lidar" class="on"><span class="sd"></span> LiDAR · CPU</button>
+        <button data-slam-mode="visual"><span class="sd"></span> Visual · GPU</button>
+      </div>
+    </div>
+
+    <div class="slam-lab fade-up">
+      <div class="slam-stage">
+        <canvas id="slamCanvas"></canvas>
+        <span class="slam-tag">slam_toolbox · 2D occupancy</span>
+        <div class="slam-chips">
+          <span class="slam-chip"><b data-slam="a">0</b></span>
+          <span class="slam-chip"><b data-slam="b">0</b></span>
+          <span class="slam-chip">corrects <b>map → odom</b></span>
+        </div>
+      </div>
+
+      <div class="slam-panel">
+        <!-- LiDAR pane -->
+        <div class="slam-pane on" data-pane="lidar">
+          <p class="lead">A 360° laser, a pose graph, a loop closure.</p>
+          <ol class="slam-flow">
+            <li><span class="sn">01</span><div><h6>Scan in</h6><p>The base <code>RPLIDAR&nbsp;A3</code> sweeps 360° and publishes <code>/scan</code> in <code>lidar_link</code> — the same topic in sim and on hardware.</p></div></li>
+            <li><span class="sn">02</span><div><h6>Scan match → graph</h6><p><code>slam_toolbox</code> matches each scan to the running map and drops a Ceres pose-graph node every <b>0.2&nbsp;m</b> / 0.2&nbsp;rad of travel.</p></div></li>
+            <li><span class="sn">03</span><div><h6>Loop closure</h6><p>Returning near a past pose, it searches an <b>8&nbsp;m</b> window and snaps the graph straight — erasing the drift the wheels piled up.</p></div></li>
+            <li><span class="sn">04</span><div><h6>Occupancy out</h6><p>The optimized graph rasterizes to a <b>5&nbsp;cm</b> <code>/map</code>, refreshed every 0.5&nbsp;s. Pure CPU — no GPU needed.</p></div></li>
+          </ol>
+          <div class="slam-meta">
+            <div class="mc"><span class="k">Sensor</span><span class="v">RPLIDAR A3 · 0.45–12 m</span></div>
+            <div class="mc"><span class="k">Compute</span><span class="v">CPU only</span></div>
+            <div class="mc"><span class="k">Grid</span><span class="v">5 cm cells</span></div>
+            <div class="mc"><span class="k">TF rate</span><span class="v">map→odom @ 50 Hz</span></div>
+          </div>
+        </div>
+
+        <!-- Visual pane -->
+        <div class="slam-pane" data-pane="visual">
+          <p class="lead">Stereo features for pose, voxels for shape.</p>
+          <ol class="slam-flow">
+            <li><span class="sn">01</span><div><h6>Stereo in</h6><p>The front <code>RealSense&nbsp;D435i</code> IR pair streams 848×480 @ 15 Hz; a <code>ZED&nbsp;Mini</code> head cam swaps in for tabletop detail.</p></div></li>
+            <li><span class="sn">02</span><div><h6>cuVSLAM</h6><p>NVIDIA's GPU stereo VSLAM tracks features frame-to-frame and closes loops, correcting <code>map → odom</code> in real time.</p></div></li>
+            <li><span class="sn">03</span><div><h6>nvblox mesh</h6><p>Registered depth integrates a TSDF into a colored 3-D mesh — <b>5&nbsp;cm</b> voxels for driving, <b>1&nbsp;cm</b> for manipulation.</p></div></li>
+            <li><span class="sn">04</span><div><h6>2-D slice out</h6><p>An ESDF height-slice becomes the <em>same</em> <code>/map</code> — so Nav2 never knows which backend ran.</p></div></li>
+          </ol>
+          <div class="slam-meta">
+            <div class="mc"><span class="k">Sensor</span><span class="v">D435i / ZED Mini</span></div>
+            <div class="mc"><span class="k">Compute</span><span class="v">GPU · Isaac ROS</span></div>
+            <div class="mc"><span class="k">Voxels</span><span class="v">5 cm → 1 cm</span></div>
+            <div class="mc"><span class="k">Output</span><span class="v">3-D mesh + /map</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MEASURED OUTPUT · localization drift ─── -->
+<section class="soft-sec pad-y" id="output">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">What it measured</span>
+        <h2 class="display-md title">The wheels lie. <span class="italic accent">Vision doesn't.</span></h2>
+      </div>
+      <p class="lede">Against a ground-truth benchmark, the raw swerve odometry over-reads ~3× from wheel slip. cuVSLAM tracks the real path — so the EKF anchors absolute pose to vision and keeps the wheels only for high-rate velocity.</p>
+    </div>
+
+    <div class="drift-wrap fade-up">
+      <div class="drift-stage">
+        <canvas id="driftCanvas"></canvas>
+        <div class="drift-legend">
+          <span><i style="background:rgba(22,20,18,0.5);"></i> Ground truth</span>
+          <span><i style="background:#c25b2a;"></i> Wheel odometry</span>
+          <span><i style="background:#2e9457;"></i> cuVSLAM (fused)</span>
+        </div>
+      </div>
+      <div class="drift-out">
+        <div class="row"><span class="lab">Absolute trajectory error</span><span class="pair"><span class="w" data-loc="ate_w">0.67 m</span><span class="v" data-loc="ate_v">0.21 m</span></span></div>
+        <div class="row"><span class="lab">Path-length scale</span><span class="pair"><span class="w" data-loc="scale_w">3.0×</span><span class="v" data-loc="scale_v">1.10×</span></span></div>
+        <div class="row"><span class="lab">cuVSLAM heading error</span><span class="pair"><span class="v" data-loc="head">3.4°</span></span></div>
+        <p class="drift-note">Left value = raw wheel odometry, right = cuVSLAM. Measured on a closed loop (<code>controller/experiments</code> + <code>ekf.yaml</code>). The animation is schematic; the numbers are real. The LiDAR backend doesn't track an absolute trajectory — its output is the 5&nbsp;cm occupancy map above.</p>
       </div>
     </div>
   </div>
@@ -87,25 +164,25 @@
         <span class="eyebrow">Path planning</span>
         <h2 class="display-md title">Nav2, tuned <span class="italic accent">holonomic.</span></h2>
       </div>
-      <p class="lede"><code>mabel_navigation</code> runs the Nav2 stack against the SLAM map, configured for the omnidirectional swerve base.</p>
+      <p class="lede"><code>mabel_navigation</code> runs Nav2 against whichever SLAM map is live — <code>slam:=lidar | visual | none</code> — configured for the omnidirectional swerve base.</p>
     </div>
 
     <div class="points fade-up">
       <div class="point"><div class="num">01</div><div>
-        <h5>Localization</h5>
-        <p>Scan-matching against the LiDAR grid, corrected by visual loop closures from the base cameras — MABEL holds its pose down long, repetitive corridors.</p>
+        <h5>One map contract</h5>
+        <p>Both backends publish the same <code>/map</code> and the same <code>map→odom→base_link</code> TF chain, so Nav2 consumes either transparently — swap LiDAR for vision without touching a planner param.</p>
       </div></div>
       <div class="point"><div class="num">02</div><div>
-        <h5>Nav2 stack</h5>
-        <p>A global planner finds the route; a local controller tracks it while dodging obstacles. Costmaps fuse LiDAR and depth; recovery behaviors handle the dead ends.</p>
+        <h5>MPPI controller, Omni model</h5>
+        <p>A NavFn global planner finds the route; an <b>MPPI</b> local controller — set to the <code>Omni</code> motion model — tracks it while sampling around obstacles. Costmaps fuse <code>/map</code> with the live <code>/scan</code>.</p>
       </div></div>
       <div class="point"><div class="num">03</div><div>
-        <h5>Holonomic by default</h5>
-        <p>Nav2 is configured for an omnidirectional footprint, so the swerve base strafes and rotates as one — through doorways, around islands, into elevators.</p>
+        <h5>Holonomic envelope</h5>
+        <p>Speed caps match the teleop limits — <b>v<sub>x</sub> 0.8</b>, <b>v<sub>y</sub> 0.7</b>, <b>ω 2.0</b> — so the swerve base strafes and spins as one through doorways and around islands.</p>
       </div></div>
       <div class="point"><div class="num">04</div><div>
-        <h5>Building-scale</h5>
-        <p>Pre-built floorplans with live SLAM correction carry MABEL across rooms and floors — long-horizon mobility for whole-body manipulation tasks.</p>
+        <h5>EKF-fused odometry</h5>
+        <p>A <code>robot_localization</code> EKF blends cuVSLAM's drift-free pose with the wheels' high-rate velocity — and bridges brief visual dropouts. <code>allow_unknown</code> lets it plan into unmapped space.</p>
       </div></div>
     </div>
   </div>
@@ -160,12 +237,12 @@
     </div>
   </div>
   <div class="card-grid">
-    <div class="card fade-up"><span class="card-num">01</span><div><h4>Base 2-D LiDAR</h4><p>A planar scanner on the mobile base feeds the occupancy grid and the Nav2 costmap.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>RGB-D cameras</h4><p>Onboard depth cameras add a dense visual layer for loop closure and obstacle avoidance.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Wheel odometry</h4><p>Swerve drive and steer encoders provide the dead-reckoning prior SLAM corrects against.</p></div></div>
-    <div class="card fade-up"><span class="card-num">04</span><div><h4>Occupancy grid</h4><p>SLAM Toolbox fuses scans into a 2-D grid with loop closure for fast, reliable planning.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Costmaps</h4><p>Global and local costmaps fuse LiDAR and depth so the controller plans around real obstacles.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Recovery</h4><p>Behavior-tree recoveries clear costmaps and re-plan when the robot wedges into a dead end.</p></div></div>
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>RPLIDAR A3</h4><p>A 360° planar scanner on the base feeds <code>slam_toolbox</code> and the live Nav2 obstacle layer over <code>/scan</code>.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>RealSense D435i</h4><p>Front stereo-IR + depth drives cuVSLAM and the nvblox mesh — emitter on for dense depth, IMU off (Jetson quirk).</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>ZED Mini</h4><p>A head stereo camera for fine, 1&nbsp;cm-voxel reconstruction when MABEL leans in to manipulate.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>Swerve odometry</h4><p>Drive + steer encoders give a high-rate velocity prior — drifty alone (~3×), but the EKF's smooth fallback.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Isaac ROS · NITROS</h4><p>cuVSLAM and nvblox share one GPU container with zero-copy buffers; on x86 it auto-runs in Docker.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Nav2 costmaps</h4><p>Static (<code>/map</code>) + obstacle (<code>/scan</code>) + inflation layers, with behavior-tree recoveries for the dead ends.</p></div></div>
   </div>
 </section>
 
@@ -197,5 +274,6 @@
 </footer>
 
 <script src="assets/mabel.js"></script>
+<script src="assets/slam-viz.js"></script>
 </body>
 </html>
