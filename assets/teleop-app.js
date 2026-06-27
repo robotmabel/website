@@ -172,6 +172,84 @@ class Link {
   }
 }
 
+/* ════ MapStream — live SLAM mesh + odom over the DEDICATED map port ═══
+   Binary WebSocket to ws://<host>:<mapPort> (default 9092), isolated from the
+   teleop link (9090) and cameras (8080) so the multi-MB mesh never competes with
+   control/video. Same wire protocol as the iOS app (MapStreamLink.swift):
+     MESH (0x01): u8 type, u8 flags(bit0=final chunk), u16 pad, u32 count,
+                  count×{ f32 x,y,z (ROS odom, z-up) ; u8 r,g,b,a }
+     ODOM (0x02): u8 type, u8 pad×3, f32 x,y,z, f32 qx,qy,qz,qw (ROS x,y,z,w)
+   Coords stay in the ROS/MuJoCo z-up frame — the nav view's navWorld group
+   applies Q_ZUP, so points/odom drop straight in (no per-axis rebasing here). */
+class MapStream {
+  constructor(app) {
+    this.app = app; this.ws = null; this.want = false; this.url = '';
+    this._retryT = null;
+    this._pending = { pos: [], col: [] };      // accumulates chunks until 'final'
+    this.lastRecv = 0; this.frames = 0; this.lastMeshT = 0; this.meshHz = 0;
+  }
+  connect(url) {
+    if (this.url === url && this.want) return;
+    this.url = url; this.want = true;
+    clearTimeout(this._retryT);
+    if (this.ws) { const o = this.ws; this.ws = null; o.onmessage = o.onclose = o.onerror = null; try { o.close(); } catch (e) {} }
+    this._open();
+  }
+  disconnect() {
+    this.want = false; clearTimeout(this._retryT);
+    if (this.ws) { try { this.ws.close(); } catch (e) {} this.ws = null; }
+  }
+  _open() {
+    if (!this.want || !this.url) return;
+    let ws; try { ws = new WebSocket(this.url); } catch (e) { this._retry(); return; }
+    ws.binaryType = 'arraybuffer'; this.ws = ws;
+    ws.onmessage = (ev) => { if (ev.data instanceof ArrayBuffer) this._decode(ev.data); };
+    ws.onclose = () => { if (this.want) this._retry(); };
+    ws.onerror = () => {};
+  }
+  _retry() { if (this.want) this._retryT = setTimeout(() => this._open(), 1500); }
+
+  _decode(buf) {
+    const dv = new DataView(buf), type = dv.getUint8(0);
+    if (type === 0x01) this._mesh(dv, buf);
+    else if (type === 0x02) this._odom(dv);
+  }
+  _mesh(dv, buf) {
+    const isFinal = (dv.getUint8(1) & 0x01) !== 0;
+    const count = dv.getUint32(4, true);
+    if (count < 0 || buf.byteLength < 8 + count * 16) return;
+    const u8 = new Uint8Array(buf);
+    const pos = new Float32Array(count * 3), col = new Float32Array(count * 3);
+    let o = 8;
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = dv.getFloat32(o, true);
+      pos[i * 3 + 1] = dv.getFloat32(o + 4, true);
+      pos[i * 3 + 2] = dv.getFloat32(o + 8, true);
+      col[i * 3] = u8[o + 12] / 255; col[i * 3 + 1] = u8[o + 13] / 255; col[i * 3 + 2] = u8[o + 14] / 255;
+      o += 16;
+    }
+    this._pending.pos.push(pos); this._pending.col.push(col);
+    if (!isFinal) return;
+    // concat the snapshot's chunks
+    const total = this._pending.pos.reduce((s, a) => s + a.length, 0);
+    const P = new Float32Array(total), Cc = new Float32Array(total);
+    let off = 0;
+    for (let i = 0; i < this._pending.pos.length; i++) { P.set(this._pending.pos[i], off); Cc.set(this._pending.col[i], off); off += this._pending.pos[i].length; }
+    this._pending = { pos: [], col: [] };
+    const now = performance.now();
+    if (this.lastMeshT) this.meshHz = 1000 / Math.max(1, now - this.lastMeshT);
+    this.lastMeshT = now; this.lastRecv = now; this.frames++;
+    this.app.onMesh(P, Cc);
+  }
+  _odom(dv) {
+    const x = dv.getFloat32(4, true), y = dv.getFloat32(8, true), z = dv.getFloat32(12, true);
+    const qx = dv.getFloat32(16, true), qy = dv.getFloat32(20, true), qz = dv.getFloat32(24, true), qw = dv.getFloat32(28, true);
+    const yaw = Math.atan2(2 * (qw * qz + qx * qy), 1 - 2 * (qy * qy + qz * qz));
+    this.lastRecv = performance.now();
+    this.app.onOdom(x, y, z, yaw);
+  }
+}
+
 /* ════ Stage — one renderer + scene + (optional) orbit ═══════════════ */
 class Stage {
   constructor(el, { orbit = true, ground = true } = {}) {
@@ -447,6 +525,9 @@ class App {
     this.manifest = manifest;
     this.sim = new Sim(manifest);
     this.link = new Link(this);
+    this.mapStream = new MapStream(this);        // live SLAM mesh + odom (port 9092)
+    this.helloMapPort = 9092;                    // learned from hello.mapPort
+    this.liveOdom = null;                        // {x,y,yaw} from SLAM, when in live mode
     this.shell = $('#taApp');
     this.estop = false;
     this.view = 'teleop';
@@ -471,7 +552,13 @@ class App {
   }
 
   async start() {
-    await Promise.all([this._buildTeleop(), this._buildBody(), this._buildNav()]);
+    // Build the three views WITHOUT blocking on the 27 MB rig GLB. Each view shows
+    // its scene/room immediately and the articulated robot streams in when the GLB
+    // arrives (or fails gracefully) — a slow/stuck GLB no longer freezes the whole
+    // app on the loading overlays. _render guards the rigs until they exist.
+    this._buildTeleop().catch((e) => console.warn('teleop build:', e));
+    this._buildBody().catch((e) => console.warn('body build:', e));
+    this._buildNav().catch((e) => console.warn('nav build:', e));
     this.switchView('teleop');
     this._autoConnect();
     const loop = (t) => {
@@ -495,6 +582,10 @@ class App {
     $$('.ta-view', this.shell).forEach((el) => el.classList.toggle('on', el.dataset.view === name));
     $$('[data-tabs] button').forEach((b) => b.classList.toggle('on', b.dataset.go === name));
     this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
+    // Only stream the live map while the Navigate view is open AND the live room
+    // is selected — saves bandwidth (and keeps it off the wire) otherwise.
+    if (name === 'nav' && this.room && this.room.live) this._connectMap();
+    else if (name !== 'nav') this.mapStream.disconnect();
     this._announceSpec();
     this._syncCams();
   }
@@ -993,7 +1084,47 @@ class App {
       for (const k in this.sim.state.q) this.sim.jointTarget[k] = this.sim.state.q[k];
     }
   }
-  onHello(p) { if (p && p.name) UI.set('rtt', '0 ms'); }
+  onHello(p) {
+    if (p && p.name) UI.set('rtt', '0 ms');
+    if (p && p.mapPort) this.helloMapPort = +p.mapPort;
+    // If the live map is the active room, (re)connect now that we know the host/port.
+    if (this.room && this.room.live) this._connectMap();
+  }
+
+  /* Live-map URL on the DEDICATED port — only over a direct ws:// teleop link
+     (a LAN / localhost host). A relay/https (wss://) link does not expose the map
+     port, so live map is unavailable there and we return null. */
+  _mapUrl() {
+    const url = this.link.url || '';
+    // Relay / secure (wss): the live map rides the SAME tunnel as teleop — swap the
+    // trailing /teleop path for /map, keeping ?key=. This is how the DEPLOYED https
+    // site streams the map (the VPS Caddy forwards /map* to the bridge :9090, which
+    // serves the /map path). Handles /teleop and /real/teleop.
+    if (url.startsWith('wss://')) return url.replace(/\/teleop(?=$|\?)/, '/map');
+    // Direct LAN/localhost (ws): use the dedicated, isolated map port.
+    const m = url.match(/^ws:\/\/([^/:]+)(?::\d+)?/);
+    if (!m) return null;
+    return `ws://${m[1]}:${this.helloMapPort || 9092}`;
+  }
+  _connectMap() {
+    const url = this._mapUrl();
+    if (url) this.mapStream.connect(url);
+  }
+
+  /* Live mesh snapshot → swap the nav point cloud (kept in the z-up navWorld). */
+  onMesh(pos, col) {
+    if (!this.navWorld) return;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    if (this.liveCloud) { this.navWorld.remove(this.liveCloud); this.liveCloud.geometry.dispose(); }
+    this.liveCloud = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.02, vertexColors: true, sizeAttenuation: true }));
+    this.navWorld.add(this.liveCloud);
+    if (this.cloud) this.cloud.visible = false;   // real mesh arrived → drop the demo fallback
+    UI.set('navpts', `${Math.round(pos.length / 3 / 1000)}k pts · live`);
+  }
+  /* Live SLAM odom → the robot's base pose in the mesh (odom) frame. */
+  onOdom(x, y, z, yaw) { this.liveOdom = { x, y, yaw }; }
 
   /* ── TELEOP view (video + joysticks + mini model) ───────────────── */
   async _buildTeleop() {
@@ -1079,10 +1210,24 @@ class App {
       if (remote) params.push(path === 'main' ? 'q=50&scale=0.5' : 'q=50');
       const qs = params.length ? `?${params.join('&')}` : '';
       const want = on ? `${base}/${path}/stream.mjpg${qs}` : '';
+      // The tile to flag "NOT CONNECTED" on if THIS camera's stream 404s / errors
+      // (e.g. a wrist cam that isn't wired): the wrist PIP, or the main video area.
+      const tile = img.closest('.ta-pip') || img.closest('.ta-video');
       if (img.dataset.src !== want) {
         img.dataset.src = want;
-        if (want) { img.src = want; img.style.display = ''; }
-        else { img.removeAttribute('src'); img.style.display = 'none'; }
+        if (want) {
+          // A served camera streams JPEG (onload); an unwired one 404s (onerror)
+          // -> show a per-camera "NOT CONNECTED" overlay so a dead tile is obvious
+          // rather than just blank. Cleared again the moment a frame arrives.
+          img.onerror = () => { if (tile) tile.classList.add('ta-camoff'); };
+          img.onload  = () => { if (tile) tile.classList.remove('ta-camoff'); };
+          if (tile) tile.classList.remove('ta-camoff');   // optimistic; onerror re-flags
+          img.src = want; img.style.display = '';
+        } else {
+          img.onerror = img.onload = null;
+          img.removeAttribute('src'); img.style.display = 'none';
+          if (tile) tile.classList.remove('ta-camoff');
+        }
       }
     };
     set('#taCamMain', 'main'); set('#taCamL', 'wrist_left'); set('#taCamR', 'wrist_right');
@@ -1093,19 +1238,25 @@ class App {
   async _buildBody() {
     const v = $('[data-view="body"]', this.shell);
     this.bodyStage = new Stage($('.ta-stage', v), { orbit: true, ground: true });
-    this.bodyRig = await new Rig().load(this.bodyStage, this.manifest);
+    // Load the robot but NEVER stay stuck on "LOADING MABEL": clear the overlay
+    // whether the GLB loads or fails, and guard the rig-dependent setup.
+    let rig = null;
+    try { rig = await new Rig().load(this.bodyStage, this.manifest); }
+    catch (e) { console.warn('body rig load failed:', e); }
+    this.bodyRig = rig;
     $('.ta-stage', v).classList.add('loaded');
-    const c = this.bodyRig.center0;
-    this.bodyStage.controls.target.copy(c);
-    this.bodyStage.camera.position.set(c.x + this.bodyRig.maxd * 0.95, c.y + this.bodyRig.maxd * 0.55, c.z + this.bodyRig.maxd * 1.25);
-
-    // palm handles
-    this.balls = {};
-    this.targets = { l: new THREE.Vector3(), r: new THREE.Vector3() };
-    for (const s of ['l', 'r']) {
-      this.balls[s] = this.bodyRig.marker(GREEN, this.bodyRig.maxd * 0.024);
-      this.balls[s].userData.side = s;
-      this.bodyRig.ee[s]?.getWorldPosition(this.targets[s]);
+    if (rig) {
+      const c = rig.center0;
+      this.bodyStage.controls.target.copy(c);
+      this.bodyStage.camera.position.set(c.x + rig.maxd * 0.95, c.y + rig.maxd * 0.55, c.z + rig.maxd * 1.25);
+      // palm handles
+      this.balls = {};
+      this.targets = { l: new THREE.Vector3(), r: new THREE.Vector3() };
+      for (const s of ['l', 'r']) {
+        this.balls[s] = rig.marker(GREEN, rig.maxd * 0.024);
+        this.balls[s].userData.side = s;
+        rig.ee[s]?.getWorldPosition(this.targets[s]);
+      }
     }
 
     // feel segmented control
@@ -1176,7 +1327,7 @@ class App {
       return ray;
     };
     canvas.addEventListener('pointerdown', (ev) => {
-      if (this.estop) return;
+      if (this.estop || !this.balls) return;     // rig may still be streaming in
       const hits = pick(ev).intersectObjects([this.balls.l, this.balls.r]);
       if (!hits.length) return;
       this.drag = hits[0].object.userData.side;
@@ -1212,11 +1363,13 @@ class App {
     this.navStage.camera.position.set(5.5, 6.5, 6.5);
     this.navStage.camera.far = 300;
     this.navStage.camera.updateProjectionMatrix();
-    this.navRig = await new Rig().load(this.navStage, this.manifest);
-    $('.ta-stage', v).classList.add('loaded');
 
-    // same library the iOS app ships (SLAMRoom.swift)
+    // The robot's HOME MAP: the live SLAM reconstruction (real nvblox mesh + the
+    // SLAM /odom estimate), streamed over the dedicated map port. This is the only
+    // nav map now — the procedural demo rooms + the in-browser dummy odom were
+    // removed so Navigate always shows the robot's real, live map of its world.
     this.rooms = [
+      { name: 'Home Map', sub: 'live SLAM (+ demo fallback)', size: [8, 3.2, 6], seed: 7, kind: 'studio', live: true },
       { name: 'Studio Floor A', sub: '48 m² · 2h ago', size: [8, 3.2, 6], seed: 7, kind: 'studio' },
       { name: 'Set — Living Room', sub: '26 m² · yesterday', size: [6, 2.8, 4.4], seed: 21, kind: 'livingRoom' },
       { name: 'Prop Workshop', sub: '34 m² · 3d ago', size: [7, 3.0, 5], seed: 42, kind: 'workshop' },
@@ -1261,21 +1414,35 @@ class App {
       // floor plane: three-world plane with normal = up
       const p = new THREE.Vector3();
       if (!ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), p)) return;
-      const mj = toMj(p);                                    // → MuJoCo frame
+      const mj = toMj(p);                                    // → MuJoCo / odom frame
+      if (this.room && this.room.live) {                     // live map → ROS Nav2 (NavFn A* + MPPI)
+        this.sendNavGoal(mj.x, mj.y);
+        return;
+      }
       if (Math.abs(mj.x) > this.room.size[0] / 2 || Math.abs(mj.y) > this.room.size[2] / 2) return;
-      this.setGoal(mj.x, mj.y);
+      this.setGoal(mj.x, mj.y);                              // (legacy procedural rooms — unused now)
     });
 
+    // Follow button: legacy local follower (procedural rooms only). On the live
+    // map Nav2 drives automatically the moment a goal is dropped, so it's hidden.
     $('#taFollow').addEventListener('click', () => {
-      if (!this.goal) return;
+      if (!this.goal || (this.room && this.room.live)) return;
       this.following = !this.following;
       $('#taFollow').textContent = this.following ? 'Stop' : 'Follow path';
       $('#taFollow').classList.toggle('primary', !this.following);
       if (!this.following) this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
     });
-    $('#taClearGoal').addEventListener('click', () => this.clearGoal());
+    $('#taClearGoal').addEventListener('click', () => {
+      if (this.room && this.room.live) this.clearNavGoal();
+      else this.clearGoal();
+    });
 
     this._loadRoom(this.rooms[0]);
+    $('.ta-stage', v).classList.add('loaded');     // room is up → clear "BUILDING ROOM"
+    // The articulated robot streams in after — the room already shows without it,
+    // and a slow/stuck rig GLB no longer blocks the Navigate view.
+    new Rig().load(this.navStage, this.manifest).then((r) => { this.navRig = r; })
+      .catch((e) => console.warn('nav rig load failed:', e));
   }
 
   /* procedural SLAM-style cloud — same synthesized stand-ins as the iOS
@@ -1283,7 +1450,14 @@ class App {
   _loadRoom(room) {
     this.room = room;
     this.clearGoal();
-    if (this.cloud) { this.navWorld.remove(this.cloud); this.cloud.geometry.dispose(); }
+    // Drop any previous clouds, then ALWAYS rebuild the procedural cloud for the
+    // selected room: it's the map for the demo rooms, and a FALLBACK shown until
+    // the real SLAM mesh streams in for the live Home Map — so Navigate is never
+    // empty (the dummy pointcloud room shows even with no robot / no server).
+    if (this.liveCloud) { this.navWorld.remove(this.liveCloud); this.liveCloud.geometry.dispose(); this.liveCloud = null; }
+    if (this.cloud) { this.navWorld.remove(this.cloud); this.cloud.geometry.dispose(); this.cloud = null; }
+    if (room.live) { this.liveOdom = null; this._connectMap(); }   // also stream the real mesh + odom
+    else { this.mapStream.disconnect(); }
     const rnd = mulberry32(room.seed);
     const [W, H, D] = room.size;            // extent x · height · extent y (MuJoCo)
     const pts = [], cols = [];
@@ -1387,6 +1561,20 @@ class App {
     UI.set('navdist', '—');
     const f = $('#taFollow'); if (f) { f.disabled = true; f.textContent = 'Follow path'; f.classList.add('primary'); }
     this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
+  }
+
+  /* Live map: hand the goal to ROS Nav2 (NavFn A* global plan + MPPI controller)
+     — NOT a local browser planner/follower. The bridge forwards it to /goal_pose
+     and feeds Nav2's /mabel_cmd to the base; nudging a drive stick takes over. */
+  sendNavGoal(x, y) {
+    this.link.send('nav_goal', { x, y });
+    if (this.goalRing) { this.goalRing.position.set(x, y, 0.012); this.goalRing.visible = true; }
+    UI.set('navdist', 'Nav2 driving…');
+  }
+  clearNavGoal() {
+    this.link.send('nav_cancel', {});
+    if (this.goalRing) this.goalRing.visible = false;
+    UI.set('navdist', '—');
   }
 
   /** Nearest free cell to (cx, cy) — BFS ring search; null if the map is full. */
@@ -1683,29 +1871,46 @@ class App {
     if (uiTick) this._uiAt = now;
 
     if (this.view === 'teleop') {
-      this.miniRig.pose(this.sim.state);
-      const root = this.miniRig.rootThree(this.sim.state);
-      // chase from behind the robot's front (−X side ⇒ camera at +X in MuJoCo)
-      const back = toThree(new THREE.Vector3(
-        Math.cos(this.sim.state.yaw) * 2.2, Math.sin(this.sim.state.yaw) * 2.2, 1.5));
-      this.miniStage.camera.position.copy(root).add(back);
-      this.miniStage.camera.lookAt(root.x, root.y + 0.75, root.z);
-      this.miniStage.render();
+      if (this.miniRig) {                       // rig streams in async — render the stage regardless
+        this.miniRig.pose(this.sim.state);
+        const root = this.miniRig.rootThree(this.sim.state);
+        // chase from behind the robot's front (−X side ⇒ camera at +X in MuJoCo)
+        const back = toThree(new THREE.Vector3(
+          Math.cos(this.sim.state.yaw) * 2.2, Math.sin(this.sim.state.yaw) * 2.2, 1.5));
+        this.miniStage.camera.position.copy(root).add(back);
+        this.miniStage.camera.lookAt(root.x, root.y + 0.75, root.z);
+      }
+      if (this.miniStage) this.miniStage.render();
       if (uiTick) UI.set('speed', `${Math.hypot(this.nav.f, this.nav.s).toFixed(2)} m/s`);
     } else if (this.view === 'body') {
       // odom-pinned: the Body twin stays centered even while the base drives
-      this.bodyRig.pose(this.sim.state, { pinned: true });
-      const ee = new THREE.Vector3();
-      for (const s of ['l', 'r']) {
-        if (this.drag === s) this.balls[s].position.copy(this.targets[s]);
-        else if (this.bodyRig.ee[s]) { this.bodyRig.ee[s].getWorldPosition(ee); this.balls[s].position.copy(ee); this.targets[s].copy(ee); }
-        this.balls[s].visible = true;
+      if (this.bodyRig && this.balls) {
+        this.bodyRig.pose(this.sim.state, { pinned: true });
+        const ee = new THREE.Vector3();
+        for (const s of ['l', 'r']) {
+          if (this.drag === s) this.balls[s].position.copy(this.targets[s]);
+          else if (this.bodyRig.ee[s]) { this.bodyRig.ee[s].getWorldPosition(ee); this.balls[s].position.copy(ee); this.targets[s].copy(ee); }
+          this.balls[s].visible = true;
+        }
       }
-      this.bodyStage.render();
+      if (this.bodyStage) this.bodyStage.render();
     } else if (this.view === 'nav') {
-      this.navRig.pose(this.sim.state);
-      this.navStage.render();
-      if (uiTick) UI.set('navpose', `x ${this.sim.state.bx.toFixed(1)} · y ${this.sim.state.by.toFixed(1)} m`);
+      // The robot sits at the SLAM /odom estimate in the mesh frame — never the
+      // in-browser dummy pose. Until the first odom arrives it rests at the map
+      // origin (0,0,0), so no fake pose is ever shown.
+      if (this.room && this.room.live) {
+        const o = this.liveOdom || { x: 0, y: 0, yaw: 0 };
+        this.sim.state.bx = o.x; this.sim.state.by = o.y; this.sim.state.yaw = o.yaw;
+      }
+      if (this.navRig) this.navRig.pose(this.sim.state);
+      if (this.navStage) this.navStage.render();
+      if (uiTick) {
+        UI.set('navpose', `x ${this.sim.state.bx.toFixed(1)} · y ${this.sim.state.by.toFixed(1)} m`);
+        if (this.room && this.room.live)
+          UI.set('navpts', this.mapStream.lastRecv
+            ? `${this.liveCloud ? Math.round(this.liveCloud.geometry.attributes.position.count / 1000) : 0}k pts · live`
+            : (this._mapUrl() ? 'connecting…' : 'connect on LAN for live map'));
+      }
     }
   }
 }

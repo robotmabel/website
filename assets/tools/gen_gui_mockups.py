@@ -413,7 +413,7 @@ def ros_graph_svg():
          "Drives the tilting torso (Damiao CAN) and the pan/tilt/roll neck (Dynamixel), exposing both as ordinary joints on /joint_states."),
         (centers[2], "arms_node", ["14-DOF arms", "Damiao CAN"],
          "Streams the two backdriveable 7-DOF arms (14 DOF total, OpenArm-derived) over Damiao CAN at 200 Hz."),
-        (centers[3], "orca_hand_node", ["2× 17-DOF", "Feetech"],
+        (centers[3], "hand_node", ["2× 17-DOF", "Feetech"],
          "Runs both 17-DOF ORCA hands over Feetech serial — 16 tendon-driven finger joints plus an active wrist roll per hand."),
     ]
     sensors = [

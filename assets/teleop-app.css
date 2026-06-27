@@ -87,8 +87,18 @@
 .ta-pip img { width: 100%; height: 100%; object-fit: cover; }
 .ta-pip .tag {
   position: absolute; left: 8px; bottom: 6px; font: 500 9.5px 'Geist Mono', monospace;
-  letter-spacing: .14em; color: rgba(239,234,227,.8); text-shadow: 0 1px 4px #000;
+  letter-spacing: .14em; color: rgba(239,234,227,.8); text-shadow: 0 1px 4px #000; z-index: 7;
 }
+/* Per-camera "NOT CONNECTED": teleop-app.js toggles .ta-camoff on a tile when its
+   MJPEG stream 404s / errors (e.g. a wrist cam that isn't wired on the robot). */
+.ta-camoff::after {
+  content: "NOT CONNECTED"; position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font: 600 10px 'Geist Mono', monospace; letter-spacing: .16em;
+  color: rgba(239,234,227,.6); background: repeating-linear-gradient(
+    45deg, rgba(20,18,16,.9), rgba(20,18,16,.9) 10px, rgba(28,25,22,.9) 10px, rgba(28,25,22,.9) 20px);
+}
+.ta-video.ta-camoff::after { font-size: 14px; }
 .ta-mini {
   /* sits ABOVE the right joystick (bottom 96px + stick ≤148px + label gap) */
   position: absolute; right: 14px; bottom: calc(96px + clamp(108px, 15vw, 148px) + 38px);
