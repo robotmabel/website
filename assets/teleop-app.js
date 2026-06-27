@@ -1212,9 +1212,18 @@ class App {
     if (!this.goalRing || !this.goalRing.visible || !this._goalPulse) return;
     this._navTime = (this._navTime || 0) + dt;
     const t = (this._navTime % 1.5) / 1.5;            // 1.5 s loop
-    const s = 1 + t * 1.9;                             // halo expands outward
+    const s = 1 + t * 1.2;                             // halo expands outward (stays inside the dial)
     this._goalPulse.scale.set(s, s, 1);
     this._goalPulse.material.opacity = 0.55 * (1 - t); // …and fades as it grows
+  }
+
+  /* Point the goal heading arrow + dial knob at `yaw` (MuJoCo/odom frame). The
+     arrow group and knob live under goalRing, so they ride with the goal position. */
+  _setGoalYaw(yaw) {
+    this.goalYaw = yaw;
+    if (this.goalArrow) this.goalArrow.rotation.z = yaw;
+    if (this._goalKnob) this._goalKnob.position.set(
+      this._headingR * Math.cos(yaw), this._headingR * Math.sin(yaw), 0.05);
   }
 
   /* Live sensor cloud (0x05) → a SEPARATE overlay, replaced each snapshot, drawn
@@ -1585,9 +1594,35 @@ class App {
     const tip = new THREE.Mesh(new THREE.SphereGeometry(0.05, 18, 14),
       new THREE.MeshBasicMaterial({ color: NAV_HL_SOFT, transparent: true, opacity: 0.95, depthWrite: false }));
     tip.position.z = 0.64;
-    this.goalRing.add(this._goalPulse, goalDisc, goalRingEdge, beam, tip);
+
+    // HEADING CONTROL — a circular dial + draggable knob that sets the goal's final
+    // orientation, with an arrow showing the heading. Drag the knob around the
+    // circle → the arrow (and the ROS goal yaw, and the RViz goal arrow) rotate.
+    this.goalYaw = 0;
+    this._headingR = 0.46;                                    // dial radius
+    this.goalArrow = new THREE.Group();                       // rotated by yaw; points +x
+    const shaft = new THREE.Mesh(new THREE.PlaneGeometry(0.30, 0.06), flatMat(NAV_HL_SOFT, 0.98));
+    shaft.position.set(0.17, 0, 0.02);                         // from center outward along +x
+    const head = new THREE.Mesh(new THREE.CircleGeometry(0.085, 3), flatMat(NAV_HL_SOFT, 0.98));
+    head.rotation.z = -Math.PI / 2; head.position.set(0.37, 0, 0.02);  // triangle → arrowhead
+    this.goalArrow.add(shaft, head);
+    this._goalDial = new THREE.Mesh(new THREE.RingGeometry(this._headingR - 0.02, this._headingR + 0.02, 72),
+      flatMat(NAV_HL, 0.45));
+    this._goalDial.position.z = 0.011;
+    this._goalKnob = new THREE.Mesh(new THREE.SphereGeometry(0.06, 20, 16),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.98, depthWrite: false }));
+    this._goalKnob.position.set(this._headingR, 0, 0.05);
+    // Wide INVISIBLE hit ring (opacity 0 but still raycast-able) so the dial is easy
+    // to grab — on touch especially — without having to land exactly on the knob.
+    const goalHit = new THREE.Mesh(new THREE.RingGeometry(this._headingR - 0.16, this._headingR + 0.16, 48),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+    goalHit.position.z = 0.04;
+
+    this.goalRing.add(this._goalPulse, goalDisc, goalRingEdge, beam, tip,
+                      this.goalArrow, this._goalDial, this._goalKnob, goalHit);
     this.goalRing.renderOrder = 5; this.goalRing.visible = false;
     this.navWorld.add(this.goalRing);
+    this._headingHits = [this._goalKnob, this._goalDial, goalHit]; // raycast targets to grab the dial
 
     // GENERATED PATH — a glowing ribbon (a tube reads far better than a 1px line):
     // a solid bright core tube wrapped in a soft translucent glow tube. `pathLine`
@@ -1602,27 +1637,67 @@ class App {
     this.navWorld.add(this.pathLine);
     this.goal = null; this.path = []; this.following = false;
 
-    // tap to place a goal (raycast onto the MuJoCo z=0 floor plane)
+    // Tap the floor to place a goal; DRAG the dial knob around the goal to set its
+    // final heading (the arrow + the ROS goal yaw + the RViz goal arrow all turn).
     const ray = new THREE.Raycaster(); const ndc = new THREE.Vector2();
     let downAt = null;
     const canvas = this.navStage.canvas;
-    canvas.addEventListener('pointerdown', (ev) => { downAt = [ev.clientX, ev.clientY]; });
-    canvas.addEventListener('pointerup', (ev) => {
-      if (!downAt || Math.hypot(ev.clientX - downAt[0], ev.clientY - downAt[1]) > 6) return;  // it was an orbit
+    const setRay = (ev) => {
       const r = canvas.getBoundingClientRect();
       ndc.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
       ray.setFromCamera(ndc, this.navStage.camera);
-      // floor plane: three-world plane with normal = up
+    };
+    const floorMj = () => {                                  // ray → MuJoCo (x,y) on the z=0 floor
       const p = new THREE.Vector3();
-      if (!ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), p)) return;
-      const mj = toMj(p);                                    // → MuJoCo / odom frame
+      if (!ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), p)) return null;
+      return toMj(p);
+    };
+    const endHeading = () => {
+      if (!this._headingDrag) return false;
+      this._headingDrag = false;
+      if (this.navStage.controls) this.navStage.controls.enabled = true;
+      if (this.room && this.room.live && this.goal)        // commit the final yaw to ROS/RViz
+        this.link.send('nav_goal_preview', { x: this.goal.x, y: this.goal.y, yaw: this.goalYaw });
+      return true;
+    };
+    canvas.addEventListener('pointerdown', (ev) => {
+      downAt = [ev.clientX, ev.clientY];
+      this._headingDrag = false;
+      // Grab the heading dial when a goal is shown and the knob/ring is under the pointer.
+      if (this.goalRing && this.goalRing.visible && this._headingHits) {
+        setRay(ev);
+        if (ray.intersectObjects(this._headingHits, false).length) {
+          this._headingDrag = true;
+          if (this.navStage.controls) this.navStage.controls.enabled = false;  // suspend orbit while turning
+          ev.preventDefault();
+        }
+      }
+    });
+    canvas.addEventListener('pointermove', (ev) => {
+      if (!this._headingDrag || !this.goal) return;
+      setRay(ev);
+      const mj = floorMj(); if (!mj) return;
+      const yaw = Math.atan2(mj.y - this.goal.y, mj.x - this.goal.x);
+      this._setGoalYaw(yaw);
+      const now = performance.now();                          // live-sync to RViz, throttled
+      if (this.room && this.room.live && now - (this._lastYawSend || 0) > 100) {
+        this._lastYawSend = now;
+        this.link.send('nav_goal_preview', { x: this.goal.x, y: this.goal.y, yaw });
+      }
+    });
+    canvas.addEventListener('pointerup', (ev) => {
+      if (endHeading()) return;                              // was turning the dial, not placing a goal
+      if (!downAt || Math.hypot(ev.clientX - downAt[0], ev.clientY - downAt[1]) > 6) return;  // it was an orbit
+      setRay(ev);
+      const mj = floorMj(); if (!mj) return;
       if (this.room && this.room.live) {                     // live map → stage a ROS Nav2 goal
-        this.stageNavGoal(mj.x, mj.y);                       // ring shows; tap Follow to drive
+        this.stageNavGoal(mj.x, mj.y);                       // dial shows; drag to aim, tap Follow to drive
         return;
       }
       if (Math.abs(mj.x) > this.room.size[0] / 2 || Math.abs(mj.y) > this.room.size[2] / 2) return;
       this.setGoal(mj.x, mj.y);                              // (legacy procedural rooms — unused now)
     });
+    canvas.addEventListener('pointercancel', endHeading);
 
     // Follow button. LIVE map: send the staged goal to ROS Nav2 (it drives the real
     // robot) and toggle to Stop (cancels). LEGACY procedural rooms: the in-browser
@@ -1779,10 +1854,11 @@ class App {
     // Mirror the staged goal to the server's RViz (/goal_pose_preview, orange) so the
     // operator can confirm the goal communicated — and the server pre-checks the spot
     // and replies NAV_RESULT unreachable if it's off-map. This does NOT drive.
-    this.link.send('nav_goal_preview', { x, y });
+    this.link.send('nav_goal_preview', { x, y, yaw: this.goalYaw });
     if (this.goalRing) { this.goalRing.position.set(x, y, 0.012); this.goalRing.visible = true; }
+    this._setGoalYaw(this.goalYaw);                          // keep arrow/knob aligned at the new spot
     if (this.pathLine) { this.pathLine.visible = false; }
-    UI.set('navdist', 'tap Follow to drive');
+    UI.set('navdist', 'drag dial to aim · Follow to drive');
     const f = $('#taFollow');
     if (f) { f.disabled = false; f.textContent = 'Follow path'; f.classList.add('primary'); }
   }
@@ -1792,7 +1868,7 @@ class App {
      (also shown in the server RViz) and feeds Nav2's /mabel_cmd to the base;
      nudging a drive stick takes over. */
   sendNavGoal(x, y) {
-    this.link.send('nav_goal', { x, y });
+    this.link.send('nav_goal', { x, y, yaw: this.goalYaw });
     if (this.goalRing) { this.goalRing.position.set(x, y, 0.012); this.goalRing.visible = true; }
     UI.set('navdist', 'Nav2 driving…');
   }
