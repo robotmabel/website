@@ -1241,15 +1241,22 @@ class App {
   /* Nav2 goal outcome (NAV_RESULT). On an unreachable/aborted goal, tell the user
      to pick another point (clear the goal ring + flag it on the HUD). */
   onNavResult(p) {
-    const st = p && p.status;
+    const st = p && p.status, f = $('#taFollow');
+    this.following = false;
+    const resetBtn = () => { if (f) { f.textContent = 'Follow path'; f.classList.add('primary'); } };
     if (st === 'unreachable' || st === 'aborted') {
       UI.set('navdist', st === 'unreachable' ? 'NOT REACHABLE — pick another' : 'goal aborted');
       if (this.goalRing) this.goalRing.visible = false;
       if (this.pathLine) this.pathLine.visible = false;
+      this.goal = null;
+      if (f) f.disabled = true;
+      resetBtn();
       const hud = document.querySelector('.ta-view[data-view="nav"] .ta-navhud');
       if (hud) { hud.classList.add('ta-warn'); setTimeout(() => hud.classList.remove('ta-warn'), 3500); }
     } else if (st === 'reached') {
       UI.set('navdist', 'arrived');
+      if (f) f.disabled = true;
+      resetBtn();
     }
   }
 
@@ -1542,22 +1549,30 @@ class App {
       const p = new THREE.Vector3();
       if (!ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), p)) return;
       const mj = toMj(p);                                    // → MuJoCo / odom frame
-      if (this.room && this.room.live) {                     // live map → ROS Nav2 (NavFn A* + MPPI)
-        this.sendNavGoal(mj.x, mj.y);
+      if (this.room && this.room.live) {                     // live map → stage a ROS Nav2 goal
+        this.stageNavGoal(mj.x, mj.y);                       // ring shows; tap Follow to drive
         return;
       }
       if (Math.abs(mj.x) > this.room.size[0] / 2 || Math.abs(mj.y) > this.room.size[2] / 2) return;
       this.setGoal(mj.x, mj.y);                              // (legacy procedural rooms — unused now)
     });
 
-    // Follow button: legacy local follower (procedural rooms only). On the live
-    // map Nav2 drives automatically the moment a goal is dropped, so it's hidden.
+    // Follow button. LIVE map: send the staged goal to ROS Nav2 (it drives the real
+    // robot) and toggle to Stop (cancels). LEGACY procedural rooms: the in-browser
+    // pure-pursuit follower. Enabled the moment a goal is placed (see stageNavGoal /
+    // setGoal); a tap with no goal is a no-op.
     $('#taFollow').addEventListener('click', () => {
-      if (!this.goal || (this.room && this.room.live)) return;
+      const f = $('#taFollow');
+      if (!this.goal) return;
       this.following = !this.following;
-      $('#taFollow').textContent = this.following ? 'Stop' : 'Follow path';
-      $('#taFollow').classList.toggle('primary', !this.following);
-      if (!this.following) this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
+      if (this.room && this.room.live) {                      // live → Nav2 drive / stop
+        if (this.following) this.sendNavGoal(this.goal.x, this.goal.y);
+        else { this.link.send('nav_cancel', {}); UI.set('navdist', 'stopped'); }
+      } else if (!this.following) {                            // legacy local follower
+        this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
+      }
+      f.textContent = this.following ? 'Stop' : 'Follow path';
+      f.classList.toggle('primary', !this.following);
     });
     $('#taClearGoal').addEventListener('click', () => {
       if (this.room && this.room.live) this.clearNavGoal();
@@ -1690,9 +1705,27 @@ class App {
     this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
   }
 
+  /* Live map: STAGE a goal — drop the ring and arm "Follow path" WITHOUT driving,
+     so the operator can confirm the spot (and see it mirrored on the server's RViz
+     /goal_pose) before committing. The actual drive happens on the Follow press. */
+  stageNavGoal(x, y) {
+    if (this.following) this.link.send('nav_cancel', {});   // re-targeting mid-drive → stop first
+    this.goal = { x, y }; this.following = false;
+    // Mirror the staged goal to the server's RViz (/goal_pose_preview, orange) so the
+    // operator can confirm the goal communicated — and the server pre-checks the spot
+    // and replies NAV_RESULT unreachable if it's off-map. This does NOT drive.
+    this.link.send('nav_goal_preview', { x, y });
+    if (this.goalRing) { this.goalRing.position.set(x, y, 0.012); this.goalRing.visible = true; }
+    if (this.pathLine) { this.pathLine.visible = false; }
+    UI.set('navdist', 'tap Follow to drive');
+    const f = $('#taFollow');
+    if (f) { f.disabled = false; f.textContent = 'Follow path'; f.classList.add('primary'); }
+  }
+
   /* Live map: hand the goal to ROS Nav2 (NavFn A* global plan + MPPI controller)
      — NOT a local browser planner/follower. The bridge forwards it to /goal_pose
-     and feeds Nav2's /mabel_cmd to the base; nudging a drive stick takes over. */
+     (also shown in the server RViz) and feeds Nav2's /mabel_cmd to the base;
+     nudging a drive stick takes over. */
   sendNavGoal(x, y) {
     this.link.send('nav_goal', { x, y });
     if (this.goalRing) { this.goalRing.position.set(x, y, 0.012); this.goalRing.visible = true; }
@@ -1700,8 +1733,12 @@ class App {
   }
   clearNavGoal() {
     this.link.send('nav_cancel', {});
+    this.goal = null; this.following = false;
     if (this.goalRing) this.goalRing.visible = false;
+    if (this.pathLine) this.pathLine.visible = false;
     UI.set('navdist', '—');
+    const f = $('#taFollow');
+    if (f) { f.disabled = true; f.textContent = 'Follow path'; f.classList.add('primary'); }
   }
 
   /** Nearest free cell to (cx, cy) — BFS ring search; null if the map is full. */
@@ -1777,6 +1814,7 @@ class App {
 
   /** Pure pursuit along the path — streams the SAME navJoystick the sticks do. */
   _followStep(dt) {
+    if (this.room && this.room.live) return;   // live map → Nav2 drives the real robot server-side
     if (!this.following || !this.path.length || this.estop) return;
     const { bx, by, yaw } = this.sim.state;
     // advance monotonically along the path (never re-target a passed waypoint)
