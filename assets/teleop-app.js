@@ -155,7 +155,9 @@ class Link {
       const p = msg.payload || {};
       if (msg.type === 'robot_state') this.app.applyRobotState(p);
       else if (msg.type === 'pong') { this.rtt = performance.now() - this._pingSent; UI.set('rtt', `${this.rtt.toFixed(0)} ms`); }
-      else if (msg.type === 'hello') this.app.onHello(p);
+      else if (msg.type === 'hello') { this.app.onHello(p); this.send('list_maps', {}); }
+      else if (msg.type === 'map_list') this.app.onMapList(p);
+      else if (msg.type === 'nav_result') this.app.onNavResult(p);
     };
     this.ws.onclose = () => { const was = this.connected; this._down(); if (was || this.want) this._retry(); };
     this.ws.onerror = () => {};
@@ -1209,6 +1211,46 @@ class App {
     this.gridPlane = new THREE.Mesh(new THREE.PlaneGeometry(w * res, h * res), mat);
     this.gridPlane.position.set(ox + w * res / 2, oy + h * res / 2, (oz || 0) + 0.003);
     this.navWorld.add(this.gridPlane);
+  }
+
+  /* Saved-room list from the server (MAP_LIST) → rebuild the .ta-rooms picker with
+     a "Live SLAM" entry + one per saved map. Clicking sends LOAD_MAP; the server
+     streams that room's 2D map (+ 3D mesh if saved) and the live cloud overlays. */
+  onMapList(p) {
+    const picker = document.querySelector('.ta-view[data-view="nav"] .ta-rooms');
+    if (!picker) return;
+    const maps = (p && p.maps) || [], loaded = p && p.loaded;
+    picker.innerHTML = '';
+    const mk = (label, sub, name, on) => {
+      const b = document.createElement('button');
+      b.className = 'ta-room' + (on ? ' on' : '');
+      b.innerHTML = `${label}<span class="sub">${sub}</span>`;
+      b.addEventListener('click', () => {
+        picker.querySelectorAll('.ta-room').forEach((x) => x.classList.toggle('on', x === b));
+        this.link.send('load_map', { name });
+        UI.set('navroom', name === 'live' ? 'Live SLAM' : label);
+      });
+      picker.appendChild(b);
+    };
+    mk('Live SLAM', 'building now', 'live', !loaded);
+    maps.forEach((m) => mk(m.name,
+      (m.has_mesh ? '3D + 2D map' : '2D map') + (m.has_reloc ? ' · reloc' : ''),
+      m.name, loaded === m.name));
+  }
+
+  /* Nav2 goal outcome (NAV_RESULT). On an unreachable/aborted goal, tell the user
+     to pick another point (clear the goal ring + flag it on the HUD). */
+  onNavResult(p) {
+    const st = p && p.status;
+    if (st === 'unreachable' || st === 'aborted') {
+      UI.set('navdist', st === 'unreachable' ? 'NOT REACHABLE — pick another' : 'goal aborted');
+      if (this.goalRing) this.goalRing.visible = false;
+      if (this.pathLine) this.pathLine.visible = false;
+      const hud = document.querySelector('.ta-view[data-view="nav"] .ta-navhud');
+      if (hud) { hud.classList.add('ta-warn'); setTimeout(() => hud.classList.remove('ta-warn'), 3500); }
+    } else if (st === 'reached') {
+      UI.set('navdist', 'arrived');
+    }
   }
 
   /* ── TELEOP view (video + joysticks + mini model) ───────────────── */

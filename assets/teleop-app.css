@@ -225,6 +225,10 @@
 }
 .ta-navhud .stat { font: 500 11px 'Geist Mono', monospace; color: #97908a; padding: 0 8px; }
 .ta-navhud .stat b { color: #efeae3; font-weight: 500; }
+/* flashed by onNavResult when a goal is unreachable/aborted */
+.ta-navhud.ta-warn { border-color: rgba(255,99,71,.85); box-shadow: 0 0 0 1px rgba(255,99,71,.55), 0 0 18px rgba(255,99,71,.4); animation: ta-warn-pulse .5s ease-in-out 0s 3; }
+.ta-navhud.ta-warn .stat b { color: #ff8a73; }
+@keyframes ta-warn-pulse { 50% { transform: translateX(-50%) scale(1.04); } }
 .ta-btn {
   height: 32px; padding: 0 16px; border-radius: 16px; border: none; cursor: pointer;
   font: 500 12.5px 'Geist', sans-serif; background: rgba(255,255,255,.08); color: #efeae3;
