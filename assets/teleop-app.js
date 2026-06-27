@@ -211,8 +211,48 @@ class MapStream {
 
   _decode(buf) {
     const dv = new DataView(buf), type = dv.getUint8(0);
-    if (type === 0x01) this._mesh(dv, buf);
-    else if (type === 0x02) this._odom(dv);
+    if (type === 0x01) this._mesh(dv, buf);          // map mesh / point cloud
+    else if (type === 0x02) this._odom(dv);          // robot pose (fast)
+    else if (type === 0x03) this._path(dv, buf);     // Nav2 planned route
+    else if (type === 0x04) this._grid(dv, buf);     // 2D occupancy map
+    else if (type === 0x05) this._cloud(dv, buf);    // live sensor cloud (overlay)
+  }
+  _path(dv, buf) {
+    const count = dv.getUint32(4, true);
+    if (count < 0 || buf.byteLength < 8 + count * 12) return;
+    const pts = new Float32Array(count * 3);
+    let o = 8;
+    for (let i = 0; i < count; i++) { pts[i*3]=dv.getFloat32(o,true); pts[i*3+1]=dv.getFloat32(o+4,true); pts[i*3+2]=dv.getFloat32(o+8,true); o+=12; }
+    this.app.onPath(pts);
+  }
+  _grid(dv, buf) {
+    const w = dv.getUint32(4, true), h = dv.getUint32(8, true);
+    const res = dv.getFloat32(12, true);
+    const ox = dv.getFloat32(16, true), oy = dv.getFloat32(20, true), oz = dv.getFloat32(24, true);
+    if (w <= 0 || h <= 0 || buf.byteLength < 32 + w * h) return;
+    this.app.onGrid({ w, h, res, ox, oy, oz, cells: new Uint8Array(buf.slice(32, 32 + w * h)) });
+  }
+  _cloud(dv, buf) {
+    // Same 16-byte vertex layout as the mesh, chunked (bit0 = final). Accumulated
+    // separately from the map mesh so the live overlay REPLACES each snapshot.
+    const isFinal = (dv.getUint8(1) & 0x01) !== 0;
+    const count = dv.getUint32(4, true);
+    if (count < 0 || buf.byteLength < 8 + count * 16) return;
+    const u8 = new Uint8Array(buf);
+    const pos = new Float32Array(count * 3), col = new Float32Array(count * 3);
+    let o = 8;
+    for (let i = 0; i < count; i++) {
+      pos[i*3]=dv.getFloat32(o,true); pos[i*3+1]=dv.getFloat32(o+4,true); pos[i*3+2]=dv.getFloat32(o+8,true);
+      col[i*3]=u8[o+12]/255; col[i*3+1]=u8[o+13]/255; col[i*3+2]=u8[o+14]/255; o+=16;
+    }
+    if (!this._pendCloud) this._pendCloud = { pos: [], col: [] };
+    this._pendCloud.pos.push(pos); this._pendCloud.col.push(col);
+    if (!isFinal) return;
+    const total = this._pendCloud.pos.reduce((s, a) => s + a.length, 0);
+    const P = new Float32Array(total), C = new Float32Array(total); let off = 0;
+    for (let i = 0; i < this._pendCloud.pos.length; i++) { P.set(this._pendCloud.pos[i], off); C.set(this._pendCloud.col[i], off); off += this._pendCloud.pos[i].length; }
+    this._pendCloud = { pos: [], col: [] };
+    this.app.onLiveCloud(P, C);
   }
   _mesh(dv, buf) {
     const isFinal = (dv.getUint8(1) & 0x01) !== 0;
@@ -1125,6 +1165,51 @@ class App {
   }
   /* Live SLAM odom → the robot's base pose in the mesh (odom) frame. */
   onOdom(x, y, z, yaw) { this.liveOdom = { x, y, yaw }; }
+
+  /* Nav2 planned route (0x03) → the path polyline (z-up navWorld). */
+  onPath(pts) {
+    if (!this.navWorld || !this.pathLine) return;
+    this.pathLine.geometry.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+    this.pathLine.geometry.computeBoundingSphere();
+    this.pathLine.visible = pts.length >= 6;
+  }
+
+  /* Live sensor cloud (0x05) → a SEPARATE overlay, replaced each snapshot, drawn
+     on TOP of the loaded/known map (mesh 0x01). Brighter + larger than the map. */
+  onLiveCloud(pos, col) {
+    if (!this.navWorld) return;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    if (this.overlayCloud) { this.navWorld.remove(this.overlayCloud); this.overlayCloud.geometry.dispose(); }
+    this.overlayCloud = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.03, vertexColors: true, sizeAttenuation: true }));
+    this.navWorld.add(this.overlayCloud);
+  }
+
+  /* 2D occupancy map (0x04) → a flat textured plane on the floor (RViz "Map").
+     cells: 0=free … 100=occupied, 255=unknown. Origin (ox,oy) is the bottom-left
+     corner in the odom frame; the live cloud + robot sit on top. */
+  onGrid(g) {
+    if (!this.navWorld) return;
+    const { w, h, res, ox, oy, oz, cells } = g;
+    const tex = new Uint8Array(w * h * 4);
+    for (let i = 0; i < w * h; i++) {
+      const c = cells[i];
+      if (c === 255) { tex[i*4+3] = 0; }                                                 // unknown → clear
+      else if (c >= 65) { tex[i*4]=44; tex[i*4+1]=40; tex[i*4+2]=36; tex[i*4+3]=240; }    // obstacle → dark
+      else { tex[i*4]=158; tex[i*4+1]=150; tex[i*4+2]=140; tex[i*4+3]=110; }              // free → translucent
+    }
+    const dt = new THREE.DataTexture(tex, w, h, THREE.RGBAFormat);
+    dt.needsUpdate = true; dt.flipY = false; dt.magFilter = THREE.NearestFilter; dt.minFilter = THREE.NearestFilter;
+    if (this.gridPlane) {
+      this.navWorld.remove(this.gridPlane);
+      this.gridPlane.geometry.dispose(); this.gridPlane.material.map.dispose(); this.gridPlane.material.dispose();
+    }
+    const mat = new THREE.MeshBasicMaterial({ map: dt, transparent: true, side: THREE.DoubleSide, depthWrite: false });
+    this.gridPlane = new THREE.Mesh(new THREE.PlaneGeometry(w * res, h * res), mat);
+    this.gridPlane.position.set(ox + w * res / 2, oy + h * res / 2, (oz || 0) + 0.003);
+    this.navWorld.add(this.gridPlane);
+  }
 
   /* ── TELEOP view (video + joysticks + mini model) ───────────────── */
   async _buildTeleop() {
