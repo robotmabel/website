@@ -83,6 +83,10 @@ const DEFAULT_RELAY = 'mabelrobot.duckdns.org';
 const DEFAULT_RELAY_KEY = '69f4ec12c13c627ecf3097f648b42b60649e72b6afc4c6f1';
 
 const ACCENT = 0xe9a679, GREEN = 0x3FB56B, RED = 0xb3402e, BONE = 0xefeae3;
+// Navigation highlight — a vivid spring-green for the goal beacon + planned path.
+// Bright and saturated so it reads clearly over the dark/tan point cloud, and it
+// echoes the green goal ball shown on the operator's RViz.
+const NAV_HL = 0x2bf0a4, NAV_HL_SOFT = 0x66f7c2;
 
 /* MuJoCo Z-up → three.js Y-up. (x,y,z)ᵐʲ ↦ (x,z,−y)ᵗʰʳᵉᵉ */
 const Q_ZUP = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
@@ -1171,9 +1175,46 @@ class App {
   /* Nav2 planned route (0x03) → the path polyline (z-up navWorld). */
   onPath(pts) {
     if (!this.navWorld || !this.pathLine) return;
-    this.pathLine.geometry.setAttribute('position', new THREE.BufferAttribute(pts, 3));
-    this.pathLine.geometry.computeBoundingSphere();
-    this.pathLine.visible = pts.length >= 6;
+    this._setPath(pts);                          // pts: flat [x,y,z,...] in the MuJoCo frame
+  }
+
+  /* Build the glowing path ribbon from a flat [x,y,z,...] array (MuJoCo frame).
+     A smoothed CatmullRom tube + a wider glow tube; lifted a touch off the floor
+     so it sits clearly on top of the cloud/grid. <2 points hides it. */
+  _setPath(flat) {
+    if (!this.pathLine) return;
+    const n = Math.floor(flat.length / 3);
+    if (n < 2) { this._clearPath(); return; }
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const v = new THREE.Vector3(flat[i * 3], flat[i * 3 + 1], (flat[i * 3 + 2] || 0) + 0.04);
+      if (!pts.length || v.distanceToSquared(pts[pts.length - 1]) > 1e-5) pts.push(v);  // drop dupes
+    }
+    if (pts.length < 2) { this._clearPath(); return; }
+    const curve = new THREE.CatmullRomCurve3(pts);
+    const seg = Math.min(260, Math.max(16, pts.length * 6));
+    this._pathCore.geometry.dispose();
+    this._pathCore.geometry = new THREE.TubeGeometry(curve, seg, 0.038, 9, false);
+    this._pathGlow.geometry.dispose();
+    this._pathGlow.geometry = new THREE.TubeGeometry(curve, seg, 0.10, 9, false);
+    this.pathLine.visible = true;
+  }
+  _clearPath() {
+    if (!this.pathLine) return;
+    this._pathCore.geometry.dispose(); this._pathCore.geometry = new THREE.BufferGeometry();
+    this._pathGlow.geometry.dispose(); this._pathGlow.geometry = new THREE.BufferGeometry();
+    this.pathLine.visible = false;
+  }
+
+  /* Pulse the goal beacon's halo (expand + fade on a loop) and bob its beam tip so
+     the goal draws the eye. Cheap: only runs while the beacon is visible. */
+  _animateGoal(dt) {
+    if (!this.goalRing || !this.goalRing.visible || !this._goalPulse) return;
+    this._navTime = (this._navTime || 0) + dt;
+    const t = (this._navTime % 1.5) / 1.5;            // 1.5 s loop
+    const s = 1 + t * 1.9;                             // halo expands outward
+    this._goalPulse.scale.set(s, s, 1);
+    this._goalPulse.material.opacity = 0.55 * (1 - t); // …and fades as it grows
   }
 
   /* Live sensor cloud (0x05) → a SEPARATE overlay, replaced each snapshot, drawn
@@ -1524,14 +1565,40 @@ class App {
     // goal + path visuals (all in the MuJoCo-frame group)
     this.navWorld = new THREE.Group(); this.navWorld.quaternion.copy(Q_ZUP);
     this.navStage.scene.add(this.navWorld);
-    this.goalRing = new THREE.Mesh(
-      new THREE.RingGeometry(0.16, 0.23, 40),
-      new THREE.MeshBasicMaterial({ color: ACCENT, transparent: true, opacity: 0.95, side: THREE.DoubleSide }));
-    this.goalRing.position.z = 0.012; this.goalRing.visible = false;
+    // GOAL BEACON — a layered marker that's unmistakable on the cloud: a filled
+    // core disc, a crisp white ring, an animated pulse halo, and a vertical beam
+    // with a glowing tip so it's obvious even in a tilted 3D view. `goalRing` stays
+    // the handle the rest of the code toggles via `.visible` / `.position`.
+    const flatMat = (color, opacity) => new THREE.MeshBasicMaterial(
+      { color, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false });
+    this.goalRing = new THREE.Group();
+    const goalDisc = new THREE.Mesh(new THREE.CircleGeometry(0.13, 48), flatMat(NAV_HL, 0.85));
+    goalDisc.position.z = 0.015;
+    const goalRingEdge = new THREE.Mesh(new THREE.RingGeometry(0.17, 0.215, 56), flatMat(0xffffff, 0.95));
+    goalRingEdge.position.z = 0.017;
+    this._goalPulse = new THREE.Mesh(new THREE.RingGeometry(0.215, 0.30, 56), flatMat(NAV_HL_SOFT, 0.55));
+    this._goalPulse.position.z = 0.013;
+    const beam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.022, 0.022, 0.62, 16),
+      new THREE.MeshBasicMaterial({ color: NAV_HL, transparent: true, opacity: 0.30, depthWrite: false }));
+    beam.rotation.x = Math.PI / 2; beam.position.z = 0.31;     // cylinder Y-axis → navWorld up (+z)
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.05, 18, 14),
+      new THREE.MeshBasicMaterial({ color: NAV_HL_SOFT, transparent: true, opacity: 0.95, depthWrite: false }));
+    tip.position.z = 0.64;
+    this.goalRing.add(this._goalPulse, goalDisc, goalRingEdge, beam, tip);
+    this.goalRing.renderOrder = 5; this.goalRing.visible = false;
     this.navWorld.add(this.goalRing);
-    this.pathLine = new THREE.Line(
-      new THREE.BufferGeometry(),
-      new THREE.LineBasicMaterial({ color: ACCENT, transparent: true, opacity: 0.85 }));
+
+    // GENERATED PATH — a glowing ribbon (a tube reads far better than a 1px line):
+    // a solid bright core tube wrapped in a soft translucent glow tube. `pathLine`
+    // is a Group; _setPath / _clearPath rebuild the tube geometries.
+    this.pathLine = new THREE.Group();
+    this._pathGlow = new THREE.Mesh(new THREE.BufferGeometry(),
+      new THREE.MeshBasicMaterial({ color: NAV_HL, transparent: true, opacity: 0.20, depthWrite: false }));
+    this._pathCore = new THREE.Mesh(new THREE.BufferGeometry(),
+      new THREE.MeshBasicMaterial({ color: NAV_HL_SOFT, transparent: true, opacity: 0.98, depthWrite: false }));
+    this.pathLine.add(this._pathGlow, this._pathCore);
+    this.pathLine.renderOrder = 4; this.pathLine.visible = false;
     this.navWorld.add(this.pathLine);
     this.goal = null; this.path = []; this.following = false;
 
@@ -1690,16 +1757,14 @@ class App {
       flat.push(path[i][0], path[i][1], 0.02);
       if (i) len += Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]);
     }
-    this.pathLine.geometry.dispose();
-    this.pathLine.geometry = new THREE.BufferGeometry()
-      .setAttribute('position', new THREE.Float32BufferAttribute(flat, 3));
+    this._setPath(flat);
     UI.set('navdist', `${len.toFixed(1)} m`);
     $('#taFollow').disabled = false;
   }
   clearGoal() {
     this.goal = null; this.path = []; this.following = false;
     if (this.goalRing) this.goalRing.visible = false;
-    if (this.pathLine) { this.pathLine.geometry.dispose(); this.pathLine.geometry = new THREE.BufferGeometry(); }
+    this._clearPath();
     UI.set('navdist', '—');
     const f = $('#taFollow'); if (f) { f.disabled = true; f.textContent = 'Follow path'; f.classList.add('primary'); }
     this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
@@ -1986,7 +2051,7 @@ class App {
 
   /* ── per-frame tick ─────────────────────────────────────────────── */
   _tick(dt) {
-    if (this.view === 'nav') this._followStep(dt);
+    if (this.view === 'nav') { this._followStep(dt); this._animateGoal(dt); }
 
     // Arm Cartesian drive runs regardless of the link: the joysticks always move
     // the arms (locally on the twin, and over the wire when connected).
