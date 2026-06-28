@@ -294,29 +294,6 @@
   var coordRow = document.querySelector('.hero-coord-row');
   var parallaxEls = Array.prototype.slice.call(document.querySelectorAll('[data-speed]'));
   var ticking = false;
-  var lastY = window.scrollY;      // for scroll-direction nav collapse
-  var navCollapsed = false;
-  // Hysteresis so the shrink can't dart/oscillate: require sustained scroll in one
-  // direction before flipping, plus a minimum dwell between flips. This is what
-  // stops the bar from rapidly collapsing/expanding (the "moves side to side").
-  var scrollAcc = 0;               // px accumulated in the current scroll direction
-  var lastToggle = -1e9;           // timestamp (ms) of the last collapse flip
-  var COLLAPSE_TRIGGER = 40;       // sustained px in one direction needed to flip
-  var COLLAPSE_DWELL = 500;        // min ms between flips
-
-  // Toggle the collapse + fire the matching damped-spring scale animation.
-  // Removing both classes and forcing a reflow restarts the keyframes cleanly
-  // even when the scroll direction flips mid-animation.
-  function setNavCollapsed(c) {
-    if (!nav || c === navCollapsed) return;
-    navCollapsed = c;
-    nav.classList.toggle('collapsed', c);
-    if (!reduceMotion) {
-      nav.classList.remove('nav-spring-in', 'nav-spring-out');
-      void nav.offsetWidth;                 // reflow → restart animation
-      nav.classList.add(c ? 'nav-spring-in' : 'nav-spring-out');
-    }
-  }
 
   function frame() {
     var y = window.scrollY;
@@ -327,20 +304,8 @@
       prog.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
     }
     if (nav) {
+      // Stable centered pill: only firm up the glass when scrolled (no collapse).
       nav.classList.toggle('scrolled', y > 12);
-      // Collapse to title + main action when scrolling DOWN; restore on the way up.
-      // Always expanded near the top so the hero never sees a stub nav.
-      var dy = y - lastY;
-      lastY = y;
-      if (dy !== 0 && (dy > 0) !== (scrollAcc > 0)) scrollAcc = 0;  // direction flip → reset accumulator
-      scrollAcc += dy;
-      var nowMs = performance.now();
-      if (y < 90) {
-        if (navCollapsed) { setNavCollapsed(false); lastToggle = nowMs; scrollAcc = 0; }
-      } else if (nowMs - lastToggle > COLLAPSE_DWELL) {
-        if (scrollAcc > COLLAPSE_TRIGGER && !navCollapsed) { setNavCollapsed(true); lastToggle = nowMs; scrollAcc = 0; }
-        else if (scrollAcc < -COLLAPSE_TRIGGER && navCollapsed) { setNavCollapsed(false); lastToggle = nowMs; scrollAcc = 0; }
-      }
     }
 
     if (!reduceMotion) {
@@ -367,14 +332,6 @@
   function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll, { passive: true });
-
-  // Hovering the collapsed bar fully re-expands it — and it stays expanded;
-  // only scrolling the page down collapses it again (handled in frame()).
-  if (nav) {
-    nav.addEventListener('mouseenter', function () {
-      if (navCollapsed) setNavCollapsed(false);
-    });
-  }
 
   frame();
 })();
