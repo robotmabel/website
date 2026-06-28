@@ -628,12 +628,14 @@ section[id], .sub-block[id] { scroll-margin-top: 92px; }
 .appgal-hint svg { width: 26px; height: 12px; opacity: 0.7; }
 .appgal {
   display: flex; gap: clamp(14px, 1.8vw, 22px); align-items: flex-start;
-  overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; padding: 6px var(--gutter) 8px;
-  margin: 0 calc(-1 * var(--gutter)); scroll-padding-inline: var(--gutter);
+  overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  /* bounded to the .wrap content column — cards align with the captions
+     below and never bleed past the section boundary */
+  padding: 2px 1px 16px; scroll-padding-left: 1px;
 }
 .appgal::-webkit-scrollbar { display: none; }
-.appgal figure { scroll-snap-align: center; flex: 0 0 auto; margin: 0; }
+.appgal figure { scroll-snap-align: start; flex: 0 0 auto; margin: 0; }
 .appgal img { display: block; width: 100%; height: auto; }
 .appgal figcaption { margin-top: 14px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; }
 .appgal figcaption b { display: block; font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 2px; }
@@ -647,14 +649,10 @@ section[id], .sub-block[id] { scroll-margin-top: 92px; }
 /* Vision Pro — landscape glass windows */
 .appgal.vp figure { width: clamp(440px, 66vw, 720px); }
 .appgal.vp img { border-radius: 22px; border: 1px solid rgba(242,238,230,0.10); background: #060505; box-shadow: 0 44px 84px -36px rgba(0,0,0,0.72); }
-/* edge fades hint there's more to scroll */
-.appgal-wrap::before, .appgal-wrap::after { content: ""; position: absolute; top: 0; bottom: 64px; width: clamp(20px, 5vw, 60px); z-index: 3; pointer-events: none; }
-.appgal-wrap::before { left: 0; background: linear-gradient(90deg, var(--bone), transparent); }
-.appgal-wrap::after  { right: 0; background: linear-gradient(270deg, var(--bone), transparent); }
-.soft-sec .appgal-wrap::before { background: linear-gradient(90deg, var(--paper), transparent); }
-.soft-sec .appgal-wrap::after  { background: linear-gradient(270deg, var(--paper), transparent); }
-.dark-sec .appgal-wrap::before { background: linear-gradient(90deg, var(--ink), transparent); }
-.dark-sec .appgal-wrap::after  { background: linear-gradient(270deg, var(--ink), transparent); }
+/* right edge fade hints there's more to scroll (sits at the content boundary) */
+.appgal-wrap::after { content: ""; position: absolute; top: 2px; bottom: 70px; right: 0; width: clamp(16px, 2.4vw, 38px); z-index: 3; pointer-events: none; background: linear-gradient(270deg, var(--bone), transparent); }
+.soft-sec .appgal-wrap::after { background: linear-gradient(270deg, var(--paper), transparent); }
+.dark-sec .appgal-wrap::after { background: linear-gradient(270deg, var(--ink), transparent); }
 
 /* ─── Five-tab explainer cards ─────────────────────────────────────── */
 .tabcards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
