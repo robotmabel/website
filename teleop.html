@@ -40,7 +40,7 @@
 </nav>
 <aside class="sidenav" aria-label="Teleop section navigation">
   <div class="sidenav-title">Teleop</div>
-  <a href="#try">Try it now</a><a href="#visionpro">Vision Pro</a><a href="#ios">iPhone</a><a href="#macside">Mac-side setup</a>
+  <a href="#try">Try it now</a><a href="#app">The app · 5 tabs</a><a href="#ios">iPhone</a><a href="#visionpro">Vision Pro</a><a href="#principles">Three knobs</a><a href="#safety">Safety</a><a href="#macside">Mac-side setup</a>
 </aside>
 
 <!-- ─── HERO ─── -->
@@ -206,33 +206,81 @@
   <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code> and mirror the same <code>robot_state</code>. The page links up by itself, cycling three paths every 5&nbsp;s exactly like the apps — <strong>Wi-Fi</strong> (auto-discovered) → <strong>VPN</strong> (Tailscale) → <strong>Relay</strong> (the <a href="software.html#server">secure internet relay</a>). Full networking &amp; security in <a href="software.html#server">Software → Server &amp; bridge</a>.</p>
 </section>
 
-<!-- ═══ NATIVE APPS — VISION PRO + iPHONE ═══ -->
-<section class="pad-y"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">Native apps</span><h2 class="display-md title">Or pick up <span class="italic accent">a device.</span></h2></div>
-    <p class="lede">The headset for immersive bimanual manipulation; the phone for quick drive, pose, and dispatch. Same bridge, same protocol, same robot.</p></div>
-  <div class="device-grid fade-up">
-    <a href="#visionpro" class="device-card res-card" style="text-decoration:none;">
-      <div class="media-frame sim-dark" style="aspect-ratio:16/10; margin-bottom:18px;"><video src="assets/sim/teleop_vp.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Apple Vision Pro</span></div>
-      <div class="res-tag">Headset · visionOS</div>
-      <h3>Apple Vision Pro</h3>
-      <p>See MABEL's stereo feed wrapped around you; reach in and the arms follow. 27 hand joints, gaze, and head pose drive the whole body.</p>
-      <div class="res-arrow">Jump to Vision Pro →</div>
-    </a>
-    <a href="#ios" class="device-card res-card" style="text-decoration:none;">
-      <div class="media-frame sim-dark" style="aspect-ratio:16/10; margin-bottom:18px;"><video src="assets/app/ios-drive.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>iPhone</span></div>
-      <div class="res-tag">Phone · iOS</div>
-      <h3>iPhone</h3>
-      <p>A pocket console: joystick driving, a live 3D-twin for whole-body posing, tap-to-go A* navigation, and a one-tap policy library.</p>
-      <div class="res-arrow">Jump to iPhone →</div>
-    </a>
+<!-- ═══ ONE CONSOLE, FIVE TABS ═══ -->
+<section class="pad-y" id="app"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Native apps · one console</span><h2 class="display-md title">One console. <span class="italic accent">Five tabs.</span></h2></div>
+    <p class="lede">Open MABEL on an iPhone or an Apple Vision Pro and you land in the same place — five tabs along the bottom. Four are things you <em>do</em>; the fifth sets the rules. We named them for what they accomplish, not for the robotics underneath, so anyone can pick it up.</p></div>
+
+  <div class="tabcards fade-up">
+    <div class="tabcard">
+      <div class="tc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="4.5"/><path d="M7 11v2M6 12h2"/><circle cx="16" cy="11.5" r="0.7" fill="currentColor" stroke="none"/><circle cx="18" cy="13" r="0.7" fill="currentColor" stroke="none"/></svg></div>
+      <h4>Pilot <span class="tc-n">01</span></h4>
+      <p>Drive and look. Twin joysticks over the live camera — one hand glides the base, the other turns and lifts. Every run records itself.</p>
+    </div>
+    <div class="tabcard">
+      <div class="tc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.1"/><path d="M12 7.2v6M5 10l7-1.4 7 1.4M12 13.2l-3 5.6M12 13.2l3 5.6"/></svg></div>
+      <h4>Manipulate <span class="tc-n">02</span></h4>
+      <p>Pose the body. Grab the on-screen twin and the arms follow — you choose how firmly it holds and how much of the body comes along.</p>
+    </div>
+    <div class="tabcard">
+      <div class="tc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6-2 6 2 6-2v12l-6 2-6-2-6 2z"/><path d="M9 5v12M15 7v12"/></svg></div>
+      <h4>Navigate <span class="tc-n">03</span></h4>
+      <p>Send it somewhere. Tap a spot on the map; it plans a path around obstacles, drives itself there, and parks.</p>
+    </div>
+    <div class="tabcard">
+      <div class="tc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a3.5 3.5 0 0 0-3.4 4.3A3 3 0 0 0 8 14a3 3 0 0 0 3 3v3"/><path d="M12 4a3.5 3.5 0 0 1 3.4 4.3A3 3 0 0 1 16 14a3 3 0 0 1-3 3v3"/><path d="M12 8v6"/></svg></div>
+      <h4>Autonomy <span class="tc-n">04</span></h4>
+      <p>Hand it off. Ask in plain words, run a learned skill, or schedule a chore — then just watch it work.</p>
+    </div>
+    <div class="tabcard">
+      <div class="tc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h6M16 7h3M5 12h3M13 12h6M5 17h8M18 17h1"/><circle cx="13.5" cy="7" r="2"/><circle cx="10.5" cy="12" r="2"/><circle cx="15.5" cy="17" r="2"/></svg></div>
+      <h4>Settings <span class="tc-n">05</span></h4>
+      <p>Set the rules. Who may drive, how fast it's ever allowed to go, and exactly what it should warn you about.</p>
+    </div>
   </div>
 </div></section>
 
-<!-- ─── VISION PRO ─── -->
+<!-- ─── iPHONE GALLERY ─── -->
+<section class="pad-y" id="ios"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">iPhone · iOS</span><h2 class="display-md title">Your robot, <span class="italic accent">in your pocket.</span></h2></div>
+    <p class="lede">All five tabs, one thumb — <strong>every screen below is a real capture from the iOS&nbsp;Simulator</strong>. It auto-discovers MABEL on Wi-Fi and falls back to an on-device simulator, so every control stays live even with no robot in the room.</p></div>
+
+  <div class="appgal-wrap fade-up">
+    <span class="appgal-hint"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h24M20 2l5 4-5 4"/></svg>Swipe through all five tabs · real captures</span>
+    <div class="appgal ios">
+      <figure><img loading="lazy" width="780" height="1695" src="assets/app/ios-pilot.jpg" alt="Real iOS-simulator capture — Pilot tab: the live head camera with left and right wrist feeds, speed governor, record, and an always-present STOP" /><figcaption><b><span class="ix">01</span>Pilot</b>Live camera + wrist cams; drive, look &amp; record.</figcaption></figure>
+      <figure><img loading="lazy" width="780" height="1695" src="assets/app/ios-manipulate.jpg" alt="Real iOS-simulator capture — Manipulate tab: the live 3D twin with Stiff/Soft feel, Task/Joint space, stiffness and grip sliders" /><figcaption><b><span class="ix">02</span>Manipulate</b>Pose the live 3D twin — feel × region × space.</figcaption></figure>
+      <figure><img loading="lazy" width="780" height="1695" src="assets/app/ios-navigate.jpg" alt="Real iOS-simulator capture — Navigate tab: a live SLAM map with obstacles, Live SLAM toggle and saved maps" /><figcaption><b><span class="ix">03</span>Navigate</b>A live SLAM map — tap a spot to plan and drive.</figcaption></figure>
+      <figure><img loading="lazy" width="780" height="1695" src="assets/app/ios-autonomy.jpg" alt="Real iOS-simulator capture — Autonomy tab: assistant chat, robot quick actions, weekly automations and a skill library" /><figcaption><b><span class="ix">04</span>Autonomy</b>Talk to it; quick actions, automations &amp; skills.</figcaption></figure>
+      <figure><img loading="lazy" width="780" height="1695" src="assets/app/ios-settings.jpg" alt="Real iOS-simulator capture — Settings tab: connection status, robots list, real-robot security and access code" /><figcaption><b><span class="ix">05</span>Settings</b>Connection, robots, limits &amp; security.</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="points fade-up" style="margin-top:30px;">
+    <div class="point"><div class="num">01</div><div><h5>Drive with your thumbs</h5><p>The Pilot cockpit: left stick translates, right stick turns and lifts, over live head and wrist feeds — with a speed governor and an always-present <strong>STOP</strong>.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Pose a real 3D twin</h5><p>Manipulate renders a live twin — drag a wrist, pick <em>Firm</em> or <em>Soft</em>, and how much body moves; the <a href="controller.html#feel" style="color:var(--rust);">controller</a> coordinates the rest.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Tap-to-go navigation</h5><p>On a real SLAM map, tap a goal: an <strong>A*</strong> plan routes around obstacles, then pure-pursuit drives it. See <a href="navigation.html" style="color:var(--rust);">navigation</a>.</p></div></div>
+    <div class="point"><div class="num">04</div><div><h5>Dispatch autonomy</h5><p>A library of learned and scripted skills, each with its kind and an offline-eval success rate. One tap runs it on the robot or the twin. See <a href="autonomy.html#policies" style="color:var(--rust);">autonomy</a>.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ─── VISION PRO GALLERY ─── -->
 <section class="dark-sec pad-y" id="visionpro"><div class="wrap">
   <div class="sec-head fade-up"><div><span class="eyebrow">Apple Vision Pro · visionOS</span><h2 class="display-md title" style="color:var(--bone);">Reach in. <span class="italic accent">It follows.</span></h2></div>
-    <p class="lede">Put the headset on and MABEL's stereo feed wraps around you. Reach into the scene — your hands drive the arms, a pinch closes the grasp, your gaze aims the neck. 27 joints per hand at 60&nbsp;Hz.</p></div>
-  <div class="reveal-media media-frame sim-dark" style="aspect-ratio:1120/680;"><video src="assets/sim/teleop_vp.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Vision Pro capture · head view + wrist cams + bimanual reach</span></div>
+    <p class="lede">The same five tabs, floating as glass — <strong>every window below is a real capture from the visionOS&nbsp;Simulator</strong>. Put the headset on and MABEL's stereo feed wraps around you; step into the immersive room and your hands <em>are</em> the arms — a pinch closes the grasp, your gaze aims the neck. 27 joints per hand at 60&nbsp;Hz.</p></div>
+  <div class="reveal-media media-frame sim-dark fade-up" style="aspect-ratio:1120/680; margin-bottom:34px;"><video src="assets/sim/teleop_vp.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Vision Pro capture · immersive reach — head view + wrist cams + bimanual reach</span></div>
+
+  <div class="appgal-wrap fade-up">
+    <span class="appgal-hint"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h24M20 2l5 4-5 4"/></svg>Swipe through all five tabs · real captures</span>
+    <div class="appgal vp">
+      <figure><img loading="lazy" width="1500" height="776" src="assets/app/vp-teleop.jpg" alt="Real visionOS-simulator capture — Teleop tab floating in a room: head-POV and wrist-cam panels, Start Teleop, and the glass tab bar" /><figcaption><b><span class="ix">01</span>Teleop</b>Head POV &amp; wrist cams float in the room — then reach in.</figcaption></figure>
+      <figure><img loading="lazy" width="1500" height="776" src="assets/app/vp-body.jpg" alt="Real visionOS-simulator capture — Body tab: Hold/Soft and Wrist/Joints controls beside the live 3D digital twin standing in the room" /><figcaption><b><span class="ix">02</span>Body</b>The live twin stands in the room — pinch an arm to guide it.</figcaption></figure>
+      <figure><img loading="lazy" width="1500" height="776" src="assets/app/vp-maps.jpg" alt="Real visionOS-simulator capture — Maps tab: saved room reconstructions and pinch-the-floor goal setting" /><figcaption><b><span class="ix">03</span>Maps</b>Saved rooms — pinch the floor to set a goal.</figcaption></figure>
+      <figure><img loading="lazy" width="1500" height="776" src="assets/app/vp-policies.jpg" alt="Real visionOS-simulator capture — Policies tab: assistant, robot quick actions, weekly automations and the skill library as floating glass cards" /><figcaption><b><span class="ix">04</span>Policies</b>Assistant, automations &amp; skills — cards float in space.</figcaption></figure>
+      <figure><img loading="lazy" width="1500" height="776" src="assets/app/vp-robot.jpg" alt="Real visionOS-simulator capture — Robot tab: connection, model picker, calibration, speed caps and permissions" /><figcaption><b><span class="ix">05</span>Robot</b>Connection, calibration, speed caps &amp; security.</figcaption></figure>
+    </div>
+  </div>
+
   <div class="points fade-up" style="margin-top:30px;">
     <div class="point"><div class="num">01</div><div><h5 style="color:var(--bone);">Stereo passthrough</h5><p>The head ZED's left/right streams map onto an inward-facing RealityKit sphere — you look around the robot's world in true stereo, with wrist-cam thumbnails for close work.</p></div></div>
     <div class="point"><div class="num">02</div><div><h5 style="color:var(--bone);">Clutch retargeting</h5><p>A UMI-style <em>relative</em> mapping: pinch to clutch in, move, release to re-anchor — no jumps. Thumb-to-index distance becomes the grasp. See <a href="controller.html#retarget" style="color:#e9a679;">retargeting</a>.</p></div></div>
@@ -240,23 +288,42 @@
   </div>
 </div></section>
 
-<!-- ─── iPHONE ─── -->
-<section class="pad-y" id="ios"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">iPhone · iOS</span><h2 class="display-md title">Your robot, <span class="italic accent">in your pocket.</span></h2></div>
-    <p class="lede">Drive, pose, plan, and run policies one-handed, with a live 3D twin and the camera feeds. It auto-discovers MABEL and falls back to an on-device simulator. <strong>Every screen below is a real capture.</strong></p></div>
-  <div class="reveal-media media-frame sim-dark fade-up" style="aspect-ratio:2622/1206;"><video src="assets/app/ios-drive.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Real capture · Drive cockpit — live joysticks (turn the phone sideways)</span></div>
-  <div class="points fade-up" style="margin-top:30px;">
-    <div class="point"><div class="num">01</div><div><h5>Joystick navigation</h5><p>Landscape cockpit: left stick translates, right stick turns and lifts, over live head and wrist feeds — with a speed governor and an always-present <strong>STOP</strong>.</p></div></div>
-    <div class="point"><div class="num">02</div><div><h5>Body · the 3D twin</h5><p>The Body tab renders a real-time twin — drag a wrist under Gravity Comp, switch to Compliance or Joint Control; the <a href="controller.html#feel" style="color:var(--rust);">controller</a> coordinates the rest.</p></div></div>
-    <div class="point"><div class="num">03</div><div><h5>Maps · tap-to-go</h5><p>On a real SLAM map, tap a goal: an <strong>A*</strong> plan routes around obstacles, then pure-pursuit drives it. See <a href="navigation.html" style="color:var(--rust);">navigation</a>.</p></div></div>
-    <div class="point"><div class="num">04</div><div><h5>Policies · dispatch a skill</h5><p>A library of learned and scripted skills, each with its control rate and offline-eval success rate. Tap ▶ to run. See <a href="autonomy.html#policies" style="color:var(--rust);">autonomy</a>.</p></div></div>
-  </div>
-  <div class="feature fade-up" style="margin-top:36px;">
-    <div class="feature-media phone-media"><img class="app-shot" src="assets/app-ios-policies.svg" alt="Policies library — learned CVAE, navigation, and scripted skills with offline-eval success rates" /></div>
-    <div class="feature-copy"><span class="eyebrow">Policies tab</span><h3>Dispatch autonomy from your hand.</h3>
-      <p>The library lists CVAE visuomotor policies, navigation routines, and scripted behaviours — each with its kind, control rate, and an offline-eval success rate. One tap dispatches; the same skills run on the robot or the twin.</p>
-      <div class="spec"><span>CVAE visuomotor</span><span>Navigation routines</span><span>Scripted skills</span><span>Eval success %</span></div>
+<!-- ═══ FROM FIRST PRINCIPLES — THE THREE KNOBS ═══ -->
+<section class="pad-y" id="principles"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">From first principles</span><h2 class="display-md title">Three plain <span class="italic accent">choices.</span></h2></div>
+    <p class="lede">Strip away the jargon and commanding a 51-joint robot is three questions a child could answer: <strong>what moves</strong>, <strong>how you tell it</strong>, and <strong>how it should feel</strong>. Pick one from each — that's the whole interface, the same on the phone and in the headset.</p></div>
+
+  <div class="knobs fade-up">
+    <div class="knob">
+      <span class="knob-k">Knob 01 · what moves</span>
+      <h4>Pick a part of the body.</h4>
+      <p>The robot is four plain regions. You never address a numbered joint unless you want to — most of the time you choose how much of the body should come along for the ride.</p>
+      <div class="chips"><span>Wheels &amp; base</span><span>Lift &amp; neck</span><span>Arms</span><span>Hands</span><span class="hl">Arm</span><span class="hl">Upper</span><span class="hl">Whole</span></div>
     </div>
+    <div class="knob">
+      <span class="knob-k">Knob 02 · how you tell it</span>
+      <h4>Pick a way to say it.</h4>
+      <p>Every command is one of four gestures — from a thumb on a stick to wearing the robot with your whole body. Each one becomes the same target the controller chases.</p>
+      <div class="chips"><span>Push a stick</span><span>Reach for it</span><span>Nudge one joint</span><span class="hl">Wear it (headset)</span></div>
+    </div>
+    <div class="knob">
+      <span class="knob-k">Knob 03 · how it feels</span>
+      <h4>Pick a temperament.</h4>
+      <p>The same arm can hold a target like a vise or go weightless so you can push it around by hand. One toggle — and a stiffness dial in between for everything from gentle to rock-solid.</p>
+      <div class="chips"><span class="hl">Firm — holds &amp; resists</span><span>Soft — yields to your hand</span></div>
+    </div>
+  </div>
+  <p class="table-note" style="margin-top:20px;">Three knobs, every screen. The same three choices drive the <a href="software.html#sim" style="color:var(--rust);">MuJoCo twin</a> or the real robot with no change — and the <a href="controller.html" style="color:var(--rust);">whole-body controller</a> works out how all 51 joints honour them.</p>
+</div></section>
+
+<!-- ═══ DESIGNED TO BE SAFE ═══ -->
+<section class="soft-sec pad-y" id="safety"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Safety</span><h2 class="display-md title">Safe by construction, <span class="italic accent">not by manual.</span></h2></div>
+    <p class="lede">Safety isn't a settings page you're trusted to read — it's the spine of the interface. Three promises hold on every screen, on both devices, whether you're an operator or a first-time guest.</p></div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">A</span><div><h4>Stop, instantly</h4><p>A red <strong>STOP</strong> rides every screen and never scrolls away — one tap freezes all motion. Sleep the phone, lift the headset, or lose the link and the robot freezes <em>itself</em>: a heartbeat means it only moves while a human is actively holding on.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">B</span><div><h4>Never too fast, never past a limit</h4><p>A speed dial scales everything from a crawl to full tilt. Hard speed caps live on the robot itself, every joint stops short of its mechanical limit, and letting go <em>holds the pose</em> under gravity comp — nothing springs back at you.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">C</span><div><h4>Only the right hands, when armed</h4><p>One driver holds the controls at a time; the robot must be explicitly <strong>armed</strong> to move; a stored access code gates every connection; and a live health panel flags a hot motor or a joint near its limit before it bites.</p></div></div>
   </div>
 </div></section>
 

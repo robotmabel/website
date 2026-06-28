@@ -621,6 +621,64 @@ section[id], .sub-block[id] { scroll-margin-top: 92px; }
 .point p { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
 .dark-sec .point p { color: var(--ash-light); }
 
+/* ─── App screen galleries: horizontal scroll-snap of device screens ─── */
+.appgal-wrap { position: relative; }
+.appgal-hint { font-family: var(--font-mono); font-size: 11.5px; color: var(--ash); letter-spacing: 0.06em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.dark-sec .appgal-hint { color: var(--ash-light); }
+.appgal-hint svg { width: 26px; height: 12px; opacity: 0.7; }
+.appgal {
+  display: flex; gap: clamp(14px, 1.8vw, 22px); align-items: flex-start;
+  overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; padding: 6px var(--gutter) 8px;
+  margin: 0 calc(-1 * var(--gutter)); scroll-padding-inline: var(--gutter);
+}
+.appgal::-webkit-scrollbar { display: none; }
+.appgal figure { scroll-snap-align: center; flex: 0 0 auto; margin: 0; }
+.appgal img { display: block; width: 100%; height: auto; }
+.appgal figcaption { margin-top: 14px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; }
+.appgal figcaption b { display: block; font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 2px; }
+.appgal figcaption b .ix { font-family: var(--font-mono); font-size: 11px; color: var(--rust); margin-right: 8px; font-weight: 500; }
+.dark-sec .appgal figcaption { color: var(--ash-light); }
+.dark-sec .appgal figcaption b { color: var(--bone); }
+/* iPhone — portrait phones */
+.appgal.ios figure { width: clamp(186px, 23vw, 242px); }
+.appgal.ios img { border-radius: 30px; filter: drop-shadow(0 34px 54px rgba(22,20,18,0.30)); }
+.dark-sec .appgal.ios img { filter: drop-shadow(0 34px 58px rgba(0,0,0,0.6)); }
+/* Vision Pro — landscape glass windows */
+.appgal.vp figure { width: clamp(440px, 66vw, 720px); }
+.appgal.vp img { border-radius: 22px; border: 1px solid rgba(242,238,230,0.10); background: #060505; box-shadow: 0 44px 84px -36px rgba(0,0,0,0.72); }
+/* edge fades hint there's more to scroll */
+.appgal-wrap::before, .appgal-wrap::after { content: ""; position: absolute; top: 0; bottom: 64px; width: clamp(20px, 5vw, 60px); z-index: 3; pointer-events: none; }
+.appgal-wrap::before { left: 0; background: linear-gradient(90deg, var(--bone), transparent); }
+.appgal-wrap::after  { right: 0; background: linear-gradient(270deg, var(--bone), transparent); }
+.soft-sec .appgal-wrap::before { background: linear-gradient(90deg, var(--paper), transparent); }
+.soft-sec .appgal-wrap::after  { background: linear-gradient(270deg, var(--paper), transparent); }
+.dark-sec .appgal-wrap::before { background: linear-gradient(90deg, var(--ink), transparent); }
+.dark-sec .appgal-wrap::after  { background: linear-gradient(270deg, var(--ink), transparent); }
+
+/* ─── Five-tab explainer cards ─────────────────────────────────────── */
+.tabcards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+@media (max-width: 960px) { .tabcards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 540px) { .tabcards { grid-template-columns: 1fr; } }
+.tabcard { padding: 20px 18px; border-radius: 16px; background: var(--glass-bg); border: 1px solid var(--glass-border); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transition: transform 0.3s var(--ease-out), background 0.3s var(--ease-out); }
+.tabcard:hover { transform: translateY(-3px); background: var(--glass-bg-2); }
+.tabcard .tc-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(194,91,42,0.12); color: var(--rust); margin-bottom: 14px; }
+.tabcard .tc-ic svg { width: 19px; height: 19px; }
+.tabcard h4 { font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 7px; }
+.tabcard p { font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+.tabcard .tc-n { font-family: var(--font-mono); font-size: 10.5px; color: var(--ash); letter-spacing: 0.1em; float: right; }
+
+/* ─── First-principles "control knobs" ─────────────────────────────── */
+.knobs { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(14px, 2vw, 22px); }
+@media (max-width: 860px) { .knobs { grid-template-columns: 1fr; } }
+.knob { padding: clamp(22px, 2.4vw, 30px); border-radius: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); }
+.knob .knob-k { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--rust); display: block; margin-bottom: 10px; }
+.knob h4 { font-family: var(--font-display); font-weight: 400; font-size: clamp(22px, 2.4vw, 30px); letter-spacing: -0.018em; line-height: 1.08; margin-bottom: 12px; }
+.knob > p { font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); margin-bottom: 16px; }
+.knob .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.knob .chips span { font-size: 12.5px; font-weight: 500; padding: 6px 12px; border-radius: 999px; background: rgba(22,20,18,0.05); border: 1px solid rgba(22,20,18,0.1); color: var(--ink); }
+.knob .chips span.hl { background: rgba(194,91,42,0.12); border-color: rgba(194,91,42,0.3); color: var(--rust); }
+
 /* ─── BOM / spec table ────────────────────────────────────────────── */
 .spec-table { border-top: 1px solid rgba(22,20,18,0.20); }
 .spec-table .row { display: grid; grid-template-columns: 52px 1fr auto; gap: 16px; padding: 20px 0; border-bottom: 1px solid rgba(22,20,18,0.12); align-items: baseline; transition: padding-left 0.4s var(--ease-out); }
