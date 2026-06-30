@@ -1701,10 +1701,10 @@ class App {
       $$('[data-feel] button', v).forEach((x) => x.classList.toggle('on', x === b));
       this.feel = b.dataset.val; this._applyManipMode(); this._announceSpec();
     }));
-    // Control area (Stiff): Arms · Upper · Whole body → control_mode.region
+    // Control region: Arms · Upper · Whole body → control_mode.region (Stiff + Soft)
     $$('[data-region] button', v).forEach((b) => b.addEventListener('click', () => {
       $$('[data-region] button', v).forEach((x) => x.classList.toggle('on', x === b));
-      this.manipRegion = b.dataset.rv; this._announceSpec();
+      this.manipRegion = b.dataset.rv; this._applyManipMode(); this._announceSpec();
     }));
     // Task space (wrist IK / ball) ↔ Joint space (per-joint) → control_mode.method
     $$('[data-space] button', v).forEach((b) => b.addEventListener('click', () => {
@@ -1917,10 +1917,19 @@ class App {
     show('[data-taskonly]', stiff && task);                 // stiffness + grips
     show('[data-jointonly]', stiff && !task);               // joint sliders
     show('[data-softnote]', !stiff);                        // view-only note
+    // what the chosen region engages (arm / arm+torso+lift / +mobile base)
+    const REGION_YIELD = {
+      arm: 'arms only — torso, lift & base stay rigid',
+      upper_body: 'arms, torso & lift — base stays rigid',
+      whole_body: 'arms, torso, lift & the mobile base',
+    };
+    const scope = REGION_YIELD[this.manipRegion] || REGION_YIELD.arm;
+    const note = $('[data-softnote]', v);
+    if (note) note.innerHTML = `<b>View only · compliant:</b> ${scope}. Pose MABEL by hand on the real robot (or push it in the sim) — this view mirrors the live state.`;
     const hint = $('#taManipHint');
     if (hint) hint.innerHTML = !stiff
-      ? 'View only — pose MABEL by hand on the real robot, or push it in the sim.'
-      : task ? 'Drag the green ball to pose the arm; spin a glowing ring to set the wrist.'
+      ? `Soft — ${scope} yield. Pose MABEL by hand; the viewer mirrors it.`
+      : task ? `Drag the green ball to pose the ${this.manipRegion === 'arm' ? 'arm' : 'arm (whole-body assist)'}; spin a glowing ring to set the wrist.`
              : 'Set each joint; pick the body group.';
   }
 
@@ -2395,11 +2404,14 @@ class App {
         ? { method: 'navigation', controlType: 'impedance', region: 'whole_body', stiffness: this.stiffness * MAX_STIFF }
         : { method: 'joint', controlType: 'impedance', region: 'arm', stiffness: this.stiffness * MAX_STIFF };
     } else if (this.view === 'body') {
-      // Soft = whole-body compliance (viewer read-only — pose the real robot).
-      // Stiff = a position controller: task space (palm SE(3) → arm IK, the green
-      // ball) or joint space (per-joint targets), over the chosen control area.
+      // BOTH Soft and Stiff are scoped by the selected control region, sent as the
+      // controller's ControlRegion token so the WBC engages the right links:
+      //   arm        → arms only (rest held rigid)
+      //   upper_body → arms + torso + lift
+      //   whole_body → + the mobile base
+      // Soft = compliance (those links yield); Stiff = impedance (track targets).
       spec = this.feel === 'compliance'
-        ? { method: 'wrist', controlType: 'compliance', region: 'whole_body', stiffness: 0 }
+        ? { method: 'wrist', controlType: 'compliance', region: this.manipRegion, stiffness: 0 }
         : { method: 'joint',   // we resolve ball-IK / sliders → joint targets; WBC tracks them
             controlType: 'impedance', region: this.manipRegion, stiffness: this.stiffness * MAX_STIFF };
     } else if (this.view === 'nav') {
