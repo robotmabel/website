@@ -2465,7 +2465,14 @@ class App {
   applyRobotState(p) {
     this.sim.remote = true;
     if (p.jointPositions) {
-      for (const n in p.jointPositions) if (n in this.sim.state.q) this.sim.state.q[n] = +p.jointPositions[n];
+      // Don't overwrite the arm chain the operator is actively dragging — the local
+      // IK owns it for instant feedback while it streams the command (see _tick).
+      const held = (this.drag && this.view === 'body') ? this.sim.chains[this.drag] : null;
+      for (const n in p.jointPositions) {
+        if (!(n in this.sim.state.q)) continue;
+        if (held && held.includes(n)) continue;
+        this.sim.state.q[n] = +p.jointPositions[n];
+      }
       this.sim.lift = (this.sim.state.q.lift_lower || 0) + (this.sim.state.q.lift_upper || 0);
     }
     if (p.base) {
@@ -2560,13 +2567,16 @@ class App {
     const bodyDrag = this.drag && this.view === 'body' && this.feel === 'impedance'
       && this.manipSpace === 'task' && !this.estop;
     if (bodyDrag && this.bodyRig) {
-      const saved = this.sim.remote ? this.sim.chains[this.drag].map((c) => this.sim.state.q[c]) : null;
+      // OPTIMISTIC: the IK moves the local twin immediately (instant feedback, the
+      // "no-delay" feel) AND streams the resolved chain as joint_command. We do NOT
+      // snap the arm back to robot_state — incoming state skips the dragged chain
+      // (see applyRobotState) so the drag is never fought; the robot follows the
+      // command and the rest of the body still mirrors live state.
       this.sim.ik(this.bodyRig, this.drag, this.targets[this.drag], 0.3 + 0.4 * this.stiffness, 2);
       for (const c of this.sim.chains[this.drag]) {
         this.sim.jointTarget[c] = this.sim.state.q[c];
         this.setWire(c, this.sim.state.q[c]);
       }
-      if (saved) this.sim.chains[this.drag].forEach((c, i) => { this.sim.state.q[c] = saved[i]; });  // remote → robot_state drives the visual
     }
 
     if (!this.sim.remote && !this.estop) {
