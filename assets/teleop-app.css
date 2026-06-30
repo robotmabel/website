@@ -465,9 +465,9 @@ html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
    Joysticks + the Drive/Arms toggle stay hidden until Start Teleop, exactly
    like the iOS play/stop button. The button itself sits centred above the dock. */
 .ta-startteleop {
-  /* top-centre, just under the title bar — always in view the moment the console
-     is on screen (a bottom-anchored button hid below the fold / behind the dock) */
-  position: absolute; left: 50%; top: 54px; transform: translateX(-50%); z-index: 9;
+  /* top of the view window, on the title row — always in view the moment the
+     console is on screen (a bottom-anchored button hid below the fold / dock) */
+  position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 9;
   display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 26px;
   border-radius: 23px; border: none; cursor: pointer;
   background: linear-gradient(180deg, #f0b68b, #e9a679); color: #161412;
@@ -478,8 +478,10 @@ html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
 .ta-startteleop svg { width: 20px; height: 20px; }
 .ta-startteleop:hover { transform: translateX(-50%) translateY(-1px); filter: brightness(1.04); }
 .ta-startteleop:active { transform: translateX(-50%); }
-/* once flying → a compact red Stop chip in the same spot, controls revealed */
+/* once flying → a compact red Stop chip, dropped just under the Drive/Arms
+   toggle (which now occupies the top-centre), controls revealed */
 .ta-view[data-view="teleop"].flying .ta-startteleop {
+  top: 56px;
   height: 32px; padding: 0 15px; gap: 7px; font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase;
   background: rgba(179,64,46,.92); color: #fff;
   box-shadow: 0 10px 24px -12px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.2);
@@ -579,5 +581,5 @@ html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
   .ta-manip-bar { width: 94vw; padding: 10px 11px; bottom: 128px; }
   .ta-manip-toggles { gap: 10px; }
   .ta-manip-hint { top: 84px; font-size: 11.5px; }
-  .ta-startteleop { top: 50px; }
+  .ta-startteleop { top: 11px; }
 }
