@@ -10,6 +10,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
+<style>
+  /* Data Studio live-tool CTA */
+  .studio-card { padding: clamp(28px, 4vw, 48px); }
+  .studio-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+  .studio-live { display: inline-flex; align-items: center; gap: 8px; font-family: "Geist Mono", monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--bone); opacity: 0.82; padding: 9px 13px; border: 1px solid rgba(242,238,230,0.22); border-radius: 999px; }
+  .studio-dot { width: 8px; height: 8px; border-radius: 50%; background: #3FB56B;
+    box-shadow: 0 0 0 4px rgba(63,181,107,0.18); animation: studioPulse 2.4s ease-in-out infinite; }
+  @keyframes studioPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(63,181,107,0.18); } 50% { box-shadow: 0 0 0 7px rgba(63,181,107,0.05); } }
+  @media (prefers-reduced-motion: reduce) { .studio-dot { animation: none; } }
+</style>
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body class="sec-page">
@@ -50,6 +62,25 @@
     </p>
     <div class="spec" style="margin-top:28px;">
       <span>Diffusion Policy</span><span>ACT</span><span>Goal-conditioned</span><span>HDF5 / Zarr</span><span>Onboard inference</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DATA STUDIO · live tool ─── -->
+<section class="dark-sec pad-y" id="studio">
+  <div class="wrap">
+    <div class="card studio-card fade-up">
+      <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · in your browser</span>
+      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Explore the data in <span class="italic accent">Data Studio.</span></h2>
+      <p class="lede" style="margin:0 0 26px; max-width:62ch;">A Rerun-style visualizer and Final-Cut-style episode editor for MABEL imitation-learning data. Scrub any recorded episode, watch the robot move in 3D inside the LiDAR map it built, inspect all 59 actuators and seven synced camera feeds — then blade, trim, and merge clips into a brand-new episode, all without leaving the page.</p>
+      <div class="studio-actions">
+        <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Studio ↗</a>
+        <a href="https://github.com/thejerrycheng/MABEL/tree/main/learning/imitation_learning/data_studio" target="_blank" rel="noopener" class="btn btn-ghost">Source ↗</a>
+        <span class="studio-live"><span class="studio-dot"></span>Live demo</span>
+      </div>
+      <div class="spec" style="margin-top:24px;">
+        <span>3D viewport</span><span>7-cam video wall</span><span>59-actuator graph</span><span>Timeline editor</span><span>Sample episodes</span>
+      </div>
     </div>
   </div>
 </section>
