@@ -168,18 +168,32 @@ class Link {
     this.ws.onmessage = (ev) => {
       let msg; try { msg = JSON.parse(ev.data); } catch (e) { return; }
       const p = msg.payload || {};
-      if (msg.type === 'robot_state') this.app.applyRobotState(p);
-      else if (msg.type === 'pong') { this.rtt = performance.now() - this._pingSent; UI.set('rtt', `${this.rtt.toFixed(0)} ms`); }
-      else if (msg.type === 'hello') { this.app.onHello(p); this.send('list_maps', {}); }
+      // ANY message that can only originate from the live bridge/robot proves the
+      // path reaches the robot — not just the relay edge. _aliveAt gates the
+      // "connected" UI so a token-gated VPS that accepts the socket but can't
+      // reach a down robot never reads as connected.
+      if (msg.type === 'robot_state') { this.app._aliveAt = performance.now(); this.app.applyRobotState(p); }
+      else if (msg.type === 'pong') { this.app._aliveAt = performance.now(); this.rtt = performance.now() - this._pingSent; UI.set('rtt', `${this.rtt.toFixed(0)} ms`); }
+      else if (msg.type === 'hello') { this.app._aliveAt = performance.now(); this.app.onHello(p); this.send('list_maps', {}); }
       else if (msg.type === 'map_list') this.app.onMapList(p);
       else if (msg.type === 'nav_result') this.app.onNavResult(p);
     };
     this.ws.onclose = () => { const was = this.connected; this._down(); if (was || this.want) this._retry(); };
     this.ws.onerror = () => {};
+    // The socket is open but the robot hasn't proven itself yet: if no hello /
+    // robot_state arrives within 4 s, the upstream (real robot behind the relay)
+    // is down — drop the socket so it doesn't masquerade as "connected" and the
+    // failover/retry can try another path.
+    this._helloTimer = setTimeout(() => {
+      if (this.connected && !(this.app._aliveAt && performance.now() - this.app._aliveAt < 4000)) {
+        try { this.ws && this.ws.close(); } catch (e) {}
+      }
+    }, 4500);
   }
   _down() {
+    clearTimeout(this._helloTimer);
     if (this.connected) this.app.onLink(false);
-    this.connected = false; this.rtt = null;
+    this.connected = false; this.rtt = null; this.app._aliveAt = 0;
     clearInterval(this._pingT);
   }
   _retry() { if (this.want) this._retryT = setTimeout(() => this._open(), 2000); }
@@ -446,18 +460,26 @@ class Rig {
   orientationRings(ball, radius) {
     const rings = [];
     const mk = (color, axis, rx, ry) => {
-      const t = new THREE.Mesh(
-        new THREE.TorusGeometry(radius, radius * 0.05, 14, 56),
-        new THREE.MeshStandardMaterial({
-          color, emissive: color, emissiveIntensity: 0.45, roughness: 0.4, metalness: 0.1,
-          transparent: true, opacity: 0.85, depthWrite: false,
-        }));
-      t.rotation.set(rx, ry, 0);
-      t.userData.ringAxis = axis;     // local spin axis (perpendicular to the torus plane)
-      t.renderOrder = 3;
-      ball.add(t);
-      rings.push(t);
-      return t;
+      // a bold, glowing planetary-ring gizmo: a solid-feeling unlit torus with a
+      // wider additive HALO behind it. Opacity/scale animated in App._render.
+      const grp = new THREE.Group();
+      const tube = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, radius * 0.075, 20, 96),
+        new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.62,
+          blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+      const halo = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, radius * 0.17, 16, 80),
+        new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.16,
+          blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+      grp.add(halo, tube);
+      grp.rotation.set(rx, ry, 0);
+      grp.userData.ringAxis = axis;   // local spin axis (perpendicular to the torus plane)
+      grp.userData.tube = tube; grp.userData.halo = halo;
+      grp.userData.baseColor = new THREE.Color(color);
+      tube.renderOrder = 5; halo.renderOrder = 4;
+      ball.add(grp);
+      rings.push(grp);
+      return grp;
     };
     mk(0xE7913A, new THREE.Vector3(0, 0, 1), 0, 0);            // PITCH — XY plane, spins about Z
     mk(0x4F9DFF, new THREE.Vector3(0, 1, 0), Math.PI / 2, 0);  // ROLL  — XZ plane, spins about Y
@@ -632,6 +654,7 @@ class App {
     this.drag = null;                           // body-view active drag side
     this._lastSpec = '';
     this.driving = true; this.clientCount = 1;  // arbitration state from robot_state
+    this._aliveAt = 0;                          // last hello/robot_state/pong → link truly reaches the robot
     this.path = 'local'; this._planT = null;    // multi-path connect: local | vpn | relay
     this._discSeq = 0;                          // Wi-Fi discovery supersede counter
 
@@ -957,87 +980,97 @@ class App {
     else this._closeHostMenu();
   }
   _closeHostMenu() { const m = $('#taHostMenu'); if (m) { m.setAttribute('hidden', ''); $('#taConnect')?.setAttribute('aria-expanded', 'false'); } }
+  /** Best route for a one-tap connect: the secure relay on the public site
+      (the only path that works there), else auto-discovery / the LAN host. */
+  _defaultRouteFor(robot) {
+    const pub = location.protocol === 'https:' && !_isLocalHost(location.hostname);
+    return pub
+      ? (robot.routes.find((r) => r.method === 'relay') || robot.routes[0])
+      : (robot.routes.find((r) => r.method === 'auto')
+        || robot.routes.find((r) => r.method === 'wifi') || robot.routes[0]);
+  }
+  /** A clean iOS-style list: one row per robot (tap = connect, auto-routed), the
+      live connection method shown on the connected row, a worded access-code
+      button for the Real robot, plus Add host / Forget for custom LAN hosts. */
   _buildHostMenu() {
     const menu = $('#taHostMenu'); if (!menu) return;
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    const cur = this._curTarget?.id;
     const robots = this._robots();
-    // default the open card to the connected robot, else the first
-    if (!('_expandedRobot' in this)) this._expandedRobot = this._curTarget?.robotId || robots[0].id;
-    const mic = {
-      auto:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 19.5v.01M8 15.7a5.5 5.5 0 0 1 8 0M4.6 12a10 10 0 0 1 14.8 0"/></svg>',
-      wifi:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 19.5v.01M8 15.7a5.5 5.5 0 0 1 8 0M4.6 12a10 10 0 0 1 14.8 0"/></svg>',
-      vpn:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg>',
-      relay: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.4 2.5 14.6 0 17M12 3.5c-2.5 2.4-2.5 14.6 0 17"/></svg>',
-    };
-    const routeRow = (route) => `<button class="hm-route${route.id === cur ? ' on' : ''}" data-tid="${esc(route.id)}" type="button">
-        <span class="hm-mic">${mic[route.method] || ''}</span>
-        <span class="hm-main"><span class="hm-label">${esc(route.label)}</span><span class="hm-sub">${esc(route.detail || '')}</span></span>
-        ${route.id === cur ? '<span class="hm-tick">✓</span>' : ''}</button>`;
-    const card = (robot) => {
-      const open = this._expandedRobot === robot.id;
-      const active = this._curTarget?.robotId === robot.id && this.link.want;
-      const head = `<button class="hm-robot${active ? ' on' : ''}" data-robot="${esc(robot.id)}" type="button">
-          <span class="hm-dot"></span>
-          <span class="hm-main"><span class="hm-label">${esc(robot.label)}</span>
-            <span class="hm-sub">${robot.locked ? 'locked · enter passcode' : `${robot.routes.length} ways to connect`}</span></span>
-          <span class="hm-badge ${robot.kind}">${esc(robot.badge)}</span>
-          <span class="hm-chev">${robot.locked ? '🔒' : (open ? '▾' : '▸')}</span></button>`;
-      let body = '';
-      if (open && robot.locked) {
-        body = `<form class="hm-pass" data-passform autocomplete="off">
-            <input class="hm-passin" type="password" inputmode="numeric" maxlength="12" placeholder="Access code" aria-label="Real robot access code" />
-            <button type="submit" class="hm-passbtn">Unlock</button>
-            <span class="hm-passerr" data-passerr hidden>Wrong code</span></form>`;
-      } else if (open) {
-        body = `<div class="hm-routes">${robot.routes.map(routeRow).join('')}</div>`;
+    const unlocked = this._realUnlocked();
+    const cur = this._curTarget?.robotId;
+    const alive = this.link.connected && this._aliveAt && (performance.now() - this._aliveAt < 6000);
+    const METHOD = { wifi: 'Wi-Fi', vpn: 'VPN', relay: 'Relay', auto: 'Wi-Fi' };
+    // show the ACTUAL connection method + host on the connected row
+    const sub = (robot) => {
+      if (cur === robot.id) {
+        const m = METHOD[this._curTarget?.method] || 'LAN';
+        const h = this._curTarget?.host || (this._curTarget?.method === 'auto' ? 'auto-discover' : '');
+        if (alive) return `connected · ${m}${h ? ' · ' + esc(h) : ''}`;
+        if (this.link.connected) return `${m} open · robot not responding`;
+        if (this.link.want) return `connecting · ${m}…`;
       }
-      return `<div class="hm-card${open ? ' open' : ''}">${head}${body}</div>`;
+      return (robot.kind === 'real' && !unlocked) ? 'locked' : 'tap to connect';
     };
+    const dotCls = (id) => (cur === id && alive) ? ' on' : (cur === id && this.link.want) ? ' wait' : '';
+    const row = (robot) => `<button class="hm-row" data-robot="${esc(robot.id)}" type="button">
+        <span class="hm-dot${dotCls(robot.id)}"></span>
+        <span class="hm-main"><span class="hm-label">${esc(robot.label)}</span><span class="hm-sub">${sub(robot)}</span></span>
+        <span class="hm-badge ${robot.kind}">${esc(robot.badge)}</span>
+        ${robot.kind === 'real' ? `<span class="hm-codebtn${unlocked ? ' on' : ''}" data-keybtn role="button" title="${unlocked ? 'Revise access code' : 'Enter access code'}">${unlocked ? 'Code ✓' : 'Access code'}</span>` : ''}
+      </button>`;
+    const savedRow = (h) => `<button class="hm-row" data-tid="${esc(h.id)}" type="button">
+        <span class="hm-dot${dotCls(h.id)}"></span>
+        <span class="hm-main"><span class="hm-label">${esc(h.label)}</span><span class="hm-sub">${esc(h.host)}</span></span>
+        <span class="hm-codebtn" data-del="${esc(h.id)}" role="button" title="Forget host">Forget</span></button>`;
     const saved = this._userHosts();
     menu.innerHTML =
-      `<div class="hm-head">Robots<span>tap to connect</span></div>` +
-      robots.map(card).join('') +
-      `<form class="hm-add" data-addform autocomplete="off"><input class="hm-name" placeholder="Name" aria-label="Robot name" /><input class="hm-ip" placeholder="add a LAN IP" aria-label="Robot LAN IP" /><button type="submit" class="hm-addbtn" title="Add a robot">＋</button></form>` +
-      (saved.length ? `<div class="hm-head">Saved<span>your LAN robots</span></div>` +
-        saved.map((h) => `<button class="hm-route${h.id === cur ? ' on' : ''}" data-tid="${esc(h.id)}" type="button"><span class="hm-mic">${mic.wifi}</span><span class="hm-main"><span class="hm-label">${esc(h.label)}</span><span class="hm-sub">${esc(h.host)}</span></span><span class="hm-del" data-del="${esc(h.id)}" role="button" title="Remove">×</span></button>`).join('') : '') +
-      (this.link.want ? `<button class="hm-route hm-disc" data-disc type="button"><span class="hm-mic"></span><span class="hm-main"><span class="hm-label">Disconnect</span></span></button>` : '');
+      `<div class="hm-head">Robots</div>` +
+      robots.map(row).join('') +
+      (this._showRealPass ? `<form class="hm-pass" data-passform autocomplete="off">
+          <input class="hm-passin" type="password" inputmode="numeric" maxlength="12" placeholder="${unlocked ? 'New access code' : 'Access code'}" aria-label="Real robot access code" />
+          <button type="submit" class="hm-passbtn">${unlocked ? 'Update' : 'Unlock'}</button>
+          <span class="hm-passerr" data-passerr hidden>Wrong code</span></form>` : '') +
+      (saved.length ? `<div class="hm-head">Saved hosts</div>` + saved.map(savedRow).join('') : '') +
+      (this._showAddHost
+        ? `<form class="hm-add" data-addform autocomplete="off"><input class="hm-name" placeholder="Name" aria-label="Host name" /><input class="hm-ip" placeholder="192.168.1.x" aria-label="Host IP" /><button type="submit" class="hm-addbtn">Add</button></form>`
+        : `<button class="hm-row hm-addrow" data-addhost type="button"><span class="hm-plus">＋</span><span class="hm-main"><span class="hm-label">Add host…</span><span class="hm-sub">a LAN IP / hostname</span></span></button>`) +
+      (this.link.want ? `<button class="hm-row hm-disc" data-disc type="button"><span class="hm-dot"></span><span class="hm-main"><span class="hm-label">Disconnect</span></span></button>` : '');
 
-    // robot header → expand / collapse (real expands to reveal the passcode form)
-    $$('.hm-robot', menu).forEach((b) => b.addEventListener('click', () => {
-      const id = b.dataset.robot;
-      this._expandedRobot = this._expandedRobot === id ? null : id;
-      this._buildHostMenu();
+    // tap a robot → connect via its best route. The Real "Access code" button opens
+    // the code field (to enter it, or revise it later — even while connected).
+    $$('.hm-row[data-robot]', menu).forEach((b) => b.addEventListener('click', (e) => {
+      if (e.target.closest('[data-keybtn]')) { e.stopPropagation(); this._showRealPass = !this._showRealPass; this._buildHostMenu(); return; }
+      const robot = robots.find((r) => r.id === b.dataset.robot);
+      if (robot.kind === 'real' && !this._realUnlocked()) { this._showRealPass = true; this._buildHostMenu(); return; }
+      this._selectTarget(this._routeToTarget(robot, this._defaultRouteFor(robot)));
+      this._closeHostMenu();
     }));
-    // a connection method → connect
-    $$('.hm-route[data-tid]', menu).forEach((b) => b.addEventListener('click', (e) => {
-      if (e.target.closest('[data-del]')) return;
-      this._selectTarget(this._findTarget(b.dataset.tid));
+    // saved host: tap to connect; "Forget" to remove
+    $$('.hm-row[data-tid]', menu).forEach((b) => b.addEventListener('click', (e) => {
+      if (e.target.closest('[data-del]')) { e.stopPropagation();
+        this._saveUserHosts(this._userHosts().filter((h) => h.id !== e.target.dataset.del)); this._buildHostMenu(); return; }
+      this._selectTarget(this._findTarget(b.dataset.tid)); this._closeHostMenu();
     }));
-    // passcode unlock for the real robot
-    $('[data-passform]', menu)?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const inp = $('.hm-passin', menu);
-      if (this._unlockReal(inp.value)) this._buildHostMenu();
-      else { const err = $('[data-passerr]', menu); if (err) err.hidden = false; if (inp) { inp.value = ''; inp.focus(); } }
-    });
-    setTimeout(() => $('.hm-passin', menu)?.focus(), 0);
-    // delete a saved robot
-    $$('[data-del]', menu).forEach((d) => d.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this._saveUserHosts(this._userHosts().filter((h) => h.id !== d.dataset.del));
-      this._buildHostMenu();
-    }));
-    $('[data-disc]', menu)?.addEventListener('click', () => { this._disconnect(); this._curTarget = null; this._buildHostMenu(); this._paintLink(); });
+    $('[data-addhost]', menu)?.addEventListener('click', () => { this._showAddHost = true; this._buildHostMenu(); });
     $('[data-addform]', menu)?.addEventListener('submit', (e) => {
       e.preventDefault();
       const ip = $('.hm-ip', menu).value.trim(); if (!ip) return;
       const name = $('.hm-name', menu).value.trim();
       const id = 'h' + Date.now().toString(36);
       const list = this._userHosts(); list.push({ id, label: name || ip, host: ip });
-      this._saveUserHosts(list);
-      this._selectTarget(this._findTarget(id));               // connect to the new robot now
+      this._saveUserHosts(list); this._showAddHost = false;
+      this._selectTarget(this._findTarget(id)); this._closeHostMenu();
     });
+    $('[data-passform]', menu)?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inp = $('.hm-passin', menu);
+      if (this._unlockReal(inp.value)) {
+        this._showRealPass = false; this._buildHostMenu();
+        if (this._curTarget?.robotId === 'real') this._selectTarget(this._findTarget(this._curTarget.id));
+      } else { const err = $('[data-passerr]', menu); if (err) err.hidden = false; if (inp) { inp.value = ''; inp.focus(); } }
+    });
+    if (this._showRealPass) setTimeout(() => $('.hm-passin', menu)?.focus(), 0);
+    $('[data-disc]', menu)?.addEventListener('click', () => { this._disconnect(); this._curTarget = null; this._buildHostMenu(); this._paintLink(); });
   }
   /** Open a throwaway WebSocket to a candidate; resolve true iff the bridge
       accepts the upgrade on /teleop (the analog of Bonjour's "open a TCP
@@ -1130,11 +1163,14 @@ class App {
     const fieldId = { local: '#taHostLocal', vpn: '#taHostVpn', relay: '#taHostRelay' }[this.path];
     const field = $(fieldId)?.closest('.ta-host');
     const issue = this._httpsIssue();
+    // "connected" requires a real robot handshake, not just an open socket — the
+    // relay edge can accept the WS while the robot behind it is down (see Link).
+    const alive = this.link.connected && this._aliveAt && (performance.now() - this._aliveAt < 6000);
     if (issue) {
       pill.classList.add('wait');
       label.textContent = issue.label;
       pill.title = issue.title;
-    } else if (this.link.connected) {
+    } else if (alive) {
       pill.classList.add('link');
       field?.classList.add('live');
       label.textContent = this.driving === false
@@ -1143,6 +1179,12 @@ class App {
       pill.title = this.driving === false
         ? 'Another client (iOS / Vision Pro) is driving — move a stick or drag the model to take over.'
         : 'You are the active driver.';
+    } else if (this.link.connected && this.link.want) {
+      // socket open to the relay/host, but the robot hasn't answered yet
+      pill.classList.add('wait'); field?.classList.add('trying');
+      label.textContent = `${pathName} · NO ROBOT`;
+      pill.title = 'The path is open but the robot isn’t responding — it may be powered off, '
+        + 'or the bridge isn’t running behind the relay. Nothing is being driven.';
     } else if (this.link.want) {
       pill.classList.add('wait'); field?.classList.add('trying');
       label.textContent = `TRYING ${pathName}`;
@@ -1158,11 +1200,11 @@ class App {
     const hpLbl = $('#taConnect .hp-lbl');
     if (hpLbl) hpLbl.textContent = this._curTarget?.label || 'Connect';
     if (btn) {
-      btn.classList.toggle('live', this.link.connected);
-      btn.classList.toggle('wait', this.link.want && !this.link.connected);
+      btn.classList.toggle('live', !!alive);
+      btn.classList.toggle('wait', this.link.want && !alive);
     }
     const tl = $('#taTryLive');
-    if (tl) tl.textContent = this.link.connected ? 'Connected'
+    if (tl) tl.textContent = alive ? 'Connected'
       : this.link.want ? 'Connecting…' : '▶  Try it live';
   }
   /** What's wrong with the chosen path, and how to fix it — null when fine.
@@ -1432,7 +1474,7 @@ class App {
   onNavResult(p) {
     const st = p && p.status, f = $('#taFollow');
     this.following = false;
-    const resetBtn = () => { if (f) { f.textContent = 'Follow path'; f.classList.add('primary'); } };
+    const resetBtn = () => { if (f) { f.textContent = 'Go'; f.classList.add('primary'); } };
     if (st === 'unreachable' || st === 'aborted') {
       UI.set('navdist', st === 'unreachable' ? 'NOT REACHABLE — pick another' : 'goal aborted');
       if (this.goalRing) this.goalRing.visible = false;
@@ -1633,9 +1675,9 @@ class App {
       this.targets = { l: new THREE.Vector3(), r: new THREE.Vector3() };
       this.wristQ = { l: new THREE.Quaternion(), r: new THREE.Quaternion() };
       for (const s of ['l', 'r']) {
-        this.balls[s] = rig.marker(GREEN, rig.maxd * 0.024);
+        this.balls[s] = rig.marker(GREEN, rig.maxd * 0.032);   // bigger, easier to grab
         this.balls[s].userData.kind = 'ball'; this.balls[s].userData.side = s;
-        this.rings[s] = rig.orientationRings(this.balls[s], rig.maxd * 0.042);
+        this.rings[s] = rig.orientationRings(this.balls[s], rig.maxd * 0.078);  // bold Saturn/Jupiter-style ring
         this.rings[s].forEach((r) => { r.userData.side = s; });
         rig.ee[s]?.getWorldPosition(this.targets[s]);
       }
@@ -1665,27 +1707,50 @@ class App {
       this._announceSpec(true);
     });
 
-    // joint-space sliders (Body / Arms / Hands)
+    // hand (grip) control — task space; open/close each hand
+    $$('[data-grip]', v).forEach((sl2) => {
+      const side = sl2.dataset.grip;
+      sl2.addEventListener('input', () => {
+        const val = clamp(+sl2.value, 0, 1);
+        this.sim.grip[side] = val;
+        this.setWire(`${side}_grip`, +val.toFixed(3));
+      });
+    });
+
+    // joint-space sliders (Body / Arms / Hands) — arms & hands split L | R columns
     const groups = ['body', 'arms', 'hands'];
     const tabs = $('[data-jtabs]', v), list = $('[data-jlist]', v);
+    const jrow = (j, full) => {
+      const row = document.createElement('div');
+      row.className = 'ta-jrow';
+      const label = full ? j.name : j.name.replace(/^(left|right)_/, '');
+      row.innerHTML = `<div class="row"><span class="k">${label}</span><span class="v" data-out>0.00</span></div>
+        <input type="range" min="${j.lower}" max="${j.upper}" step="0.005" value="${this.sim.state.q[j.name] || 0}">`;
+      const inp = $('input', row), o = $('[data-out]', row);
+      o.textContent = (+inp.value).toFixed(2);
+      inp.addEventListener('input', () => {
+        const val = +inp.value;
+        o.textContent = val.toFixed(2);
+        this.sim.jointTarget[j.name] = val;
+        this.setWire(j.name, val);
+      });
+      return row;
+    };
     const renderGroup = (g) => {
       $$('button', tabs).forEach((b) => b.classList.toggle('on', b.dataset.g === g));
       list.innerHTML = '';
       const joints = this.manifest.joints.filter((j) => j.group === g && j.lower != null);
-      for (const j of joints) {
-        const row = document.createElement('div');
-        row.className = 'ta-jrow';
-        row.innerHTML = `<div class="row"><span class="k">${j.name}</span><span class="v" data-out>0.00</span></div>
-          <input type="range" min="${j.lower}" max="${j.upper}" step="0.005" value="${this.sim.state.q[j.name] || 0}">`;
-        const inp = $('input', row), o = $('[data-out]', row);
-        o.textContent = (+inp.value).toFixed(2);
-        inp.addEventListener('input', () => {
-          const val = +inp.value;
-          o.textContent = val.toFixed(2);
-          this.sim.jointTarget[j.name] = val;
-          this.setWire(j.name, val);
-        });
-        list.appendChild(row);
+      if (g === 'body') {                                  // single column
+        list.classList.remove('two-col');
+        joints.forEach((j) => list.appendChild(jrow(j, true)));
+      } else {                                             // LEFT | RIGHT columns
+        list.classList.add('two-col');
+        const L = document.createElement('div'); L.className = 'ta-jcol';
+        const R = document.createElement('div'); R.className = 'ta-jcol';
+        L.innerHTML = '<div class="ta-jcol-hd">LEFT</div>';
+        R.innerHTML = '<div class="ta-jcol-hd">RIGHT</div>';
+        joints.forEach((j) => (j.name.startsWith('left') ? L : R).appendChild(jrow(j, false)));
+        list.appendChild(L); list.appendChild(R);
       }
     };
     for (const g of groups) {
@@ -1695,6 +1760,10 @@ class App {
       tabs.appendChild(b);
     }
     renderGroup('arms');
+
+    // viewport buttons — re-center / fit (the 3D view is the operator's to orbit)
+    $$('[data-viewbtns="body"] .ta-vbtn', v).forEach((b) =>
+      b.addEventListener('click', () => this._fitView(this.bodyStage, this.bodyRig, b.dataset.vb)));
 
     this._applyManipMode();          // initial visibility: Stiff · Task · Arms
 
@@ -1715,13 +1784,13 @@ class App {
       if (this.estop || !interactive()) return;     // soft / joint / no-rig → orbit only
       const r = pick(ev);
       // rings sit on the ball surface — test them first, then the ball core
-      const ringHits = r.intersectObjects(this.rings.l.concat(this.rings.r), false);
+      const ringHits = r.intersectObjects(this.rings.l.concat(this.rings.r), true);   // recursive: tube/halo → group
       if (ringHits.length) {
-        const m = ringHits[0].object, side = m.userData.side;
+        const grp = ringHits[0].object.parent, side = grp.userData.side;             // mesh → its ring group
         const sp = this._project(this.balls[side].position);
-        this.ringDrag = { side, axis: m.userData.ringAxis.clone(),
+        this.ringDrag = { side, axis: grp.userData.ringAxis.clone(), mesh: grp,
           last: Math.atan2(ev.clientY - sp.y, ev.clientX - sp.x) };
-        this.bodyStage.controls.enabled = false;
+        this.bodyStage.controls.enabled = false; canvas.style.cursor = 'grabbing';
         canvas.setPointerCapture(ev.pointerId); ev.preventDefault(); return;
       }
       const hits = r.intersectObjects([this.balls.l, this.balls.r], false);
@@ -1744,14 +1813,25 @@ class App {
         this._streamWrist(side);
         return;
       }
-      if (!this.drag) return;
-      const p = new THREE.Vector3();
-      if (pick(ev).ray.intersectPlane(plane, p)) this.targets[this.drag].copy(p);
+      if (this.drag) {
+        const p = new THREE.Vector3();
+        if (pick(ev).ray.intersectPlane(plane, p)) this.targets[this.drag].copy(p);
+        return;
+      }
+      // idle hover → highlight the ring/ball under the cursor + invite a drag
+      if (interactive()) {
+        const ringHit = pick(ev).intersectObjects(this.rings.l.concat(this.rings.r), true)[0];
+        if (ringHit) { this._hoverRing = ringHit.object.parent; canvas.style.cursor = 'grab'; }
+        else {
+          const ballHit = pick(ev).intersectObjects([this.balls.l, this.balls.r], false)[0];
+          this._hoverRing = null; canvas.style.cursor = ballHit ? 'grab' : '';
+        }
+      } else if (this._hoverRing || canvas.style.cursor) { this._hoverRing = null; canvas.style.cursor = ''; }
     });
     const drop = () => {
       this.ringDrag = null;
       if (this.drag) { this.bodyRig?.ee[this.drag]?.getWorldPosition(this.targets[this.drag]); this.drag = null; }
-      this.bodyStage.controls.enabled = true;
+      this.bodyStage.controls.enabled = true; canvas.style.cursor = '';
     };
     canvas.addEventListener('pointerup', drop);
     canvas.addEventListener('pointercancel', drop);
@@ -1777,20 +1857,57 @@ class App {
     this.setWire(jn, val);
   }
 
-  /** Show/hide the Stiff vs Soft control sets + the gizmo, and set the hint. */
+  /** Re-center / fit the camera on a rig (the viewport buttons). */
+  _fitView(stage, rig, mode) {
+    if (!stage || !rig || !stage.controls) return;
+    const c = rig.center0, d = rig.maxd;
+    stage.controls.target.copy(c);
+    const k = mode === 'fit' ? 1.45 : 1.05;       // fit pulls back a touch more
+    stage.camera.position.set(c.x + d * 0.9 * k, c.y + d * 0.5 * k, c.z + d * 1.2 * k);
+    stage.controls.update();
+  }
+
+  /** Navigate camera: re-center · fit the room · follow the robot (toggle). */
+  _fitNav(mode) {
+    if (!this.navStage?.controls) return;
+    const ctl = this.navStage.controls, cam = this.navStage.camera;
+    if (mode === 'followcam') {
+      this._navFollow = !this._navFollow;
+      $$('[data-viewbtns="nav"] [data-vb="followcam"]', this.shell).forEach((b) => b.classList.toggle('on', this._navFollow));
+      this._navPrev = null;
+      if (this._navFollow && this.navRig) {       // snap the orbit onto the robot now (keep zoom/angle)
+        const r = this.navRig.rootThree();
+        const dx = r.x - ctl.target.x, dy = r.y - ctl.target.y, dz = r.z - ctl.target.z;
+        ctl.target.set(r.x, r.y, r.z);
+        cam.position.set(cam.position.x + dx, cam.position.y + dy, cam.position.z + dz);
+        ctl.update();
+      }
+      return;
+    }
+    this._navFollow = false;
+    $$('[data-viewbtns="nav"] [data-vb="followcam"]', this.shell).forEach((b) => b.classList.remove('on'));
+    ctl.target.set(0, 0, 0);
+    if (mode === 'fit') cam.position.set(8, 9, 9);
+    else cam.position.set(5.5, 6.5, 6.5);          // re-center → default overview
+    ctl.update();
+  }
+
+  /** Show/hide the Stiff vs Soft control sets + the gizmo, and set the hint.
+      Region (Arms/Upper/Whole) shows ONLY in Task space or Soft. */
   _applyManipMode() {
     const v = $('[data-view="body"]', this.shell); if (!v) return;
     const stiff = this.feel === 'impedance', task = this.manipSpace === 'task';
     const show = (sel, on) => { const el = $(sel, v); if (el) el.style.display = on ? '' : 'none'; };
-    show('[data-stiffctl]', stiff);
-    show('[data-softctl]', !stiff);
-    show('[data-taskonly]', stiff && task);
-    show('[data-jointonly]', stiff && !task);
+    show('[data-spacepanel]', stiff);                       // Task/Joint toggle: Stiff only
+    show('[data-regionpanel]', (stiff && task) || !stiff);  // region: Task space OR Soft
+    show('[data-taskonly]', stiff && task);                 // stiffness + grips
+    show('[data-jointonly]', stiff && !task);               // joint sliders
+    show('[data-softnote]', !stiff);                        // view-only note
     const hint = $('#taManipHint');
     if (hint) hint.innerHTML = !stiff
-      ? 'View only — pose MABEL by hand on the real robot, or push it in the sim. The whole body yields.'
-      : task ? 'Drag the green ball to pose the arm; spin a ring to set the wrist.'
-             : 'Drag the sliders to set each joint angle.';
+      ? 'View only — pose MABEL by hand on the real robot, or push it in the sim.'
+      : task ? 'Drag the green ball to pose the arm; spin a glowing ring to set the wrist.'
+             : 'Set each joint; pick the body group.';
   }
 
   /* ── NAVIGATE view (point-cloud room + goals + follow) ──────────── */
@@ -1943,36 +2060,39 @@ class App {
       if (!downAt || Math.hypot(ev.clientX - downAt[0], ev.clientY - downAt[1]) > 6) return;  // it was an orbit
       setRay(ev);
       const mj = floorMj(); if (!mj) return;
-      if (this.room && this.room.live) {                     // live map → stage a ROS Nav2 goal
-        this.stageNavGoal(mj.x, mj.y);                       // dial shows; drag to aim, tap Follow to drive
-        return;
-      }
-      if (Math.abs(mj.x) > this.room.size[0] / 2 || Math.abs(mj.y) > this.room.size[2] / 2) return;
-      this.setGoal(mj.x, mj.y);                              // (legacy procedural rooms — unused now)
+      if (this.room && (Math.abs(mj.x) > this.room.size[0] / 2 || Math.abs(mj.y) > this.room.size[2] / 2)) return;
+      // ALWAYS plan A* locally + draw the trajectory on the floor (works on the
+      // dummy / fallback map too, even with no live SLAM). When a real robot is
+      // actually streaming, also mirror the goal to the server's RViz preview.
+      this.setGoal(mj.x, mj.y);
+      if (this._liveNav()) this.link.send('nav_goal_preview', { x: this.goal.x, y: this.goal.y, yaw: this.goalYaw });
     });
     canvas.addEventListener('pointercancel', endHeading);
 
-    // Follow button. LIVE map: send the staged goal to ROS Nav2 (it drives the real
-    // robot) and toggle to Stop (cancels). LEGACY procedural rooms: the in-browser
-    // pure-pursuit follower. Enabled the moment a goal is placed (see stageNavGoal /
-    // setGoal); a tap with no goal is a no-op.
+    // Go button. A real robot streaming on the live map → ROS Nav2 drives it (Stop
+    // cancels). Otherwise the in-browser pure-pursuit follower drives the twin along
+    // the drawn A* path — so Go always moves the robot on the web.
     $('#taFollow').addEventListener('click', () => {
       const f = $('#taFollow');
       if (!this.goal) return;
       this.following = !this.following;
-      if (this.room && this.room.live) {                      // live → Nav2 drive / stop
+      if (this._liveNav()) {                                  // live robot → Nav2 drive / stop
         if (this.following) this.sendNavGoal(this.goal.x, this.goal.y);
         else { this.link.send('nav_cancel', {}); UI.set('navdist', 'stopped'); }
-      } else if (!this.following) {                            // legacy local follower
+      } else if (!this.following) {                            // local follower → stop
         this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
       }
-      f.textContent = this.following ? 'Stop' : 'Follow path';
+      f.textContent = this.following ? 'Stop' : 'Go';
       f.classList.toggle('primary', !this.following);
     });
     $('#taClearGoal').addEventListener('click', () => {
-      if (this.room && this.room.live) this.clearNavGoal();
+      if (this._liveNav()) this.clearNavGoal();
       else this.clearGoal();
     });
+
+    // viewport buttons — re-center · fit · follow robot (camera modes)
+    $$('[data-viewbtns="nav"] .ta-vbtn', v).forEach((b) =>
+      b.addEventListener('click', () => this._fitNav(b.dataset.vb)));
 
     this._loadRoom(this.rooms[0]);
     $('.ta-stage', v).classList.add('loaded');     // room is up → clear "BUILDING ROOM"
@@ -2094,7 +2214,7 @@ class App {
     if (this.goalRing) this.goalRing.visible = false;
     this._clearPath();
     UI.set('navdist', '—');
-    const f = $('#taFollow'); if (f) { f.disabled = true; f.textContent = 'Follow path'; f.classList.add('primary'); }
+    const f = $('#taFollow'); if (f) { f.disabled = true; f.textContent = 'Go'; f.classList.add('primary'); }
     this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
   }
 
@@ -2113,7 +2233,7 @@ class App {
     if (this.pathLine) { this.pathLine.visible = false; }
     UI.set('navdist', 'drag dial to aim · Follow to drive');
     const f = $('#taFollow');
-    if (f) { f.disabled = false; f.textContent = 'Follow path'; f.classList.add('primary'); }
+    if (f) { f.disabled = false; f.textContent = 'Go'; f.classList.add('primary'); }
   }
 
   /* Live map: hand the goal to ROS Nav2 (NavFn A* global plan + MPPI controller)
@@ -2132,7 +2252,7 @@ class App {
     if (this.pathLine) this.pathLine.visible = false;
     UI.set('navdist', '—');
     const f = $('#taFollow');
-    if (f) { f.disabled = true; f.textContent = 'Follow path'; f.classList.add('primary'); }
+    if (f) { f.disabled = true; f.textContent = 'Go'; f.classList.add('primary'); }
   }
 
   /** Nearest free cell to (cx, cy) — BFS ring search; null if the map is full. */
@@ -2206,9 +2326,14 @@ class App {
     return out;
   }
 
+  /** True only when a REAL robot is actually streaming state on the live map —
+      then Nav2 drives server-side. Otherwise (no live stream / dummy map) the
+      in-browser A* + pure-pursuit owns navigation. */
+  _liveNav() { return !!(this.room && this.room.live && this.sim.remote); }
+
   /** Pure pursuit along the path — streams the SAME navJoystick the sticks do. */
   _followStep(dt) {
-    if (this.room && this.room.live) return;   // live map → Nav2 drives the real robot server-side
+    if (this.sim.remote) return;               // a live robot is streaming → Nav2 drives it server-side
     if (!this.following || !this.path.length || this.estop) return;
     const { bx, by, yaw } = this.sim.state;
     // advance monotonically along the path (never re-target a passed waypoint)
@@ -2219,7 +2344,7 @@ class App {
     const dGoal = Math.hypot(this.goal.x - bx, this.goal.y - by);
     if (dGoal < 0.14) {
       this.following = false; this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
-      $('#taFollow').textContent = 'Follow path'; $('#taFollow').classList.add('primary');
+      $('#taFollow').textContent = 'Go'; $('#taFollow').classList.add('primary');
       UI.set('navdist', 'arrived');
       return;
     }
@@ -2430,12 +2555,22 @@ class App {
         this.bodyRig.pose(this.sim.state, { pinned: true });
         // green ball + wrist rings: shown only when interactive (Stiff + Task)
         const showGizmo = this.feel === 'impedance' && this.manipSpace === 'task';
+        const pulse = 0.4 + 0.18 * Math.sin(now / 470);            // idle "alive" glow
+        const activeMesh = this.ringDrag?.mesh || this._hoverRing || null;
         const ee = new THREE.Vector3();
         for (const s of ['l', 'r']) {
           if (this.drag === s) this.balls[s].position.copy(this.targets[s]);
           else if (this.bodyRig.ee[s]) { this.bodyRig.ee[s].getWorldPosition(ee); this.balls[s].position.copy(ee); this.targets[s].copy(ee); }
           if (this.wristQ[s]) this.balls[s].quaternion.copy(this.wristQ[s]);   // gizmo shows commanded wrist orientation
           this.balls[s].visible = showGizmo;
+          if (this.balls[s].material) this.balls[s].material.emissiveIntensity = 0.34 + 0.22 * (0.5 + 0.5 * Math.sin(now / 470));
+          if (this.rings[s]) this.rings[s].forEach((r) => {                    // hover/drag → bright + larger; else gentle pulse
+            const active = r === activeMesh;
+            const tube = r.userData.tube, halo = r.userData.halo;
+            if (tube) tube.material.opacity = active ? 1.0 : pulse + 0.12;
+            if (halo) halo.material.opacity = active ? 0.4 : 0.12 + 0.06 * Math.sin(now / 470);
+            r.scale.setScalar(active ? 1.16 : 1);
+          });
         }
       }
       if (this.bodyStage) this.bodyStage.render();
@@ -2448,13 +2583,26 @@ class App {
         this.sim.state.bx = o.x; this.sim.state.by = o.y; this.sim.state.yaw = o.yaw;
       }
       if (this.navRig) this.navRig.pose(this.sim.state);
+      // follow-robot camera: pan target + camera with the robot, keep the orbit
+      if (this._navFollow && this.navRig && this.navStage?.controls) {
+        const r = this.navRig.rootThree();
+        if (this._navPrev) {
+          const dx = r.x - this._navPrev.x, dy = r.y - this._navPrev.y, dz = r.z - this._navPrev.z;
+          this.navStage.controls.target.x += dx; this.navStage.controls.target.y += dy; this.navStage.controls.target.z += dz;
+          this.navStage.camera.position.x += dx; this.navStage.camera.position.y += dy; this.navStage.camera.position.z += dz;
+        }
+        this._navPrev = { x: r.x, y: r.y, z: r.z };
+      }
       if (this.navStage) this.navStage.render();
       if (uiTick) {
         UI.set('navpose', `x ${this.sim.state.bx.toFixed(1)} · y ${this.sim.state.by.toFixed(1)} m`);
+        // live-map status — clearly flag when no live SLAM map is arriving (the
+        // operator can still pick a saved map below and navigate it in-browser).
         if (this.room && this.room.live)
           UI.set('navpts', this.mapStream.lastRecv
             ? `${this.liveCloud ? Math.round(this.liveCloud.geometry.attributes.position.count / 1000) : 0}k pts · live`
-            : (this._mapUrl() ? 'connecting…' : 'connect on LAN for live map'));
+            : (this._mapUrl() ? 'connecting to live map…' : 'live map not received · pick a saved map'));
+        else UI.set('navpts', 'saved map · A* + pure-pursuit');
       }
     }
   }

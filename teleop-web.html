@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
-<link rel="stylesheet" href="assets/teleop-app.css?v=20260630-orbit" />
+<link rel="stylesheet" href="assets/teleop-app.css?v=20260630-iosconsole4" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -131,46 +131,48 @@
       </div>
 
       <!-- context hint — changes with Stiff/Soft + Task/Joint -->
-      <div class="ta-manip-hint" id="taManipHint">Drag the green ball to pose the arm; spin a ring to twist the wrist.</div>
+      <div class="ta-manip-hint" id="taManipHint">Drag the green ball to pose the arm; spin a ring to set the wrist.</div>
 
-      <!-- bottom floating control bar (liquid glass) -->
-      <div class="ta-manip-bar" id="taManipBar">
-        <!-- STIFF: position controller -->
-        <div data-stiffctl>
-          <div class="ta-manip-toggles">
-            <div class="ta-segwrap">
-              <span class="ta-seglabel">CONTROL AREA</span>
-              <div class="ta-seg sm" data-region>
-                <button class="on" data-rv="arm">Arms</button>
-                <button data-rv="upper_body">Upper</button>
-                <button data-rv="whole_body">Whole&nbsp;body</button>
-              </div>
-            </div>
-            <div class="ta-segwrap">
-              <span class="ta-seglabel">SPACE</span>
-              <div class="ta-seg sm" data-space>
-                <button class="on" data-sv="task">Task&nbsp;space</button>
-                <button data-sv="joint">Joint&nbsp;space</button>
-              </div>
-            </div>
-          </div>
-          <!-- task space → stiffness of the position spring -->
-          <div class="ta-stiffrow" data-taskonly>
-            <span class="k">STIFFNESS</span>
-            <input class="ta-slider" type="range" data-stiff min="0.1" max="1" step="0.01" value="0.7" />
-            <span class="v" data-stiff-out>32 Nm/rad</span>
-          </div>
-          <!-- joint space → per-joint targets -->
-          <div class="ta-joints" data-jointonly style="display:none;">
-            <div class="ta-jtabs" data-jtabs></div>
-            <div class="ta-jlist" data-jlist></div>
+      <!-- compact RIGHT-side control panel — all toggles visible at a glance -->
+      <aside class="ta-side ta-manip-side" id="taManipSide">
+        <!-- SPACE (Stiff only) -->
+        <div class="ta-seg sm full" data-space data-spacepanel>
+          <button class="on" data-sv="task">Task</button>
+          <button data-sv="joint">Joint</button>
+        </div>
+        <!-- CONTROL REGION (task space OR soft) -->
+        <div class="ta-panel pc" data-regionpanel>
+          <span class="ta-seglabel">REGION</span>
+          <div class="ta-seg sm full" data-region>
+            <button class="on" data-rv="arm">Arms</button>
+            <button data-rv="upper_body">Upper</button>
+            <button data-rv="whole_body">Whole</button>
           </div>
         </div>
-        <!-- SOFT: compliance — viewer is read-only -->
-        <div class="ta-soft-note" data-softctl style="display:none;">
-          <span class="dot"></span>
-          <span><b>View only.</b> The whole body goes compliant — pose MABEL by hand on the real robot (or push it in the sim). This 3D view just mirrors the live state; the green ball is locked.</span>
+        <!-- TASK → stiffness + hand grips -->
+        <div class="ta-panel pc" data-taskonly>
+          <div class="row"><span class="k">STIFFNESS</span><span class="v" data-stiff-out>32 Nm/rad</span></div>
+          <input class="ta-slider" type="range" data-stiff min="0.1" max="1" step="0.01" value="0.7" />
+          <div class="ta-grip2">
+            <label><span class="k">L HAND</span><input class="ta-slider" data-grip="left" type="range" min="0" max="1" step="0.01" value="0" /></label>
+            <label><span class="k">R HAND</span><input class="ta-slider" data-grip="right" type="range" min="0" max="1" step="0.01" value="0" /></label>
+          </div>
         </div>
+        <!-- JOINT → group tabs + sliders (2 columns for arms/hands) -->
+        <div class="ta-panel pc ta-joints" data-jointonly style="display:none;">
+          <div class="ta-jtabs" data-jtabs></div>
+          <div class="ta-jlist" data-jlist></div>
+        </div>
+        <!-- SOFT → view-only note -->
+        <div class="ta-panel pc ta-soft-note" data-softnote style="display:none;">
+          <b>View only.</b> The body is compliant — pose MABEL by hand (real or sim). This view mirrors the live state.
+        </div>
+      </aside>
+
+      <!-- viewport buttons: re-center · fit -->
+      <div class="ta-viewbtns" data-viewbtns="body">
+        <button class="ta-vbtn" data-vb="recenter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21"/></svg>Re-center</button>
+        <button class="ta-vbtn" data-vb="fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>Fit</button>
       </div>
     </div>
 
@@ -185,11 +187,18 @@
 
       <div class="ta-rooms"></div>
 
+      <!-- viewport buttons: re-center · fit · follow robot -->
+      <div class="ta-viewbtns" data-viewbtns="nav">
+        <button class="ta-vbtn" data-vb="recenter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21"/></svg>Re-center</button>
+        <button class="ta-vbtn" data-vb="fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>Fit</button>
+        <button class="ta-vbtn" data-vb="followcam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>Follow robot</button>
+      </div>
+
+      <!-- bottom: Go / Clear the A* path (pure-pursuit follows) -->
       <div class="ta-navhud">
-        <span class="stat">POSE <b data-ta="navpose">x 0.0 · y 0.0 m</b></span>
-        <span class="stat">GOAL <b data-ta="navdist">—</b></span>
-        <button class="ta-btn primary" id="taFollow" disabled>Follow path</button>
-        <button class="ta-btn" id="taClearGoal">Clear</button>
+        <button class="ta-btn primary" id="taFollow" disabled>Go</button>
+        <button class="ta-btn ghost" id="taClearGoal" title="Clear goal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
       </div>
     </div>
 
@@ -266,6 +275,6 @@
 
 <script src="assets/mabel.js"></script>
 <script src="assets/h264-video.js"></script>
-<script type="module" src="assets/teleop-app.js?v=20260630-orbit"></script>
+<script type="module" src="assets/teleop-app.js?v=20260630-iosconsole4"></script>
 </body>
 </html>
