@@ -1452,9 +1452,19 @@ class App {
   /* ── TELEOP view (video + joysticks + mini model) ───────────────── */
   async _buildTeleop() {
     const v = $('[data-view="teleop"]', this.shell);
-    this.miniStage = new Stage($('.ta-mini .ta-stage', v), { orbit: false, ground: true });
+    // Orbit-enabled so the operator can drag to rotate the robot in the state view
+    // (zoom/pan off so it never hijacks page scroll or drifts the robot off-frame).
+    this.miniStage = new Stage($('.ta-mini .ta-stage', v), { orbit: true, ground: true });
+    if (this.miniStage.controls) { this.miniStage.controls.enableZoom = false; this.miniStage.controls.enablePan = false; }
     this.miniRig = await new Rig().load(this.miniStage, this.manifest);
     $('.ta-mini .ta-stage', v).classList.add('loaded');
+    if (this.miniRig) {
+      // start from the chase angle (behind/above), then it's the operator's to rotate
+      const c = this.miniRig.center0, d = this.miniRig.maxd;
+      this.miniStage.controls.target.copy(c);
+      this.miniStage.camera.position.set(c.x + d * 0.9, c.y + d * 0.5, c.z + d * 1.25);
+      this.miniStage.controls.update();
+    }
 
     // segments
     $$('[data-ck] button', v).forEach((b) => b.addEventListener('click', () => {
@@ -2409,15 +2419,9 @@ class App {
     if (uiTick) this._uiAt = now;
 
     if (this.view === 'teleop') {
-      if (this.miniRig) {                       // rig streams in async — render the stage regardless
-        this.miniRig.pose(this.sim.state);
-        const root = this.miniRig.rootThree(this.sim.state);
-        // chase from behind the robot's front (−X side ⇒ camera at +X in MuJoCo)
-        const back = toThree(new THREE.Vector3(
-          Math.cos(this.sim.state.yaw) * 2.2, Math.sin(this.sim.state.yaw) * 2.2, 1.5));
-        this.miniStage.camera.position.copy(root).add(back);
-        this.miniStage.camera.lookAt(root.x, root.y + 0.75, root.z);
-      }
+      // Pinned (odom-frame): the robot stays centred so the operator can orbit it
+      // freely — heading, lift, arms and joints still animate from the live state.
+      if (this.miniRig) this.miniRig.pose(this.sim.state, { pinned: true });
       if (this.miniStage) this.miniStage.render();
       if (uiTick) UI.set('speed', `${Math.hypot(this.nav.f, this.nav.s).toFixed(2)} m/s`);
     } else if (this.view === 'body') {
