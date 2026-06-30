@@ -82,6 +82,17 @@ const DEFAULT_VPN = 'jerrys-macbook-pro.taile5c63a.ts.net';
 const DEFAULT_RELAY = 'mabelrobot.duckdns.org';
 const DEFAULT_RELAY_KEY = '69f4ec12c13c627ecf3097f648b42b60649e72b6afc4c6f1';
 
+// ── The two consistent robots the console connects to (mirrors the iOS app's
+//    NetworkConfig.seedRobots — same IPs, same relay paths, same passcode) ──────
+//   Simulation : open. Wi-Fi LAN IPs · Tailscale 100.68.140.105 · relay /teleop.
+//   MABEL Real (thor): GATED. Owner passcode unlocks it, then Wi-Fi 10.20.54.117 ·
+//                Tailscale 100.87.253.64 · relay /real/teleop.
+const REAL_CODE = '090620';                       // owner passcode (iOS SecureStore.ownerBypassCode)
+const SIM_WIFI_HOSTS = ['192.168.1.188', '192.168.1.166', '192.168.123.34', '172.20.10.2'];
+const SIM_VPN_IP = '100.68.140.105';
+const REAL_WIFI_IP = '10.20.54.117';
+const REAL_VPN_IP = '100.87.253.64';
+
 const ACCENT = 0xe9a679, GREEN = 0x3FB56B, RED = 0xb3402e, BONE = 0xefeae3;
 // Navigation highlight — a vivid spring-green for the goal beacon + planned path.
 // Bright and saturated so it reads clearly over the dark/tan point cloud, and it
@@ -427,6 +438,32 @@ class Rig {
     this.world.parent.add(m);
     return m;
   }
+
+  /** Three orientation rings around a marker ball — the wrist SE(3) gizmo from
+      the iOS / Vision Pro apps. Roll (blue), Pitch (orange), Yaw (red); each
+      torus carries its local rotation axis in userData so a drag spins it.
+      Children of the ball, so they ride its position and inherit its rotation. */
+  orientationRings(ball, radius) {
+    const rings = [];
+    const mk = (color, axis, rx, ry) => {
+      const t = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, radius * 0.05, 14, 56),
+        new THREE.MeshStandardMaterial({
+          color, emissive: color, emissiveIntensity: 0.45, roughness: 0.4, metalness: 0.1,
+          transparent: true, opacity: 0.85, depthWrite: false,
+        }));
+      t.rotation.set(rx, ry, 0);
+      t.userData.ringAxis = axis;     // local spin axis (perpendicular to the torus plane)
+      t.renderOrder = 3;
+      ball.add(t);
+      rings.push(t);
+      return t;
+    };
+    mk(0xE7913A, new THREE.Vector3(0, 0, 1), 0, 0);            // PITCH — XY plane, spins about Z
+    mk(0x4F9DFF, new THREE.Vector3(0, 1, 0), Math.PI / 2, 0);  // ROLL  — XZ plane, spins about Y
+    mk(0xE0503D, new THREE.Vector3(1, 0, 0), 0, Math.PI / 2);  // YAW   — YZ plane, spins about X
+    return rings;
+  }
 }
 
 /* ════ Sim — canonical state + local kinematic mirror ════════════════ */
@@ -581,10 +618,15 @@ class App {
     // operator command state
     this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
     this.cockpitMode = 'drive';                 // teleop view: drive | arms
+    this.flying = false;                         // Pilot: joysticks gated behind Start Teleop
     this.armJoy = { left: { x: 0, y: 0 }, right: { x: 0, y: 0 } };
     this.armRaise = { left: 0, right: 0 };      // RAISE buttons: +1 up / -1 down (world)
     this.armTgt = {};                           // l/r palm targets (three world) for Cartesian arm drive
-    this.feel = 'impedance';                    // body view: impedance | compliance
+    this.feel = 'impedance';                    // Manipulation: impedance (Stiff) | compliance (Soft)
+    this.manipRegion = 'arm';                    // Stiff control area: arm | upper_body | whole_body
+    this.manipSpace = 'task';                    // Stiff: task (wrist IK / ball) | joint (per-joint)
+    this.wristQ = { l: null, r: null };          // commanded wrist orientation (set in _buildBody)
+    this.ringDrag = null;                        // active orientation-ring drag {side, axis, cx, cy, last}
     this.stiffness = 0.7;
     this.wireJoints = {}; this.jointsDirty = false;
     this.drag = null;                           // body-view active drag side
@@ -636,6 +678,25 @@ class App {
     this._syncCams();
   }
 
+  /* ── Pilot: Start/Stop teleop gates the joysticks ────────────────── */
+  _setFlying(on) {
+    this.flying = !!on;
+    $('[data-view="teleop"]', this.shell)?.classList.toggle('flying', this.flying);
+    const btn = $('#taStartTeleop');
+    if (btn) {
+      const play = $('.ic-play', btn), stop = $('.ic-stop', btn), lab = $('.lab', btn);
+      if (play) play.style.display = this.flying ? 'none' : '';
+      if (stop) stop.style.display = this.flying ? '' : 'none';
+      if (lab) lab.textContent = this.flying ? 'Stop Teleop' : 'Start Teleop';
+      btn.classList.toggle('on', this.flying);
+    }
+    if (!this.flying) {                    // stopped → drop the base + arm command at once
+      this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
+      this.armJoy = { left: { x: 0, y: 0 }, right: { x: 0, y: 0 } };
+      this.armRaise = { left: 0, right: 0 };
+    }
+  }
+
   /* ── the dock ───────────────────────────────────────────────────── */
   _buildDock() {
     $$('[data-tabs] button').forEach((b) =>
@@ -649,6 +710,8 @@ class App {
       if (!this.link.want) this.connectAuto(); else { this._disconnect(); this._curTarget = null; }
       this._paintLink();
     });
+    // Start / Stop teleop — gates the Pilot joysticks (the iOS play/stop button).
+    $('#taStartTeleop')?.addEventListener('click', () => this._setFlying(!this.flying));
     $('#taReset').addEventListener('click', () => this.resetAll());
     $('#taFs').addEventListener('click', () => {
       // Prefer the native Fullscreen API (desktop, iPad). iPhone Safari has NO
@@ -770,25 +833,54 @@ class App {
     try { return JSON.parse(localStorage.getItem('mabel-hosts') || '[]'); } catch (e) { return []; }
   }
   _saveUserHosts(list) { try { localStorage.setItem('mabel-hosts', JSON.stringify(list)); } catch (e) {} }
-  _targets() {
-    const lan = [
-      { id: 'auto',  label: 'Auto-discover', sub: 'a robot on this network', kind: 'auto' },
-      { id: 'local', label: 'This computer', sub: 'localhost', kind: 'lan', host: 'localhost' },
-      ...this._userHosts().map((h) => ({ id: h.id, label: h.label, sub: h.host, kind: 'lan', host: h.host, user: true })),
-    ];
-    const pub = [];
-    if (DEFAULT_RELAY) {
-      pub.push({ id: 'demo', label: 'Sim demo', sub: 'public cloud · sim only', kind: 'relay', host: DEFAULT_RELAY, key: DEFAULT_RELAY_KEY, relayPath: '/teleop' });
-      // The REAL robot over the relay: gated by the SECRET access code (NOT the
-      // public demo token), which the bridge requires for every remote client.
-      // The code is never baked in — the operator types it once (stored locally).
-      // On the LAN the bridge trusts you without a code, so use a LAN host there.
-      let rc = ''; try { rc = localStorage.getItem('mabel-real-code') || ''; } catch (e) {}
-      pub.push({ id: 'real', label: 'MABEL Real (thor)', sub: 'secure relay · access code', kind: 'relay', host: DEFAULT_RELAY, key: rc, relayPath: '/real/teleop', real: true });
-    }
-    return { lan, pub };
+  _realUnlocked() { try { return localStorage.getItem('mabel-real-unlock') === REAL_CODE; } catch (e) { return false; } }
+  /** Validate + persist the owner passcode that unlocks the real robot. */
+  _unlockReal(code) {
+    if (String(code).trim() !== REAL_CODE) return false;
+    try { localStorage.setItem('mabel-real-unlock', REAL_CODE); localStorage.setItem('mabel-real-code', REAL_CODE); } catch (e) {}
+    return true;
   }
-  _findTarget(id) { const { lan, pub } = this._targets(); return [...lan, ...pub].find((t) => t.id === id); }
+  /** The two consistent robots + every connection method, like the iOS app.
+      Each route becomes a connectable target via _routeToTarget. */
+  _robots() {
+    const sim = {
+      id: 'sim', label: 'Simulation', kind: 'sim', badge: 'SIM',
+      routes: [
+        { id: 'sim-auto',  method: 'auto',  label: 'Auto-discover', detail: 'find it on this network' },
+        { id: 'sim-wifi',  method: 'wifi',  label: 'Wi-Fi',  detail: SIM_WIFI_HOSTS[0], hosts: SIM_WIFI_HOSTS },
+        { id: 'sim-vpn',   method: 'vpn',   label: 'VPN',    detail: `${SIM_VPN_IP} · Tailscale`, host: SIM_VPN_IP, dns: DEFAULT_VPN },
+        { id: 'sim-relay', method: 'relay', label: 'Relay',  detail: `${DEFAULT_RELAY} · /teleop`, host: DEFAULT_RELAY, key: DEFAULT_RELAY_KEY, relayPath: '/teleop' },
+      ],
+    };
+    let rc = ''; try { rc = localStorage.getItem('mabel-real-code') || ''; } catch (e) {}
+    const real = {
+      id: 'real', label: 'MABEL Real (thor)', kind: 'real', badge: 'REAL', locked: !this._realUnlocked(),
+      routes: [
+        { id: 'real-wifi',  method: 'wifi',  label: 'Wi-Fi',  detail: REAL_WIFI_IP, hosts: [REAL_WIFI_IP] },
+        { id: 'real-vpn',   method: 'vpn',   label: 'VPN',    detail: `${REAL_VPN_IP} · Tailscale`, host: REAL_VPN_IP },
+        { id: 'real-relay', method: 'relay', label: 'Relay',  detail: `${DEFAULT_RELAY} · /real`, host: DEFAULT_RELAY, key: rc || REAL_CODE, relayPath: '/real/teleop', real: true },
+      ],
+    };
+    return DEFAULT_RELAY ? [sim, real] : [sim];
+  }
+  /** Robot + route → a target object _selectTarget understands. */
+  _routeToTarget(robot, route) {
+    const base = { id: route.id, label: `${robot.label} · ${route.label}`, robotId: robot.id, method: route.method };
+    if (route.method === 'auto')  return { ...base, kind: 'auto' };
+    if (route.method === 'relay') return { ...base, kind: 'relay', host: route.host, key: route.key, relayPath: route.relayPath, real: !!route.real };
+    // wifi / vpn → a LAN/Tailscale ws path. On https a raw IP fails TLS, so prefer
+    // the ts.net DNS name there (its cert names the host, not the IP).
+    let host = route.hosts ? route.hosts[0] : route.host;
+    if (route.method === 'vpn' && route.dns && location.protocol === 'https:') host = route.dns;
+    return { ...base, kind: 'lan', host, real: robot.kind === 'real' };
+  }
+  _allTargets() {
+    const out = [];
+    for (const robot of this._robots()) for (const route of robot.routes) out.push(this._routeToTarget(robot, route));
+    out.push(...this._userHosts().map((h) => ({ id: h.id, label: h.label, kind: 'lan', host: h.host, user: true })));
+    return out;
+  }
+  _findTarget(id) { return this._allTargets().find((t) => t.id === id); }
   /** Default target: the last one used, else the relay sim on the public site
       or auto-discovery on a LAN / the bridge-served console. */
   connectAuto() {
@@ -796,7 +888,7 @@ class App {
     let t = (id && this._findTarget(id)) || null;
     if (!t) {
       const pub = location.protocol === 'https:' && !_isLocalHost(location.hostname);
-      t = this._findTarget(pub ? 'demo' : 'auto') || this._findTarget('auto');
+      t = this._findTarget(pub ? 'sim-relay' : 'sim-auto') || this._findTarget('sim-auto');
     }
     this._selectTarget(t);
   }
@@ -867,23 +959,70 @@ class App {
   _closeHostMenu() { const m = $('#taHostMenu'); if (m) { m.setAttribute('hidden', ''); $('#taConnect')?.setAttribute('aria-expanded', 'false'); } }
   _buildHostMenu() {
     const menu = $('#taHostMenu'); if (!menu) return;
-    const { lan, pub } = this._targets();
-    const cur = this._curTarget?.id;
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    const row = (t) => `<button class="hm-row${t.id === cur ? ' on' : ''}" data-tid="${esc(t.id)}" type="button">
-        <span class="hm-dot"></span>
-        <span class="hm-main"><span class="hm-label">${esc(t.label)}</span><span class="hm-sub">${esc(t.sub)}</span></span>
-        ${t.user ? `<span class="hm-del" data-del="${esc(t.id)}" title="Remove" role="button">×</span>` : ''}</button>`;
+    const cur = this._curTarget?.id;
+    const robots = this._robots();
+    // default the open card to the connected robot, else the first
+    if (!('_expandedRobot' in this)) this._expandedRobot = this._curTarget?.robotId || robots[0].id;
+    const mic = {
+      auto:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 19.5v.01M8 15.7a5.5 5.5 0 0 1 8 0M4.6 12a10 10 0 0 1 14.8 0"/></svg>',
+      wifi:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 19.5v.01M8 15.7a5.5 5.5 0 0 1 8 0M4.6 12a10 10 0 0 1 14.8 0"/></svg>',
+      vpn:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg>',
+      relay: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.4 2.5 14.6 0 17M12 3.5c-2.5 2.4-2.5 14.6 0 17"/></svg>',
+    };
+    const routeRow = (route) => `<button class="hm-route${route.id === cur ? ' on' : ''}" data-tid="${esc(route.id)}" type="button">
+        <span class="hm-mic">${mic[route.method] || ''}</span>
+        <span class="hm-main"><span class="hm-label">${esc(route.label)}</span><span class="hm-sub">${esc(route.detail || '')}</span></span>
+        ${route.id === cur ? '<span class="hm-tick">✓</span>' : ''}</button>`;
+    const card = (robot) => {
+      const open = this._expandedRobot === robot.id;
+      const active = this._curTarget?.robotId === robot.id && this.link.want;
+      const head = `<button class="hm-robot${active ? ' on' : ''}" data-robot="${esc(robot.id)}" type="button">
+          <span class="hm-dot"></span>
+          <span class="hm-main"><span class="hm-label">${esc(robot.label)}</span>
+            <span class="hm-sub">${robot.locked ? 'locked · enter passcode' : `${robot.routes.length} ways to connect`}</span></span>
+          <span class="hm-badge ${robot.kind}">${esc(robot.badge)}</span>
+          <span class="hm-chev">${robot.locked ? '🔒' : (open ? '▾' : '▸')}</span></button>`;
+      let body = '';
+      if (open && robot.locked) {
+        body = `<form class="hm-pass" data-passform autocomplete="off">
+            <input class="hm-passin" type="password" inputmode="numeric" maxlength="12" placeholder="Access code" aria-label="Real robot access code" />
+            <button type="submit" class="hm-passbtn">Unlock</button>
+            <span class="hm-passerr" data-passerr hidden>Wrong code</span></form>`;
+      } else if (open) {
+        body = `<div class="hm-routes">${robot.routes.map(routeRow).join('')}</div>`;
+      }
+      return `<div class="hm-card${open ? ' open' : ''}">${head}${body}</div>`;
+    };
+    const saved = this._userHosts();
     menu.innerHTML =
-      `<div class="hm-head">Local network<span>secure · LAN only</span></div>` +
-      lan.map(row).join('') +
-      `<form class="hm-add" data-addform autocomplete="off"><input class="hm-name" placeholder="Name" aria-label="Robot name" /><input class="hm-ip" placeholder="192.168.1.x" aria-label="Robot LAN IP" /><button type="submit" class="hm-addbtn" title="Add robot">＋</button></form>` +
-      (pub.length ? `<div class="hm-head">Public<span>simulation only</span></div>` + pub.map(row).join('') : '') +
-      (this.link.want ? `<button class="hm-row hm-disc" data-disc type="button"><span class="hm-dot"></span><span class="hm-main"><span class="hm-label">Disconnect</span></span></button>` : '');
-    $$('.hm-row[data-tid]', menu).forEach((b) => b.addEventListener('click', (e) => {
+      `<div class="hm-head">Robots<span>tap to connect</span></div>` +
+      robots.map(card).join('') +
+      `<form class="hm-add" data-addform autocomplete="off"><input class="hm-name" placeholder="Name" aria-label="Robot name" /><input class="hm-ip" placeholder="add a LAN IP" aria-label="Robot LAN IP" /><button type="submit" class="hm-addbtn" title="Add a robot">＋</button></form>` +
+      (saved.length ? `<div class="hm-head">Saved<span>your LAN robots</span></div>` +
+        saved.map((h) => `<button class="hm-route${h.id === cur ? ' on' : ''}" data-tid="${esc(h.id)}" type="button"><span class="hm-mic">${mic.wifi}</span><span class="hm-main"><span class="hm-label">${esc(h.label)}</span><span class="hm-sub">${esc(h.host)}</span></span><span class="hm-del" data-del="${esc(h.id)}" role="button" title="Remove">×</span></button>`).join('') : '') +
+      (this.link.want ? `<button class="hm-route hm-disc" data-disc type="button"><span class="hm-mic"></span><span class="hm-main"><span class="hm-label">Disconnect</span></span></button>` : '');
+
+    // robot header → expand / collapse (real expands to reveal the passcode form)
+    $$('.hm-robot', menu).forEach((b) => b.addEventListener('click', () => {
+      const id = b.dataset.robot;
+      this._expandedRobot = this._expandedRobot === id ? null : id;
+      this._buildHostMenu();
+    }));
+    // a connection method → connect
+    $$('.hm-route[data-tid]', menu).forEach((b) => b.addEventListener('click', (e) => {
       if (e.target.closest('[data-del]')) return;
       this._selectTarget(this._findTarget(b.dataset.tid));
     }));
+    // passcode unlock for the real robot
+    $('[data-passform]', menu)?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inp = $('.hm-passin', menu);
+      if (this._unlockReal(inp.value)) this._buildHostMenu();
+      else { const err = $('[data-passerr]', menu); if (err) err.hidden = false; if (inp) { inp.value = ''; inp.focus(); } }
+    });
+    setTimeout(() => $('.hm-passin', menu)?.focus(), 0);
+    // delete a saved robot
     $$('[data-del]', menu).forEach((d) => d.addEventListener('click', (e) => {
       e.stopPropagation();
       this._saveUserHosts(this._userHosts().filter((h) => h.id !== d.dataset.del));
@@ -1416,9 +1555,55 @@ class App {
     };
     set('#taCamMain', 'main'); set('#taCamL', 'wrist_left'); set('#taCamR', 'wrist_right');
     $('#taNoVid').style.display = on ? 'none' : '';
+    // H.264/WebCodecs overlay (LAN only): HIGH-RES, low-latency. Renders to a <canvas>
+    // over each MJPEG <img>; the img stays as the automatic fallback (relay, or a
+    // browser without WebCodecs, or if the H.264 WS stalls).
+    this._syncH264(host, on, remote);
   }
 
-  /* ── BODY view (Hold = impedance · Soft = compliance) ───────────── */
+  /* ── H.264/WebCodecs camera overlay (browser-native low-latency) ──────────
+   * The bridge serves hardware-NVENC H.264 access units on a WebSocket at
+   * ws://<host>:8080/camera/<name>/h264 (one binary message = one Annex-B access
+   * unit). H264Stream (assets/h264-video.js) decodes them with WebCodecs straight
+   * to a <canvas> — no MSE jitter buffer, so glass-to-glass is decode + one frame,
+   * and inter-frame H.264 lets us run 720p at ~3-4 Mbps instead of MJPEG's ~40.
+   * Browsers cannot read the raw UDP H.264 the iOS/VP apps use, so WS is the
+   * browser transport. We keep the MJPEG <img> underneath as the fallback. */
+  _syncH264(host, on, remote) {
+    if (!window.H264Stream || !window.H264Stream.supported) return;   // older browser → MJPEG
+    this._h264 = this._h264 || {};
+    const cams = [['#taCanvasMain', 'main'], ['#taCanvasL', 'wrist_left'], ['#taCanvasR', 'wrist_right']];
+    const useH264 = on && !remote;            // LAN/ws only; the wss relay has no WS video edge
+    for (const [sel, path] of cams) {
+      const canvas = $(sel); if (!canvas) continue;
+      const st = this._h264[path];
+      if (useH264 && !st) {
+        const s = new H264Stream({
+          wsUrl: `ws://${host}:8080/camera/${path}/h264`,
+          canvas,
+          onLive: live => { canvas.style.display = live ? '' : 'none'; }
+        });
+        s.start();
+        this._h264[path] = s;
+      } else if (!useH264 && st) {
+        st.stop(); canvas.style.display = 'none'; delete this._h264[path];
+      }
+    }
+    // Watchdog: hide a canvas whose H.264 has gone stale, revealing the MJPEG <img>.
+    if (useH264 && !this._h264Watch) {
+      this._h264Watch = setInterval(() => {
+        for (const [sel, path] of cams) {
+          const st = this._h264 && this._h264[path]; const c = $(sel);
+          if (st && c) c.style.display = st.isFresh(2500) ? '' : 'none';
+        }
+      }, 1000);
+    } else if (!useH264 && this._h264Watch) {
+      clearInterval(this._h264Watch); this._h264Watch = null;
+    }
+  }
+
+  /* ── MANIPULATION view (Stiff = impedance position control · Soft =
+        whole-body compliance, viewer read-only) ──────────────────────── */
   async _buildBody() {
     const v = $('[data-view="body"]', this.shell);
     this.bodyStage = new Stage($('.ta-stage', v), { orbit: true, ground: true });
@@ -1433,27 +1618,36 @@ class App {
       const c = rig.center0;
       this.bodyStage.controls.target.copy(c);
       this.bodyStage.camera.position.set(c.x + rig.maxd * 0.95, c.y + rig.maxd * 0.55, c.z + rig.maxd * 1.25);
-      // palm handles
-      this.balls = {};
+      // palm handles + wrist-orientation gizmos (the iOS green ball + 3 rings)
+      this.balls = {}; this.rings = {};
       this.targets = { l: new THREE.Vector3(), r: new THREE.Vector3() };
+      this.wristQ = { l: new THREE.Quaternion(), r: new THREE.Quaternion() };
       for (const s of ['l', 'r']) {
         this.balls[s] = rig.marker(GREEN, rig.maxd * 0.024);
-        this.balls[s].userData.side = s;
+        this.balls[s].userData.kind = 'ball'; this.balls[s].userData.side = s;
+        this.rings[s] = rig.orientationRings(this.balls[s], rig.maxd * 0.042);
+        this.rings[s].forEach((r) => { r.userData.side = s; });
         rig.ee[s]?.getWorldPosition(this.targets[s]);
       }
     }
 
-    // feel segmented control
+    // Stiff / Soft (control law)
     $$('[data-feel] button', v).forEach((b) => b.addEventListener('click', () => {
       $$('[data-feel] button', v).forEach((x) => x.classList.toggle('on', x === b));
-      this.feel = b.dataset.val;
-      $('.ta-side', v).style.display = this.feel === 'impedance' ? '' : 'none';
-      $('#taHintHold').style.display = this.feel === 'impedance' ? '' : 'none';
-      $('#taHintSoft').style.display = this.feel === 'compliance' ? '' : 'none';
-      this._announceSpec();
+      this.feel = b.dataset.val; this._applyManipMode(); this._announceSpec();
+    }));
+    // Control area (Stiff): Arms · Upper · Whole body → control_mode.region
+    $$('[data-region] button', v).forEach((b) => b.addEventListener('click', () => {
+      $$('[data-region] button', v).forEach((x) => x.classList.toggle('on', x === b));
+      this.manipRegion = b.dataset.rv; this._announceSpec();
+    }));
+    // Task space (wrist IK / ball) ↔ Joint space (per-joint) → control_mode.method
+    $$('[data-space] button', v).forEach((b) => b.addEventListener('click', () => {
+      $$('[data-space] button', v).forEach((x) => x.classList.toggle('on', x === b));
+      this.manipSpace = b.dataset.sv; this._applyManipMode(); this._announceSpec();
     }));
 
-    // stiffness
+    // stiffness of the position spring
     const sl = $('[data-stiff]', v), out = $('[data-stiff-out]', v);
     sl.addEventListener('input', () => {
       this.stiffness = +sl.value;
@@ -1461,7 +1655,7 @@ class App {
       this._announceSpec(true);
     });
 
-    // joints drawer
+    // joint-space sliders (Body / Arms / Hands)
     const groups = ['body', 'arms', 'hands'];
     const tabs = $('[data-jtabs]', v), list = $('[data-jlist]', v);
     const renderGroup = (g) => {
@@ -1492,15 +1686,11 @@ class App {
     }
     renderGroup('arms');
 
-    // Joint sliders collapse behind a header, closed by default on EVERY viewport
-    // so the Body view is just the robot model + Hold/Soft + a tiny corner card.
-    const jpanel = $('.ta-joints', v), jhd = $('[data-jcollapse]', v);
-    if (jhd && jpanel) {
-      jpanel.classList.add('collapsed');
-      jhd.addEventListener('click', () => jpanel.classList.toggle('collapsed'));
-    }
+    this._applyManipMode();          // initial visibility: Stiff · Task · Arms
 
-    // drag the palm handles
+    // ── 3D stage interaction ── ball = drag arm IK; rings = twist the wrist.
+    // The viewer is INTERACTIVE only in Stiff + Task space; in Soft or Joint
+    // space it is a read-only mirror (orbit only — you pose the real robot).
     const ray = new THREE.Raycaster(); const ndc = new THREE.Vector2();
     const planeN = new THREE.Vector3(); const plane = new THREE.Plane();
     const canvas = this.bodyStage.canvas;
@@ -1510,34 +1700,87 @@ class App {
       ray.setFromCamera(ndc, this.bodyStage.camera);
       return ray;
     };
+    const interactive = () => this.feel === 'impedance' && this.manipSpace === 'task' && this.balls;
     canvas.addEventListener('pointerdown', (ev) => {
-      if (this.estop || !this.balls) return;     // rig may still be streaming in
-      const hits = pick(ev).intersectObjects([this.balls.l, this.balls.r]);
+      if (this.estop || !interactive()) return;     // soft / joint / no-rig → orbit only
+      const r = pick(ev);
+      // rings sit on the ball surface — test them first, then the ball core
+      const ringHits = r.intersectObjects(this.rings.l.concat(this.rings.r), false);
+      if (ringHits.length) {
+        const m = ringHits[0].object, side = m.userData.side;
+        const sp = this._project(this.balls[side].position);
+        this.ringDrag = { side, axis: m.userData.ringAxis.clone(),
+          last: Math.atan2(ev.clientY - sp.y, ev.clientX - sp.x) };
+        this.bodyStage.controls.enabled = false;
+        canvas.setPointerCapture(ev.pointerId); ev.preventDefault(); return;
+      }
+      const hits = r.intersectObjects([this.balls.l, this.balls.r], false);
       if (!hits.length) return;
       this.drag = hits[0].object.userData.side;
       this.bodyStage.controls.enabled = false;
       canvas.setPointerCapture(ev.pointerId);
-      // drag plane ⟂ camera through the ball
       this.bodyStage.camera.getWorldDirection(planeN);
       plane.setFromNormalAndCoplanarPoint(planeN, this.balls[this.drag].position);
       ev.preventDefault();
     });
     canvas.addEventListener('pointermove', (ev) => {
+      if (this.ringDrag) {                          // spin a ring → wrist orientation
+        const side = this.ringDrag.side;
+        const sp = this._project(this.balls[side].position);
+        const a = Math.atan2(ev.clientY - sp.y, ev.clientX - sp.x);
+        let d = a - this.ringDrag.last; this.ringDrag.last = a;
+        if (d > Math.PI) d -= 2 * Math.PI; else if (d < -Math.PI) d += 2 * Math.PI;
+        this.wristQ[side].multiply(new THREE.Quaternion().setFromAxisAngle(this.ringDrag.axis, d));
+        this._streamWrist(side);
+        return;
+      }
       if (!this.drag) return;
       const p = new THREE.Vector3();
       if (pick(ev).ray.intersectPlane(plane, p)) this.targets[this.drag].copy(p);
     });
     const drop = () => {
-      if (!this.drag) return;
-      if (this.feel === 'compliance') {
-        this.link.send('external_force', { forces: {} });   // clear the push
-        this.bodyRig.ee[this.drag]?.getWorldPosition(this.targets[this.drag]);
-      }
-      this.drag = null;
+      this.ringDrag = null;
+      if (this.drag) { this.bodyRig?.ee[this.drag]?.getWorldPosition(this.targets[this.drag]); this.drag = null; }
       this.bodyStage.controls.enabled = true;
     };
     canvas.addEventListener('pointerup', drop);
     canvas.addEventListener('pointercancel', drop);
+  }
+
+  /** Screen-space pixel position of a world point (for ring-spin geometry). */
+  _project(vec) {
+    const r = this.bodyStage.canvas.getBoundingClientRect();
+    const p = vec.clone().project(this.bodyStage.camera);
+    return { x: r.left + (p.x * 0.5 + 0.5) * r.width, y: r.top + (-p.y * 0.5 + 0.5) * r.height };
+  }
+
+  /** The gizmo commands a full wrist SE(3) orientation (shown by the 3 rings).
+      The kinematic twin has one real wrist DOF, so the pitch component drives the
+      actual left_wrist/right_wrist joint over the existing joint_command wire;
+      the full orientation reaches a real robot's SE(3) wrist tracker via the rings. */
+  _streamWrist(side) {
+    const jn = side === 'l' ? 'left_wrist' : 'right_wrist';
+    const j = this.sim.jmap[jn]; if (!j) return;
+    const e = new THREE.Euler().setFromQuaternion(this.wristQ[side], 'XYZ');
+    const val = clamp(e.z, j.lower, j.upper);
+    this.sim.state.q[jn] = val; this.sim.jointTarget[jn] = val;
+    this.setWire(jn, val);
+  }
+
+  /** Show/hide the Stiff vs Soft control sets + the gizmo, and set the hint. */
+  _applyManipMode() {
+    const v = $('[data-view="body"]', this.shell); if (!v) return;
+    const stiff = this.feel === 'impedance', task = this.manipSpace === 'task';
+    const show = (sel, on) => { const el = $(sel, v); if (el) el.style.display = on ? '' : 'none'; };
+    show('[data-stiffctl]', stiff);
+    show('[data-softctl]', !stiff);
+    show('[data-taskonly]', stiff && task);
+    show('[data-jointonly]', stiff && !task);
+    const hint = $('#taManipHint');
+    if (hint) hint.innerHTML = !stiff
+      ? 'View only — pose MABEL by hand on the real robot, or push it in the sim. The whole body yields.'
+      : task ? 'Drag the green ball to pose the arm; spin a ring to set the wrist.'
+             : 'Drag the sliders to set each joint angle.';
   }
 
   /* ── NAVIGATE view (point-cloud room + goals + follow) ──────────── */
@@ -1996,11 +2239,13 @@ class App {
         ? { method: 'navigation', controlType: 'impedance', region: 'whole_body', stiffness: this.stiffness * MAX_STIFF }
         : { method: 'wrist', controlType: 'impedance', region: 'arm', stiffness: this.stiffness * MAX_STIFF };
     } else if (this.view === 'body') {
-      // Soft is deliberately toggle-free: one whole-body compliance law, all
-      // the complexity server-side (the same spec WholeBodyView pins).
+      // Soft = whole-body compliance (viewer read-only — pose the real robot).
+      // Stiff = a position controller: task space (palm SE(3) → arm IK, the green
+      // ball) or joint space (per-joint targets), over the chosen control area.
       spec = this.feel === 'compliance'
         ? { method: 'wrist', controlType: 'compliance', region: 'whole_body', stiffness: 0 }
-        : { method: 'wrist', controlType: 'impedance', region: 'arm', stiffness: this.stiffness * MAX_STIFF };
+        : { method: this.manipSpace === 'joint' ? 'joint' : 'wrist',
+            controlType: 'impedance', region: this.manipRegion, stiffness: this.stiffness * MAX_STIFF };
     } else if (this.view === 'nav') {
       spec = { method: 'navigation', controlType: 'impedance', region: 'whole_body', stiffness: this.stiffness * MAX_STIFF };
     } else return;
@@ -2040,6 +2285,7 @@ class App {
     this.wireJoints = {}; this.jointsDirty = false;
     this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
     if (this.goalRing) this.clearGoal();
+    if (this.wristQ) for (const s of ['l', 'r']) this.wristQ[s]?.identity();
     if (this.bodyRig && this.targets) {
       this.bodyRig.pose(this.sim.state, { pinned: true });
       for (const s of ['l', 'r']) this.bodyRig.ee[s]?.getWorldPosition(this.targets[s]);
@@ -2131,37 +2377,23 @@ class App {
 
     // Arm Cartesian drive runs regardless of the link: the joysticks always move
     // the arms (locally on the twin, and over the wire when connected).
-    if (this.view === 'teleop' && this.cockpitMode === 'arms' && !this.estop) this._armCartesian(dt);
+    if (this.view === 'teleop' && this.cockpitMode === 'arms' && this.flying && !this.estop) this._armCartesian(dt);
 
     if (!this.sim.remote && !this.estop) {
       // local kinematic mirror (identical command semantics to the bridge)
       this.sim.stepBase(this.nav, dt);
-      if (this.drag && this.view === 'body') {
-        if (this.feel === 'impedance') {
-          this.sim.ik(this.bodyRig, this.drag, this.targets[this.drag], 0.3 + 0.4 * this.stiffness, 2);
-          for (const c of this.sim.chains[this.drag]) {
-            this.sim.jointTarget[c] = this.sim.state.q[c];
-            this.setWire(c, this.sim.state.q[c]);
-          }
-        } else {
-          // SOFT: locally yield toward the pull; on the wire it is a pure
-          // world-frame push (converted three → MuJoCo at the seam).
-          this.sim.ik(this.bodyRig, this.drag, this.targets[this.drag], 0.12, 1);
+      // Stiff + Task space: dragging the green ball solves arm IK toward the
+      // target and streams the chain. (Soft & Joint space don't drag — the ball
+      // is locked / not shown; the viewer is read-only or driven by sliders.)
+      if (this.drag && this.view === 'body' && this.feel === 'impedance') {
+        this.sim.ik(this.bodyRig, this.drag, this.targets[this.drag], 0.3 + 0.4 * this.stiffness, 2);
+        for (const c of this.sim.chains[this.drag]) {
+          this.sim.jointTarget[c] = this.sim.state.q[c];
+          this.setWire(c, this.sim.state.q[c]);
         }
       }
       this.sim.slew(dt, this.drag && this.feel === 'impedance' ? this.sim.chains[this.drag] : null);
       this.sim.applyGrips();
-    }
-
-    // SOFT push streams while dragging (connected: real external_force)
-    if (this.drag && this.feel === 'compliance' && this.view === 'body' && !this.estop) {
-      const ee = new THREE.Vector3();
-      this.bodyRig.ee[this.drag].getWorldPosition(ee);
-      const f = toMj(new THREE.Vector3().subVectors(this.targets[this.drag], ee))
-        .multiplyScalar(PUSH_K).clampLength(0, PUSH_MAX);
-      this.link.send('external_force', {
-        forces: { [`${this.drag}_hand_mount`]: [+f.x.toFixed(2), +f.y.toFixed(2), +f.z.toFixed(2)] },
-      });
     }
 
     // 20 Hz uplink
@@ -2192,11 +2424,14 @@ class App {
       // odom-pinned: the Body twin stays centered even while the base drives
       if (this.bodyRig && this.balls) {
         this.bodyRig.pose(this.sim.state, { pinned: true });
+        // green ball + wrist rings: shown only when interactive (Stiff + Task)
+        const showGizmo = this.feel === 'impedance' && this.manipSpace === 'task';
         const ee = new THREE.Vector3();
         for (const s of ['l', 'r']) {
           if (this.drag === s) this.balls[s].position.copy(this.targets[s]);
           else if (this.bodyRig.ee[s]) { this.bodyRig.ee[s].getWorldPosition(ee); this.balls[s].position.copy(ee); this.targets[s].copy(ee); }
-          this.balls[s].visible = true;
+          if (this.wristQ[s]) this.balls[s].quaternion.copy(this.wristQ[s]);   // gizmo shows commanded wrist orientation
+          this.balls[s].visible = showGizmo;
         }
       }
       if (this.bodyStage) this.bodyStage.render();

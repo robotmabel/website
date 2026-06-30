@@ -49,11 +49,15 @@
   border: 1px solid rgba(255,255,255,.08);
 }
 .ta-seg button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   height: 28px; padding: 0 16px; border-radius: 14px; border: none; cursor: pointer;
   background: transparent; color: #97908a; font: 500 12.5px 'Geist', sans-serif;
-  transition: background .18s, color .18s;
+  transition: background .18s, color .18s; white-space: nowrap;
 }
+.ta-seg button svg { width: 14px; height: 14px; }
 .ta-seg button.on { background: #efeae3; color: #161412; }
+/* compact variant for the in-panel toggles (control area · space) */
+.ta-seg.sm button { height: 26px; padding: 0 12px; font-size: 11.5px; border-radius: 12px; }
 
 /* ── teleop view ───────────────────────────────────────────────────── */
 .ta-video { position: absolute; inset: 0; background: #000; overflow: hidden; }
@@ -367,12 +371,19 @@
 .ta-metrics { display: flex; gap: 12px; align-items: center; }
 .ta-metric { font: 500 10px 'Geist Mono', monospace; letter-spacing: .08em; color: #6d6660; white-space: nowrap; }
 .ta-metric b { color: #efeae3; font-weight: 500; margin-left: 4px; }
+/* Reset + fullscreen: solid liquid-glass chips so they read clearly against the
+   video/3D behind the dock (were near-invisible ghost outlines before). */
 .ta-sbtn {
-  height: 32px; padding: 0 13px; border-radius: 16px; cursor: pointer;
-  border: 1px solid rgba(255,255,255,.12); background: transparent; color: #97908a;
-  font: 500 12px 'Geist', sans-serif; white-space: nowrap; flex: none;
+  height: 34px; padding: 0 16px; border-radius: 17px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.24);
+  background: rgba(255,255,255,.11);
+  backdrop-filter: blur(8px) saturate(1.4); -webkit-backdrop-filter: blur(8px) saturate(1.4);
+  color: #efeae3; font: 600 12.5px 'Geist', sans-serif; white-space: nowrap; flex: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 3px 10px -5px rgba(0,0,0,.6);
+  transition: background .15s, border-color .15s, transform .1s;
 }
-.ta-sbtn:hover { color: #efeae3; border-color: rgba(255,255,255,.25); }
+.ta-sbtn:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.4); color: #fff; }
+.ta-sbtn:active { transform: translateY(1px); }
 .ta-estop {
   height: 36px; padding: 0 16px; border-radius: 18px; border: 2px solid #b3402e; cursor: pointer;
   background: rgba(179,64,46,.16); color: #ff6f57; font: 700 12px 'Geist', sans-serif; letter-spacing: .08em;
@@ -380,8 +391,8 @@
 }
 .ta-estop:hover { background: rgba(179,64,46,.3); }
 .ta-estop.latched { background: #b3402e; color: #fff; animation: ta-blink 1s infinite; }
-.ta-fs { width: 32px; padding: 0; display: grid; place-items: center; }
-.ta-fs svg { width: 15px; height: 15px; }
+.ta-fs { width: 36px; padding: 0; display: grid; place-items: center; }
+.ta-fs svg { width: 16px; height: 16px; }
 
 /* CSS immersive fullscreen — the fallback for iPhone Safari, which has NO
    Fullscreen API on the iPhone (only iPad). Toggled by the FS button when the
@@ -449,3 +460,122 @@ html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
   letter-spacing: .16em; color: #6d6660;
 }
 .ta-stage.loaded .ta-loading { opacity: 0; pointer-events: none; }
+
+/* ════ PILOT: Start Teleop gate ═══════════════════════════════════════
+   Joysticks + the Drive/Arms toggle stay hidden until Start Teleop, exactly
+   like the iOS play/stop button. The button itself sits centred above the dock. */
+.ta-startteleop {
+  position: absolute; left: 50%; bottom: 118px; transform: translateX(-50%); z-index: 8;
+  display: inline-flex; align-items: center; gap: 10px; height: 50px; padding: 0 28px;
+  border-radius: 25px; border: none; cursor: pointer;
+  background: linear-gradient(180deg, #f0b68b, #e9a679); color: #161412;
+  font: 600 15px 'Geist', sans-serif; letter-spacing: .01em;
+  box-shadow: 0 16px 38px -12px rgba(233,166,121,.75), inset 0 1px 0 rgba(255,255,255,.45);
+  transition: transform .14s, box-shadow .2s, background .2s, filter .2s;
+}
+.ta-startteleop svg { width: 21px; height: 21px; }
+.ta-startteleop:hover { transform: translateX(-50%) translateY(-1px); filter: brightness(1.04); }
+.ta-startteleop:active { transform: translateX(-50%); }
+/* once flying → a compact red Stop chip in the same spot, controls revealed */
+.ta-view[data-view="teleop"].flying .ta-startteleop {
+  height: 34px; padding: 0 16px; gap: 7px; font-size: 12px; letter-spacing: .05em; text-transform: uppercase;
+  background: rgba(179,64,46,.92); color: #fff;
+  box-shadow: 0 10px 24px -12px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.2);
+}
+.ta-view[data-view="teleop"].flying .ta-startteleop svg { width: 16px; height: 16px; }
+/* gate: joysticks / arm clusters / Drive-Arms toggle hidden until Start */
+.ta-view[data-view="teleop"] .ta-joy,
+.ta-view[data-view="teleop"] .ta-cluster,
+.ta-view[data-view="teleop"] .ta-seg[data-ck] { transition: opacity .22s; }
+.ta-view[data-view="teleop"]:not(.flying) .ta-joy,
+.ta-view[data-view="teleop"]:not(.flying) .ta-cluster,
+.ta-view[data-view="teleop"]:not(.flying) .ta-seg[data-ck] { opacity: 0; pointer-events: none; }
+
+/* ════ MANIPULATION: context hint + bottom control bar ════════════════ */
+.ta-manip-hint {
+  position: absolute; left: 50%; top: 92px; transform: translateX(-50%); z-index: 6;
+  max-width: min(90%, 460px); text-align: center;
+  padding: 7px 16px; border-radius: 16px;
+  font: 400 12.5px 'Geist', sans-serif; color: #c8c1b9;
+  background: rgba(20,18,16,.6); border: 1px solid rgba(255,255,255,.09);
+  backdrop-filter: blur(14px) saturate(1.5); -webkit-backdrop-filter: blur(14px) saturate(1.5);
+}
+.ta-manip-bar {
+  /* sits as a second glass bar stacked just above the floating dock */
+  position: absolute; left: 50%; bottom: 138px; transform: translateX(-50%); z-index: 7;
+  width: min(620px, 92vw); padding: 12px 14px; border-radius: 20px;
+  background: linear-gradient(180deg, rgba(40,36,32,.5), rgba(18,16,14,.62));
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(22px) saturate(1.7); -webkit-backdrop-filter: blur(22px) saturate(1.7);
+  box-shadow: 0 18px 44px -18px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.1);
+}
+.ta-manip-toggles { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.ta-segwrap { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.ta-seglabel { font: 500 8.5px 'Geist Mono', monospace; letter-spacing: .14em; color: #6d6660; }
+.ta-stiffrow {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 11px; padding-top: 11px; border-top: 1px solid rgba(255,255,255,.07);
+}
+.ta-stiffrow .k { font: 500 9px 'Geist Mono', monospace; letter-spacing: .12em; color: #6d6660; flex: none; }
+.ta-stiffrow .ta-slider { flex: 1; }
+.ta-stiffrow .v { font: 500 11px 'Geist Mono', monospace; color: #e9a679; flex: none; min-width: 74px; text-align: right; }
+.ta-manip-bar .ta-joints { margin-top: 11px; padding-top: 11px; border-top: 1px solid rgba(255,255,255,.07); }
+.ta-manip-bar .ta-jtabs { justify-content: center; margin: 0 0 8px; }
+.ta-manip-bar .ta-jlist { max-height: 150px; }
+.ta-soft-note {
+  display: flex; align-items: flex-start; gap: 9px;
+  font: 400 12.5px 'Geist', sans-serif; color: #c8c1b9; line-height: 1.45;
+}
+.ta-soft-note b { color: #66f7c2; font-weight: 600; }
+.ta-soft-note .dot { width: 8px; height: 8px; margin-top: 5px; flex: none; border-radius: 50%; background: #66f7c2; box-shadow: 0 0 8px #66f7c2aa; }
+
+/* ════ HOST PICKER: robots accordion + connection methods ═════════════ */
+.ta-hostmenu { width: min(308px, 90vw); }
+.hm-card { border-radius: 13px; overflow: hidden; }
+.hm-card.open { background: rgba(255,255,255,.04); margin: 2px 0; }
+.hm-robot {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px; border: none; border-radius: 12px; cursor: pointer;
+  background: transparent; color: #efeae3; text-align: left; font-family: 'Geist', sans-serif;
+}
+.hm-robot:hover { background: rgba(255,255,255,.06); }
+.hm-robot.on .hm-dot { background: #3FB56B; box-shadow: 0 0 7px #3FB56B88; }
+.hm-badge {
+  font: 600 8.5px 'Geist Mono', monospace; letter-spacing: .1em; padding: 3px 7px; border-radius: 7px;
+  background: rgba(255,255,255,.08); color: #8a837c; flex: none;
+}
+.hm-badge.sim  { background: rgba(63,181,107,.16); color: #5fd08a; }
+.hm-badge.real { background: rgba(179,64,46,.2); color: #ff8a73; }
+.hm-chev { color: #6d6660; font-size: 12px; flex: none; width: 16px; text-align: center; }
+.hm-routes { padding: 0 6px 6px; display: flex; flex-direction: column; gap: 1px; }
+.hm-route {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 8px 10px; border: none; border-radius: 10px; cursor: pointer;
+  background: transparent; color: #d8d2ca; text-align: left; font-family: 'Geist', sans-serif;
+}
+.hm-route:hover { background: rgba(255,255,255,.07); }
+.hm-route.on { background: rgba(63,181,107,.14); color: #efeae3; }
+.hm-mic { width: 20px; height: 20px; flex: none; color: #8a837c; display: grid; place-items: center; }
+.hm-mic svg { width: 18px; height: 18px; }
+.hm-route.on .hm-mic { color: #3FB56B; }
+.hm-tick { color: #3FB56B; font-size: 12px; flex: none; }
+.hm-routes .hm-label { font-size: 12.5px; }
+.hm-pass { display: flex; align-items: center; gap: 6px; padding: 2px 8px 10px; flex-wrap: wrap; }
+.hm-passin {
+  flex: 1; min-width: 0; height: 32px; border-radius: 9px; padding: 0 11px;
+  background: rgba(0,0,0,.32); border: 1px solid rgba(255,255,255,.12); color: #efeae3;
+  font: 500 13px 'Geist Mono', monospace; letter-spacing: .2em; outline: none;
+}
+.hm-passin:focus { border-color: rgba(233,166,121,.55); }
+.hm-passbtn {
+  height: 32px; padding: 0 14px; flex: none; border-radius: 9px; border: none; cursor: pointer;
+  background: #e9a679; color: #161412; font: 600 12px 'Geist', sans-serif;
+}
+.hm-passerr { width: 100%; font: 500 10.5px 'Geist Mono', monospace; color: #ff8a73; padding-left: 2px; }
+
+@media (max-width: 700px) {
+  .ta-manip-bar { width: 94vw; padding: 10px 11px; bottom: 128px; }
+  .ta-manip-toggles { gap: 10px; }
+  .ta-manip-hint { top: 84px; font-size: 11.5px; }
+  .ta-startteleop { bottom: 110px; }
+}
