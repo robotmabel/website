@@ -270,15 +270,17 @@
    hidden, so the connection logic is untouched). Same on desktop and mobile. */
 .ta-host, .ta-metrics, .ta-divider { display: none !important; }
 
-/* view tabs — row one, front and centre */
+/* view tabs — row one, front and centre. Pilot / Manipulate / Navigate are all
+   the SAME width (equal flex basis) so the bar reads evenly. */
 .ta-tabs { display: flex; gap: 3px; padding: 3px; border-radius: 21px; background: rgba(0,0,0,.28); }
 .ta-tabs button {
+  flex: 1 1 0; min-width: 124px; justify-content: center;
   display: inline-flex; align-items: center; gap: 8px;
-  height: 38px; padding: 0 26px; border-radius: 19px; border: none; cursor: pointer;
+  height: 38px; padding: 0 16px; border-radius: 19px; border: none; cursor: pointer;
   background: transparent; color: #97908a; font: 600 13.5px 'Geist', sans-serif;
-  transition: background .2s, color .2s;
+  transition: background .2s, color .2s; white-space: nowrap;
 }
-.ta-tabs button svg { width: 17px; height: 17px; }
+.ta-tabs button svg { width: 17px; height: 17px; flex: none; }
 .ta-tabs button.on { background: #efeae3; color: #161412; }
 .ta-tabs button:not(.on):hover { color: #d8d2ca; }
 
@@ -420,7 +422,7 @@ html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
   .ta-sbtn { padding: 0 11px; }
   .ta-estop { height: 32px; padding: 0 12px; }
   .ta-tabs { width: 100%; }
-  .ta-tabs button { flex: 1; padding: 0 8px; justify-content: center; }
+  .ta-tabs button { flex: 1 1 0; min-width: 0; padding: 0 8px; justify-content: center; }
   .ta-pip { width: 104px; top: 52px; }
 
   /* Arm-control clusters: each holds a wrist stick + RAISE + grip slider. At the

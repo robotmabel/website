@@ -138,7 +138,11 @@ class Link {
   }
   connect(url) {
     this.url = url; this.want = true;
-    clearTimeout(this._retryT);
+    clearTimeout(this._retryT); clearTimeout(this._helloTimer);
+    // A NEW connection is not "alive" until THIS robot proves itself again — reset
+    // the liveness stamp so switching targets (e.g. sim → thor) can't inherit the
+    // previous link's freshness and read as connected when the new host is down.
+    this.app._aliveAt = 0; this.connected = false;
     // Detach + close any in-flight socket so a path failover (Wi-Fi → VPN)
     // can't leave a zombie retrying the old URL.
     if (this.ws) {
@@ -1818,15 +1822,16 @@ class App {
         if (pick(ev).ray.intersectPlane(plane, p)) this.targets[this.drag].copy(p);
         return;
       }
-      // idle hover → highlight the ring/ball under the cursor + invite a drag
+      // idle hover → highlight the ring / ball under the cursor + invite a drag
       if (interactive()) {
         const ringHit = pick(ev).intersectObjects(this.rings.l.concat(this.rings.r), true)[0];
-        if (ringHit) { this._hoverRing = ringHit.object.parent; canvas.style.cursor = 'grab'; }
+        if (ringHit) { this._hoverRing = ringHit.object.parent; this._hoverBall = null; canvas.style.cursor = 'grab'; }
         else {
           const ballHit = pick(ev).intersectObjects([this.balls.l, this.balls.r], false)[0];
-          this._hoverRing = null; canvas.style.cursor = ballHit ? 'grab' : '';
+          this._hoverRing = null; this._hoverBall = ballHit ? ballHit.object.userData.side : null;
+          canvas.style.cursor = ballHit ? 'grab' : '';
         }
-      } else if (this._hoverRing || canvas.style.cursor) { this._hoverRing = null; canvas.style.cursor = ''; }
+      } else if (this._hoverRing || this._hoverBall || canvas.style.cursor) { this._hoverRing = null; this._hoverBall = null; canvas.style.cursor = ''; }
     });
     const drop = () => {
       this.ringDrag = null;
@@ -2326,14 +2331,14 @@ class App {
     return out;
   }
 
-  /** True only when a REAL robot is actually streaming state on the live map —
-      then Nav2 drives server-side. Otherwise (no live stream / dummy map) the
-      in-browser A* + pure-pursuit owns navigation. */
-  _liveNav() { return !!(this.room && this.room.live && this.sim.remote); }
+  /** True only when the REAL robot (thor) is connected on the live map — then ROS
+      Nav2 owns navigation server-side. For the sim or offline (any saved/dummy
+      map), the in-browser A* + pure-pursuit drives the twin so Go always moves it. */
+  _liveNav() { return !!(this.room && this.room.live && this.sim.remote && this._curTarget && this._curTarget.real); }
 
   /** Pure pursuit along the path — streams the SAME navJoystick the sticks do. */
   _followStep(dt) {
-    if (this.sim.remote) return;               // a live robot is streaming → Nav2 drives it server-side
+    if (this._liveNav()) return;               // real robot → ROS Nav2 drives it server-side
     if (!this.following || !this.path.length || this.estop) return;
     const { bx, by, yaw } = this.sim.state;
     // advance monotonically along the path (never re-target a passed waypoint)
@@ -2514,6 +2519,12 @@ class App {
     // the arms (locally on the twin, and over the wire when connected).
     if (this.view === 'teleop' && this.cockpitMode === 'arms' && this.flying && !this.estop) this._armCartesian(dt);
 
+    // Navigate demo (sim or offline — anything but the real robot on the live map):
+    // the in-browser pure-pursuit drives the LOCAL twin base even while a sim is
+    // streaming, so Go visibly moves the robot along the A* path.
+    const navDemo = this.view === 'nav' && this.following && !this._liveNav();
+    if (navDemo && this.sim.remote && !this.estop) this.sim.stepBase(this.nav, dt);
+
     if (!this.sim.remote && !this.estop) {
       // local kinematic mirror (identical command semantics to the bridge)
       this.sim.stepBase(this.nav, dt);
@@ -2563,7 +2574,13 @@ class App {
           else if (this.bodyRig.ee[s]) { this.bodyRig.ee[s].getWorldPosition(ee); this.balls[s].position.copy(ee); this.targets[s].copy(ee); }
           if (this.wristQ[s]) this.balls[s].quaternion.copy(this.wristQ[s]);   // gizmo shows commanded wrist orientation
           this.balls[s].visible = showGizmo;
-          if (this.balls[s].material) this.balls[s].material.emissiveIntensity = 0.34 + 0.22 * (0.5 + 0.5 * Math.sin(now / 470));
+          // green ball glows, and grows + brightens on hover / drag (inviting to grab)
+          const ballActive = this.drag === s || this._hoverBall === s;
+          if (this.balls[s].material) {
+            this.balls[s].material.emissiveIntensity = (ballActive ? 0.7 : 0.32) + 0.18 * (0.5 + 0.5 * Math.sin(now / 470));
+            this.balls[s].material.opacity = ballActive ? 1 : 0.9;
+          }
+          this.balls[s].scale.setScalar(ballActive ? 1.32 : 1);
           if (this.rings[s]) this.rings[s].forEach((r) => {                    // hover/drag → bright + larger; else gentle pulse
             const active = r === activeMesh;
             const tube = r.userData.tube, halo = r.userData.halo;
@@ -2575,10 +2592,10 @@ class App {
       }
       if (this.bodyStage) this.bodyStage.render();
     } else if (this.view === 'nav') {
-      // The robot sits at the SLAM /odom estimate in the mesh frame — never the
-      // in-browser dummy pose. Until the first odom arrives it rests at the map
-      // origin (0,0,0), so no fake pose is ever shown.
-      if (this.room && this.room.live) {
+      // REAL robot on the live map: the robot sits at the SLAM /odom estimate.
+      // Otherwise (sim / offline demo) the LOCAL twin pose drives — so the
+      // pure-pursuit visibly walks the robot along the A* path on the floor.
+      if (this._liveNav()) {
         const o = this.liveOdom || { x: 0, y: 0, yaw: 0 };
         this.sim.state.bx = o.x; this.sim.state.by = o.y; this.sim.state.yaw = o.yaw;
       }
