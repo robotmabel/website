@@ -2383,17 +2383,24 @@ class App {
   }
   _announceSpec(force) {
     let spec;
+    // The browser console is a COMMAND DEVICE: it resolves the operator's intent
+    // (ball drag / sliders) to JOINT TARGETS locally and streams them as
+    // joint_command; the robot's own WBC impedance controller tracks them server-
+    // side (teleop.joint_targets = _joint_cmd). So arm/manipulation modes use
+    // method 'joint' (the WBC tracks our targets) — NOT 'wrist'/'retarget', which
+    // expects an ARKit hand skeleton only the headset/phone produce, and would
+    // ignore our joint_command (why the dragged ball didn't move the sim).
     if (this.view === 'teleop') {
       spec = this.cockpitMode === 'drive'
         ? { method: 'navigation', controlType: 'impedance', region: 'whole_body', stiffness: this.stiffness * MAX_STIFF }
-        : { method: 'wrist', controlType: 'impedance', region: 'arm', stiffness: this.stiffness * MAX_STIFF };
+        : { method: 'joint', controlType: 'impedance', region: 'arm', stiffness: this.stiffness * MAX_STIFF };
     } else if (this.view === 'body') {
       // Soft = whole-body compliance (viewer read-only — pose the real robot).
       // Stiff = a position controller: task space (palm SE(3) → arm IK, the green
       // ball) or joint space (per-joint targets), over the chosen control area.
       spec = this.feel === 'compliance'
         ? { method: 'wrist', controlType: 'compliance', region: 'whole_body', stiffness: 0 }
-        : { method: this.manipSpace === 'joint' ? 'joint' : 'wrist',
+        : { method: 'joint',   // we resolve ball-IK / sliders → joint targets; WBC tracks them
             controlType: 'impedance', region: this.manipRegion, stiffness: this.stiffness * MAX_STIFF };
     } else if (this.view === 'nav') {
       spec = { method: 'navigation', controlType: 'impedance', region: 'whole_body', stiffness: this.stiffness * MAX_STIFF };
@@ -2534,20 +2541,26 @@ class App {
     const navDemo = this.view === 'nav' && this.following && !this._liveNav();
     if (navDemo && this.sim.remote && !this.estop) this.sim.stepBase(this.nav, dt);
 
+    // Manipulate ball drag → arm IK → stream joint_command. Runs WHETHER OR NOT a
+    // sim/robot is connected (like the Pilot arm joysticks): connected, the resolved
+    // joint targets stream to the bridge and the WBC moves the robot, which streams
+    // back and the twin mirrors it; offline, it drives the local twin directly.
+    const bodyDrag = this.drag && this.view === 'body' && this.feel === 'impedance'
+      && this.manipSpace === 'task' && !this.estop;
+    if (bodyDrag && this.bodyRig) {
+      const saved = this.sim.remote ? this.sim.chains[this.drag].map((c) => this.sim.state.q[c]) : null;
+      this.sim.ik(this.bodyRig, this.drag, this.targets[this.drag], 0.3 + 0.4 * this.stiffness, 2);
+      for (const c of this.sim.chains[this.drag]) {
+        this.sim.jointTarget[c] = this.sim.state.q[c];
+        this.setWire(c, this.sim.state.q[c]);
+      }
+      if (saved) this.sim.chains[this.drag].forEach((c, i) => { this.sim.state.q[c] = saved[i]; });  // remote → robot_state drives the visual
+    }
+
     if (!this.sim.remote && !this.estop) {
       // local kinematic mirror (identical command semantics to the bridge)
       this.sim.stepBase(this.nav, dt);
-      // Stiff + Task space: dragging the green ball solves arm IK toward the
-      // target and streams the chain. (Soft & Joint space don't drag — the ball
-      // is locked / not shown; the viewer is read-only or driven by sliders.)
-      if (this.drag && this.view === 'body' && this.feel === 'impedance') {
-        this.sim.ik(this.bodyRig, this.drag, this.targets[this.drag], 0.3 + 0.4 * this.stiffness, 2);
-        for (const c of this.sim.chains[this.drag]) {
-          this.sim.jointTarget[c] = this.sim.state.q[c];
-          this.setWire(c, this.sim.state.q[c]);
-        }
-      }
-      this.sim.slew(dt, this.drag && this.feel === 'impedance' ? this.sim.chains[this.drag] : null);
+      this.sim.slew(dt, bodyDrag ? this.sim.chains[this.drag] : null);
       this.sim.applyGrips();
     }
 
