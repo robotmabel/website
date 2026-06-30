@@ -1679,8 +1679,17 @@ class App {
       this.targets = { l: new THREE.Vector3(), r: new THREE.Vector3() };
       this.wristQ = { l: new THREE.Quaternion(), r: new THREE.Quaternion() };
       for (const s of ['l', 'r']) {
-        this.balls[s] = rig.marker(GREEN, rig.maxd * 0.032);   // bigger, easier to grab
+        const R = rig.maxd * 0.032;
+        this.balls[s] = rig.marker(GREEN, R);                  // bigger, easier to grab
         this.balls[s].userData.kind = 'ball'; this.balls[s].userData.side = s;
+        // sun-like glow: a thin bright shell + a soft additive bloom around the core
+        const addMat = (op) => new THREE.MeshBasicMaterial({ color: GREEN, transparent: true,
+          opacity: op, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+        const shell = new THREE.Mesh(new THREE.SphereGeometry(R * 1.26, 26, 18), addMat(0.32));
+        const bloom = new THREE.Mesh(new THREE.SphereGeometry(R * 1.9, 22, 16), addMat(0.14));
+        shell.renderOrder = 2; bloom.renderOrder = 1;
+        this.balls[s].add(bloom, shell);
+        this.balls[s].userData.shell = shell; this.balls[s].userData.bloom = bloom;
         this.rings[s] = rig.orientationRings(this.balls[s], rig.maxd * 0.078);  // bold Saturn/Jupiter-style ring
         this.rings[s].forEach((r) => { r.userData.side = s; });
         rig.ee[s]?.getWorldPosition(this.targets[s]);
@@ -2574,12 +2583,16 @@ class App {
           else if (this.bodyRig.ee[s]) { this.bodyRig.ee[s].getWorldPosition(ee); this.balls[s].position.copy(ee); this.targets[s].copy(ee); }
           if (this.wristQ[s]) this.balls[s].quaternion.copy(this.wristQ[s]);   // gizmo shows commanded wrist orientation
           this.balls[s].visible = showGizmo;
-          // green ball glows, and grows + brightens on hover / drag (inviting to grab)
+          // green ball glows like the sun, and grows + brightens on hover / drag
           const ballActive = this.drag === s || this._hoverBall === s;
+          const gpls = 0.5 + 0.5 * Math.sin(now / 470);
           if (this.balls[s].material) {
-            this.balls[s].material.emissiveIntensity = (ballActive ? 0.7 : 0.32) + 0.18 * (0.5 + 0.5 * Math.sin(now / 470));
-            this.balls[s].material.opacity = ballActive ? 1 : 0.9;
+            this.balls[s].material.emissiveIntensity = (ballActive ? 2.0 : 1.1) + 0.45 * gpls;
+            this.balls[s].material.opacity = 1;
           }
+          const shell = this.balls[s].userData.shell, bloom = this.balls[s].userData.bloom;
+          if (shell) shell.material.opacity = (ballActive ? 0.5 : 0.3) + 0.1 * gpls;
+          if (bloom) bloom.material.opacity = (ballActive ? 0.3 : 0.15) + 0.07 * gpls;
           this.balls[s].scale.setScalar(ballActive ? 1.32 : 1);
           if (this.rings[s]) this.rings[s].forEach((r) => {                    // hover/drag → bright + larger; else gentle pulse
             const active = r === activeMesh;

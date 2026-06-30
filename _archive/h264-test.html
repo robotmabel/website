@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MABEL — H.264/WebCodecs decoder test</title>
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; background:#0b0e13; color:#cdd6e4; margin:0; padding:20px; }
+  h1 { font-size:18px; margin:0 0 14px; }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  input, select, button { font:inherit; padding:7px 10px; border-radius:8px; border:1px solid #2a3340;
+        background:#141a23; color:#cdd6e4; }
+  button { cursor:pointer; background:#1d6cf2; border-color:#1d6cf2; color:#fff; }
+  .cams { display:flex; gap:16px; flex-wrap:wrap; }
+  .cam { background:#141a23; border:1px solid #2a3340; border-radius:12px; padding:10px; width:520px; max-width:100%; }
+  .stage { position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:8px; overflow:hidden; }
+  canvas, img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+  canvas { z-index:2; display:none; }
+  .stat { margin-top:8px; font-variant-numeric:tabular-nums; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; }
+  .ok { background:#11351f; color:#5fe39a; } .fb { background:#3a2a11; color:#f0c267; } .off { background:#33181b; color:#f08080; }
+  code { background:#0e131b; padding:1px 5px; border-radius:5px; }
+</style>
+</head>
+<body>
+  <h1>MABEL — H.264/WebCodecs decoder test <span id="wc"></span></h1>
+  <div class="row">
+    <label>Robot host <input id="host" value="127.0.0.1" size="16" /></label>
+    <label>Port <input id="port" value="8080" size="5" /></label>
+    <button id="go">Connect</button>
+    <span id="note"></span>
+  </div>
+  <p>Decodes <code>ws://host:port/camera/&lt;name&gt;/h264</code> with WebCodecs → canvas (green),
+     falling back to the MJPEG <code>&lt;img&gt;</code> (yellow) when H.264 is unavailable/stale.
+     Open this on the same Wi-Fi as the robot after the bridge is restarted.</p>
+  <div class="cams" id="cams"></div>
+
+  <script src="assets/h264-video.js"></script>
+  <script>
+    const STREAMS = ['main', 'wrist_left', 'wrist_right'];
+    const wcEl = document.getElementById('wc');
+    wcEl.innerHTML = window.H264Stream && H264Stream.supported
+      ? '<span class="pill ok">WebCodecs supported</span>'
+      : '<span class="pill off">WebCodecs NOT supported — MJPEG only</span>';
+
+    let streams = [];
+    function tile(name) {
+      const el = document.createElement('div'); el.className = 'cam';
+      el.innerHTML = `<b>${name}</b>
+        <div class="stage"><img id="img_${name}" alt=""/><canvas id="cv_${name}"></canvas></div>
+        <div class="stat" id="st_${name}"><span class="pill off">idle</span></div>`;
+      return el;
+    }
+
+    function start() {
+      streams.forEach(s => s.stop && s.stop()); streams = [];
+      const host = document.getElementById('host').value.trim();
+      const port = document.getElementById('port').value.trim() || '8080';
+      const cams = document.getElementById('cams'); cams.innerHTML = '';
+      STREAMS.forEach(name => {
+        cams.appendChild(tile(name));
+        const canvas = document.getElementById('cv_' + name);
+        const img = document.getElementById('img_' + name);
+        const st = document.getElementById('st_' + name);
+        // MJPEG fallback always loading underneath
+        img.src = `http://${host}:${port}/camera/${name}/stream.mjpg`;
+        img.onerror = () => { if (!fresh()) st.innerHTML = '<span class="pill off">no signal</span>'; };
+
+        let frames = 0, t0 = performance.now(), fps = 0, w = 0, h = 0;
+        const s = new H264Stream({
+          wsUrl: `ws://${host}:${port}/camera/${name}/h264`,
+          canvas,
+          onLive: live => { canvas.style.display = live ? '' : 'none'; }
+        });
+        // count fps by wrapping the canvas draw
+        const ctx = canvas.getContext('2d'); const draw = ctx.drawImage.bind(ctx);
+        ctx.drawImage = function (frame) {
+          frames++; w = canvas.width; h = canvas.height;
+          return draw.apply(ctx, arguments);
+        };
+        function fresh() { return s.isFresh && s.isFresh(2500); }
+        s.start(); streams.push(s);
+
+        setInterval(() => {
+          const now = performance.now();
+          fps = frames / ((now - t0) / 1000); frames = 0; t0 = now;
+          const h264 = fresh();
+          canvas.style.display = h264 ? '' : 'none';
+          st.innerHTML = h264
+            ? `<span class="pill ok">H.264 ${w}×${h}</span> ${fps.toFixed(0)} fps (WebCodecs)`
+            : `<span class="pill fb">MJPEG fallback</span> H.264 idle`;
+        }, 1000);
+      });
+      document.getElementById('note').textContent = `connecting to ${host}:${port}…`;
+    }
+    document.getElementById('go').onclick = start;
+  </script>
+</body>
+</html>
