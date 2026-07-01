@@ -21,6 +21,70 @@
     box-shadow: 0 0 0 4px rgba(63,181,107,0.18); animation: studioPulse 2.4s ease-in-out infinite; }
   @keyframes studioPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(63,181,107,0.18); } 50% { box-shadow: 0 0 0 7px rgba(63,181,107,0.05); } }
   @media (prefers-reduced-motion: reduce) { .studio-dot { animation: none; } }
+
+  /* ── interactive architecture viewer ── */
+  .av-shell { border: 1px solid rgba(22,20,18,0.12); border-radius: 18px; background: #FAF8F2; overflow: hidden;
+    box-shadow: var(--glass-sh); }
+  .av-tabs { display: flex; gap: 6px; padding: 12px 12px 0; flex-wrap: wrap; }
+  .av-tab { font-family: var(--font-mono); font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 10px 10px 0 0;
+    background: transparent; border: 1px solid transparent; color: var(--ash); cursor: pointer; transition: all .18s var(--ease-out); }
+  .av-tab:hover { color: var(--ink); background: rgba(22,20,18,0.04); }
+  .av-tab.on { color: var(--rust); background: #fff; border-color: rgba(22,20,18,0.12); border-bottom-color: #fff; font-weight: 600; }
+  .av-desc { font-family: var(--font-mono); font-size: 11.5px; color: var(--ash); padding: 10px 16px; border-top: 1px solid rgba(22,20,18,0.08);
+    border-bottom: 1px solid rgba(22,20,18,0.08); background: #fff; }
+  .av-desc strong { color: var(--ink-soft); } .av-decode { color: var(--rust); } .av-paper { color: var(--ash-light); }
+  .av-stage { position: relative; height: clamp(440px, 62vh, 660px); background:
+    radial-gradient(120% 120% at 50% 0%, #FFFFFF 0%, #F4F1E9 100%); }
+  #archCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+  #archCanvas:active { cursor: grabbing; }
+  .arch-legend { position: absolute; top: 10px; left: 12px; display: flex; gap: 10px; flex-wrap: wrap; z-index: 3; pointer-events: none; max-width: 60%; }
+  .lg-chip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 9.5px; color: var(--ash);
+    background: rgba(255,255,255,0.75); padding: 3px 7px; border-radius: 999px; border: 1px solid rgba(22,20,18,0.08); }
+  .lg-chip i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+  .arch-toolbar { position: absolute; top: 10px; right: 12px; display: flex; align-items: center; gap: 6px; z-index: 4; flex-wrap: wrap; justify-content: flex-end; }
+  .arch-toolbar .crumbs { display: flex; align-items: center; gap: 4px; }
+  .arch-toolbar .crumb { font-family: var(--font-mono); font-size: 11px; color: var(--ash); background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(22,20,18,0.08); border-radius: 7px; padding: 3px 8px; cursor: pointer; }
+  .arch-toolbar .crumb.on { color: var(--ink); font-weight: 600; }
+  .arch-toolbar .crumb-sep { color: var(--ash-light); font-size: 10px; }
+  .arch-toolbar .mini { font-family: var(--font-mono); font-size: 11px; color: var(--rust); background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(22,20,18,0.08); border-radius: 7px; padding: 3px 8px; cursor: pointer; }
+  .arch-toolbar .ro-chip { display: none; }
+  .arch-tip { position: absolute; display: none; pointer-events: none; z-index: 6; background: rgba(20,18,16,0.95); color: var(--bone);
+    border: 1px solid rgba(242,238,230,0.16); border-radius: 8px; padding: 7px 10px; font-size: 12px; line-height: 1.45; max-width: 240px; box-shadow: 0 10px 28px -12px rgba(0,0,0,0.5); }
+  .arch-tip i { color: var(--ash-light); font-size: 10px; font-style: normal; }
+  .av-hint { position: absolute; bottom: 10px; left: 14px; font-family: var(--font-mono); font-size: 10px; color: var(--ash-light); pointer-events: none; z-index: 3; }
+  .av-fail { padding: 60px; text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--ash); }
+
+  /* ── contribute form (on the dark section card) ── */
+  .cf-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px 20px; margin-bottom: 22px; }
+  .cf-fields { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+  .cf-field { display: flex; flex-direction: column; gap: 7px; }
+  .cf-field.cf-wide { grid-column: 1 / -1; }
+  .cf-field > span { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--bone); opacity: 0.7; }
+  .cf-field > span em { color: var(--rust); cursor: help; font-style: normal; }
+  .cf-field input, .cf-field select, .cf-out { font-family: var(--font-sans); font-size: 14px; color: var(--bone);
+    background: rgba(242,238,230,0.06); border: 1px solid rgba(242,238,230,0.18); border-radius: 10px; padding: 10px 12px; width: 100%; }
+  .cf-out { color: var(--rust); font-family: var(--font-mono); font-size: 12.5px; }
+  .cf-field input:focus, .cf-field select:focus { outline: none; border-color: var(--rust); background: rgba(242,238,230,0.1); }
+  .cf-field select option { color: #161412; }
+  .cf-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .cf-msg { font-family: var(--font-mono); font-size: 12px; color: var(--bone); opacity: 0.85; }
+  .cf-msg.ok { color: #6FCF97; opacity: 1; } .cf-msg.err { color: #E88; opacity: 1; }
+  .cf-queue-wrap { margin-top: 28px; border-top: 1px solid rgba(242,238,230,0.14); padding-top: 18px; }
+  .cf-queue-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cf-refresh { font-family: var(--font-mono); font-size: 11px; color: var(--bone); opacity: 0.7; background: transparent; border: 1px solid rgba(242,238,230,0.18);
+    border-radius: 8px; padding: 5px 11px; cursor: pointer; } .cf-refresh:hover { opacity: 1; border-color: var(--rust); }
+  .cf-queue { display: flex; flex-direction: column; gap: 8px; }
+  .cf-q-empty { font-family: var(--font-mono); font-size: 12px; color: var(--bone); opacity: 0.55; padding: 8px 0; }
+  .cf-q-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(242,238,230,0.05); border: 1px solid rgba(242,238,230,0.1); }
+  .cf-q-arch { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--rust); min-width: 34px; }
+  .cf-q-main { flex: 1; font-size: 13px; color: var(--bone); opacity: 0.9; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cf-q-main b { font-weight: 600; } .cf-q-note { color: var(--ash-light); font-style: italic; }
+  .cf-q-status { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 9px; border-radius: 999px;
+    border: 1px solid currentColor; opacity: 0.9; }
+  .s-pending { color: #E7C24B; } .s-approved { color: #6FCF97; } .s-running { color: #56A6E0; } .s-done { color: #9AD; } .s-rejected { color: #C77; }
+  @media (max-width: 720px) { .cf-grid { grid-template-columns: 1fr; } }
 </style>
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -47,7 +111,7 @@
 </nav>
 <aside class="sidenav" aria-label="Autonomy section navigation">
   <div class="sidenav-title">Autonomy</div>
-  <a href="#studio">Data Curation</a><a href="#data">Data engine</a><a href="#policies">Policies</a><a href="#training">Training</a><a href="#long">Long-horizon</a>
+  <a href="#studio">Data Curation</a><a href="#data">Data engine</a><a href="#policies">Policies</a><a href="#arch">Architectures</a><a href="#contribute">Train it yourself</a><a href="#training">Training</a><a href="#long">Long-horizon</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
@@ -248,6 +312,56 @@ python merge_dataset.py --out datasets/all datasets/pick_cube_v1 datasets/pick_c
   </div>
 </div></section>
 
+<!-- ─── INTERACTIVE ARCHITECTURE VIEWER ─── -->
+<section class="pad-y" id="arch"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Architectures · live</span>
+    <h2 class="display-md title">See the network. <span class="italic accent">Every block.</span></h2></div>
+    <p class="lede">The exact, config-accurate diagram from the <a href="#contribute">Trainer Studio</a> — the same graph the real training run compiles. Switch between <strong>ACT</strong>, the <strong>Diffusion Transformer</strong>, and <strong>π₀ / π₀.₅</strong>; drag, scroll to zoom, and <em>double-click any block to look inside</em> down to the individual Conv / Linear / attention atoms.</p></div>
+
+  <div class="av-shell fade-up">
+    <div class="av-tabs" id="av-tabs"></div>
+    <div class="av-desc" id="av-desc"></div>
+    <div class="av-stage" id="av-stage">
+      <div class="arch-toolbar" id="archToolbar"></div>
+      <div class="arch-legend" id="archLegend"></div>
+      <canvas id="archCanvas"></canvas>
+      <div class="arch-tip" id="archTip"></div>
+      <div class="av-hint">drag · scroll to zoom · double-click a block to look inside</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── CONTRIBUTE A TRAINING JOB ─── -->
+<section class="dark-sec pad-y" id="contribute"><div class="wrap">
+  <div class="card studio-card fade-up">
+    <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Community training · help train MABEL</span>
+    <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Queue a real <span class="italic accent">training job.</span></h2>
+    <p class="lede" style="margin:0 0 26px; max-width:64ch;">Pick an architecture above, choose one of MABEL&rsquo;s curated datasets, tune a few hyperparameters, and submit. Your job joins the <strong>community queue</strong>; once we review it, it trains on MABEL&rsquo;s GPU and the resulting policy and learning curves are published back here. No account needed — everyone can help teach the robot.</p>
+
+    <div class="cf-grid">
+      <label class="cf-field"><span>Architecture</span><output id="cf-arch" class="cf-out">…</output></label>
+      <label class="cf-field"><span>Dataset</span><select id="cf-dataset"></select></label>
+      <div class="cf-fields" id="cf-fields"></div>
+      <label class="cf-field"><span>Your name / handle</span><input id="cf-name" maxlength="40" placeholder="anon" autocomplete="off" /></label>
+      <label class="cf-field cf-wide"><span>Note <em>(optional)</em></span><input id="cf-note" maxlength="140" placeholder="what skill are you trying to teach?" autocomplete="off" /></label>
+    </div>
+
+    <div class="cf-actions">
+      <button class="btn btn-primary" id="cf-submit">Submit to the queue →</button>
+      <span class="cf-msg" id="cf-msg"></span>
+    </div>
+
+    <div class="cf-queue-wrap">
+      <div class="cf-queue-head"><span class="eyebrow" style="color:var(--bone); opacity:.8;">Community queue</span><button class="cf-refresh" id="cf-refresh">↻ refresh</button></div>
+      <div class="cf-queue" id="cf-queue"></div>
+    </div>
+
+    <div class="spec" style="margin-top:24px;">
+      <span>Owner-approved before it runs</span><span>Runs on MABEL&rsquo;s hardware</span><span>ACT · DiT · π₀ · π₀.₅</span><span>Results published back</span>
+    </div>
+  </div>
+</div></section>
+
 <!-- ─── TRAINING + RESULTS ─── -->
 <section class="dark-sec pad-y" id="training"><div class="wrap">
   <div class="sec-head fade-up"><div><span class="eyebrow">Training</span><h2 class="display-md title" style="color:var(--bone);">Reproducible by <span class="italic accent">construction.</span></h2></div>
@@ -378,5 +492,6 @@ python merge_dataset.py --out datasets/all datasets/pick_cube_v1 datasets/pick_c
 </footer>
 
 <script src="assets/mabel.js"></script>
+<script type="module" src="assets/arch-contribute.js"></script>
 </body>
 </html>
