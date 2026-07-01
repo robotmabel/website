@@ -12,6 +12,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
 <script>document.documentElement.classList.add('js');</script>
+<style>
+  /* bottom studios band */
+  .studio-dot { display:inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3FB56B;
+    box-shadow: 0 0 0 4px rgba(63,181,107,0.18); animation: studioPulse 2.4s ease-in-out infinite; }
+  @keyframes studioPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(63,181,107,0.18); } 50% { box-shadow: 0 0 0 7px rgba(63,181,107,0.05); } }
+  @media (prefers-reduced-motion: reduce) { .studio-dot { animation: none; } }
+  .studio-tag { display:inline-flex; align-items:center; gap:8px; font-family:"Geist Mono",monospace; font-size:10.5px;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--bone); opacity:.8; }
+  .studios .card { display:flex; flex-direction:column; }
+  .studios .card p { flex:1; }
+  .studios .card .btn { align-self:flex-start; margin-top:18px; }
+</style>
 </head>
 <body>
 
@@ -406,6 +418,40 @@
   journal = {Under review},
   year    = {2026}
 }</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STUDIOS ─── -->
+<section class="dark-sec pad-y studios" id="studios">
+  <div class="wrap">
+    <div class="sec-head fade-up"><div>
+      <span class="eyebrow" style="color:var(--rust);">The studios</span>
+      <h2 class="display-md title" style="color:var(--bone);">One robot, <span class="italic accent">three studios.</span></h2></div>
+      <p class="lede">Everything MABEL does runs through a browser studio: fly it live, curate what it recorded, then train the policy that flies it next.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card fade-up">
+        <div class="card-num">01 · OPERATE</div>
+        <h4>Control Studio</h4>
+        <p>The robot serves its own cockpit: an rviz-class 3D viewer (live rig inside its SLAM map), drive + manipulate teleop with an IK target ball, dexterous-hand control, 59-DOF telemetry with temperature grading, and a live monitor of every connected client.</p>
+        <a href="control-center.html" class="btn btn-primary">Open Control Studio ↗</a>
+        <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Live on the robot</div>
+      </div>
+      <div class="card fade-up d1">
+        <div class="card-num">02 · CURATE</div>
+        <h4>Data Studio</h4>
+        <p>Final-Cut-style curation for imitation-learning data: auto-flag dropped frames, sync drift, and dead motors; grade every episode; align, blade, and trim non-destructively; export a clean LeRobot dataset with the 3D viewer and seven synced cameras for review.</p>
+        <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Studio ↗</a>
+        <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Live demo</div>
+      </div>
+      <div class="card fade-up d2">
+        <div class="card-num">03 · TRAIN</div>
+        <h4>Policy Studio</h4>
+        <p>Explore the exact training graphs — ACT, Diffusion Transformer, π₀ / π₀.₅ — down to individual attention blocks, then queue a real training job on MABEL's GPU from a curated dataset. Results and learning curves are published back to the site.</p>
+        <a href="autonomy.html#contribute" class="btn btn-primary">Open Policy Studio ↗</a>
+        <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Community queue</div>
+      </div>
     </div>
   </div>
 </section>
