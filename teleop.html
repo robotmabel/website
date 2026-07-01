@@ -15,6 +15,18 @@
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
 </script>
+<style>
+  /* Control Center live-tool CTA (same pattern as autonomy's Data Curation card) */
+  .studio-card { padding: clamp(28px, 4vw, 48px); }
+  .studio-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+  .studio-live { display: inline-flex; align-items: center; gap: 8px; font-family: "Geist Mono", monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--bone); opacity: 0.82; padding: 9px 13px; border: 1px solid rgba(242,238,230,0.22); border-radius: 999px; }
+  .studio-dot { width: 8px; height: 8px; border-radius: 50%; background: #3FB56B;
+    box-shadow: 0 0 0 4px rgba(63,181,107,0.18); animation: studioPulse 2.4s ease-in-out infinite; }
+  @keyframes studioPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(63,181,107,0.18); } 50% { box-shadow: 0 0 0 7px rgba(63,181,107,0.05); } }
+  @media (prefers-reduced-motion: reduce) { .studio-dot { animation: none; } }
+</style>
 </head>
 <body class="sec-page">
 
@@ -40,7 +52,7 @@
 </nav>
 <aside class="sidenav" aria-label="Teleop section navigation">
   <div class="sidenav-title">Teleop</div>
-  <a href="#try">Try it now</a><a href="#app">The app · 5 tabs</a><a href="#ios">iPhone</a><a href="#visionpro">Vision Pro</a><a href="#principles">Three knobs</a><a href="#safety">Safety</a><a href="#macside">Mac-side setup</a>
+  <a href="#try">Try it now</a><a href="#app">The app · 5 tabs</a><a href="#ios">iPhone</a><a href="#visionpro">Vision Pro</a><a href="#principles">Three knobs</a><a href="#safety">Safety</a><a href="#macside">Mac-side setup</a><a href="#controlcenter">Control Center</a>
 </aside>
 
 <!-- ─── HERO ─── -->
@@ -257,6 +269,25 @@
   </div>
 
   <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code>, and mirror the same <code>robot_state</code>. Start it with <code>server/start_teleop.sh</code> — the page links up by itself, cycling three paths every 5&nbsp;s, exactly like the apps: <strong>Wi-Fi</strong> (<strong>auto-discovered</strong> — leave the field blank and it races the bridge on this machine, the host it was served from, and your last-used LAN IP, the browser analog of the Vision&nbsp;Pro app's Bonjour scan) → <strong>VPN</strong> (its Tailscale IP / <code>ts.net</code> name) → <strong>Relay</strong> (the <a href="server.html#relay">secure internet relay</a> — a token-gated <code>wss://&lt;host&gt;/teleop?key=…</code> on a public VPS the robot dials out to, so you can drive from anywhere with no VPN app and nothing exposed inbound). Cameras follow the winning path — MJPEG on port&nbsp;8080 over Wi-Fi, or the same token-gated HTTPS edge over the relay.</p>
+</section>
+
+<!-- ─── CONTROL CENTER · live tool ─── -->
+<section class="dark-sec pad-y" id="controlcenter">
+  <div class="wrap">
+    <div class="card studio-card fade-up">
+      <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · served by the robot</span>
+      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Fly the whole robot from the <span class="italic accent">Control Center.</span></h2>
+      <p class="lede" style="margin:0 0 26px; max-width:62ch;">A full operator studio hosted by the robot itself: an rviz-class 3D viewer (live rig inside its own SLAM reconstruction, 2D map, LiDAR, camera frusta), drive + manipulate teleop with a draggable IK target ball, per-finger dexterous-hand control, a 59-DOF telemetry band with temperature grading, a pose-setpoint timeline — and a live monitor of every client connected to the server you are driving through.</p>
+      <div class="studio-actions">
+        <a href="control-center.html" class="btn btn-primary">Open Control Center ↗</a>
+        <a href="https://github.com/thejerrycheng/MABEL/tree/main/control_center" target="_blank" rel="noopener" class="btn btn-ghost">Source ↗</a>
+        <span class="studio-live"><span class="studio-dot"></span>Live on thor</span>
+      </div>
+      <div class="spec" style="margin-top:24px;">
+        <span>rviz-class 3D viewer</span><span>Drive · Manipulate · Hands</span><span>59-DOF telemetry</span><span>Server + client monitor</span><span>Setpoint timeline</span>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══ ONE CONSOLE, FIVE TABS ═══ -->

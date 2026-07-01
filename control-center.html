@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Teleop · Control Center</title>
+<meta name="description" content="The MABEL Control Center: a browser studio served by the robot itself — an rviz-class 3D visualizer, a full teleop client (drive, manipulate, hands), and a live server monitor in one page. Open it from any browser on the robot's network." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  .studio-live { display: inline-flex; align-items: center; gap: 8px; font-family: "Geist Mono", monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--bone); opacity: 0.82; padding: 9px 13px; border: 1px solid rgba(242,238,230,0.22); border-radius: 999px; }
+  .studio-dot { width: 8px; height: 8px; border-radius: 50%; background: #3FB56B;
+    box-shadow: 0 0 0 4px rgba(63,181,107,0.18); animation: studioPulse 2.4s ease-in-out infinite; }
+  @keyframes studioPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(63,181,107,0.18); } 50% { box-shadow: 0 0 0 7px rgba(63,181,107,0.05); } }
+  @media (prefers-reduced-motion: reduce) { .studio-dot { animation: none; } }
+  .cc-host { font-family: "Geist Mono", Menlo, monospace; font-size: 14px; padding: 12px 16px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); color: inherit; min-width: 210px; }
+</style>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="hardware.html">Hardware</a>
+    <a href="software.html">Software</a>
+    <a href="teleop.html" class="on">Teleop</a>
+    <a href="controller.html">Controller</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="autonomy.html">Autonomy</a>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+<aside class="sidenav" aria-label="Control Center section navigation">
+  <div class="sidenav-title">Control Center</div>
+  <a href="#open">Open it</a><a href="#instruments">Three instruments</a><a href="#run">Run it</a><a href="teleop.html">← Teleop</a>
+</aside>
+
+<!-- ─── HERO ─── -->
+<section class="page-hero" id="open"><div class="page-hero-inner">
+  <div class="crumbs"><a href="index.html">Overview</a> / <a href="teleop.html">Teleop</a> / Control Center</div>
+  <span class="eyebrow">Teleop · Control Center</span>
+  <h1 class="display-lg">The robot serves<br>its own cockpit.</h1>
+  <p class="lede">The <strong>Control Center</strong> is a browser studio hosted <strong>by the robot itself</strong>: an rviz-class <strong>3D visualizer</strong> (live rig, SLAM mesh, 2D map, LiDAR, camera frusta), a full <strong>teleop client</strong> (drive, manipulate with task-space IK, dexterous hands, pose-setpoint timeline), and a live <strong>server monitor</strong> (every connected client, transport, latency) — one page, no install. Anyone on the robot's network opens a URL and is simultaneously a client of the robot and an observer of its server.</p>
+  <div class="spec" style="margin-top:28px;"><span>http://&lt;robot&gt;:8094</span><span>ws :9090 control</span><span>ws :9092 map</span><span>:8080 cameras</span><span>59 DOF telemetry</span></div>
+  <div style="margin-top:26px; display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+    <input id="ccHost" type="text" spellcheck="false" autocomplete="off" class="cc-host"
+      placeholder="robot host / IP" value="10.20.54.117" />
+    <a class="btn btn-primary" id="ccOpen" href="http://10.20.54.117:8094/" target="_blank" rel="noopener">Open Control Center ↗</a>
+    <span class="studio-live"><span class="studio-dot"></span>Live on thor</span>
+  </div>
+  <div style="margin-top:12px; font-family:'Geist Mono',Menlo,monospace; font-size:11px; opacity:.7;">
+    LAN <a href="http://10.20.54.117:8094/" style="color:inherit;">10.20.54.117:8094</a> · Tailscale <a href="http://100.87.253.64:8094/" style="color:inherit;">100.87.253.64:8094</a>
+  </div>
+</div></section>
+
+<!-- SCREENSHOT -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Live on the robot</span><h2 class="display-md title">One page, <span class="italic accent">three instruments.</span></h2></div>
+    <p class="lede">Captured against the real robot: the rig posed from the 50&nbsp;Hz state mirror standing inside the live nvblox reconstruction of the room, the network rail listing every connected client, and all 59 actuators graded green/yellow/red against their targets — hand motor temperatures included.</p></div>
+  <figure class="fade-up" style="margin:0;">
+    <img src="assets/control-center-studio.png" alt="MABEL Control Center studio: live 3D viewer with the robot inside its nvblox room reconstruction, robot status dock, and the 59-DOF joint telemetry band" style="width:100%;height:auto;display:block;border-radius:16px;border:1px solid rgba(22,20,18,0.14);" loading="lazy" />
+    <figcaption style="font-family:'Geist Mono',Menlo,monospace;font-size:11px;color:#6B6660;margin-top:10px;">The studio driving the real robot on thor — 3D viewer (nav goals, wrist targets, camera projections), status dock, joint-state band, dexterity window, setpoint timeline.</figcaption>
+  </figure>
+</div></section>
+
+<!-- WHAT IT IS -->
+<section class="pad-y" id="instruments"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Design</span><h2 class="display-md title">Client and server, <span class="italic accent">at the same time.</span></h2></div>
+    <p class="lede">The studio's backend runs on the robot next to the bringup stack and serves the page; the page then talks straight to the robot's existing planes — the same contract the iPhone and Vision Pro apps use. Nothing is proxied, so remote operators drive with native latency while watching the health of the very server they are driving through.</p></div>
+  <div class="card-grid">
+    <div class="card fade-up"><div class="card-num">01 · VISUALIZER</div><h4>A custom rviz, in the browser</h4><p>The articulated rig posed live from the robot-state mirror, inside the map it is building right now: nvblox mesh, 2D occupancy grid, Nav2 path, LiDAR, TF triads, and Foxglove-style camera frusta projecting the live MJPEG streams through the lens model — distortion-aware or rectified, with point-size and projection-distance controls.</p></div>
+    <div class="card fade-up d1"><div class="card-num">02 · CONTROL</div><h4>Drive, manipulate, dexterity</h4><p>Start Teleop, then switch 1st ↔ 3rd person and Drive ↔ Manipulate. On-screen joysticks or WASD keys drive the base; in manipulate mode a draggable target ball runs damped-least-squares IK on the arm. Stiff ↔ Soft gates everything: Soft makes the page a pure viewer while the robot is moved by hand. The dexterity window controls both ORCA hands — per-joint, per-finger, or grasp slider with the nine firmware poses.</p></div>
+    <div class="card fade-up d2"><div class="card-num">03 · MONITOR</div><h4>Watch the server you drive</h4><p>The network rail shows the robot host's interfaces, service planes, CPU and thermals, plus every connected client — device type, transport (LAN / Tailscale / Relay), geography, command rate, and who currently holds the driver seat. A 59-DOF telemetry band grades each actuator's tracking error and temperature in real time.</p></div>
+  </div>
+</div></section>
+
+<!-- RUN IT -->
+<section class="pad-y" id="run"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Run it</span><h2 class="display-md title">One command <span class="italic accent">on the robot.</span></h2></div>
+    <p class="lede">The Control Center lives in the MABEL monorepo under <code>control_center/</code> and starts with one script on the robot host. Without ROS it boots against a synthetic 59-DOF plant, so the whole studio also works as an offline demo.</p></div>
+  <div class="feature fade-up"><div class="feature-copy" style="max-width:none;">
+    <pre style="font-family:'Geist Mono',Menlo,monospace;font-size:13px;line-height:1.7;background:#161412;color:#EFEAE3;border-radius:14px;padding:20px 24px;overflow-x:auto;"><code># on the robot (thor) — auto-detects ROS, falls back to a mock plant
+./control_center/run.sh                 # → http://&lt;robot&gt;:8094
+
+# then from any browser on the network
+open http://10.20.54.117:8094           # LAN
+open http://100.87.253.64:8094          # Tailscale</code></pre>
+    <div style="margin-top:14px;"><a href="https://github.com/thejerrycheng/MABEL/tree/main/control_center" target="_blank" rel="noopener" class="btn btn-ghost">Source ↗</a></div>
+  </div></div>
+</div></section>
+
+<footer class="footer"><div class="wrap footer-inner">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <div class="footer-links"><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="connect.html">Connect</a></div>
+</div></footer>
+
+<script src="assets/mabel.js"></script>
+<script>
+// remember the operator's robot host and keep the launch button in sync
+(function(){
+  var inp = document.getElementById('ccHost'), btn = document.getElementById('ccOpen');
+  var saved = localStorage.getItem('mabel.cc.host');
+  if (saved) inp.value = saved;
+  function sync(){
+    var h = inp.value.trim() || '10.20.54.117';
+    btn.href = 'http://' + h + ':8094/';
+    localStorage.setItem('mabel.cc.host', h);
+  }
+  inp.addEventListener('input', sync); sync();
+})();
+</script>
+</body>
+</html>
