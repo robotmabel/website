@@ -1581,7 +1581,12 @@ class App {
     const set = (sel, path) => {
       const img = $(sel); if (!img) return;
       const params = [];
-      if (key) params.push(`key=${encodeURIComponent(key)}`);
+      // Camera requests hit Caddy's /camera gate, which requires the PUBLIC relay
+      // APP_TOKEN — NOT the control link's secret access code (the real robot's control
+      // key IS the access code → the camera gate 403s it → blank video). Mirror iOS: use
+      // the public DEFAULT_RELAY_KEY for camera over the relay; LAN keeps the direct key.
+      const camKey = remote ? DEFAULT_RELAY_KEY : key;
+      if (camKey) params.push(`key=${encodeURIComponent(camKey)}`);
       // Relay path (wss → Caddy/MJPEG over TCP across the internet): ask the
       // server to shrink the frame per-client so the big head feed doesn't stall
       // and queue. Head downscales + drops quality; wrists just drop quality.
@@ -1629,13 +1634,20 @@ class App {
     if (!window.H264Stream || !window.H264Stream.supported) return;   // older browser → MJPEG
     this._h264 = this._h264 || {};
     const cams = [['#taCanvasMain', 'main'], ['#taCanvasL', 'wrist_left'], ['#taCanvasR', 'wrist_right']];
-    const useH264 = on && !remote;            // LAN/ws only; the wss relay has no WS video edge
+    // H.264-over-WS now works on BOTH LAN (ws://host:8080/camera/.../h264) AND the relay
+    // (wss://host/camera/.../h264?key=APP_TOKEN — the rathole `mabel_video` edge proxies
+    // the WS; verified). Inter-frame H.264 is ~80× less bandwidth than MJPEG over the
+    // internet, so it's the right relay encoding too. MJPEG <img> stays as the fallback.
+    const useH264 = on;
     for (const [sel, path] of cams) {
       const canvas = $(sel); if (!canvas) continue;
       const st = this._h264[path];
       if (useH264 && !st) {
+        const wsUrl = remote
+          ? `wss://${host}/camera/${path}/h264?key=${encodeURIComponent(DEFAULT_RELAY_KEY)}`
+          : `ws://${host}:8080/camera/${path}/h264`;
         const s = new H264Stream({
-          wsUrl: `ws://${host}:8080/camera/${path}/h264`,
+          wsUrl,
           canvas,
           onLive: live => { canvas.style.display = live ? '' : 'none'; }
         });
