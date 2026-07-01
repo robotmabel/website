@@ -1575,17 +1575,20 @@ class App {
       key = u.searchParams.get('key') || '';
     } catch (e) {}
     const remote = this.link.url.startsWith('wss');
+    // Distinguish the connected HOST. The REAL robot's cameras ride the un-gated /real*
+    // mux route at /real-video/camera/… (no key — the control access code covers it);
+    // the SIM demo's cameras are the SEPARATE token-gated /camera/… slot. Using bare
+    // /camera for the real robot showed the SIM's 960x720 render, not the real 640x360 ZED.
+    const isReal = remote && this.link.url.includes('/real/');
     const base = remote
-      ? `https://${host}/camera`
+      ? `https://${host}/${isReal ? 'real-video/camera' : 'camera'}`
       : `http://${host}:8080/camera`;
     const set = (sel, path) => {
       const img = $(sel); if (!img) return;
       const params = [];
-      // Camera requests hit Caddy's /camera gate, which requires the PUBLIC relay
-      // APP_TOKEN — NOT the control link's secret access code (the real robot's control
-      // key IS the access code → the camera gate 403s it → blank video). Mirror iOS: use
-      // the public DEFAULT_RELAY_KEY for camera over the relay; LAN keeps the direct key.
-      const camKey = remote ? DEFAULT_RELAY_KEY : key;
+      // SIM /camera/* is gated by the public relay token; the real /real-video/* route is
+      // un-gated (no ?key). LAN keeps the direct key (usually none).
+      const camKey = remote ? (isReal ? '' : DEFAULT_RELAY_KEY) : key;
       if (camKey) params.push(`key=${encodeURIComponent(camKey)}`);
       // Relay path (wss → Caddy/MJPEG over TCP across the internet): ask the
       // server to shrink the frame per-client so the big head feed doesn't stall
@@ -1639,13 +1642,16 @@ class App {
     // the WS; verified). Inter-frame H.264 is ~80× less bandwidth than MJPEG over the
     // internet, so it's the right relay encoding too. MJPEG <img> stays as the fallback.
     const useH264 = on;
+    const isReal = remote && this.link.url.includes('/real/');   // real → /real-video mux, no key
     for (const [sel, path] of cams) {
       const canvas = $(sel); if (!canvas) continue;
       const st = this._h264[path];
       if (useH264 && !st) {
-        const wsUrl = remote
-          ? `wss://${host}/camera/${path}/h264?key=${encodeURIComponent(DEFAULT_RELAY_KEY)}`
-          : `ws://${host}:8080/camera/${path}/h264`;
+        const wsUrl = !remote
+          ? `ws://${host}:8080/camera/${path}/h264`
+          : (isReal
+              ? `wss://${host}/real-video/camera/${path}/h264`
+              : `wss://${host}/camera/${path}/h264?key=${encodeURIComponent(DEFAULT_RELAY_KEY)}`);
         const s = new H264Stream({
           wsUrl,
           canvas,
