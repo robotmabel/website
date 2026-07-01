@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
 <style>
-  /* Data Studio live-tool CTA */
+  /* Data Curation live-tool CTA */
   .studio-card { padding: clamp(28px, 4vw, 48px); }
   .studio-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
   .studio-live { display: inline-flex; align-items: center; gap: 8px; font-family: "Geist Mono", monospace;
@@ -47,7 +47,7 @@
 </nav>
 <aside class="sidenav" aria-label="Autonomy section navigation">
   <div class="sidenav-title">Autonomy</div>
-  <a href="#studio">Data Studio</a><a href="#data">Data engine</a><a href="#policies">Policies</a><a href="#training">Training</a><a href="#long">Long-horizon</a>
+  <a href="#studio">Data Curation</a><a href="#data">Data engine</a><a href="#policies">Policies</a><a href="#training">Training</a><a href="#long">Long-horizon</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
@@ -71,15 +71,15 @@
   <div class="wrap">
     <div class="card studio-card fade-up">
       <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · in your browser</span>
-      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Explore the data in <span class="italic accent">Data Studio.</span></h2>
-      <p class="lede" style="margin:0 0 26px; max-width:62ch;">A Rerun-style visualizer and Final-Cut-style episode editor for MABEL imitation-learning data. Scrub any recorded episode, watch the robot move in 3D inside the LiDAR map it built, inspect all 59 actuators and seven synced camera feeds — then blade, trim, and merge clips into a brand-new episode, all without leaving the page.</p>
+      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Curate the data in <span class="italic accent">Data Curation.</span></h2>
+      <p class="lede" style="margin:0 0 26px; max-width:62ch;">A dataset-quality curation studio for MABEL imitation-learning data. It ingests recorded episodes, automatically flags the defects that poison a policy — dropped frames, out-of-sync streams, frequency drops, dead motors, missing video — grades every episode, and lets you align, blade, trim, and cull non-destructively in a Final-Cut-style timeline before exporting a clean dataset in LeRobot format. The Rerun-style 3D viewer and seven synced camera feeds are still there to review every frame.</p>
       <div class="studio-actions">
-        <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Studio ↗</a>
-        <a href="https://github.com/thejerrycheng/MABEL/tree/main/learning/imitation_learning/data_studio" target="_blank" rel="noopener" class="btn btn-ghost">Source ↗</a>
+        <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Curation ↗</a>
+        <a href="https://github.com/thejerrycheng/MABEL/tree/main/learning/data_curation" target="_blank" rel="noopener" class="btn btn-ghost">Source ↗</a>
         <span class="studio-live"><span class="studio-dot"></span>Live demo</span>
       </div>
       <div class="spec" style="margin-top:24px;">
-        <span>3D viewport</span><span>7-cam video wall</span><span>59-actuator graph</span><span>Timeline editor</span><span>Sample episodes</span>
+        <span>Auto quality scoring</span><span>Sync + frequency detection</span><span>Non-destructive editing</span><span>LeRobot export</span><span>3D + 7-cam review</span>
       </div>
     </div>
   </div>
