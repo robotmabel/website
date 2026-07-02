@@ -435,7 +435,7 @@
         <div class="card-num">01 · OPERATE</div>
         <h4>Control Studio</h4>
         <p>The robot serves its own cockpit: an rviz-class 3D viewer (live rig inside its SLAM map), drive + manipulate teleop with an IK target ball, dexterous-hand control, 59-DOF telemetry with temperature grading, and a live monitor of every connected client.</p>
-        <a href="control-center.html" class="btn btn-primary">Open Control Studio ↗</a>
+        <a href="#" id="openControlStudio" class="btn btn-primary" rel="noopener">Open Control Studio ↗</a>
         <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Live on the robot</div>
       </div>
       <div class="card fade-up d1">
@@ -449,7 +449,7 @@
         <div class="card-num">03 · TRAIN</div>
         <h4>Policy Studio</h4>
         <p>Explore the exact training graphs — ACT, Diffusion Transformer, π₀ / π₀.₅ — down to individual attention blocks, then queue a real training job on MABEL's GPU from a curated dataset. Results and learning curves are published back to the site.</p>
-        <a href="autonomy.html#contribute" class="btn btn-primary">Open Policy Studio ↗</a>
+        <a href="autonomy.html#contribute" target="_blank" rel="noopener" class="btn btn-primary">Open Policy Studio ↗</a>
         <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Community queue</div>
       </div>
     </div>
@@ -500,5 +500,28 @@
 </footer>
 
 <script src="assets/mabel.js"></script>
+<script>
+// Control Studio gate: correct passkey → the REAL robot's studio in a new tab;
+// anything else → the simulated browser console instead (safety).
+(function(){
+  var a = document.getElementById('openControlStudio');
+  if (!a) return;
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    var host = localStorage.getItem('mabel.cc.host') || '10.20.54.117';
+    var key = sessionStorage.getItem('mabel.cc.key') || '';
+    if (key !== '090620'){
+      key = (prompt('Control Studio passcode:') || '').trim();
+    }
+    if (key === '090620'){
+      sessionStorage.setItem('mabel.cc.key', key);
+      window.open('http://' + host + ':8094/', '_blank', 'noopener');
+    } else {
+      alert('Wrong passcode — taking you to the SIMULATED environment instead of the real robot, for safety.');
+      window.open('teleop.html#try', '_blank', 'noopener');
+    }
+  });
+})();
+</script>
 </body>
 </html>
