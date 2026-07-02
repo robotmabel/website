@@ -435,8 +435,11 @@
         <div class="card-num">01 · OPERATE</div>
         <h4>Control Studio</h4>
         <p>The robot serves its own cockpit: an rviz-class 3D viewer (live rig inside its SLAM map), drive + manipulate teleop with an IK target ball, dexterous-hand control, 59-DOF telemetry with temperature grading, and a live monitor of every connected client.</p>
-        <a href="#" id="openControlStudio" class="btn btn-primary" rel="noopener">Open Control Studio ↗</a>
-        <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Live on the robot</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;">
+          <a href="https://control.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:0;">Real Robot ↗</a>
+          <a href="https://control-sim.mabelrobot.duckdns.org/?key=69f4ec12c13c627ecf3097f648b42b60649e72b6afc4c6f1" target="_blank" rel="noopener" class="btn btn-ghost" style="margin-top:0;">Simulation ↗</a>
+        </div>
+        <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Real: passkey-gated · Sim: open demo</div>
       </div>
       <div class="card fade-up d1">
         <div class="card-num">02 · CURATE</div>
@@ -500,33 +503,8 @@
 </footer>
 
 <script src="assets/mabel.js"></script>
-<script>
-// Control Studio gate: correct passkey → the REAL robot's studio in a new tab;
-// anything else → the simulated browser console instead (safety).
-(function(){
-  var a = document.getElementById('openControlStudio');
-  if (!a) return;
-  a.addEventListener('click', function(e){
-    e.preventDefault();
-    var host = localStorage.getItem('mabel.cc.host') || '10.20.54.117';
-    var key = sessionStorage.getItem('mabel.cc.key') || '';
-    if (key !== '090620'){
-      key = (prompt('Control Studio passcode:') || '').trim();
-    }
-    if (key === '090620'){
-      sessionStorage.setItem('mabel.cc.key', key);
-      // the RELAY is the canonical public address (works from anywhere);
-      // a saved host overrides it for LAN/Tailscale sessions
-      var url = localStorage.getItem('mabel.cc.host')
-        ? 'http://' + host + ':8094/'
-        : 'https://control.mabelrobot.duckdns.org/';
-      window.open(url, '_blank', 'noopener');
-    } else {
-      alert('Wrong passcode — taking you to the SIMULATED environment instead of the real robot, for safety.');
-      window.open('teleop.html#try', '_blank', 'noopener');
-    }
-  });
-})();
-</script>
+<!-- Control Studio links: the REAL studio is passkey-gated SERVER-side (basic
+     auth at control.<domain>) — no client-side gate needed. The SIM twin is an
+     open demo whose planes can only reach the token-gated simulation relay. -->
 </body>
 </html>
