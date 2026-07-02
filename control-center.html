@@ -122,6 +122,19 @@ open http://100.87.253.64:8094          # Tailscale</code></pre>
     localStorage.setItem('mabel.cc.host', h);
   }
   inp.addEventListener('input', sync); sync();
+
+  // passcode gate: the Control Studio drives the real robot — every open link
+  // asks once per session
+  function gated(e){
+    if (sessionStorage.getItem('mabel.cc.key') === '090620') return;
+    var key = (prompt('Control Studio passcode:') || '').trim();
+    if (key === '090620'){ sessionStorage.setItem('mabel.cc.key', key); return; }
+    e.preventDefault();
+    alert('Wrong passcode — the Control Studio drives the real robot.');
+  }
+  document.querySelectorAll('a[href*=":8094"]').forEach(function(a){
+    a.addEventListener('click', gated);
+  });
 })();
 </script>
 </body>

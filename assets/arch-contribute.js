@@ -150,6 +150,13 @@ function buildDatasetSelect() {
 // ── submit ────────────────────────────────────────────────────────────────────
 async function submitJob() {
   const msg = $('#cf-msg'), btn = $('#cf-submit');
+  // passcode gate: queueing real GPU work needs the owner key (kept for the session)
+  let key = sessionStorage.getItem('mabel.train.key') || '';
+  if (key !== '090620') {
+    key = (prompt('Training passcode required to queue a job:') || '').trim();
+    if (key !== '090620') { setMsg(msg, 'wrong passcode — job not submitted', 'err'); return; }
+    sessionStorage.setItem('mabel.train.key', key);
+  }
   const payload = {
     arch: curArch,
     dataset: $('#cf-dataset').value,
