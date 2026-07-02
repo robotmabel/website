@@ -515,7 +515,12 @@
     }
     if (key === '090620'){
       sessionStorage.setItem('mabel.cc.key', key);
-      window.open('http://' + host + ':8094/', '_blank', 'noopener');
+      // the RELAY is the canonical public address (works from anywhere);
+      // a saved host overrides it for LAN/Tailscale sessions
+      var url = localStorage.getItem('mabel.cc.host')
+        ? 'http://' + host + ':8094/'
+        : 'https://control.mabelrobot.duckdns.org/';
+      window.open(url, '_blank', 'noopener');
     } else {
       alert('Wrong passcode — taking you to the SIMULATED environment instead of the real robot, for safety.');
       window.open('teleop.html#try', '_blank', 'noopener');

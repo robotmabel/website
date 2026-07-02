@@ -59,8 +59,8 @@
   <div class="spec" style="margin-top:28px;"><span>http://&lt;robot&gt;:8094</span><span>ws :9090 control</span><span>ws :9092 map</span><span>:8080 cameras</span><span>59 DOF telemetry</span></div>
   <div style="margin-top:26px; display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
     <input id="ccHost" type="text" spellcheck="false" autocomplete="off" class="cc-host"
-      placeholder="robot host / IP" value="10.20.54.117" />
-    <a class="btn btn-primary" id="ccOpen" href="http://10.20.54.117:8094/" target="_blank" rel="noopener">Open Control Center ↗</a>
+      placeholder="direct host/IP (blank = public relay)" value="" />
+    <a class="btn btn-primary" id="ccOpen" href="https://control.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Open Control Center ↗</a>
     <span class="studio-live"><span class="studio-dot"></span>Live on thor</span>
   </div>
   <div style="margin-top:12px; font-family:'Geist Mono',Menlo,monospace; font-size:11px; opacity:.7;">
@@ -117,9 +117,13 @@ open http://100.87.253.64:8094          # Tailscale</code></pre>
   var saved = localStorage.getItem('mabel.cc.host');
   if (saved) inp.value = saved;
   function sync(){
-    var h = inp.value.trim() || '10.20.54.117';
-    btn.href = 'http://' + h + ':8094/';
-    localStorage.setItem('mabel.cc.host', h);
+    var h = inp.value.trim();
+    // the RELAY is the canonical address; a typed host switches to direct
+    // LAN/Tailscale access on :8094
+    btn.href = h ? 'http://' + h + ':8094/'
+                 : 'https://control.mabelrobot.duckdns.org/';
+    if (h) localStorage.setItem('mabel.cc.host', h);
+    else localStorage.removeItem('mabel.cc.host');
   }
   inp.addEventListener('input', sync); sync();
 
