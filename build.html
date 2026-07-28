@@ -40,6 +40,7 @@
     <a href="index.html">Overview</a>
     <a href="build.html" class="on">Build</a>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <a href="assembly.html">Assembly</a>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="server.html">Server & Bridge</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="teleop.html">Browser</a></div></div>
     <a href="connect.html">Connect</a>
@@ -48,7 +49,7 @@
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a href="build.html">Build Guide</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server & Bridge</a><a class="sub" href="simulation.html">Simulation</a><a href="connect.html">Connect</a>
+  <a href="index.html">Overview</a><a href="build.html">Build Guide</a><a href="assembly.html">Assembly</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server & Bridge</a><a class="sub" href="simulation.html">Simulation</a><a href="connect.html">Connect</a>
 </nav>
 
 <aside class="sidenav" aria-label="Build guide sections">
@@ -106,7 +107,7 @@
 <section class="pad-y soft-sec bg-anchor" id="bom"><div class="wrap">
   <span class="bg-secnum">01</span>
   <h2 class="display-md title">Bill of <span class="italic accent">Materials.</span></h2>
-  <p class="lede bg-lead">Commodity smart actuators and off-the-shelf boards — no custom PCBs. 56 functional DOF, 59 motors, all arm/body/base motors on one 1 Mbit/s bus.</p>
+  <p class="lede bg-lead">Commodity smart actuators, off-the-shelf compute, and two custom PCBs for base and body power/bus routing. 56 functional DOF, 59 motors, all arm/body/base motors on one 1 Mbit/s bus.</p>
   <div class="callout"><p><strong>Before you buy:</strong> a fully itemized, costed BOM has not been publicly released. Counts and models below are accurate; prices are estimates by component class. Verify against your own actuators before ordering.</p></div>
   <table class="data-table">
     <thead><tr><th>Subsystem</th><th>Actuator</th><th>Qty</th><th>Bus</th></tr></thead>
@@ -120,7 +121,8 @@
       <tr><td>Shoulder-roll + elbow</td><td>DaMiao DM-J4340 · 27 N·m</td><td>4</td><td>CAN</td></tr>
       <tr><td>Arm wrists</td><td>DaMiao DM-J4310 · 7–10 N·m</td><td>6</td><td>CAN</td></tr>
       <tr><td>Hands</td><td>Feetech HLS3915 ×16 + HLS3930 ×1 / hand</td><td>34</td><td>1 MHz TTL</td></tr>
-      <tr><td>Head / neck</td><td>DaMiao DM-J4310 · 3 N·m</td><td>3</td><td>CAN</td></tr>
+      <tr><td>Neck yaw</td><td>DaMiao DM-J4310 · 3 N·m</td><td>1</td><td>CAN</td></tr>
+      <tr><td>Neck roll + pitch</td><td>Dynamixel XC330-T181</td><td>2</td><td>1 Mbaud TTL</td></tr>
     </tbody>
   </table>
   <div class="bg-cardgrid">
@@ -173,6 +175,8 @@
   <span class="bg-secnum">04</span>
   <h2 class="display-md title">Hardware <span class="italic accent">Assembly.</span></h2>
   <p class="lede bg-lead">Assemble from the ground up — each stage gives the next something to bolt onto. Print the shells first (~36 h) while you build the kits.</p>
+  <p style="margin-top:18px;"><a href="assembly.html" class="btn btn-primary">Open the step-by-step assembly →</a></p>
+  <p class="lede bg-lead" style="font-size:15px; margin-top:14px;">The seven modules below are the summary. <a href="assembly.html">Assembly</a> has the exploded views, part manifests, and numbered steps for each one.</p>
   <div class="steps">
     <div class="step"><div><h4>Swerve Base</h4><div class="meta">3× MAXSwerve · Teensy · CAN IDs 1–6</div></div><p>Three delta-layout modules on REV SPARK controllers give full holonomic motion. Daisy-chain the CAN bus with 120 Ω terminators; seat the Teensy and Jetson in the compute bay.</p></div>
     <div class="step"><div><h4>Lift Column</h4><div class="meta">DC + leadscrew · RPi Pico</div></div><p>A cascaded loop on the Pico closes position at 100 Hz over USB serial. Home it with nothing mounted first.</p></div>

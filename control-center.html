@@ -32,6 +32,7 @@
   <nav class="nav-links">
     <a href="index.html">Overview</a>
     <a href="hardware.html">Hardware</a>
+    <a href="assembly.html">Assembly</a>
     <a href="software.html">Software</a>
     <a href="teleop.html" class="on">Teleop</a>
     <a href="controller.html">Controller</a>
@@ -43,7 +44,7 @@
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><a href="hardware.html">Hardware</a><a href="assembly.html">Assembly</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 <aside class="sidenav" aria-label="Control Center section navigation">
   <div class="sidenav-title">Control Center</div>
@@ -128,18 +129,9 @@ open http://100.87.253.64:8094          # Tailscale</code></pre>
   }
   inp.addEventListener('input', sync); sync();
 
-  // passcode gate: the Control Studio drives the real robot — every open link
-  // asks once per session
-  function gated(e){
-    if (sessionStorage.getItem('mabel.cc.key') === '090620') return;
-    var key = (prompt('Control Studio passcode:') || '').trim();
-    if (key === '090620'){ sessionStorage.setItem('mabel.cc.key', key); return; }
-    e.preventDefault();
-    alert('Wrong passcode — the Control Studio drives the real robot.');
-  }
-  document.querySelectorAll('a[href*=":8094"]').forEach(function(a){
-    a.addEventListener('click', gated);
-  });
+  // No client-side passcode here: the Control Studio itself requires a proper
+  // server-side login (username + passkey → signed session) before it serves
+  // anything, so a redundant browser prompt would only be security theatre.
 })();
 </script>
 </body>
