@@ -39,7 +39,7 @@
   <nav class="nav-links">
     <a href="index.html">Overview</a>
     <a href="build.html" class="on">Build</a>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a><a href="bom.html">Bill of materials</a></div></div>
     <a href="assembly.html">Assembly</a>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="server.html">Server & Bridge</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="teleop.html">Browser</a></div></div>
@@ -49,7 +49,7 @@
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a href="build.html">Build Guide</a><a href="assembly.html">Assembly</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server & Bridge</a><a class="sub" href="simulation.html">Simulation</a><a href="connect.html">Connect</a>
+  <a href="index.html">Overview</a><a href="build.html">Build Guide</a><a href="assembly.html">Assembly</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-electronics.html">Electronics</a><a class="sub" href="bom.html">Bill of materials</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server & Bridge</a><a class="sub" href="simulation.html">Simulation</a><a href="connect.html">Connect</a>
 </nav>
 
 <aside class="sidenav" aria-label="Build guide sections">
@@ -108,7 +108,7 @@
   <span class="bg-secnum">01</span>
   <h2 class="display-md title">Bill of <span class="italic accent">Materials.</span></h2>
   <p class="lede bg-lead">Commodity smart actuators, off-the-shelf compute, and two custom PCBs for base and body power/bus routing. 56 functional DOF, 59 motors, all arm/body/base motors on one 1 Mbit/s bus.</p>
-  <div class="callout"><p><strong>Before you buy:</strong> a fully itemized, costed BOM has not been publicly released. Counts and models below are accurate; prices are estimates by component class. Verify against your own actuators before ordering.</p></div>
+  <div class="callout"><p><strong>Before you buy:</strong> the fully itemized, costed BOM is now published — <a href="bom.html">57 lines with vendors, part numbers and prices</a>, four build scenarios from <strong>$7,852</strong> to <strong>$12,874</strong>, and an explicit list of what it does <em>not</em> cover. The actuator counts below match it. Prices move; re-check before ordering.</p></div>
   <table class="data-table">
     <thead><tr><th>Subsystem</th><th>Actuator</th><th>Qty</th><th>Bus</th></tr></thead>
     <tbody>
@@ -125,8 +125,9 @@
       <tr><td>Neck roll + pitch</td><td>Dynamixel XC330-T181</td><td>2</td><td>1 Mbaud TTL</td></tr>
     </tbody>
   </table>
+  <p class="table-note">Every actuator above appears as a priced line on the <a href="bom.html">bill of materials</a>: 14 DAMIAO arm actuators ($2,181), 34 Feetech hand servos ($1,234), 3 MAXSwerve modules with motors and controllers ($1,673).</p>
   <div class="bg-cardgrid">
-    <div class="card"><div class="card-num">Sensing</div><h4>7 cameras + LiDAR</h4><p>ZED Mini (eyes), RealSense D435i (chest), 2× Arducam global-shutter wrist cams, RPLIDAR A3. All on USB 3.</p></div>
+    <div class="card"><div class="card-num">Sensing</div><h4>4 cameras + LiDAR</h4><p>ZED Mini (eyes), RealSense D435i (front/chest), 2× RealSense D405 wrist cams, RPLIDAR A2M12. All on USB 3 — the bandwidth budget is the real constraint, not the port count.</p></div>
     <div class="card"><div class="card-num">Compute</div><h4>Jetson Thor</h4><p>Main compute + ROS 2. A Teensy 4.1 runs the swerve base; a Raspberry Pi Pico runs the lift.</p></div>
     <div class="card"><div class="card-num">Structure</div><h4>3D-printed shells</h4><p>≈ 2.1 kg PETG/ABS, ~36 h print. Meshes generated from the MJCF; the neck is fully published in <code>hardware/neck_studio/</code>.</p></div>
   </div>
@@ -324,7 +325,7 @@ mjpython scripts/teleop.py     <span class="c"># keyboard whole-body</span></pre
         <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
       </div>
-      <div class="foot-col"><h6>Build</h6><a href="#bom">Bill of materials</a><a href="#hardware">Assembly</a><a href="#firmware">Firmware</a><a href="#calibration">Calibration</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="#hardware">Assembly</a><a href="#firmware">Firmware</a><a href="#calibration">Calibration</a></div>
       <div class="foot-col"><h6>Run</h6><a href="#software">Software & ROS</a><a href="#teleop">Teleop</a><a href="#server">Your own server</a><a href="#simulation">Simulation</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>

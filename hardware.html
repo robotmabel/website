@@ -5,11 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
 <title>MABEL — Hardware</title>
-<meta name="description" content="MABEL hardware: 3-DOF active head, lift torso, twin 7-DOF arms, 17-DOF ORCA hands, and a three-module holonomic swerve base. Full BOM under $10k and a one-weekend build." />
+<meta name="description" content="MABEL hardware: 3-DOF active head, lift torso, twin 7-DOF arms, 17-DOF ORCA hands, and a three-module holonomic swerve base. Fully itemized BOM from $7,852 (platform only) to $12,874 (with a Jetson AGX Thor)." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
+<style>
+.scn { text-align:left; display:flex; flex-direction:column; gap:4px; padding:18px 18px 16px; border-radius:18px; cursor:pointer;
+  background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border); box-shadow:var(--glass-hi), var(--glass-sh);
+  transition:transform .35s var(--ease-out), border-color .3s, background .3s; font:inherit; color:inherit; }
+.scn:hover { transform:translateY(-3px); background:var(--glass-bg-2); }
+.scn.on { border-color:var(--rust); background:rgba(194,91,42,0.08); }
+.scn-id { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ash); }
+.scn.on .scn-id { color:var(--rust); }
+.scn-name { font-family:var(--font-display); font-size:19px; line-height:1.15; letter-spacing:-.015em; }
+.scn-val { font-family:var(--font-mono); font-size:21px; font-weight:500; margin-top:2px; }
+.scn.on .scn-val { color:var(--rust); }
+.scn-detail { font-size:12px; color:var(--ash); line-height:1.45; margin-top:2px; }
+#bomTable .row.dropped { opacity:.28; }
+#bomTable .row.dropped .val { text-decoration:line-through; }
+#bomTable .row.swapped .val { color:var(--rust); }
+.spec-total .label { text-transform:none; letter-spacing:.02em; font-size:11px; color:var(--ash); max-width:52ch; }
+</style>
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -51,11 +69,11 @@
     <span class="eyebrow">Hardware</span>
     <h1 class="display-lg">A body, composed.</h1>
     <p class="lede">
-      51 actuated joints, almost entirely 3D-printed, assembled in one weekend. One coherent platform —
+      56 functional degrees of freedom driven by 59 motors, almost entirely 3D-printed, assembled in one weekend. One coherent platform —
       not a stack of parts.
     </p>
     <div class="spec" style="margin-top:28px;">
-      <span>51 DOF total</span><span>2 × 7-DOF arms</span><span>2 × 17-DOF ORCA hands</span><span>3-module swerve base</span><span>&lt; $10k BOM</span>
+      <span>56 functional DOF · 59 motors</span><span>2 × 7-DOF arms</span><span>2 × 17-DOF ORCA hands</span><span>3-module swerve base</span><span>$9,624 BOM · 57 lines</span>
     </div>
   </div>
 </section>
@@ -408,7 +426,7 @@
     <div class="points fade-up">
       <div class="point"><div class="num">01</div><div>
         <h5>A first of its kind</h5>
-        <p>The first open-source design for <em>low-cost bimanual mobile manipulation</em> — two dexterous hands, two arms, and a holonomic base, fully open and under $10k.</p>
+        <p>The first open-source design for <em>low-cost bimanual mobile manipulation</em> — two dexterous hands, two arms, and a holonomic base, fully open, and itemized down to the last cable.</p>
         <div class="spec"><span>Open-source</span><span>Bimanual + mobile</span><span>&lt; $10k</span></div>
       </div></div>
       <div class="point"><div class="num">02</div><div>
@@ -462,32 +480,32 @@
     <div class="sec-head fade-up">
       <div>
         <span class="eyebrow">Bill of materials</span>
-        <h2 class="display-md title">Sub-$10k, <span class="italic accent">itemized.</span></h2>
+        <h2 class="display-md title">Itemized, <span class="italic accent">and honest.</span></h2>
       </div>
-      <p class="lede">No hidden costs. The full BOM — and it's interactive. Tap a row to include/exclude — the total updates live.</p>
+      <p class="lede"><span data-bom="lines">57</span> line items, each re-priced against a vendor page and cross-checked against what the firmware says is bolted to the robot. Pick a build scenario — the breakdown follows.</p>
     </div>
 
+    <div class="scn-grid fade-up" id="bomScenarios" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:44px;"></div>
+
     <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:clamp(40px,6vw,88px); align-items:start;" class="bom-layout">
-      <div class="spec-table fade-up" id="bomTable">
-        <div class="row"><input type="checkbox" class="bom-tog" checked style="margin-right:12px;width:16px;height:16px;flex:none;accent-color:var(--accent,#C25B2A);cursor:pointer;" /><span class="num">01</span><div><div class="name">Holonomic swerve base</div><div class="sub">3× swerve modules, chassis, drive electronics</div></div><span class="val">$1,620</span></div>
-        <div class="row"><input type="checkbox" class="bom-tog" checked style="margin-right:12px;width:16px;height:16px;flex:none;accent-color:var(--accent,#C25B2A);cursor:pointer;" /><span class="num">02</span><div><div class="name">Lift column &amp; torso</div><div class="sub">Linear actuator, tilt joint, 13″ touchscreen</div></div><span class="val">$980</span></div>
-        <div class="row"><input type="checkbox" class="bom-tog" checked style="margin-right:12px;width:16px;height:16px;flex:none;accent-color:var(--accent,#C25B2A);cursor:pointer;" /><span class="num">03</span><div><div class="name">Twin 7-DOF arms</div><div class="sub">Open-Arm-derived, with control boards</div></div><span class="val">$2,680</span></div>
-        <div class="row"><input type="checkbox" class="bom-tog" checked style="margin-right:12px;width:16px;height:16px;flex:none;accent-color:var(--accent,#C25B2A);cursor:pointer;" /><span class="num">04</span><div><div class="name">2× ORCA hands · 17 DOF each</div><div class="sub">Tendon-driven, soft fingertip pads</div></div><span class="val">$2,140</span></div>
-        <div class="row"><input type="checkbox" class="bom-tog" checked style="margin-right:12px;width:16px;height:16px;flex:none;accent-color:var(--accent,#C25B2A);cursor:pointer;" /><span class="num">05</span><div><div class="name">3-DOF active head</div><div class="sub">Pan / tilt / roll + stereo RGB-D camera</div></div><span class="val">$520</span></div>
-        <div class="row"><input type="checkbox" class="bom-tog" checked style="margin-right:12px;width:16px;height:16px;flex:none;accent-color:var(--accent,#C25B2A);cursor:pointer;" /><span class="num">06</span><div><div class="name">Sensing</div><div class="sub">2D LiDAR, dual wrist cameras, IMU</div></div><span class="val">$640</span></div>
-        <div class="row"><input type="checkbox" class="bom-tog" checked style="margin-right:12px;width:16px;height:16px;flex:none;accent-color:var(--accent,#C25B2A);cursor:pointer;" /><span class="num">07</span><div><div class="name">LED matrix eyes</div><div class="sub">Custom PCB, addressable RGB matrix</div></div><span class="val">$120</span></div>
-        <div class="row"><input type="checkbox" class="bom-tog" checked style="margin-right:12px;width:16px;height:16px;flex:none;accent-color:var(--accent,#C25B2A);cursor:pointer;" /><span class="num">08</span><div><div class="name">Compute · Jetson Thor + mini PC</div><div class="sub">Onboard inference and ROS 2 host</div></div><span class="val">$980</span></div>
-        <div class="row"><input type="checkbox" class="bom-tog" checked style="margin-right:12px;width:16px;height:16px;flex:none;accent-color:var(--accent,#C25B2A);cursor:pointer;" /><span class="num">09</span><div><div class="name">Power · battery, BMS, wiring</div><div class="sub">Hot-swappable cell packs</div></div><span class="val">$180</span></div>
-        <div class="spec-total"><span class="label">Total BOM</span><span class="big">$9,860</span></div>
-      </div>
+      <div class="spec-table fade-up" id="bomTable"></div>
 
       <aside class="fade-up d1" style="position:sticky; top:90px;">
         <div class="bom-donut" id="bomDonut" aria-hidden="true"></div>
+        <p class="table-note" style="margin:-8px 0 22px;">The ring is the <strong>as-built</strong> split; the total follows the scenario.</p>
         <h3 class="display-sm" style="margin-bottom:20px;">Cost is a <span class="italic accent">design parameter,</span> not an excuse.</h3>
         <p class="body" style="margin-bottom:16px;">Every component was chosen with two questions in mind: <em>does it work for the task</em>, and <em>could a grad student in Lagos, São Paulo, or Beijing buy it next week?</em></p>
-        <p class="body" style="margin-bottom:16px;">3D-printed structural parts. Off-the-shelf actuators where they're good enough. Custom electronics only where they must be. No proprietary couplings, no five-figure encoders, no "contact sales" components.</p>
-        <p class="body">The result is a research-grade mobile bimanual robot that one person can afford and one weekend can assemble. That's the contract.</p>
+        <p class="body" style="margin-bottom:22px;">Onboard compute is 27% of the as-built cost and the least MABEL-specific part of it — which is why the total is a scenario, not a number. Roughly <span data-bom="s2">$9,624</span> buys the robot with a Jetson Orin Nano Super, or <span data-bom="perdof">$172</span> per functional degree of freedom.</p>
+        <a href="bom.html" class="btn btn-primary">Every line, every vendor →</a>
       </aside>
+    </div>
+
+    <div class="callout fade-up" style="margin-top:36px;">
+      <p><strong>Before you quote a number.</strong> These totals cover the parts on the purchase record. An
+      estimated <strong>$510–$1,255</strong> of real hardware — the ORCA hand structure, printed shells, the
+      distribution PCBs, the E-stop — was never costed, which puts a fully costed build just over $10,000.
+      The <a href="bom.html#gaps">full BOM page</a> itemizes exactly what is missing, and the four lines the
+      audit corrected.</p>
     </div>
   </div>
 </section>
@@ -527,7 +545,7 @@
       <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
       <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a></div>
-      <div class="foot-col"><h6>Build</h6><a href="#bom">Bill of materials</a><a href="#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
     <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
@@ -535,46 +553,8 @@
 </footer>
 
 <script src="assets/mabel.js"></script>
+<script src="assets/bom/bom_data.js"></script>
+<script src="assets/bom-table.js"></script>
 <script src="assets/bom-donut.js"></script>
-<script>
-// BOM configurator: tap a row to include/exclude, total recomputes live.
-(function () {
-  var table = document.getElementById('bomTable');
-  if (!table) return;
-  var rows = Array.prototype.slice.call(table.querySelectorAll('.row'));
-  var totalEl = table.querySelector('.spec-total .big');
-  if (!totalEl) return;
-
-  function parseVal(row) {
-    var v = row.querySelector('.val');
-    if (!v) return 0;
-    var n = parseFloat(v.textContent.replace(/[^0-9.]/g, ''));
-    return isNaN(n) ? 0 : n;
-  }
-
-  function recompute() {
-    var sum = 0;
-    rows.forEach(function (row) {
-      var box = row.querySelector('.bom-tog');
-      var on = !box || box.checked;
-      if (on) {
-        sum += parseVal(row);
-        row.style.opacity = '';
-        row.style.textDecoration = '';
-      } else {
-        row.style.opacity = '0.42';
-        row.style.textDecoration = 'line-through';
-      }
-    });
-    totalEl.textContent = '$' + sum.toLocaleString('en-US');
-  }
-
-  rows.forEach(function (row) {
-    var box = row.querySelector('.bom-tog');
-    if (box) box.addEventListener('change', recompute);
-  });
-  recompute();
-})();
-</script>
 </body>
 </html>

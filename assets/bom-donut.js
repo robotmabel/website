@@ -18,6 +18,15 @@
   const total = items.reduce((s, i) => s + i.cost, 0);
   if (!total) return;
 
+  // A host may declare the authoritative centre readout (data-total /
+  // data-total-label) when the rows are rounded per-line and would otherwise
+  // sum a dollar off. Slice geometry always uses the row sum.
+  const shownTotal = () => {
+    const t = parseFloat(host.dataset.total || '');
+    return Number.isFinite(t) ? t : total;
+  };
+  const shownLabel = () => host.dataset.totalLabel || 'Total BOM';
+
   // warm palette (rusts → inks) so slices stay on-brand
   const PALETTE = ['#C25B2A', '#A8481F', '#D8814F', '#8B3F1D', '#E0A06A',
     '#5E4A38', '#A89A86', '#3A332C', '#C9B79A'];
@@ -55,8 +64,8 @@
 
   // centre readout
   const fmt = (n) => '$' + Math.round(n).toLocaleString();
-  const big = document.createElement('div'); big.className = 'bom-c-val'; big.textContent = fmt(total);
-  const sub = document.createElement('div'); sub.className = 'bom-c-key'; sub.textContent = 'Total BOM';
+  const big = document.createElement('div'); big.className = 'bom-c-val'; big.textContent = fmt(shownTotal());
+  const sub = document.createElement('div'); sub.className = 'bom-c-key'; sub.textContent = shownLabel();
   const centre = document.createElement('div'); centre.className = 'bom-centre';
   centre.appendChild(big); centre.appendChild(sub);
 
@@ -70,7 +79,7 @@
       segs[k].classList.toggle('hot', on);
       it.el.classList.toggle('bom-row-hot', on);
     });
-    if (i === null) { big.textContent = fmt(total); sub.textContent = 'Total BOM'; big.style.color = ''; }
+    if (i === null) { big.textContent = fmt(shownTotal()); sub.textContent = shownLabel(); big.style.color = ''; }
     else {
       big.textContent = fmt(items[i].cost);
       sub.textContent = `${Math.round(items[i].frac * 100)}% · ${items[i].name}`;
