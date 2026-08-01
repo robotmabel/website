@@ -8,7 +8,7 @@
 // The "contribute" form lets any visitor design a job (architecture + dataset +
 // a few clamped hyperparameters) and POST it to the VPS community queue. Nothing
 // runs on the GPU until the owner approves it in the studio.
-import { ArchDiagram } from './arch/archdiagram.js';
+import { ArchDiagram } from './archdiagram.js';
 
 // Community-queue endpoint (Caddy on mabel-vps). Overridable via ?trainapi= for testing.
 const API = new URLSearchParams(location.search).get('trainapi')

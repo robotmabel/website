@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Wiring</title>
+<meta name="description" content="MABEL's wiring guide: two power rails, one computer. What connects to what, in what order — power tree, data tree, per-port tables, and a power-up sequence. Read it here or download the PDF." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+<style>
+.rail-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+.rail { padding:22px; border-radius:18px; background:var(--glass-bg);
+  -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border); box-shadow:var(--glass-hi), var(--glass-sh); }
+.rail-tag { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ash); }
+.rail-v { font-family:var(--font-display); font-size:42px; line-height:1; letter-spacing:-.03em; margin:6px 0 8px; }
+.rail-24 .rail-v { color:var(--rust); }
+.rail-12 .rail-v { color:#3A9A94; }
+.rail-d { font-size:13px; color:var(--ash); line-height:1.5; }
+.key { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+.key span { display:inline-flex; align-items:center; gap:7px; font-family:var(--font-mono);
+  font-size:11px; color:var(--ash); }
+.key i { width:22px; height:4px; border-radius:2px; display:block; }
+.k24 i { background:var(--rust); } .k12 i { background:#3A9A94; }
+.kusb i { background:var(--ash); } .kun i { background:transparent; border:1px dashed var(--ash-light); height:6px; }
+.wire-table { width:100%; border-collapse:collapse; font-size:13px; }
+.wire-table th { text-align:left; padding:10px 12px; font-family:var(--font-mono); font-size:10px;
+  font-weight:500; color:var(--ash); letter-spacing:.1em; text-transform:uppercase;
+  border-bottom:1px solid rgba(22,20,18,0.2); }
+.wire-table td { padding:11px 12px; border-bottom:1px solid rgba(22,20,18,0.08); vertical-align:top; }
+.wire-table tr.sec td { background:rgba(22,20,18,0.045); font-family:var(--font-mono); font-size:11px;
+  letter-spacing:.09em; text-transform:uppercase; font-weight:500; }
+.pill { font-family:var(--font-mono); font-size:10px; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+.p24 { background:rgba(194,91,42,0.14); color:#8B3F1D; }
+.p12 { background:rgba(58,154,148,0.14); color:#2C6F6B; }
+.note { font-size:12px; color:var(--ash); line-height:1.5; }
+</style>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="build.html">Build<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="build.html">Overview</a><a href="bom.html">Bill of materials</a><a href="assembly.html">Hardware assembly</a><a href="wiring.html" class="on">Wiring</a><a href="firmware.html">Firmware</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="ros.html">ROS 2</a><a href="server.html">Server &amp; Bridge</a><a href="simulation.html">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="controller.html">Controller<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="controller.html">Overview</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <a href="navigation.html">Navigation</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="data.html">Data</a><a href="learning.html">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Overview</a><a class="sub" href="bom.html">Bill of materials</a><a class="sub" href="assembly.html">Hardware assembly</a><a class="sub" href="wiring.html">Wiring</a><a class="sub" href="firmware.html">Firmware</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="ros.html">ROS 2</a><a class="sub" href="server.html">Server &amp; Bridge</a><a class="sub" href="simulation.html">Simulation</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Controller</span><a class="sub" href="controller.html">Overview</a><a class="sub" href="wbc.html">Whole-Body Control</a><a href="navigation.html">Navigation</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="data.html">Data</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<aside class="sidenav" aria-label="Build section navigation">
+  <div class="sidenav-title">Build</div>
+  <a href="build.html">Overview</a><a href="bom.html">Bill of materials</a><a href="assembly.html">Hardware assembly</a><a href="wiring.html" class="on">Wiring</a><a href="firmware.html">Firmware</a>
+</aside>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / <a href="build.html">Build</a> / Wiring</div>
+    <span class="eyebrow">Build · Wiring</span>
+    <h1 class="display-lg">Two rails.<br/>One computer.</h1>
+    <p class="lede">What connects to what, and in what order. Six pages: power, data, and the sequence to bring
+    it all up without finding out the hard way which connector was loose.</p>
+    <div class="spec" style="margin-top:28px;">
+      <span>24 V primary</span><span>12 V secondary</span><span>7 links to Thor</span><span>15 devices</span><span>6 pages</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE RAILS ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The rails</span>
+        <h2 class="display-md title">One supply.<br/><span class="italic accent">Four branches.</span></h2>
+      </div>
+      <p class="lede">A single 24 V supply feeds four branches, and one of those branches makes the 12 V rail.
+      Read both diagrams left to right: the box on the left is the source, everything to the right of it is fed
+      by it. Colour shows the rail, not the part.</p>
+    </div>
+    <div class="rail-grid fade-up">
+      <div class="rail rail-24">
+        <div class="rail-tag">Primary rail</div>
+        <div class="rail-v">24 V</div>
+        <div class="rail-d">Compute, both arms, neck yaw, lift. Straight from the supply — Thor, the lift
+        controller and the torso bus each get their own pair.</div>
+      </div>
+      <div class="rail rail-12">
+        <div class="rail-tag">Secondary rail</div>
+        <div class="rail-v">12 V</div>
+        <div class="rail-d">Base, hands, expansion boards, neck servos. All of it downstream of one buck
+        converter — which makes that converter a single point of failure worth knowing about.</div>
+      </div>
+      <div class="rail">
+        <div class="rail-tag">Links to Thor</div>
+        <div class="rail-v">7</div>
+        <div class="rail-d">Seven ports in use carrying fifteen devices. Every cable on the robot ends at the
+        Jetson; the head and base cameras go in direct because they need the bandwidth.</div>
+      </div>
+    </div>
+    <div class="key fade-up">
+      <span class="k24"><i></i>24 V</span>
+      <span class="k12"><i></i>12 V</span>
+      <span class="kusb"><i></i>USB / data</span>
+      <span class="kun"><i></i>wired but unused in the standard build</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE GUIDE ─── -->
+<section class="soft-sec pad-y" id="guide">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The guide</span>
+        <h2 class="display-md title">Read it here, <span class="italic accent">or take it to the bench.</span></h2>
+      </div>
+      <p class="lede">Page through it below, or download the PDF and put it on a tablet next to the robot.
+      Arrow keys and swipe both work.</p>
+    </div>
+    <div class="fade-up pdfv"
+         data-pdf="assets/pdf/MABEL_Wiring_Guide.pdf"
+         data-pages="6"
+         data-prefix="assets/pdf/pages/mabel-wiring-guide-"
+         data-label="Wiring Guide · August 2026"
+         data-titles="Overview — what is in here|Power — one supply, four branches|What each line feeds|Data — every cable ends at Thor|Where each cable goes|Power it up in this order"></div>
+  </div>
+</section>
+
+<!-- ─── WHAT FEEDS WHAT ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Loads</span>
+        <h2 class="display-md title">Every load, <span class="italic accent">and where it taps in.</span></h2>
+      </div>
+      <p class="lede">Each arm gets three power lines, one per group of joints. If a connector works loose you
+      lose one group instead of the whole arm.</p>
+    </div>
+    <div class="fade-up" style="overflow-x:auto;">
+      <table class="wire-table" style="min-width:620px;">
+        <thead><tr><th>Load</th><th>Rail</th><th>Taps from</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr class="sec"><td colspan="4">24 V — straight from the supply</td></tr>
+          <tr><td>Jetson Thor</td><td><span class="pill p24">24 V</span></td><td>Supply</td><td>Its own line. Motor spikes must not reach it.</td></tr>
+          <tr><td>Torso bus</td><td><span class="pill p24">24 V</span></td><td>Supply</td><td>Feeds both arms and the neck yaw motor.</td></tr>
+          <tr><td>Arms — J1 + J2</td><td><span class="pill p24">24 V</span></td><td>Torso bus</td><td>Shoulder pair. One line per arm.</td></tr>
+          <tr><td>Arms — J3 + J4</td><td><span class="pill p24">24 V</span></td><td>Torso bus</td><td>Mid-arm pair. One line per arm.</td></tr>
+          <tr><td>Arms — J5 + J6 + J7</td><td><span class="pill p24">24 V</span></td><td>Torso bus</td><td>Forearm and wrist. One line per arm.</td></tr>
+          <tr><td>Neck yaw motor</td><td><span class="pill p24">24 V</span></td><td>Torso bus</td><td>A Damiao motor, so it sits last on the same chain.</td></tr>
+          <tr><td>Lift controller</td><td><span class="pill p24">24 V</span></td><td>Supply</td><td>Its own line. Biggest current spike on the robot.</td></tr>
+          <tr><td>Buck converter</td><td><span class="pill p24">24 V in</span></td><td>Supply</td><td>Makes the 12 V rail.</td></tr>
+          <tr class="sec"><td colspan="4">12 V — from the buck converter</td></tr>
+          <tr><td>Base motor drivers</td><td><span class="pill p12">12 V</span></td><td>Buck converter</td><td>Six drivers. Two per swerve module.</td></tr>
+          <tr><td>Ethernet expansion board</td><td><span class="pill p12">12 V</span></td><td>Buck converter</td><td>Also carries both Teensies.</td></tr>
+          <tr><td>USB expansion board</td><td><span class="pill p12">12 V</span></td><td>Buck converter</td><td>Ten devices. Never run it bus-powered.</td></tr>
+          <tr><td>Left hand</td><td><span class="pill p12">12 V</span></td><td>Buck converter</td><td>Power only. Data goes over USB.</td></tr>
+          <tr><td>Right hand</td><td><span class="pill p12">12 V</span></td><td>Buck converter</td><td>Power only. Data goes over USB.</td></tr>
+          <tr><td>Neck Dynamixel bus</td><td><span class="pill p12">12 V</span></td><td>Buck converter</td><td>The U2D2 itself is powered over USB.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-two fade-up" style="display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,4vw,56px); margin-top:44px;">
+      <div>
+        <h3 class="display-sm" style="margin-bottom:14px;">Never share a run back to the supply</h3>
+        <p class="body">Thor, the lift controller and the torso bus each get their own pair. A few extra metres of
+        cable removes a whole class of fault that is genuinely hard to find later — the kind where the Jetson
+        browns out only when an arm accelerates.</p>
+      </div>
+      <div>
+        <h3 class="display-sm" style="margin-bottom:14px;">The buck converter is a single point of failure</h3>
+        <p class="body">Everything on 12 V depends on it: the base, both hands, both expansion boards and the
+        neck servo bus. If the hands, the base and the neck all go quiet at once, check the converter before you
+        check anything else.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PORTS ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Data</span>
+        <h2 class="display-md title">Find the port, <span class="italic accent">find the device.</span></h2>
+      </div>
+      <p class="lede">Every cable ends at Thor. Seven links leave it — the head and base cameras go straight in
+      because they need the bandwidth; everything on the hub is either slow or a single wrist stream.</p>
+    </div>
+    <div class="fade-up" style="overflow-x:auto;">
+      <table class="wire-table" style="min-width:620px;">
+        <thead><tr><th>Port</th><th>Goes to</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr class="sec"><td colspan="3">On Thor</td></tr>
+          <tr><td>USB-A — port 1</td><td>USB expansion board</td><td>The hub, and the ten devices on it.</td></tr>
+          <tr><td>USB-A — port 2</td><td>Head camera</td><td>Direct, to keep it off the hub.</td></tr>
+          <tr><td>USB-C — port 1</td><td>Base camera</td><td>Needs USB 3. Keep it off the hub.</td></tr>
+          <tr><td>USB-C — port 2</td><td>Bench power</td><td>Unused. Spare input if you run Thor on the bench.</td></tr>
+          <tr><td>Ethernet</td><td>Bench laptop</td><td>Unused. For testing one subsystem at a time.</td></tr>
+          <tr><td>HDMI</td><td>Display</td><td>Unused. For bring-up and recovery.</td></tr>
+          <tr><td>Expansion slot</td><td>Ethernet expansion board</td><td>Both Teensies and the Wi-Fi antenna.</td></tr>
+          <tr class="sec"><td colspan="3">On the USB expansion board</td></tr>
+          <tr><td>Audio</td><td>Microphone + speaker</td><td>Mic and speaker on one device.</td></tr>
+          <tr><td>Hands</td><td>Left hand, right hand</td><td>Data only. Power comes from 12 V.</td></tr>
+          <tr><td>Wrist cameras</td><td>Left, right</td><td>The two biggest streams on the hub.</td></tr>
+          <tr><td>Lidar</td><td>2D lidar</td><td>Serial over USB.</td></tr>
+          <tr><td>Neck servos</td><td>U2D2 controller</td><td>Signal path to the Dynamixels.</td></tr>
+          <tr><td>Bluetooth</td><td>Mouse dongle</td><td>Operator input during bring-up.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ─── POWER-UP ─── -->
+<section class="pad-y" id="poweron">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Bring-up</span>
+        <h2 class="display-md title">Power it up <span class="italic accent">in this order.</span></h2>
+      </div>
+      <p class="lede">Work outward from the supply. Check each level before you add the next.</p>
+    </div>
+    <div class="steps fade-up">
+      <div class="step"><div><h4>Start with nothing connected.</h4><div class="meta">24 V supply only</div></div><p>Leave Thor, the torso bus, the lift controller and the buck converter unplugged. Check the voltage at the terminals.</p></div>
+      <div class="step"><div><h4>Add Thor and the lift controller.</h4><div class="meta">the two dedicated 24 V lines</div></div><p>Let Thor boot all the way. If the supply sags now, it will sag worse later.</p></div>
+      <div class="step"><div><h4>Add the buck converter — with nothing on it.</h4><div class="meta">check before you load it</div></div><p>Confirm 12 V at its output before you plug anything into it.</p></div>
+      <div class="step"><div><h4>Add the arms, one line at a time.</h4><div class="meta">left arm first</div></div><p>J1 + J2, then J3 + J4, then J5 + J6 + J7. Each group should hold position before you add the next one. The neck yaw motor goes last.</p></div>
+      <div class="step"><div><h4>Add the base.</h4><div class="meta">six drivers, three modules</div></div><p>Keep the wheels off the ground until the control loop is working.</p></div>
+      <div class="step"><div><h4>Add the USB hub.</h4><div class="meta">slowest devices first</div></div><p>Start with the lift Pico and the audio device, then the cameras and the lidar.</p></div>
+    </div>
+
+    <div class="callout fade-up" style="margin-top:36px;">
+      <p><strong>What this guide does not cover.</strong> CAN and serial <em>signal</em> wiring — it shares the
+      same looms but needs its own document. And fuse ratings and wire gauge: measure the stall current on your
+      own build first rather than copying a number from here.</p>
+    </div>
+
+    <div class="fade-up" style="margin-top:40px; display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="assets/pdf/MABEL_Wiring_Guide.pdf" class="btn btn-primary" download>Download the Wiring Guide</a>
+      <a href="bom.html" class="btn btn-ghost">Bill of materials →</a>
+      <a href="build.html" class="btn btn-ghost">← All build guides</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Build</h6><a href="build.html">All guides</a><a href="bom.html">Bill of materials</a><a href="assembly.html">Hardware assembly</a><a href="wiring.html">Wiring</a><a href="firmware.html">Firmware</a></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/js/mabel.js"></script>
+<script src="assets/js/pdf-slider.js"></script>
+</body>
+</html>

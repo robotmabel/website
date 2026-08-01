@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
-<title>MABEL — Build Guide</title>
-<meta name="description" content="Build MABEL from scratch: bill of materials, hardware assembly, electronics, firmware, calibration, ROS, teleop, and running your own sim + real-robot servers. A step-by-step, dummy-friendly build wiki." />
+<title>MABEL — Build</title>
+<meta name="description" content="Build MABEL: four guides — bill of materials, hardware assembly, wiring, firmware — plus what to know before you start, the safety rules, calibration and troubleshooting." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -27,6 +27,24 @@
   ul.bg-list li { position: relative; padding: 7px 0 7px 24px; color: var(--ink-soft); font-size: 15px; line-height: 1.55; border-bottom: 1px solid rgba(22,20,18,0.07); }
   ul.bg-list li::before { content: "→"; position: absolute; left: 0; color: var(--rust); }
   .bg-cardgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 22px 0; }
+  /* guide cards */
+  .gcards { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+  .gcard { display:flex; flex-direction:column; gap:8px; padding:26px; border-radius:20px; text-decoration:none; color:inherit;
+    background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+    border:1px solid var(--glass-border); box-shadow:var(--glass-hi), var(--glass-sh);
+    transition:transform .35s var(--ease-out), background .3s; }
+  .gcard:hover { transform:translateY(-4px); background:var(--glass-bg-2); }
+  .gcard.soon { opacity:.62; cursor:default; }
+  .gcard.soon:hover { transform:none; background:var(--glass-bg); }
+  .gnum { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--rust); }
+  .gname { font-family:var(--font-display); font-size:26px; line-height:1.1; letter-spacing:-.02em; }
+  .gdesc { font-size:13.5px; color:var(--ash); line-height:1.6; flex:1; }
+  .gmeta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:6px; }
+  .gtag { font-family:var(--font-mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+    padding:3px 9px; border-radius:999px; }
+  .gtag.pdf { background:rgba(194,91,42,0.14); color:#8B3F1D; }
+  .gtag.page { background:rgba(22,20,18,0.07); color:var(--ash); }
+  .gtag.wip { background:rgba(22,20,18,0.06); color:var(--ash-light); border:1px dashed rgba(22,20,18,0.18); }
 </style>
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -38,98 +56,87 @@
   <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
   <nav class="nav-links">
     <a href="index.html">Overview</a>
-    <a href="build.html" class="on">Build</a>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a><a href="bom.html">Bill of materials</a></div></div>
-    <a href="assembly.html">Assembly</a>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="firmware.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="firmware.html">Firmware</a><a href="ros.html">ROS</a><a href="server.html">Server & Bridge</a><a href="simulation.html">Simulation</a><a href="wbc.html">Whole-Body Control</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a><a href="teleop.html">Browser</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="build.html">Build<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="build.html" class="on">Overview</a><a href="bom.html">Bill of materials</a><a href="assembly.html">Hardware assembly</a><a href="wiring.html">Wiring</a><a href="firmware.html">Firmware</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="ros.html">ROS 2</a><a href="server.html">Server &amp; Bridge</a><a href="simulation.html">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="controller.html">Controller<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="controller.html">Overview</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <a href="navigation.html">Navigation</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="data.html">Data</a><a href="learning.html">Learning</a></div></div>
     <a href="connect.html">Connect</a>
     <a href="#" class="ext">Paper ↗</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a href="build.html">Build Guide</a><a href="assembly.html">Assembly</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-electronics.html">Electronics</a><a class="sub" href="bom.html">Bill of materials</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server & Bridge</a><a class="sub" href="simulation.html">Simulation</a><a href="connect.html">Connect</a>
+  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Overview</a><a class="sub" href="bom.html">Bill of materials</a><a class="sub" href="assembly.html">Hardware assembly</a><a class="sub" href="wiring.html">Wiring</a><a class="sub" href="firmware.html">Firmware</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="ros.html">ROS 2</a><a class="sub" href="server.html">Server &amp; Bridge</a><a class="sub" href="simulation.html">Simulation</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Controller</span><a class="sub" href="controller.html">Overview</a><a class="sub" href="wbc.html">Whole-Body Control</a><a href="navigation.html">Navigation</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="data.html">Data</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 
-<aside class="sidenav" aria-label="Build guide sections">
-  <div class="sidenav-title">Build Guide</div>
-  <a href="#overview" class="on">Overview</a>
-  <a href="#bom">1 · Bill of Materials</a>
-  <a href="#start">2 · Before You Start</a>
-  <a href="#safety">3 · Safety</a>
-  <a href="#hardware">4 · Hardware Assembly</a>
-  <a href="#electronics">5 · Electronics & Wiring</a>
-  <a href="#firmware">6 · Firmware</a>
-  <a href="#calibration">7 · Calibration</a>
-  <a href="#software">8 · Software & ROS 2</a>
-  <a href="#teleop">9 · Control & Teleop</a>
-  <a href="#server">10 · Run Your Own Server</a>
-  <a href="#simulation">11 · Simulation</a>
-  <a href="#learning">12 · Learning</a>
-  <a href="#faq">13 · Troubleshooting</a>
+<aside class="sidenav" aria-label="Build section navigation">
+  <div class="sidenav-title">Build</div>
+  <a href="build.html" class="on">Overview</a><a href="bom.html">Bill of materials</a><a href="assembly.html">Hardware assembly</a><a href="wiring.html">Wiring</a><a href="firmware.html">Firmware</a>
 </aside>
 
 <!-- ─── HERO ─── -->
-<section class="page-hero bg-anchor" id="overview">
+<section class="page-hero">
   <div class="page-hero-inner">
-    <div class="crumbs"><a href="index.html">Overview</a> / Build Guide</div>
-    <span class="eyebrow">The Build Guide</span>
-    <h1 class="display-lg">Build MABEL,<br><span class="italic accent">end to end.</span></h1>
-    <p class="lede bg-lead">From an empty bench to a robot you can teleoperate from an iPhone, a browser, or an Apple Vision Pro — and a full digital twin you can run with no hardware at all. Twelve stages, every command, nothing hand-waved.</p>
-    <div class="spec" style="margin-top:26px;"><span>56 DOF · 59 motors</span><span>Sub-$8k target</span><span>Swerve + bimanual</span><span>MuJoCo twin</span><span>MIT-licensed</span></div>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:30px;">
-      <a href="https://app.notion.com/p/3932403b2611812bafeaf63a6afdb42d" target="_blank" rel="noopener" class="btn btn-primary">Open the interactive wiki ↗</a>
-      <a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener" class="btn btn-ghost">GitHub ↗</a>
+    <div class="crumbs"><a href="index.html">Overview</a> / Build</div>
+    <span class="eyebrow">Build</span>
+    <h1 class="display-lg">Build one.</h1>
+    <p class="lede">Four guides take you from an empty bench to a robot that moves: what to buy, how it goes
+    together, how it is wired, and what to flash. Two are published; two are being written.</p>
+    <div class="spec" style="margin-top:28px;">
+      <span>56 functional DOF</span><span>from $8,722</span><span>catalog parts</span><span>no machine shop</span>
     </div>
   </div>
 </section>
 
-<section class="pad-y-sm"><div class="wrap">
-  <figure class="bg-fig fade-up"><img src="assets/img/build-guide/hero.png" alt="MABEL in the MuJoCo simulator" /><figcaption>The MABEL digital twin — every subsystem, before a single motor arrives</figcaption></figure>
-  <div class="bg-two fade-up" style="margin-top:14px;">
+<!-- ─── THE FOUR GUIDES ─── -->
+<section class="pad-y bg-anchor" id="guides"><div class="wrap">
+  <div class="sec-head fade-up">
     <div>
-      <span class="eyebrow">How this guide works</span>
-      <h2 class="display-sm title">One repo. <span class="italic accent">Sim first.</span></h2>
-      <p class="lede">MABEL is a monorepo — hardware, firmware, simulation, teleop, and learning together. You don't need any hardware to start: run the whole robot in simulation today, add real parts later.</p>
-      <ul class="bg-list">
-        <li><strong>Run it in sim now</strong> — Software → Run Your Own Server → Sim</li>
-        <li><strong>Build the robot</strong> — BOM → Assembly → Electronics → Firmware → Calibration</li>
-        <li><strong>Just drive it</strong> — Control & Teleop</li>
-      </ul>
+      <span class="eyebrow">The guides</span>
+      <h2 class="display-md title">Four documents, <span class="italic accent">in order.</span></h2>
     </div>
-    <figure class="bg-fig"><img src="assets/img/build-guide/fig-architecture.png" alt="MABEL system architecture" /><figcaption>System architecture · made in Figma</figcaption></figure>
+    <p class="lede">Each one stands alone, but this is the order they are meant to be read in. Buy it, build it,
+    wire it, flash it.</p>
   </div>
-  <div class="callout fade-up" style="margin-top:20px;"><p><strong>The one rule that keeps MABEL honest.</strong> The MuJoCo model <code>mabel_full.xml</code> is the single source of truth for the body. The ROS URDF, web model, iOS/Vision Pro rigs, and the tip-over constants are all generated from it — regenerate them after any geometry change (see §8).</p></div>
-</div></section>
+  <div class="gcards fade-up">
+    <a class="gcard" href="bom.html">
+      <span class="gnum">01</span>
+      <span class="gname">Bill of materials</span>
+      <span class="gdesc">Every part, every vendor, every price. An $8,058 fixed core plus five choices you make
+      yourself, giving three complete builds. Interactive configurator on the page, 15-page guide as a PDF.</span>
+      <span class="gmeta"><span class="gtag pdf">PDF · 15 pages</span><span class="gtag page">interactive</span></span>
+    </a>
+    <a class="gcard" href="assembly.html">
+      <span class="gnum">02</span>
+      <span class="gname">Hardware assembly</span>
+      <span class="gdesc">Seven modules, exploded. Base, lift, body, arms, hands, head and electronics — what
+      bolts to what, in what order, with the 3D model to turn around while you do it.</span>
+      <span class="gmeta"><span class="gtag page">interactive</span><span class="gtag wip">PDF in progress</span></span>
+    </a>
+    <a class="gcard" href="wiring.html">
+      <span class="gnum">03</span>
+      <span class="gname">Wiring</span>
+      <span class="gdesc">Two power rails and one computer. The power tree, the data tree, a per-port table, and
+      the order to bring it all up without finding out the hard way which connector was loose.</span>
+      <span class="gmeta"><span class="gtag pdf">PDF · 6 pages</span><span class="gtag page">interactive</span></span>
+    </a>
+    <a class="gcard" href="firmware.html">
+      <span class="gnum">04</span>
+      <span class="gname">Firmware</span>
+      <span class="gdesc">What runs on the two Teensies and the Pico: the swerve base loop, the DAMIAO MIT-mode
+      CAN buses, and how to flash and verify each one.</span>
+      <span class="gmeta"><span class="gtag page">interactive</span><span class="gtag wip">PDF in progress</span></span>
+    </a>
+  </div>
 
-<!-- ─── 1 · BOM ─── -->
-<section class="pad-y soft-sec bg-anchor" id="bom"><div class="wrap">
-  <span class="bg-secnum">01</span>
-  <h2 class="display-md title">Bill of <span class="italic accent">Materials.</span></h2>
-  <p class="lede bg-lead">Commodity smart actuators, off-the-shelf compute, and two custom PCBs for base and body power/bus routing. 56 functional DOF, 59 motors, all arm/body/base motors on one 1 Mbit/s bus.</p>
-  <div class="callout"><p><strong>Before you buy:</strong> the full costed bill is published as an <a href="bom.html">interactive configurator</a> and as a downloadable <a href="assets/pdf/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a> — an <strong>$8,058</strong> fixed core of 49 parts plus five choices, giving three complete builds from <strong>$8,722</strong> to <strong>$15,129</strong>. The actuator counts below match it. Note that NVIDIA raised every Jetson price on 22 July 2026 (Thor $3,499 → $5,499); the guide uses post-increase pricing throughout.</p></div>
-  <table class="data-table">
-    <thead><tr><th>Subsystem</th><th>Actuator</th><th>Qty</th><th>Bus</th></tr></thead>
-    <tbody>
-      <tr><td>Swerve drive</td><td>REV NEO</td><td>3</td><td>CAN (REV/FRC)</td></tr>
-      <tr><td>Swerve steer</td><td>REV NEO 550</td><td>3</td><td>CAN</td></tr>
-      <tr><td>Swerve controllers</td><td>REV SPARK MAX / Flex</td><td>6</td><td>CAN</td></tr>
-      <tr><td>Lift</td><td>Brushed DC + leadscrew (BTS7960, Pico)</td><td>1</td><td>USB</td></tr>
-      <tr><td>Torso pitch</td><td>DaMiao DM-J10422P · 400 N·m</td><td>1</td><td>CAN</td></tr>
-      <tr><td>Arm shoulders</td><td>DaMiao DM-J8009P · 40 N·m</td><td>4</td><td>CAN</td></tr>
-      <tr><td>Shoulder-roll + elbow</td><td>DaMiao DM-J4340 · 27 N·m</td><td>4</td><td>CAN</td></tr>
-      <tr><td>Arm wrists</td><td>DaMiao DM-J4310 · 7–10 N·m</td><td>6</td><td>CAN</td></tr>
-      <tr><td>Hands</td><td>Feetech HLS3915 ×16 + HLS3930 ×1 / hand</td><td>34</td><td>1 MHz TTL</td></tr>
-      <tr><td>Neck yaw</td><td>DaMiao DM-J4310 · 3 N·m</td><td>1</td><td>CAN</td></tr>
-      <tr><td>Neck roll + pitch</td><td>Dynamixel XC330-T181</td><td>2</td><td>1 Mbaud TTL</td></tr>
-    </tbody>
-  </table>
-  <p class="table-note">Every actuator above appears as a priced line on the <a href="bom.html">bill of materials</a>: 14 DAMIAO arm actuators ($2,111), 34 Feetech hand servos ($1,182), 3 REV swerve modules ($2,025). Search the model string, not the listing URL — the guide's appendix gives the exact Taobao search text for every Chinese-vendor line.</p>
-  <div class="bg-cardgrid">
-    <div class="card"><div class="card-num">Sensing</div><h4>4 cameras + LiDAR</h4><p>ZED Mini (eyes), RealSense D435i (front/chest), 2× RealSense D405 wrist cams, RPLIDAR A2M12. All on USB 3 — the bandwidth budget is the real constraint, not the port count.</p></div>
-    <div class="card"><div class="card-num">Compute</div><h4>Jetson Thor</h4><p>Main compute + ROS 2. A Teensy 4.1 runs the swerve base; a Raspberry Pi Pico runs the lift.</p></div>
-    <div class="card"><div class="card-num">Structure</div><h4>3D-printed shells</h4><p>≈ 2.1 kg PETG/ABS, ~36 h print. Meshes generated from the MJCF; the neck is fully published in <code>hardware/neck_studio/</code>.</p></div>
+  <div class="callout fade-up" style="margin-top:28px;">
+    <p><strong>The one rule that keeps MABEL honest.</strong> The MuJoCo model <code>mabel_full.xml</code> is the
+    single source of truth for the body. The ROS URDF, the web model, the iOS and Vision Pro rigs and the
+    tip-over constants are all generated from it — regenerate them after any geometry change, or they drift
+    apart silently.</p>
   </div>
 </div></section>
 
@@ -171,65 +178,6 @@
   </div>
 </div></section>
 
-<!-- ─── 4 · HARDWARE ─── -->
-<section class="pad-y bg-anchor" id="hardware"><div class="wrap">
-  <span class="bg-secnum">04</span>
-  <h2 class="display-md title">Hardware <span class="italic accent">Assembly.</span></h2>
-  <p class="lede bg-lead">Assemble from the ground up — each stage gives the next something to bolt onto. Print the shells first (~36 h) while you build the kits.</p>
-  <p style="margin-top:18px;"><a href="assembly.html" class="btn btn-primary">Open the step-by-step assembly →</a></p>
-  <p class="lede bg-lead" style="font-size:15px; margin-top:14px;">The seven modules below are the summary. <a href="assembly.html">Assembly</a> has the exploded views, part manifests, and numbered steps for each one.</p>
-  <div class="steps">
-    <div class="step"><div><h4>Swerve Base</h4><div class="meta">3× MAXSwerve · Teensy · CAN IDs 1–6</div></div><p>Three delta-layout modules on REV SPARK controllers give full holonomic motion. Daisy-chain the CAN bus with 120 Ω terminators; seat the Teensy and Jetson in the compute bay.</p></div>
-    <div class="step"><div><h4>Lift Column</h4><div class="meta">DC + leadscrew · RPi Pico</div></div><p>A cascaded loop on the Pico closes position at 100 Hz over USB serial. Home it with nothing mounted first.</p></div>
-    <div class="step"><div><h4>Torso</h4><div class="meta">DM-J10422P · 400 N·m · body CAN</div></div><p>The strongest joint on the robot leans the whole upper body. Carries both arm mounts and the 13&quot; screen.</p></div>
-    <div class="step"><div><h4>Arms ×2</h4><div class="meta">7-DOF OpenArm · DaMiao MIT · can0 / can1</div></div><p>Build link-by-link from the shoulder; assign IDs 1–7 per arm one motor at a time; set each zero at a known pose.</p></div>
-    <div class="step"><div><h4>ORCA Hands ×2</h4><div class="meta">17-DOF · Feetech TTL</div></div><p>Tendon-driven dexterous hands. Tension the tendons before calibrating; iterate until no slack.</p></div>
-    <div class="step"><div><h4>Head &amp; Neck</h4><div class="meta">3× DM-J4310 · parallel RSSR</div></div><p>A parallel pair drives pitch + roll, a third twists yaw. The one fully-published subassembly — CAD in <code>neck_studio/</code>.</p></div>
-    <div class="step"><div><h4>Sensors</h4><div class="meta">ZED · RealSense · wrist cams · LiDAR</div></div><p>Pin the two identical wrist cams by hub port; keep them on one powered USB-3 hub at 640×480.</p></div>
-  </div>
-  <div class="bg-cardgrid" style="margin-top:26px;">
-    <figure class="bg-fig"><img src="assets/img/build-guide/arm.png" alt="MABEL arm and ORCA hand"/><figcaption>7-DOF arm + ORCA hand</figcaption></figure>
-    <figure class="bg-fig"><img src="assets/img/build-guide/hand.jpg" alt="ORCA hand pose"/><figcaption>17-DOF ORCA hand</figcaption></figure>
-    <figure class="bg-fig"><img src="assets/img/build-guide/neck.png" alt="Neck design studio"/><figcaption>Parametric neck studio</figcaption></figure>
-  </div>
-</div></section>
-
-<!-- ─── 5 · ELECTRONICS ─── -->
-<section class="pad-y soft-sec bg-anchor" id="electronics"><div class="wrap">
-  <span class="bg-secnum">05</span>
-  <h2 class="display-md title">Electronics &amp; <span class="italic accent">Wiring.</span></h2>
-  <p class="lede bg-lead">One host owns every device: a single <code>hardware_bridge</code> process opens every bus; ROS is only a client.</p>
-  <figure class="bg-fig fade-up"><img src="assets/img/build-guide/fig-electronics.png" alt="MABEL electronics and bus topology"/><figcaption>Bus topology · Jetson Thor · Teensy · CAN / TTL / USB</figcaption></figure>
-  <p style="font-family:var(--font-mono); font-size:12px; color:var(--ash); margin:18px 0 4px;">CAN BUS BRING-UP (JETSON / LINUX)</p>
-  <pre class="code">./setup_can.sh                 <span class="c"># swerve: bring can0 up @ 1 Mbit</span>
-./can_up.sh --ping             <span class="c"># DaMiao: up + sweep IDs 1..15</span>
-
-<span class="c"># under the hood, always:</span>
-sudo ip link set can0 type can bitrate 1000000
-sudo ip link set can0 up
-sudo ip link set can0 txqueuelen 1000</pre>
-  <div class="callout"><p><strong>macOS note.</strong> No <code>ip link</code> on a Mac — CAN runs over a gs_usb USB adapter and the tools handle it directly. That's why the whole sim stack runs on a laptop.</p></div>
-</div></section>
-
-<!-- ─── 6 · FIRMWARE ─── -->
-<section class="pad-y bg-anchor" id="firmware"><div class="wrap">
-  <span class="bg-secnum">06</span>
-  <h2 class="display-md title">Firmware &amp; <span class="italic accent">Embedded.</span></h2>
-  <p class="lede bg-lead">Four firmware targets plus two host-side servo stacks. Flash after assembly, before calibration.</p>
-  <pre class="code"><span class="c"># Swerve (Teensy 4.1)</span>
-cd firmware/swerve_drive && pio run -t upload
-
-<span class="c"># Arms + torso + neck (Teensy 4.1, DaMiao)</span>
-cd firmware/openarm && pio run -e mabel_main -t upload
-
-<span class="c"># Lift (Raspberry Pi Pico, MicroPython)</span>
-cd firmware/lift && ./tools/deploy.sh
-
-<span class="c"># Hands (host-side Python)</span>
-cd firmware/orca_hand/feetech && pip install -e .</pre>
-  <div class="callout"><p><strong>Change motor IDs one at a time</strong>, with a single motor on the bus, then power-cycle. Two motors sharing an ID corrupt the bus.</p></div>
-</div></section>
-
 <!-- ─── 7 · CALIBRATION ─── -->
 <section class="pad-y soft-sec bg-anchor" id="calibration"><div class="wrap">
   <span class="bg-secnum">07</span>
@@ -243,62 +191,23 @@ cd firmware/orca_hand/feetech && pip install -e .</pre>
   </div>
 </div></section>
 
-<!-- ─── 8 · SOFTWARE ─── -->
-<section class="pad-y bg-anchor" id="software"><div class="wrap">
-  <span class="bg-secnum">08</span>
-  <h2 class="display-md title">Software &amp; <span class="italic accent">ROS 2.</span></h2>
-  <p class="lede bg-lead">Clone recursively, build the workspace, and bring the robot up. The sim runs the same logic without ROS.</p>
-  <pre class="code">git clone --recurse-submodules https://github.com/thejerrycheng/MABEL.git
-cd mabel_ws
-rosdep install --from-paths src --ignore-src -y   <span class="c"># (use the --skip-keys list)</span>
-colcon build --symlink-install && source install/setup.bash
-ros2 launch mabel_bringup hardware.launch.py      <span class="c"># NOT robot.launch.py</span></pre>
-  <figure class="bg-fig fade-up"><img src="assets/img/build-guide/fig-pipeline.png" alt="Model source-of-truth pipeline"/><figcaption>Run in order after any body change · MJCF → URDF → GLB → rigs</figcaption></figure>
-</div></section>
-
-<!-- ─── 9 · TELEOP ─── -->
-<section class="pad-y soft-sec bg-anchor" id="teleop"><div class="wrap">
-  <span class="bg-secnum">09</span>
-  <h2 class="display-md title">Control &amp; <span class="italic accent">Teleop.</span></h2>
-  <p class="lede bg-lead">Every client speaks the same wire protocol to the same bridge — a motion proven in one works in all, in sim or on the real robot.</p>
-  <figure class="bg-fig fade-up"><img src="assets/img/build-guide/fig-teleop.png" alt="MABEL teleop data flow"/><figcaption>client → bridge (retarget + WBC IK + swerve) → plant → robot</figcaption></figure>
-  <div class="spec" style="margin-top:14px;"><span>Vision Pro</span><span>iOS app</span><span>Web console</span><span>Control Center</span><span>Webcam</span><span>Keyboard</span><span>PS5 pad</span></div>
-</div></section>
-
-<!-- ─── 10 · SERVER ─── -->
-<section class="pad-y bg-anchor" id="server"><div class="wrap">
-  <span class="bg-secnum">10</span>
-  <h2 class="display-md title">Run Your Own <span class="italic accent">Server.</span></h2>
-  <p class="lede bg-lead">Simulation on a Mac, the real robot on Thor, and an optional secure relay to drive it from anywhere — no VPN, no open ports.</p>
-  <pre class="code">cd server && ./run.sh          <span class="c"># sim: MuJoCo + cameras + teleop bridge</span>
-./server/real_run.sh           <span class="c"># real robot: HAL + SLAM + Nav2 + bridge</span></pre>
-  <figure class="bg-fig fade-up"><img src="assets/img/build-guide/fig-network.png" alt="MABEL secure relay topology"/><figcaption>The robot dials out; Caddy (:443, token-gated) is the only public door</figcaption></figure>
-</div></section>
-
-<!-- ─── 11 · SIMULATION ─── -->
-<section class="pad-y soft-sec bg-anchor" id="simulation"><div class="wrap">
-  <span class="bg-secnum">11</span>
-  <h2 class="display-md title">Simulation.</h2>
-  <div class="bg-two">
+<!-- ─── WHERE TO GO NEXT ─── -->
+<section class="pad-y bg-anchor" id="next"><div class="wrap">
+  <div class="sec-head fade-up">
     <div>
-      <p class="lede">Three digital twins, all speaking the real robot's wire protocol: MuJoCo (control), Genesis (photoreal physics), Unity (photoreal rendering). 28+ scenes ship in the box.</p>
-      <pre class="code">cd simulation/mabel_mujoco
-python viewer.py
-mjpython scripts/teleop.py     <span class="c"># keyboard whole-body</span></pre>
+      <span class="eyebrow">After the build</span>
+      <h2 class="display-md title">Then make it <span class="italic accent">do something.</span></h2>
     </div>
-    <figure class="bg-fig"><img src="assets/img/build-guide/hero-side.png" alt="MABEL simulation, side view"/><figcaption>MuJoCo twin · side profile</figcaption></figure>
+    <p class="lede">The build guides stop at a robot that powers on and holds position. Everything past that
+    lives on its own page.</p>
   </div>
-</div></section>
-
-<!-- ─── 12 · LEARNING ─── -->
-<section class="pad-y bg-anchor" id="learning"><div class="wrap">
-  <span class="bg-secnum">12</span>
-  <h2 class="display-md title">Learning.</h2>
-  <p class="lede bg-lead">Every teleop demo is training data. Curate it, then train — through two web studios.</p>
-  <div class="bg-cardgrid">
-    <div class="card"><div class="card-num">Collect</div><h4>Log demos</h4><p>Any teleop client records episodes for imitation learning. A Vision Pro demo is ideal.</p></div>
-    <div class="card"><div class="card-num">Curate</div><h4>Data Curation studio</h4><p>Sync/quality/drift engine, pixel alignment, LeRobot export with an inspection gate.</p></div>
-    <div class="card"><div class="card-num">Train</div><h4>Training studio</h4><p>W&amp;B-free GUI over LeRobot — ACT · Diffusion Transformer · π0 · π0.5, then deploy into the twin.</p></div>
+  <div class="bg-cardgrid fade-up">
+    <a class="card" href="software.html" style="text-decoration:none; color:inherit;"><div class="card-num">Software</div><h4>The stack</h4><p>ROS 2, the server and bridge, and the simulation twin you should prove every motion in first.</p></a>
+    <a class="card" href="controller.html" style="text-decoration:none; color:inherit;"><div class="card-num">Control</div><h4>Whole-body control</h4><p>The safety gate every command passes through, the tip-over model, and the QP that keeps the arms out of each other.</p></a>
+    <a class="card" href="teleop.html" style="text-decoration:none; color:inherit;"><div class="card-num">Teleop</div><h4>Drive it</h4><p>Vision Pro, iPhone or browser — one wire contract, three clients, and the retargeting in between.</p></a>
+    <a class="card" href="navigation.html" style="text-decoration:none; color:inherit;"><div class="card-num">Nav</div><h4>Let it drive itself</h4><p>SLAM, costmaps and planning on the swerve base.</p></a>
+    <a class="card" href="autonomy.html" style="text-decoration:none; color:inherit;"><div class="card-num">Autonomy</div><h4>Teach it</h4><p>Collect demonstrations, curate them, train a policy, deploy it back onto the robot.</p></a>
+    <a class="card" href="connect.html" style="text-decoration:none; color:inherit;"><div class="card-num">Connect</div><h4>Get in touch</h4><p>The live studios, the repo, and how to reach the people building it.</p></a>
   </div>
 </div></section>
 
