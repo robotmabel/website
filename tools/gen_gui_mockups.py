@@ -4,8 +4,8 @@ These reproduce the real iOS-dark design tokens and panel layout of the Tkinter
 apps (firmware/swerve_drive/gui/theme.py, firmware/orca_hand/feetech/gui/style.py)
 since the live Tk windows can't be captured headlessly. Run:
 
-    python3 assets/tools/gen_gui_mockups.py
--> assets/gui-swerve.svg, assets/gui-hand.svg
+    python3 tools/gen_gui_mockups.py
+-> assets/img/gui-swerve.svg, assets/img/gui-hand.svg
 """
 import os
 

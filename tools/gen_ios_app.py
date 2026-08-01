@@ -4,8 +4,8 @@ Reproduces the real warm bone/rust dark theme (DesignSystem/Theme.swift) and the
 real sections/features (Drive joysticks, Arm + Whole-Body, Navigate tap-to-goal
 A*, Policies library, auto-connect). SMIL animations play in <img>. Run:
 
-    python3 assets/tools/gen_ios_app.py
--> assets/app-ios-{drive,arm,nav,policies,home}.svg
+    python3 tools/gen_ios_app.py
+-> assets/img/app-ios-{drive,arm,nav,policies,home}.svg
 """
 import os
 OUT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

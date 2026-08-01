@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css" />
+<link rel="stylesheet" href="assets/css/mabel.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -395,7 +395,7 @@ uint8   hardware_state</pre>
         physics, stepped at 500&nbsp;Hz — not an animation.</strong></p>
     </div>
     <div class="reveal-media media-frame r-169 sim-dark fade-up" style="margin-bottom:14px;">
-      <video src="assets/sim/home_nav.mp4" autoplay muted loop playsinline poster="assets/sim/home_nav.mp4#t=0.1"></video>
+      <video src="assets/img/sim/home_nav.mp4" autoplay muted loop playsinline poster="assets/img/sim/home_nav.mp4#t=0.1"></video>
       <span class="sim-cap"><span class="dot"></span>Holonomic navigation · furnished home · MuJoCo</span>
     </div>
     <div class="spec fade-up" style="margin-top:18px;">
@@ -420,7 +420,7 @@ uint8   hardware_state</pre>
     <!-- swerve -->
     <div class="feature fade-up">
       <div class="reveal-media feature-media media-frame r-169 sim-dark">
-        <video src="assets/sim/swerve.mp4" autoplay muted loop playsinline></video>
+        <video src="assets/img/sim/swerve.mp4" autoplay muted loop playsinline></video>
         <span class="sim-cap"><span class="dot"></span>swerve.py · strafe → strafe → spin-in-place</span>
       </div>
       <div class="feature-copy">
@@ -437,7 +437,7 @@ uint8   hardware_state</pre>
     <!-- lift -->
     <div class="feature flip fade-up">
       <div class="reveal-media feature-media media-frame r-169 sim-dark">
-        <video src="assets/sim/lift.mp4" autoplay muted loop playsinline></video>
+        <video src="assets/img/sim/lift.mp4" autoplay muted loop playsinline></video>
         <span class="sim-cap"><span class="dot"></span>cascaded Z-lift · 0 → 0.635 m + torso pitch</span>
       </div>
       <div class="feature-copy">
@@ -454,7 +454,7 @@ uint8   hardware_state</pre>
     <!-- hands -->
     <div class="feature fade-up">
       <div class="reveal-media feature-media media-frame r-169 sim-dark">
-        <video src="assets/sim/hands.mp4" autoplay muted loop playsinline></video>
+        <video src="assets/img/sim/hands.mp4" autoplay muted loop playsinline></video>
         <span class="sim-cap"><span class="dot"></span>ORCA hand · open → close → open</span>
       </div>
       <div class="feature-copy">
@@ -470,7 +470,7 @@ uint8   hardware_state</pre>
     <!-- whole body -->
     <div class="feature flip fade-up">
       <div class="reveal-media feature-media media-frame r-169 sim-dark">
-        <video src="assets/sim/wbc_reach.mp4" autoplay muted loop playsinline></video>
+        <video src="assets/img/sim/wbc_reach.mp4" autoplay muted loop playsinline></video>
         <span class="sim-cap"><span class="dot"></span>wbc.py · 18-DOF bimanual DLS IK</span>
       </div>
       <div class="feature-copy">
@@ -499,7 +499,7 @@ uint8   hardware_state</pre>
         the policies and teleop see.</p>
     </div>
     <div class="reveal-media media-frame sim-dark fade-up" style="aspect-ratio:3/2;">
-      <video src="assets/sim/sensors.mp4" autoplay muted loop playsinline></video>
+      <video src="assets/img/sim/sensors.mp4" autoplay muted loop playsinline></video>
       <span class="sim-cap"><span class="dot"></span>Live on-board camera suite · driving through the home</span>
     </div>
     <div class="spec fade-up" style="justify-content:center; margin-top:22px;">
@@ -669,11 +669,11 @@ uint8   hardware_state</pre>
 
     <div class="cal-fig-2 fade-up">
       <div class="reveal-media media-frame fig" style="aspect-ratio:920/690;background:#fff;">
-        <img src="assets/calib-motor-friction.png" alt="DM-J4340P friction curve: measured constant-velocity torque vs the identified Coulomb+viscous+Stribeck model, R²=0.9998" loading="lazy" />
+        <img src="assets/img/calib-motor-friction.png" alt="DM-J4340P friction curve: measured constant-velocity torque vs the identified Coulomb+viscous+Stribeck model, R²=0.9998" loading="lazy" />
         <span class="sim-cap"><span class="dot"></span>Staircase · friction vs velocity</span>
       </div>
       <div class="reveal-media media-frame fig" style="aspect-ratio:1170/760;background:#fff;">
-        <img src="assets/calib-motor-inertia.png" alt="DM-J4340P dynamic torque fit: measured torque vs J·a + tau_f(w) over a frequency chirp" loading="lazy" />
+        <img src="assets/img/calib-motor-inertia.png" alt="DM-J4340P dynamic torque fit: measured torque vs J·a + tau_f(w) over a frequency chirp" loading="lazy" />
         <span class="sim-cap"><span class="dot"></span>Chirp · reflected inertia J</span>
       </div>
     </div>
@@ -745,7 +745,7 @@ uint8   hardware_state</pre>
     </div>
 
     <div class="reveal-media media-frame fig fade-up" style="aspect-ratio:1500/360;background:#fff;margin:22px 0 6px;">
-      <img src="assets/calib-arm-sysid.png" alt="Arm system-ID results: identified link mass vs truth, per-link COM error, and the gravity-regressor singular spectrum showing 14 observable directions before the cliff" loading="lazy" />
+      <img src="assets/img/calib-arm-sysid.png" alt="Arm system-ID results: identified link mass vs truth, per-link COM error, and the gravity-regressor singular spectrum showing 14 observable directions before the cliff" loading="lazy" />
       <span class="sim-cap"><span class="dot"></span>Mass recovery · COM error · regressor spectrum</span>
     </div>
 
@@ -997,11 +997,11 @@ DM_J4340P = DCMotorCfg(
     <p class="lede">The <strong>Teleop Logger</strong> is the operator's window onto the bridge. It renders the bridge's off-screen camera feeds and a record-state HUD, so an operator can confirm the camera pipeline, framing, and episode-recording state at a glance while teleoperating.</p></div>
   <div class="gui-grid fade-up">
     <div class="reveal-media media-frame">
-      <img src="assets/teleop-logger-idle.png" alt="Teleop Logger in IDLE state — armed, awaiting ENTER to record, with head and wrist camera feeds rendered" />
+      <img src="assets/img/teleop-logger-idle.png" alt="Teleop Logger in IDLE state — armed, awaiting ENTER to record, with head and wrist camera feeds rendered" />
       <span class="sim-cap"><span class="dot"></span>IDLE — armed, awaiting ENTER to record</span>
     </div>
     <div class="reveal-media media-frame">
-      <img src="assets/teleop-logger-rec.png" alt="Teleop Logger in REC state — episode capture in progress, head and wrist camera feeds the bridge serves as MJPEG" />
+      <img src="assets/img/teleop-logger-rec.png" alt="Teleop Logger in REC state — episode capture in progress, head and wrist camera feeds the bridge serves as MJPEG" />
       <span class="sim-cap"><span class="dot"></span>REC — episode capture; rendered head + wrist camera feeds the bridge serves as MJPEG</span>
     </div>
   </div>
@@ -1044,8 +1044,8 @@ DM_J4340P = DCMotorCfg(
   </div>
 </footer>
 
-<script src="assets/mabel.js"></script>
-<script src="assets/calib-friction.js"></script>
+<script src="assets/js/mabel.js"></script>
+<script src="assets/js/calib-friction.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
   onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>

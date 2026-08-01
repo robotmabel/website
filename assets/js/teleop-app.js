@@ -87,7 +87,9 @@ const DEFAULT_RELAY_KEY = '69f4ec12c13c627ecf3097f648b42b60649e72b6afc4c6f1';
 //   Simulation : open. Wi-Fi LAN IPs · Tailscale 100.68.140.105 · relay /teleop.
 //   MABEL Real (thor): GATED. Owner passcode unlocks it, then Wi-Fi 10.20.54.117 ·
 //                Tailscale 100.87.253.64 · relay /real/teleop.
-const REAL_CODE = '090620';                       // owner passcode (iOS SecureStore.ownerBypassCode)
+// The real robot's relay access code is NOT stored in the repo — the owner enters
+// it once in the console (kept in localStorage 'mabel-real-code') and the VPS
+// relay validates it server-side on the /real path.
 const SIM_WIFI_HOSTS = ['192.168.1.188', '192.168.1.166', '192.168.123.34', '172.20.10.2'];
 const SIM_VPN_IP = '100.68.140.105';
 const REAL_WIFI_IP = '10.20.54.117';
@@ -860,11 +862,13 @@ class App {
     try { return JSON.parse(localStorage.getItem('mabel-hosts') || '[]'); } catch (e) { return []; }
   }
   _saveUserHosts(list) { try { localStorage.setItem('mabel-hosts', JSON.stringify(list)); } catch (e) {} }
-  _realUnlocked() { try { return localStorage.getItem('mabel-real-unlock') === REAL_CODE; } catch (e) { return false; } }
-  /** Validate + persist the owner passcode that unlocks the real robot. */
+  _realUnlocked() { try { return !!localStorage.getItem('mabel-real-unlock'); } catch (e) { return false; } }
+  /** Persist the owner passcode that unlocks the real robot. The code is validated
+      server-side by the relay; the console only stores whatever you enter. */
   _unlockReal(code) {
-    if (String(code).trim() !== REAL_CODE) return false;
-    try { localStorage.setItem('mabel-real-unlock', REAL_CODE); localStorage.setItem('mabel-real-code', REAL_CODE); } catch (e) {}
+    const c = String(code || '').trim();
+    if (!c) return false;
+    try { localStorage.setItem('mabel-real-unlock', '1'); localStorage.setItem('mabel-real-code', c); } catch (e) {}
     return true;
   }
   /** The two consistent robots + every connection method, like the iOS app.
@@ -885,7 +889,7 @@ class App {
       routes: [
         { id: 'real-wifi',  method: 'wifi',  label: 'Wi-Fi',  detail: REAL_WIFI_IP, hosts: [REAL_WIFI_IP] },
         { id: 'real-vpn',   method: 'vpn',   label: 'VPN',    detail: `${REAL_VPN_IP} · Tailscale`, host: REAL_VPN_IP },
-        { id: 'real-relay', method: 'relay', label: 'Relay',  detail: `${DEFAULT_RELAY} · /real`, host: DEFAULT_RELAY, key: rc || REAL_CODE, relayPath: '/real/teleop', real: true },
+        { id: 'real-relay', method: 'relay', label: 'Relay',  detail: `${DEFAULT_RELAY} · /real`, host: DEFAULT_RELAY, key: rc, relayPath: '/real/teleop', real: true },
       ],
     };
     return DEFAULT_RELAY ? [sim, real] : [sim];
@@ -1628,7 +1632,7 @@ class App {
   /* ── H.264/WebCodecs camera overlay (browser-native low-latency) ──────────
    * The bridge serves hardware-NVENC H.264 access units on a WebSocket at
    * ws://<host>:8080/camera/<name>/h264 (one binary message = one Annex-B access
-   * unit). H264Stream (assets/h264-video.js) decodes them with WebCodecs straight
+   * unit). H264Stream (assets/js/h264-video.js) decodes them with WebCodecs straight
    * to a <canvas> — no MSE jitter buffer, so glass-to-glass is decode + one frame,
    * and inter-frame H.264 lets us run 720p at ~3-4 Mbps instead of MJPEG's ~40.
    * Browsers cannot read the raw UDP H.264 the iOS/VP apps use, so WS is the

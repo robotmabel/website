@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css" />
+<link rel="stylesheet" href="assets/css/mabel.css" />
 <style>
   /* Build-guide-scoped primitives, in the MABEL design language */
   pre.code { background: var(--ink); color: #EDE7DA; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.75; padding: 18px 22px; border-radius: 16px; overflow-x: auto; margin: 16px 0; white-space: pre; -webkit-overflow-scrolling: touch; box-shadow: 0 12px 34px -18px rgba(22,20,18,0.5); }
@@ -86,7 +86,7 @@
 </section>
 
 <section class="pad-y-sm"><div class="wrap">
-  <figure class="bg-fig fade-up"><img src="assets/build-guide/hero.png" alt="MABEL in the MuJoCo simulator" /><figcaption>The MABEL digital twin — every subsystem, before a single motor arrives</figcaption></figure>
+  <figure class="bg-fig fade-up"><img src="assets/img/build-guide/hero.png" alt="MABEL in the MuJoCo simulator" /><figcaption>The MABEL digital twin — every subsystem, before a single motor arrives</figcaption></figure>
   <div class="bg-two fade-up" style="margin-top:14px;">
     <div>
       <span class="eyebrow">How this guide works</span>
@@ -98,7 +98,7 @@
         <li><strong>Just drive it</strong> — Control & Teleop</li>
       </ul>
     </div>
-    <figure class="bg-fig"><img src="assets/build-guide/fig-architecture.png" alt="MABEL system architecture" /><figcaption>System architecture · made in Figma</figcaption></figure>
+    <figure class="bg-fig"><img src="assets/img/build-guide/fig-architecture.png" alt="MABEL system architecture" /><figcaption>System architecture · made in Figma</figcaption></figure>
   </div>
   <div class="callout fade-up" style="margin-top:20px;"><p><strong>The one rule that keeps MABEL honest.</strong> The MuJoCo model <code>mabel_full.xml</code> is the single source of truth for the body. The ROS URDF, web model, iOS/Vision Pro rigs, and the tip-over constants are all generated from it — regenerate them after any geometry change (see §8).</p></div>
 </div></section>
@@ -108,7 +108,7 @@
   <span class="bg-secnum">01</span>
   <h2 class="display-md title">Bill of <span class="italic accent">Materials.</span></h2>
   <p class="lede bg-lead">Commodity smart actuators, off-the-shelf compute, and two custom PCBs for base and body power/bus routing. 56 functional DOF, 59 motors, all arm/body/base motors on one 1 Mbit/s bus.</p>
-  <div class="callout"><p><strong>Before you buy:</strong> the full costed bill is published as an <a href="bom.html">interactive configurator</a> and as a downloadable <a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a> — an <strong>$8,058</strong> fixed core of 49 parts plus five choices, giving three complete builds from <strong>$8,722</strong> to <strong>$15,129</strong>. The actuator counts below match it. Note that NVIDIA raised every Jetson price on 22 July 2026 (Thor $3,499 → $5,499); the guide uses post-increase pricing throughout.</p></div>
+  <div class="callout"><p><strong>Before you buy:</strong> the full costed bill is published as an <a href="bom.html">interactive configurator</a> and as a downloadable <a href="assets/pdf/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a> — an <strong>$8,058</strong> fixed core of 49 parts plus five choices, giving three complete builds from <strong>$8,722</strong> to <strong>$15,129</strong>. The actuator counts below match it. Note that NVIDIA raised every Jetson price on 22 July 2026 (Thor $3,499 → $5,499); the guide uses post-increase pricing throughout.</p></div>
   <table class="data-table">
     <thead><tr><th>Subsystem</th><th>Actuator</th><th>Qty</th><th>Bus</th></tr></thead>
     <tbody>
@@ -188,9 +188,9 @@
     <div class="step"><div><h4>Sensors</h4><div class="meta">ZED · RealSense · wrist cams · LiDAR</div></div><p>Pin the two identical wrist cams by hub port; keep them on one powered USB-3 hub at 640×480.</p></div>
   </div>
   <div class="bg-cardgrid" style="margin-top:26px;">
-    <figure class="bg-fig"><img src="assets/build-guide/arm.png" alt="MABEL arm and ORCA hand"/><figcaption>7-DOF arm + ORCA hand</figcaption></figure>
-    <figure class="bg-fig"><img src="assets/build-guide/hand.jpg" alt="ORCA hand pose"/><figcaption>17-DOF ORCA hand</figcaption></figure>
-    <figure class="bg-fig"><img src="assets/build-guide/neck.png" alt="Neck design studio"/><figcaption>Parametric neck studio</figcaption></figure>
+    <figure class="bg-fig"><img src="assets/img/build-guide/arm.png" alt="MABEL arm and ORCA hand"/><figcaption>7-DOF arm + ORCA hand</figcaption></figure>
+    <figure class="bg-fig"><img src="assets/img/build-guide/hand.jpg" alt="ORCA hand pose"/><figcaption>17-DOF ORCA hand</figcaption></figure>
+    <figure class="bg-fig"><img src="assets/img/build-guide/neck.png" alt="Neck design studio"/><figcaption>Parametric neck studio</figcaption></figure>
   </div>
 </div></section>
 
@@ -199,7 +199,7 @@
   <span class="bg-secnum">05</span>
   <h2 class="display-md title">Electronics &amp; <span class="italic accent">Wiring.</span></h2>
   <p class="lede bg-lead">One host owns every device: a single <code>hardware_bridge</code> process opens every bus; ROS is only a client.</p>
-  <figure class="bg-fig fade-up"><img src="assets/build-guide/fig-electronics.png" alt="MABEL electronics and bus topology"/><figcaption>Bus topology · Jetson Thor · Teensy · CAN / TTL / USB</figcaption></figure>
+  <figure class="bg-fig fade-up"><img src="assets/img/build-guide/fig-electronics.png" alt="MABEL electronics and bus topology"/><figcaption>Bus topology · Jetson Thor · Teensy · CAN / TTL / USB</figcaption></figure>
   <p style="font-family:var(--font-mono); font-size:12px; color:var(--ash); margin:18px 0 4px;">CAN BUS BRING-UP (JETSON / LINUX)</p>
   <pre class="code">./setup_can.sh                 <span class="c"># swerve: bring can0 up @ 1 Mbit</span>
 ./can_up.sh --ping             <span class="c"># DaMiao: up + sweep IDs 1..15</span>
@@ -239,7 +239,7 @@ cd firmware/orca_hand/feetech && pip install -e .</pre>
       <p class="lede">Five routines turn a pile of motors into a robot that matches its twin: swerve steer offsets, arm system-ID, motor friction/inertia, ORCA hand end-stops, and the whole-body CoM check.</p>
       <div class="callout"><p><strong>Don't skip the CoM check</strong> after any mass change: <code>wbc_stability.py --only 4</code>. If E4 shows &gt;1 cm bias, update the tip-over constants in <code>config.py</code>. This is what keeps MABEL from tipping.</p></div>
     </div>
-    <figure class="bg-fig"><img src="assets/build-guide/calibration.png" alt="Arm system identification results"/><figcaption>Arm system-ID · torque-fit residuals</figcaption></figure>
+    <figure class="bg-fig"><img src="assets/img/build-guide/calibration.png" alt="Arm system identification results"/><figcaption>Arm system-ID · torque-fit residuals</figcaption></figure>
   </div>
 </div></section>
 
@@ -253,7 +253,7 @@ cd mabel_ws
 rosdep install --from-paths src --ignore-src -y   <span class="c"># (use the --skip-keys list)</span>
 colcon build --symlink-install && source install/setup.bash
 ros2 launch mabel_bringup hardware.launch.py      <span class="c"># NOT robot.launch.py</span></pre>
-  <figure class="bg-fig fade-up"><img src="assets/build-guide/fig-pipeline.png" alt="Model source-of-truth pipeline"/><figcaption>Run in order after any body change · MJCF → URDF → GLB → rigs</figcaption></figure>
+  <figure class="bg-fig fade-up"><img src="assets/img/build-guide/fig-pipeline.png" alt="Model source-of-truth pipeline"/><figcaption>Run in order after any body change · MJCF → URDF → GLB → rigs</figcaption></figure>
 </div></section>
 
 <!-- ─── 9 · TELEOP ─── -->
@@ -261,7 +261,7 @@ ros2 launch mabel_bringup hardware.launch.py      <span class="c"># NOT robot.la
   <span class="bg-secnum">09</span>
   <h2 class="display-md title">Control &amp; <span class="italic accent">Teleop.</span></h2>
   <p class="lede bg-lead">Every client speaks the same wire protocol to the same bridge — a motion proven in one works in all, in sim or on the real robot.</p>
-  <figure class="bg-fig fade-up"><img src="assets/build-guide/fig-teleop.png" alt="MABEL teleop data flow"/><figcaption>client → bridge (retarget + WBC IK + swerve) → plant → robot</figcaption></figure>
+  <figure class="bg-fig fade-up"><img src="assets/img/build-guide/fig-teleop.png" alt="MABEL teleop data flow"/><figcaption>client → bridge (retarget + WBC IK + swerve) → plant → robot</figcaption></figure>
   <div class="spec" style="margin-top:14px;"><span>Vision Pro</span><span>iOS app</span><span>Web console</span><span>Control Center</span><span>Webcam</span><span>Keyboard</span><span>PS5 pad</span></div>
 </div></section>
 
@@ -272,7 +272,7 @@ ros2 launch mabel_bringup hardware.launch.py      <span class="c"># NOT robot.la
   <p class="lede bg-lead">Simulation on a Mac, the real robot on Thor, and an optional secure relay to drive it from anywhere — no VPN, no open ports.</p>
   <pre class="code">cd server && ./run.sh          <span class="c"># sim: MuJoCo + cameras + teleop bridge</span>
 ./server/real_run.sh           <span class="c"># real robot: HAL + SLAM + Nav2 + bridge</span></pre>
-  <figure class="bg-fig fade-up"><img src="assets/build-guide/fig-network.png" alt="MABEL secure relay topology"/><figcaption>The robot dials out; Caddy (:443, token-gated) is the only public door</figcaption></figure>
+  <figure class="bg-fig fade-up"><img src="assets/img/build-guide/fig-network.png" alt="MABEL secure relay topology"/><figcaption>The robot dials out; Caddy (:443, token-gated) is the only public door</figcaption></figure>
 </div></section>
 
 <!-- ─── 11 · SIMULATION ─── -->
@@ -286,7 +286,7 @@ ros2 launch mabel_bringup hardware.launch.py      <span class="c"># NOT robot.la
 python viewer.py
 mjpython scripts/teleop.py     <span class="c"># keyboard whole-body</span></pre>
     </div>
-    <figure class="bg-fig"><img src="assets/build-guide/hero-side.png" alt="MABEL simulation, side view"/><figcaption>MuJoCo twin · side profile</figcaption></figure>
+    <figure class="bg-fig"><img src="assets/img/build-guide/hero-side.png" alt="MABEL simulation, side view"/><figcaption>MuJoCo twin · side profile</figcaption></figure>
   </div>
 </div></section>
 
@@ -325,7 +325,7 @@ mjpython scripts/teleop.py     <span class="c"># keyboard whole-body</span></pre
         <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
       </div>
-      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="#hardware">Assembly</a><a href="#firmware">Firmware</a><a href="#calibration">Calibration</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="assets/pdf/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="#hardware">Assembly</a><a href="#firmware">Firmware</a><a href="#calibration">Calibration</a></div>
       <div class="foot-col"><h6>Run</h6><a href="#software">Software & ROS</a><a href="#teleop">Teleop</a><a href="#server">Your own server</a><a href="#simulation">Simulation</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
@@ -333,6 +333,6 @@ mjpython scripts/teleop.py     <span class="c"># keyboard whole-body</span></pre
   </div>
 </footer>
 
-<script src="assets/mabel.js"></script>
+<script src="assets/js/mabel.js"></script>
 </body>
 </html>

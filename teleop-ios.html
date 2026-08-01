@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css" />
+<link rel="stylesheet" href="assets/css/mabel.css" />
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body class="sec-page">
@@ -48,14 +48,14 @@
   <div class="spec" style="margin-top:28px;"><span>iPhone / iPad · iOS</span><span>Drive · Body · Maps · Policies</span><span>Live 3D twin</span><span>Auto-connect + Demo sim</span></div>
 </div></section>
 <section class="pad-y" id="ios"><div class="wrap">
-  <div class="reveal-media media-frame sim-dark fade-up" style="aspect-ratio:2622/1206;"><video src="assets/app/ios-drive.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Real capture · Drive cockpit — live joysticks (turn the phone sideways)</span></div>
+  <div class="reveal-media media-frame sim-dark fade-up" style="aspect-ratio:2622/1206;"><video src="assets/img/app/ios-drive.mp4" autoplay muted loop playsinline></video><span class="sim-cap"><span class="dot"></span>Real capture · Drive cockpit — live joysticks (turn the phone sideways)</span></div>
   <div class="points fade-up" style="margin-top:30px;">
     <div class="point"><div class="num">01</div><div><h5>Joystick navigation</h5><p>Rotate to landscape for the cockpit: a left stick translates, a right stick turns and lifts, over live head and wrist camera feeds — with a speed governor and an always-present <strong>STOP</strong>.</p></div></div>
     <div class="point"><div class="num">02</div><div><h5>Tip-safe under the hood</h5><p>The sticks run through the same swerve IK and tip-over envelope as every other path, so it stays drone-simple up top and robot-safe underneath.</p></div></div>
     <div class="point"><div class="num">03</div><div><h5>Always connected</h5><p>The status bar shows the live link, battery, and speed; the app auto-connects and otherwise drives an on-device <strong>Demo</strong> simulator — live with nothing plugged in.</p></div></div>
   </div></div></section>
 <section class="dark-sec pad-y"><div class="wrap"><div class="feature fade-up">
-  <div class="feature-media phone-media"><video class="app-shot" src="assets/app/ios-body.mp4" autoplay muted loop playsinline></video><figcaption class="sim-cap" style="position:static;display:inline-flex;margin-top:12px;"><span class="dot"></span>real capture · live</figcaption></div>
+  <div class="feature-media phone-media"><video class="app-shot" src="assets/img/app/ios-body.mp4" autoplay muted loop playsinline></video><figcaption class="sim-cap" style="position:static;display:inline-flex;margin-top:12px;"><span class="dot"></span>real capture · live</figcaption></div>
   <div class="feature-copy"><span class="eyebrow" style="color:#e9a679;">Body · the 3D twin</span><h3 style="color:var(--bone);">Pose it on a live model.</h3>
     <p style="color:var(--bone);opacity:0.82;">The Body tab renders a real-time 3D twin — same joint definitions as the web viewer and MuJoCo. Drag a wrist under <strong>Gravity Comp</strong>, switch to <strong>Compliance</strong> or <strong>Joint Control</strong>, set grip, or reset to home — the <a href="wbc.html" style="color:#e9a679;">whole-body controller</a> coordinates the rest.</p>
     <div class="spec"><span>Live 3D twin</span><span>Gravity comp</span><span>Compliance</span><span>Joint control</span></div></div>
@@ -63,11 +63,11 @@
 <section class="pad-y"><div class="wrap">
   <div class="sec-head fade-up"><div><span class="eyebrow">Maps · tap-to-go</span><h2 class="display-md title">Tap a spot. <span class="italic accent">It plans the route.</span></h2></div>
     <p class="lede">On a real SLAM reconstruction, tap to drop a goal; the app runs an <strong>A*</strong> global plan around the obstacles, then a <strong>pure-pursuit</strong> controller tracks the swerve trajectory and drives it.</p></div>
-  <div class="phone-media fade-up"><video class="app-shot" src="assets/app/ios-maps.mp4" autoplay muted loop playsinline style="max-width:300px;"></video></div>
+  <div class="phone-media fade-up"><video class="app-shot" src="assets/img/app/ios-maps.mp4" autoplay muted loop playsinline style="max-width:300px;"></video></div>
   <p class="sim-cap" style="position:static;display:inline-flex;margin:14px auto 0;"><span class="dot"></span>Real capture · tap a goal → A* plan → pure-pursuit drive</p>
   <div class="spec fade-up" style="justify-content:center;margin-top:22px;"><span>Real SLAM map</span><span>A* global plan</span><span>Pure-pursuit tracking</span><span>Saved places</span></div></div></section>
 <section class="dark-sec pad-y"><div class="wrap"><div class="feature flip fade-up">
-  <div class="feature-media phone-media"><img class="app-shot" src="assets/app-ios-policies.svg" alt="Policies library — learned CVAE, navigation, and scripted skills with offline-eval success rates" /></div>
+  <div class="feature-media phone-media"><img class="app-shot" src="assets/img/app-ios-policies.svg" alt="Policies library — learned CVAE, navigation, and scripted skills with offline-eval success rates" /></div>
   <div class="feature-copy"><span class="eyebrow" style="color:#e9a679;">Policies · run a skill</span><h3 style="color:var(--bone);">Dispatch autonomy.</h3>
     <p style="color:var(--bone);opacity:0.82;">The library lists learned and scripted skills — CVAE visuomotor policies, navigation routines, and scripted behaviours — each with its kind, control rate, and an <strong>offline-eval success rate</strong>. Tap ▶ to dispatch. See <a href="learning.html" style="color:#e9a679;">Learning</a> for how they're trained.</p>
     <div class="spec"><span>CVAE visuomotor</span><span>Navigation routines</span><span>Scripted skills</span><span>Eval success %</span></div></div>
@@ -93,6 +93,6 @@
   </div>
 </footer>
 
-<script src="assets/mabel.js"></script>
+<script src="assets/js/mabel.js"></script>
 </body>
 </html>

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css" />
+<link rel="stylesheet" href="assets/css/mabel.css" />
 <style>
 .scn { text-align:left; display:flex; flex-direction:column; gap:4px; padding:18px 18px 16px; border-radius:18px; cursor:pointer;
   background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
@@ -120,7 +120,7 @@
   </div>
 </section>
 
-<script type="module" src="assets/robot-viewer.js"></script>
+<script type="module" src="assets/js/robot-viewer.js"></script>
 
 <!-- ─── EXPLODED VIEW (scroll-driven) ─── -->
 <section class="pad-y" id="explode">
@@ -152,7 +152,7 @@
   </div>
 </section>
 
-<script type="module" src="assets/explode-viewer.js"></script>
+<script type="module" src="assets/js/explode-viewer.js"></script>
 
 <!-- ─── SUBSYSTEM DEEP-DIVE (tabs) ─── -->
 <section class="pad-y" id="anatomy">
@@ -312,17 +312,17 @@
     </div>
 
     <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:16/9; margin-bottom:18px;">
-      <img src="assets/gui-swerve-demo.svg" alt="Using Swerve Studio — toggle a motor on, drag the steering axis to an absolute angle, throttle the drive wheel, all with live telemetry" />
+      <img src="assets/img/gui-swerve-demo.svg" alt="Using Swerve Studio — toggle a motor on, drag the steering axis to an absolute angle, throttle the drive wheel, all with live telemetry" />
       <span class="sim-cap"><span class="dot"></span>Using it · enable → steer → throttle, live</span>
     </div>
 
     <div class="gui-grid fade-up">
       <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
-        <img src="assets/gui-swerve.svg" alt="MABEL Swerve Studio — per-module steer/drive control, live telemetry, E-STOP" />
+        <img src="assets/img/gui-swerve.svg" alt="MABEL Swerve Studio — per-module steer/drive control, live telemetry, E-STOP" />
         <span class="sim-cap"><span class="dot"></span>Swerve Studio · REV SPARK base</span>
       </div>
       <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
-        <img src="assets/gui-hand.svg" alt="MABEL ORCA Hand Control Studio — 17 per-finger joint sliders, grasp presets" />
+        <img src="assets/img/gui-hand.svg" alt="MABEL ORCA Hand Control Studio — 17 per-finger joint sliders, grasp presets" />
         <span class="sim-cap"><span class="dot"></span>ORCA Hand · 17 Feetech servos</span>
       </div>
     </div>
@@ -509,7 +509,7 @@
         <p class="body" style="margin-bottom:22px;">Onboard compute is the only line that moves by an order of magnitude: <span data-bom="nanoAfter">$399</span> to <span data-bom="thorAfter">$5,499</span> for the same robot.</p>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <a href="bom.html" class="btn btn-primary">Configure the build →</a>
-          <a href="assets/bom/MABEL_Build_Guide.pdf" class="btn btn-ghost" target="_blank" rel="noopener">Build Guide PDF ↗</a>
+          <a href="assets/pdf/MABEL_Build_Guide.pdf" class="btn btn-ghost" target="_blank" rel="noopener">Build Guide PDF ↗</a>
         </div>
       </aside>
     </div>
@@ -559,15 +559,15 @@
       <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
       <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a></div>
-      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="assets/pdf/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
     <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
   </div>
 </footer>
 
-<script src="assets/mabel.js"></script>
-<script src="assets/bom/bom_data.js"></script>
-<script src="assets/bom-table.js"></script>
+<script src="assets/js/mabel.js"></script>
+<script src="assets/js/bom-data.js"></script>
+<script src="assets/js/bom-table.js"></script>
 </body>
 </html>

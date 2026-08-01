@@ -1,6 +1,6 @@
 // Autonomy · interactive architecture viewer + community training-job form.
 //
-// Reuses the Trainer Studio's diagram renderer VERBATIM (assets/arch/archdiagram.js,
+// Reuses the Trainer Studio's diagram renderer VERBATIM (assets/js/archdiagram.js,
 // re-copied by server/tools/export_web_arch.py) fed with pre-baked static specs, so
 // the public viewer never drifts from the studio. It runs read-only: pan / zoom /
 // hover / double-click-to-drill only — no editing, no backend needed to explore.
@@ -150,13 +150,9 @@ function buildDatasetSelect() {
 // ── submit ────────────────────────────────────────────────────────────────────
 async function submitJob() {
   const msg = $('#cf-msg'), btn = $('#cf-submit');
-  // passcode gate: queueing real GPU work needs the owner key (kept for the session)
-  let key = sessionStorage.getItem('mabel.train.key') || '';
-  if (key !== '090620') {
-    key = (prompt('Training passcode required to queue a job:') || '').trim();
-    if (key !== '090620') { setMsg(msg, 'wrong passcode — job not submitted', 'err'); return; }
-    sessionStorage.setItem('mabel.train.key', key);
-  }
+  // No client-side passcode: submitting only QUEUES a job. It cannot run until the
+  // studio owner approves it in the Trainer Studio (which requires the operator
+  // login), so the real gate is server-side approval, not a browser prompt.
   const payload = {
     arch: curArch,
     dataset: $('#cf-dataset').value,

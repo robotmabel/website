@@ -2,7 +2,7 @@
 
 Hardware ▾ dropdown = Hands, Arms, Base, Lift, Body, Electronics (separate pages,
 no Overview). The main hardware.html stays as the (un-listed) overview.
-Run from the website/ dir:  python3 assets/tools/gen_hardware_pages.py
+Run from the website/ dir:  python3 tools/gen_hardware_pages.py
 """
 import os, re, glob
 
@@ -83,7 +83,7 @@ def page(slug, name, num, title, lede, specs, points, cta):
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css" />
+<link rel="stylesheet" href="assets/css/mabel.css" />
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -132,7 +132,7 @@ def page(slug, name, num, title, lede, specs, points, cta):
 
 {FOOTER}
 
-<script src="assets/mabel.js"></script>
+<script src="assets/js/mabel.js"></script>
 </body>
 </html>
 '''
