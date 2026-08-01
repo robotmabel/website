@@ -108,7 +108,7 @@
   <span class="bg-secnum">01</span>
   <h2 class="display-md title">Bill of <span class="italic accent">Materials.</span></h2>
   <p class="lede bg-lead">Commodity smart actuators, off-the-shelf compute, and two custom PCBs for base and body power/bus routing. 56 functional DOF, 59 motors, all arm/body/base motors on one 1 Mbit/s bus.</p>
-  <div class="callout"><p><strong>Before you buy:</strong> the fully itemized, costed BOM is now published — <a href="bom.html">57 lines with vendors, part numbers and prices</a>, four build scenarios from <strong>$7,852</strong> to <strong>$12,874</strong>, and an explicit list of what it does <em>not</em> cover. The actuator counts below match it. Prices move; re-check before ordering.</p></div>
+  <div class="callout"><p><strong>Before you buy:</strong> the full costed bill is published as an <a href="bom.html">interactive configurator</a> and as a downloadable <a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a> — a <strong>$7,897</strong> fixed core of 46 parts plus five choices, giving three complete builds from <strong>$8,561</strong> to <strong>$14,968</strong>. The actuator counts below match it. Note that NVIDIA raised every Jetson price on 22 July 2026 (Thor $3,499 → $5,499); the guide uses post-increase pricing throughout.</p></div>
   <table class="data-table">
     <thead><tr><th>Subsystem</th><th>Actuator</th><th>Qty</th><th>Bus</th></tr></thead>
     <tbody>
@@ -125,7 +125,7 @@
       <tr><td>Neck roll + pitch</td><td>Dynamixel XC330-T181</td><td>2</td><td>1 Mbaud TTL</td></tr>
     </tbody>
   </table>
-  <p class="table-note">Every actuator above appears as a priced line on the <a href="bom.html">bill of materials</a>: 14 DAMIAO arm actuators ($2,181), 34 Feetech hand servos ($1,234), 3 MAXSwerve modules with motors and controllers ($1,673).</p>
+  <p class="table-note">Every actuator above appears as a priced line on the <a href="bom.html">bill of materials</a>: 14 DAMIAO arm actuators ($2,111), 34 Feetech hand servos ($1,182), 3 REV swerve modules ($2,025). Search the model string, not the listing URL — the guide's appendix gives the exact Taobao search text for every Chinese-vendor line.</p>
   <div class="bg-cardgrid">
     <div class="card"><div class="card-num">Sensing</div><h4>4 cameras + LiDAR</h4><p>ZED Mini (eyes), RealSense D435i (front/chest), 2× RealSense D405 wrist cams, RPLIDAR A2M12. All on USB 3 — the bandwidth budget is the real constraint, not the port count.</p></div>
     <div class="card"><div class="card-num">Compute</div><h4>Jetson Thor</h4><p>Main compute + ROS 2. A Teensy 4.1 runs the swerve base; a Raspberry Pi Pico runs the lift.</p></div>
@@ -325,7 +325,7 @@ mjpython scripts/teleop.py     <span class="c"># keyboard whole-body</span></pre
         <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
       </div>
-      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="#hardware">Assembly</a><a href="#firmware">Firmware</a><a href="#calibration">Calibration</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="#hardware">Assembly</a><a href="#firmware">Firmware</a><a href="#calibration">Calibration</a></div>
       <div class="foot-col"><h6>Run</h6><a href="#software">Software & ROS</a><a href="#teleop">Teleop</a><a href="#server">Your own server</a><a href="#simulation">Simulation</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>

@@ -5,36 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
 <title>MABEL — Bill of Materials</title>
-<meta name="description" content="MABEL's audited bill of materials: every part, every price, every vendor. 57 line items, four build scenarios from $7,852 to $12,874, and an honest account of what the purchase record does not cover." />
+<meta name="description" content="MABEL's audited bill of materials and build guide: a $7,897 fixed core, five choices you make yourself, and three complete builds from $8,561 to $14,968. Every part, every vendor, every price." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
 <script>document.documentElement.classList.add('js');</script>
 <style>
-/* ─── Scenario picker ─── */
-.scn-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin-top:8px; }
+/* ─── Build cards ─── */
+.scn-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; }
 .scn { text-align:left; display:flex; flex-direction:column; gap:4px; padding:20px 20px 18px; border-radius:18px; cursor:pointer;
   background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
   border:1px solid var(--glass-border); box-shadow:var(--glass-hi), var(--glass-sh);
   transition:transform .35s var(--ease-out), border-color .3s, background .3s; font:inherit; color:inherit; }
 .scn:hover { transform:translateY(-3px); background:var(--glass-bg-2); }
 .scn.on { border-color:var(--rust); background:rgba(194,91,42,0.08); box-shadow:var(--glass-hi), 0 14px 36px -20px rgba(194,91,42,0.5); }
-.scn-id { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ash); }
+.scn-id { font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ash); }
 .scn.on .scn-id { color:var(--rust); }
-.scn-name { font-family:var(--font-display); font-size:20px; line-height:1.15; letter-spacing:-.015em; }
-.scn-val { font-family:var(--font-mono); font-size:22px; font-weight:500; margin-top:2px; }
+.scn-name { font-family:var(--font-display); font-size:22px; line-height:1.15; letter-spacing:-.015em; }
+.scn-val { font-family:var(--font-mono); font-size:23px; font-weight:500; margin-top:2px; }
 .scn.on .scn-val { color:var(--rust); }
-.scn-detail { font-size:12px; color:var(--ash); line-height:1.45; margin-top:2px; }
+.scn-detail { font-size:12px; color:var(--ash); line-height:1.5; margin-top:4px; }
 
-/* ─── Subsystem rows react to the scenario ─── */
-#bomTable .row { transition:opacity .35s var(--ease-out), padding-left .4s var(--ease-out); }
-#bomTable .row.dropped { opacity:.28; }
-#bomTable .row.dropped .val { text-decoration:line-through; }
-#bomTable .row.swapped .val { color:var(--rust); }
-.spec-total .label { text-transform:none; letter-spacing:.02em; font-size:11px; color:var(--ash); max-width:52ch; }
+/* ─── Configurator ─── */
+.cfg-wrap { display:grid; grid-template-columns:1fr 320px; gap:clamp(28px,4vw,56px); align-items:start; }
+@media (max-width:900px) { .cfg-wrap { grid-template-columns:1fr; } }
+.cfg-grp { border-top:1px solid rgba(22,20,18,0.14); padding:22px 0 18px; }
+.cfg-head { display:flex; align-items:baseline; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+.cfg-id { font-family:var(--font-mono); font-size:11px; color:var(--rust); letter-spacing:.06em; }
+.cfg-name { font-family:var(--font-display); font-size:21px; letter-spacing:-.015em; }
+.cfg-qty { font-family:var(--font-mono); font-size:12px; color:var(--ash); }
+.cfg-span { margin-left:auto; font-family:var(--font-mono); font-size:11px; color:var(--ash); }
+.cfg-opts { display:flex; flex-direction:column; gap:6px; }
+.cfg-opt { display:grid; grid-template-columns:1fr auto; gap:4px 14px; align-items:baseline; text-align:left;
+  padding:11px 14px; border-radius:12px; border:1px solid rgba(22,20,18,0.12); background:transparent;
+  cursor:pointer; font:inherit; color:inherit; transition:all .22s var(--ease-out); }
+.cfg-opt:hover { border-color:rgba(22,20,18,0.3); background:rgba(255,255,255,0.4); }
+.cfg-opt.on { border-color:var(--rust); background:rgba(194,91,42,0.07); }
+.cfg-o-top { grid-column:1; grid-row:1; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.cfg-o-name { font-size:14px; font-weight:500; }
+.cfg-o-spec { grid-column:1; grid-row:2; font-size:11.5px; color:var(--ash); line-height:1.45; }
+.cfg-o-price { grid-column:2; grid-row:1 / span 2; align-self:center; font-family:var(--font-mono); font-size:14px; white-space:nowrap; text-align:right; }
+.cfg-opt.on .cfg-o-price { color:var(--rust); font-weight:500; }
+.cfg-o-price i { display:block; font-style:normal; font-size:10px; color:var(--ash); }
+.cfg-tier { font-family:var(--font-mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+  padding:2px 7px; border-radius:999px; border:1px solid currentColor; opacity:.75; }
+.t-essential { color:#3B6CA8; } .t-recommended { color:var(--rust); } .t-maximum { color:#8B5A3C; }
+.cfg-note { font-size:11.5px; color:var(--ash); line-height:1.55; margin-top:10px; max-width:66ch; }
 
-/* ─── Itemised table ─── */
+.cfg-panel { position:sticky; top:90px; padding:24px; border-radius:20px;
+  background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border); box-shadow:var(--glass-hi), var(--glass-sh); }
+.cfg-label { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ash); }
+.cfg-total { font-family:var(--font-display); font-size:clamp(40px,5vw,54px); line-height:1; letter-spacing:-.03em; margin:6px 0 16px; }
+.cfg-bar { display:flex; height:10px; border-radius:999px; overflow:hidden; background:rgba(22,20,18,0.07); margin-bottom:14px; }
+.cfg-bar-core { background:rgba(22,20,18,0.4); transition:width .4s var(--ease-out); }
+.cfg-bar-ch { background:var(--rust); transition:width .4s var(--ease-out); }
+.cfg-split { display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:12px; color:var(--ash); }
+.cfg-split b { color:var(--ink); font-weight:500; }
+.cfg-foot { margin-top:18px; padding-top:16px; border-top:1px solid rgba(22,20,18,0.12); font-size:12px; color:var(--ash); line-height:1.55; }
+
+/* ─── Tables ─── */
 .bl-controls { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:18px; }
 .bl-chip { padding:7px 14px; border-radius:999px; border:1px solid rgba(22,20,18,0.16); background:transparent;
   font-family:var(--font-mono); font-size:11px; letter-spacing:.04em; color:var(--ash); cursor:pointer; transition:all .25s var(--ease-out); }
@@ -44,29 +75,50 @@
   background:rgba(255,255,255,0.4); font-family:var(--font-mono); font-size:12px; color:var(--ink); }
 .bl-search::placeholder { color:var(--ash-light); }
 .bl-wrap { overflow-x:auto; border-top:1px solid rgba(22,20,18,0.2); }
-.bl-table { width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+.bl-table { width:100%; border-collapse:collapse; font-size:13px; min-width:660px; }
 .bl-table th { text-align:right; padding:10px 12px; font-family:var(--font-mono); font-size:10px; font-weight:500;
   color:var(--ash); letter-spacing:.1em; text-transform:uppercase; border-bottom:1px solid rgba(22,20,18,0.2); }
-.bl-table th:first-child, .bl-table th:nth-child(2) { text-align:left; }
+.bl-table th:first-child, .bl-table th.l { text-align:left; }
 .bl-table td { padding:11px 12px; border-bottom:1px solid rgba(22,20,18,0.08); vertical-align:top; }
 .bl-table td.r { text-align:right; font-family:var(--font-mono); white-space:nowrap; }
 .bl-table tr.bl-sec td { background:rgba(22,20,18,0.045); font-family:var(--font-mono); font-size:11px;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--ink); font-weight:500; padding:9px 12px; }
+  letter-spacing:.09em; text-transform:uppercase; color:var(--ink); font-weight:500; padding:9px 12px; }
+.bl-table tr.bl-sec td.r { text-transform:none; letter-spacing:0; }
 .bl-item a { color:var(--ink); text-decoration:none; border-bottom:1px solid rgba(22,20,18,0.2); }
 .bl-item a:hover { color:var(--rust); border-color:var(--rust); }
-.bl-part { font-family:var(--font-mono); font-size:11px; color:var(--ash); white-space:nowrap; }
-.bl-note { font-size:11.5px; color:var(--ash); line-height:1.5; margin-top:4px; max-width:62ch; }
+.bl-ref { font-family:var(--font-mono); font-size:11px; color:var(--ash); white-space:nowrap; }
+.bl-spec { font-size:11.5px; color:var(--ash); line-height:1.5; margin-top:3px; max-width:60ch; }
+.bl-note { font-size:11.5px; color:var(--clay); line-height:1.5; margin-top:5px; max-width:62ch; }
+.bl-cn { font-size:11px; color:var(--ash-light); line-height:1.5; margin-top:3px; max-width:56ch; }
 .bl-flag { font-size:12px; cursor:help; }
-.bl-corrected { color:var(--rust); }
-.bl-added { color:#4E8C5A; }
-.bl-verified { color:var(--ash-light); }
-.bl-yen { font-family:var(--font-mono); font-size:9px; color:var(--ash); vertical-align:super; margin-left:2px; }
+.bl-corrected { color:var(--rust); } .bl-disputed { color:#B45B52; }
+.bl-yen { font-family:var(--font-mono); font-size:9px; color:var(--ash); vertical-align:super; margin-left:2px; cursor:help; }
 .bl-foot { font-family:var(--font-mono); font-size:12px; color:var(--ash); margin-top:14px; }
 .bl-legend { display:flex; flex-wrap:wrap; gap:16px; font-size:11.5px; color:var(--ash); margin-top:10px; }
-.bl-legend span b { color:var(--ink); }
-.r.up { color:var(--rust); } .r.dn { color:#4E8C5A; }
+.bl-legend b { color:var(--ink); }
+.r.up { color:var(--rust); } .r.dn, i.dn { color:#4E8C5A; font-style:normal; }
+.bb-mine td { background:rgba(194,91,42,0.05); }
+.bb-bar { width:26%; min-width:90px; }
+.bb-bar span { display:block; height:8px; border-radius:999px; background:rgba(22,20,18,0.07); overflow:hidden; margin-top:4px; }
+.bb-bar i { display:block; height:100%; background:rgba(22,20,18,0.28); }
+.bb-mine .bb-bar i { background:var(--rust); }
+.op-kind { font-family:var(--font-mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+  padding:3px 8px; border-radius:999px; white-space:nowrap; }
+.op-correction { background:rgba(180,91,82,0.14); color:#8B3F1D; }
+.op-gap { background:rgba(22,20,18,0.07); color:var(--ash); }
+.op-guide-error { background:rgba(194,91,42,0.12); color:var(--rust); }
 
-/* ─── Peer comparison ─── */
+/* ─── Where the money goes ─── */
+.fn-row { display:grid; grid-template-columns:minmax(120px,1fr) 3fr auto 56px; gap:14px; align-items:center;
+  padding:9px 0; border-bottom:1px solid rgba(22,20,18,0.07); }
+.fn-name { font-size:13.5px; }
+.fn-bar { height:10px; border-radius:999px; background:rgba(22,20,18,0.07); overflow:hidden; }
+.fn-bar i { display:block; height:100%; border-radius:999px; background:var(--rust); transition:width .4s var(--ease-out); }
+.fn-val, .fn-pct { font-family:var(--font-mono); font-size:12px; white-space:nowrap; }
+.fn-pct { color:var(--ash); text-align:right; }
+@media (max-width:720px) { .fn-row { grid-template-columns:1fr auto; } .fn-bar, .fn-pct { display:none; } }
+
+/* ─── Peers ─── */
 .peer { display:grid; grid-template-columns:minmax(120px,1.1fr) 3fr auto 88px; gap:14px; align-items:center;
   padding:8px 0; border-bottom:1px solid rgba(22,20,18,0.07); }
 .peer-name { font-size:13px; }
@@ -77,6 +129,17 @@
 .peer-val { font-family:var(--font-mono); font-size:12px; white-space:nowrap; }
 .peer-tag { font-family:var(--font-mono); font-size:10px; color:var(--ash); letter-spacing:.06em; text-align:right; }
 @media (max-width:720px) { .peer { grid-template-columns:1fr auto; } .peer-bar, .peer-tag { display:none; } }
+
+/* ─── Downloads ─── */
+.dl-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; }
+.dl { display:flex; flex-direction:column; gap:6px; padding:22px; border-radius:18px; text-decoration:none; color:inherit;
+  background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border); box-shadow:var(--glass-hi), var(--glass-sh);
+  transition:transform .35s var(--ease-out), background .3s; }
+.dl:hover { transform:translateY(-3px); background:var(--glass-bg-2); }
+.dl-kind { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--rust); }
+.dl-name { font-family:var(--font-display); font-size:21px; line-height:1.2; letter-spacing:-.015em; }
+.dl-meta { font-size:12px; color:var(--ash); line-height:1.5; }
 </style>
 </head>
 <body class="sec-page">
@@ -98,12 +161,12 @@
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a href="assembly.html">Assembly</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><a class="sub" href="bom.html">Bill of materials</a><a class="sub" href="bom.html">Bill of materials</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server &amp; Bridge</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><a class="sub" href="teleop.html">Browser</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="data.html">Data</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><a href="assembly.html">Assembly</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><a class="sub" href="bom.html">Bill of materials</a><span class="mob-grp">Software</span><a class="sub" href="firmware.html">Firmware</a><a class="sub" href="ros.html">ROS</a><a class="sub" href="server.html">Server &amp; Bridge</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><a class="sub" href="teleop.html">Browser</a><span class="mob-grp">Autonomy</span><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="data.html">Data</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 
 <aside class="sidenav" aria-label="BOM section navigation">
   <div class="sidenav-title">BOM</div>
-  <a href="#scenarios">Scenarios</a><a href="#subsystems">By subsystem</a><a href="#lines">Every line</a><a href="#why">Why it's cheap</a><a href="#verify">What we changed</a><a href="#gaps">What's missing</a><a href="#get">Get the files</a>
+  <a href="#builds">Three builds</a><a href="#configure">Configure</a><a href="#core">The core</a><a href="#money">Where money goes</a><a href="#buildbuy">Build or buy</a><a href="#machined">Machined parts</a><a href="#taobao">Verified prices</a><a href="#open">Open items</a><a href="#get">Download</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
@@ -111,209 +174,320 @@
   <div class="page-hero-inner">
     <div class="crumbs"><a href="index.html">Overview</a> / <a href="hardware.html">Hardware</a> / Bill of materials</div>
     <span class="eyebrow">Hardware · Bill of materials</span>
-    <h1 class="display-lg">Every part. Every price.</h1>
+    <h1 class="display-lg">One core.<br/>Five choices.</h1>
     <p class="lede">
-      <span data-bom="lines">57</span> line items, each one re-priced against a vendor page and cross-checked
-      against what the firmware says is actually bolted to the robot. Including the gaps we found. Including
-      the four lines we had wrong.
+      A fixed core of <span data-bom="coreLines">46</span> parts — every actuator, every plate, all structure and
+      power — costs <strong data-bom="core">$7,897</strong> and never changes. Everything that moves the total
+      is five components you pick yourself. Configure it below.
     </p>
     <div class="spec" style="margin-top:28px;">
-      <span><span data-bom="lines">57</span> line items</span>
+      <span data-bom="essential">$8,561</span>
+      <span>to <span data-bom="maximum">$14,968</span></span>
       <span><span data-bom="dof">56</span> functional DOF</span>
-      <span><span data-bom="perdof">$172</span> per DOF</span>
-      <span>1 USD = <span data-bom="fx">6.75</span> CNY</span>
-      <span>priced <span data-bom="date">2026-07-31</span></span>
+      <span><span data-bom="perDof">$170</span> per DOF</span>
+      <span>priced <span data-bom="date">31 July 2026</span></span>
     </div>
   </div>
 </section>
 
-<!-- ─── SCENARIOS ─── -->
-<section class="pad-y" id="scenarios">
+<!-- ─── THREE BUILDS ─── -->
+<section class="pad-y" id="builds">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">The number</span>
-        <h2 class="display-md title">It depends what you<br/><span class="italic accent">put in its head.</span></h2>
+        <span class="eyebrow">Three builds</span>
+        <h2 class="display-md title">Same robot.<br/><span class="italic accent">Three price tags.</span></h2>
       </div>
-      <p class="lede">Onboard compute is 27% of the as-built cost and the least MABEL-specific part of it. So the total is a scenario, not a single figure. Pick one — the table below follows.</p>
+      <p class="lede">Every one of these is the same mechanism. The differences are a compute tier and a set of
+      sensors — each upgradeable later without touching the structure. Pick one to load it into the configurator.</p>
     </div>
-    <div class="scn-grid fade-up" id="bomScenarios"></div>
-    <div class="callout fade-up" style="margin-top:24px;">
-      <p><strong>Which number should you quote?</strong> <strong>S2</strong>. A Jetson Orin Nano Super runs the
-      ROS&nbsp;2 stack, SLAM, navigation, the 50&nbsp;Hz state stream and the video pipeline; policies train
-      off-board. Thor is the right choice for onboard VLA-scale inference, and it is what the physical robot
-      runs today — but it is a <span data-bom="s1">$12,874</span> − <span data-bom="s2">$9,624</span> decision made
-      after the robot exists, not a part of it. Read <a href="#gaps">what's missing</a> before quoting any of
-      these as a build budget.</p>
+    <div class="scn-grid fade-up" id="bomBuilds"></div>
+
+    <div class="callout fade-up" style="margin-top:26px;">
+      <p><strong>The Jetson price shock of <span data-bom="riseDate">22 July 2026</span>.</strong> NVIDIA raised
+      the price of every Jetson module and developer kit by between 33% and 101%. The AGX Thor kit went from
+      <span data-bom="thorBefore">$3,499</span> to <strong data-bom="thorAfter">$5,499</strong>; the Orin Nano
+      Super kit from <span data-bom="nanoBefore">$249</span> to <strong data-bom="nanoAfter">$399</strong>. The
+      bill as first costed was <span data-bom="asQuoted">$12,969</span>; the identical robot today is
+      <span data-bom="asQuotedToday">$14,968</span>. Nothing about the machine changed — which is the clearest
+      argument on this page for treating compute as a choice rather than a component.</p>
     </div>
   </div>
 </section>
 
-<!-- ─── SUBSYSTEMS ─── -->
-<section class="soft-sec pad-y" id="subsystems">
+<!-- ─── CONFIGURATOR ─── -->
+<section class="soft-sec pad-y" id="configure">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">By subsystem</span>
-        <h2 class="display-md title">Where the money <span class="italic accent">actually goes.</span></h2>
+        <span class="eyebrow">Configure</span>
+        <h2 class="display-md title">Decide these <span class="italic accent">five things.</span></h2>
       </div>
-      <p class="lede">Nine subsystems, sorted by what they cost. Hover a row to light up its slice.</p>
+      <p class="lede">Onboard compute, wrist cameras, head camera, an optional base depth camera, and the 2-D lidar.
+      Together they span <span data-bom="choicesLo">$664</span> to <span data-bom="choicesHi">$7,022</span> — a
+      <strong data-bom="choicesRatio">10.6×</strong> spread that accounts for the entire difference between the
+      cheapest and the most expensive way to build this robot.</p>
     </div>
-    <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:clamp(40px,6vw,88px); align-items:start;" class="bom-layout">
-      <div class="spec-table fade-up" id="bomTable"></div>
-      <aside class="fade-up d1" style="position:sticky; top:90px;">
-        <div class="bom-donut" id="bomDonut" aria-hidden="true"></div>
-        <h3 class="display-sm" style="margin-bottom:20px;">Cost is a <span class="italic accent">design parameter,</span> not an excuse.</h3>
-        <p class="body" style="margin-bottom:16px;">Every component was chosen with two questions in mind: <em>does it work for the task</em>, and <em>could a grad student in Lagos, São Paulo, or Beijing buy it next week?</em></p>
-        <p class="table-note" style="margin:-8px 0 22px;">The ring is the <strong>as-built</strong> split (S1); the running total above follows the scenario you picked.</p>
-        <p class="body">The parts that are genuinely MABEL-specific — brackets, plates, covers — are the <em>cheapest</em> lines in the whole build. That is not an accident; it is what restricting custom fabrication to flat patterns and printed parts buys you.</p>
+
+    <div class="cfg-wrap fade-up">
+      <div id="bomConfig"></div>
+      <aside class="cfg-panel">
+        <div class="cfg-label" id="cfgLabel">Recommended build</div>
+        <div class="cfg-total" id="cfgTotal">$9,509</div>
+        <div class="cfg-bar" id="cfgBar"><span class="cfg-bar-core"></span><span class="cfg-bar-ch"></span></div>
+        <div class="cfg-split">
+          <span>fixed core <b id="cfgCore">$7,897</b></span>
+          <span>choices <b id="cfgChoices">$1,612</b></span>
+        </div>
+        <div class="cfg-foot">
+          Excludes shipping, duties and tax; printed parts and filament; the custom PCBs; and labour.
+          <a href="#open">What isn't costed →</a>
+        </div>
       </aside>
     </div>
   </div>
 </section>
 
-<!-- ─── EVERY LINE ─── -->
-<section class="pad-y" id="lines">
+<!-- ─── THE CORE ─── -->
+<section class="pad-y" id="core">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">Itemised</span>
-        <h2 class="display-md title">The whole list, <span class="italic accent">nothing hidden.</span></h2>
+        <span class="eyebrow">The fixed core</span>
+        <h2 class="display-md title"><span data-bom="core">$7,897</span> that <span class="italic accent">never changes.</span></h2>
       </div>
-      <p class="lede">Filter by subsystem or search for a part. Prices marked ¥ were quoted in CNY and converted at 1&nbsp;USD&nbsp;=&nbsp;<span data-bom="fx">6.75</span>&nbsp;CNY; the printed value is already in dollars.</p>
+      <p class="lede">Order all of this first — none of it depends on a decision made later. It is
+      <span data-bom="coreShare">83%</span> of the Recommended build. Prices marked ¥ were quoted in CNY and
+      converted at 1&nbsp;USD&nbsp;=&nbsp;<span data-bom="fxInv">6.9724</span>&nbsp;CNY.</p>
     </div>
     <div class="fade-up">
       <div class="bl-controls">
         <div id="bomFilters" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
-        <input class="bl-search" id="bomSearch" type="search" placeholder="search parts, part numbers, vendors…" aria-label="Search the bill of materials" />
+        <input class="bl-search" id="bomSearch" type="search" placeholder="search parts, specs, vendors…" aria-label="Search the bill of materials" />
       </div>
       <div class="bl-wrap">
         <table class="bl-table">
-          <thead><tr><th>Item</th><th>Part no.</th><th>Qty</th><th>Unit</th><th>Ext.</th></tr></thead>
-          <tbody id="bomLines"></tbody>
+          <thead><tr><th>Ref</th><th class="l">Item</th><th>Qty</th><th>Unit</th><th>Ext.</th></tr></thead>
+          <tbody id="bomCore"></tbody>
         </table>
       </div>
-      <div class="bl-foot" id="bomLinesFoot"></div>
+      <div class="bl-foot" id="bomCoreFoot"></div>
       <div class="bl-legend">
-        <span><b class="bl-flag bl-corrected">†</b> corrected against the purchase sheet</span>
-        <span><b class="bl-flag bl-added">‡</b> added — the firmware proves it's installed</span>
-        <span><b class="bl-flag bl-verified">✓</b> price read off the vendor page</span>
-        <span>no mark — as-purchased, not re-priced</span>
+        <span><b class="bl-flag bl-corrected">†</b> part number corrected against the verified listing</span>
+        <span><b class="bl-flag bl-disputed">✻</b> the repository disagrees — see <a href="#open">open items</a></span>
+        <span><b>¥</b> quoted in CNY</span>
       </div>
-      <p class="table-note">Excludes shipping, duties, sales tax, tools and consumables. Excludes labour, the teleoperation headset, and the development workstation.</p>
     </div>
   </div>
 </section>
 
-<!-- ─── WHY IT'S CHEAP ─── -->
-<section class="soft-sec pad-y" id="why">
+<!-- ─── WHERE THE MONEY GOES ─── -->
+<section class="soft-sec pad-y" id="money">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">Why it's cheap</span>
-        <h2 class="display-md title">Five reasons, <span class="italic accent">not one.</span></h2>
+        <span class="eyebrow">Cost structure</span>
+        <h2 class="display-md title">Where the money <span class="italic accent">actually goes.</span></h2>
       </div>
-      <p class="lede">"Low cost" is usually a marketing claim. Here it is five specific engineering decisions, each with a price attached.</p>
+      <p class="lede">The build regrouped by what each part <em>does</em> rather than where it bolts on. This chart
+      follows the configurator above — change a choice and watch it move.</p>
     </div>
+    <div class="fade-up" id="bomFunctional" style="margin-bottom:44px;"></div>
+
     <div class="card-grid fade-up">
-      <div class="card"><span class="card-num">A</span><div><h4>Commodity where it counts</h4><p>Quasi-direct-drive actuators reached commodity pricing through the quadruped market. Fourteen arm actuators cost <strong data-bom="armact">$2,181</strong> — a comparable set of harmonic-drive joints with dual encoders is several times that.</p></div></div>
-      <div class="card"><span class="card-num">B</span><div><h4>Three modules, not four</h4><p>A three-module swerve base gives the same three planar DOF and removes one module, one drive motor, one steering motor and two controllers: <strong data-bom="swervemod">$557.50</strong> saved, paid for with a smaller support polygon the tip-over model has to respect.</p></div></div>
-      <div class="card"><span class="card-num">C</span><div><h4>Dexterity by servo count</h4><p>Thirty-four Feetech bus servos give 34 actuated hand DOF for <strong data-bom="hands">$1,234</strong> — about <strong data-bom="handperdof">$36</strong> per hand joint. Commercial dexterous hands at comparable DOF are a five-figure line on their own.</p></div></div>
-      <div class="card"><span class="card-num">D</span><div><h4>No machine shop</h4><p>Every custom part is a bent laser-cut flat pattern, a printed cover, or a two-layer PCB. That caps the custom-fabrication content of the whole robot at a few hundred dollars — and makes it replicable by anyone with a printer.</p></div></div>
-      <div class="card"><span class="card-num">E</span><div><h4>Compute is a choice</h4><p>Everything that moves the robot is gated behind one control library and one wire contract, and the heavy learning runs off-board. That is what makes the <strong data-bom="computedelta">$3,250</strong> difference between S1 and S2 available at all.</p></div></div>
-      <div class="card"><span class="card-num">F</span><div><h4>Honest accounting</h4><p>We publish the gaps too. <a href="#gaps">Section below</a>: what the purchase record never covered, what it would cost, and where that leaves the sub-$10k claim.</p></div></div>
+      <div class="card"><span class="card-num">A</span><div><h4>Actuation dominates, structurally</h4><p>Every joint motor, hand servo, swerve module and the lift column is <strong data-bom="actuation">$6,239</strong> — <span data-bom="actuationPct">65.6%</span> of the Recommended build. Cost scales with degrees of freedom and no sourcing decision changes it. That puts a floor near $6,000 under any version of this robot.</p></div></div>
+      <div class="card"><span class="card-num">B</span><div><h4>Dexterity is not the expensive part</h4><p>The 14 arm actuators average <strong>$150.79</strong> each and the 34 hand servos <strong>$34.75</strong>. The hands carry most of MABEL's degrees of freedom for <strong data-bom="handShareRec">12.4%</strong> of the Recommended build — worth saying plainly, because the assumption is usually the opposite.</p></div></div>
+      <div class="card"><span class="card-num">C</span><div><h4>Compute is the only order-of-magnitude line</h4><p>One item spans <span data-bom="nanoAfter">$399</span> to <span data-bom="thorAfter">$5,499</span> — at the top end more than every actuator in both arms and both hands combined. It is also the only category that can fall tenfold without touching the mechanism.</p></div></div>
+      <div class="card"><span class="card-num">D</span><div><h4>Perception scales, and scales far</h4><p><span data-bom="percMax">$1,523.35</span> in Maximum, <span data-bom="percRec">$362.97</span> in Recommended, <span data-bom="percEss">$264.97</span> in Essential — on an unchanged robot. The $68 step from 720P to 1200P wrists is the highest-value spend in the whole build.</p></div></div>
+      <div class="card"><span class="card-num">E</span><div><h4>Everything else is noise</h4><p>Batteries are $93.62. Power and wiring, data and connectivity, and control and miscellany together are a few per cent, and there is no saving to find there. The real power question is headroom, not cost: AGX Orin at 60 W would force a battery redesign.</p></div></div>
+      <div class="card"><span class="card-num">F</span><div><h4>Ten lines carry the build</h4><p>The ten most expensive lines of the Maximum build carry <strong data-bom="topTen">$12,475</strong> — <span data-bom="topTenPct">83.3%</span> of it. The other <span data-bom="restCount">40</span> items total <span data-bom="rest">$2,494</span>. Those ten are the only lines worth arguing about.</p></div></div>
+    </div>
+
+    <div class="fade-up" style="margin-top:52px;">
+      <h3 class="display-sm" style="margin-bottom:20px;">The ten most expensive lines</h3>
+      <div class="bl-wrap">
+        <table class="bl-table" style="min-width:520px;">
+          <thead><tr><th>#</th><th class="l">Part</th><th>Qty</th><th>Extended</th><th>Share</th></tr></thead>
+          <tbody id="bomTopTen"></tbody>
+        </table>
+      </div>
+      <p class="table-note">Maximum build. Shares are of <span data-bom="maximum">$14,968</span>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BUILD OR BUY ─── -->
+<section class="pad-y" id="buildbuy">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Build or buy</span>
+        <h2 class="display-md title">Buy the motors, <span class="italic accent">not the product.</span></h2>
+      </div>
+      <p class="lede">Actuators are the most expensive thing in this robot. Sourcing them at source rather than
+      inside a finished product is the single decision that makes MABEL affordable.</p>
+    </div>
+    <div class="fade-up bl-wrap">
+      <table class="bl-table">
+        <thead><tr><th class="l">Option</th><th></th><th>Both sides</th><th>vs. MABEL</th></tr></thead>
+        <tbody id="bomBuildBuy"></tbody>
+      </table>
+    </div>
+
+    <div class="bg-two fade-up" style="display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,4vw,56px); margin-top:44px;">
+      <div>
+        <h3 class="display-sm" style="margin-bottom:14px;">The arms are an OpenArm</h3>
+        <p class="body">Built from the same DAMIAO motors the official product uses — 8009P at the shoulder, 4340
+        through the upper arm and elbow, 4310 at the wrist. The licensed manufacturer sells the finished bimanual
+        system for $6,000 plus $480 US air freight. Sourcing the identical motors and CNC set directly costs
+        <strong data-bom="armsMabel">$2,622.24</strong>, <strong data-bom="armsSavePct">59.5%</strong> less. The
+        premium buys factory assembly, a moulded harness, a flight case, a gripper, CE and UKCA paperwork and a
+        warranty — not more capability. Against two AgileX PiPER arms, MABEL's pair costs
+        <span data-bom="armsPiperPct">47.5%</span> less, carries one more DOF per arm and lifts four times the load.</p>
+      </div>
+      <div>
+        <h3 class="display-sm" style="margin-bottom:14px;">The hand row is not like-for-like</h3>
+        <p class="body">MABEL's <strong data-bom="handsMabel">$1,194.61</strong> is <em>actuators and driver boards</em>.
+        ORCA's CHF&nbsp;2,000 is a complete material cost including printed structure, tendons, bearings, fasteners
+        and tactile sensors. Adding MABEL's printed parts and hardware would plausibly land near $800–1,000 per
+        hand — still under half the ORCA material cost and a fifth of the assembled price, but the defensible
+        comparison is actuators to actuators. Quoting the raw ratio would not be honest, so we don't.</p>
+      </div>
     </div>
 
     <div class="fade-up" style="margin-top:56px;">
       <h3 class="display-sm" style="margin-bottom:8px;">Against the field</h3>
-      <p class="body" style="margin-bottom:24px; max-width:62ch;">MABEL (S2) against surveyed mobile bimanual platforms. Peer prices are manufacturer-stated or retail-listed; commercial platforms are frequently inquiry-only, so this supports an order-of-magnitude argument rather than a precise ranking.</p>
+      <p class="body" style="margin-bottom:24px; max-width:64ch;">MABEL (Recommended) against surveyed mobile
+      bimanual platforms. Peer prices are manufacturer-stated or retail-listed and commercial platforms are
+      frequently inquiry-only, so this supports an order-of-magnitude argument rather than a precise ranking.</p>
       <div id="bomPeers"></div>
-      <p class="table-note">MABEL is cheaper than every commercial platform surveyed by a factor of 2–10, and is the least expensive open platform that has both multi-DOF hands and an articulated neck.</p>
     </div>
   </div>
 </section>
 
-<!-- ─── VERIFICATION ─── -->
-<section class="pad-y" id="verify">
+<!-- ─── MACHINED ─── -->
+<section class="soft-sec pad-y" id="machined">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">Verification</span>
-        <h2 class="display-md title">What the audit <span class="italic accent">changed.</span></h2>
+        <span class="eyebrow">Custom metal</span>
+        <h2 class="display-md title">Seven parts, <span class="italic accent">one upload.</span></h2>
       </div>
-      <p class="lede">Four lines moved in value. The net is small — and that cancellation is a coincidence, not a reassurance.</p>
+      <p class="lede">The only parts not bought off a shelf. Upload each DXF or STEP to an online sheet-metal service
+      and select the operations below. Quotes are 5052 H32 aluminium at 2.0 mm.</p>
     </div>
     <div class="fade-up bl-wrap">
-      <table class="bl-table">
-        <thead><tr><th>Line</th><th style="text-align:right;">Sheet</th><th>Verified</th><th>Δ</th></tr></thead>
-        <tbody id="bomVariance"></tbody>
+      <table class="bl-table" style="min-width:760px;">
+        <thead><tr><th>Ref</th><th class="l">Part &amp; operations</th><th>Qty</th><th>×1</th><th>×2</th><th>×10</th><th>×50</th><th>×100</th><th>×1000</th></tr></thead>
+        <tbody id="bomMachined"></tbody>
       </table>
     </div>
-
-    <div class="bg-two fade-up" style="display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,4vw,56px); margin-top:48px;">
-      <div>
-        <h3 class="display-sm" style="margin-bottom:14px;">Three part numbers didn't exist</h3>
-        <p class="body">The sheet listed <code>DMJ4301</code>, <code>DMJ4343</code> and <code>DMJ4341</code>. None of those are real DAMIAO part numbers. The linked listings and the repo's own build table identify them as <strong>DM-J4310</strong> (×6, arm wrists), <strong>DM-J4340</strong> (×4, shoulder roll and elbow) and <strong>DM-J8009P</strong> (×4, shoulder pitch and yaw, 40&nbsp;N·m). The counts were right — 14 actuators for two 7-DOF arms — only the labels were wrong. Ordering from the sheet as written would have produced three wrong parts.</p>
-      </div>
-      <div>
-        <h3 class="display-sm" style="margin-bottom:14px;">One open question</h3>
-        <p class="body">The sheet lists a single ROBOTIS <strong>2XL430-W250-T</strong> for the neck. The hardware layer disagrees with evidence: the Dynamixel driver records that MABEL's neck reports model&nbsp;1090 — an <strong>XC330-T181</strong> — and the config says there are <em>two</em> of them, pitch and roll. This BOM carries 2× XC330-T181-T. If a 2XL430 is in fact fitted, the driver's identification table is stale and should be fixed in code. Either way both sources can't be right.</p>
-      </div>
-    </div>
-
-    <div class="callout fade-up" style="margin-top:36px;">
-      <p><strong>Documentation drift found along the way.</strong> The published build guide listed an
-      <em>RPLIDAR&nbsp;A3</em> (it's an <strong>A2M12</strong>) and <em>Arducam global-shutter wrist cameras</em>
-      (both wrists have carried <strong>RealSense D405</strong> units since July 2026). This page previously
-      carried <em>LED matrix eyes</em> and a <em>13-inch torso touchscreen</em>; neither appears in the canonical
-      MuJoCo model, so neither is in this BOM. The earlier published figure of <em>$9,860</em> with a
-      nine-category split corresponded to no purchase record and has been retired.</p>
+    <div class="callout fade-up" style="margin-top:24px;">
+      <p><strong>The case for a group buy.</strong> <span id="bomMachinedNote"></span> It is also why the upper base
+      plate costs nearly four times the lower one at similar size: four bends, dimpling, hardware insertion and
+      tapping against a plain laser cut. For a lab building more than one robot this is the easiest saving in the
+      whole bill.</p>
     </div>
   </div>
 </section>
 
-<!-- ─── GAPS ─── -->
-<section class="soft-sec pad-y" id="gaps">
+<!-- ─── TAOBAO ─── -->
+<section class="pad-y" id="taobao">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">Uncosted</span>
-        <h2 class="display-md title">What the sheet <span class="italic accent">doesn't cover.</span></h2>
+        <span class="eyebrow">Verified prices</span>
+        <h2 class="display-md title">Search the model, <span class="italic accent">not the link.</span></h2>
       </div>
-      <p class="lede">A purchase record is what was ordered, not a complete parts explosion. Seven categories of real hardware are on the robot and costed nowhere. Estimated here, deliberately kept out of the totals above.</p>
+      <p class="lede">Every Chinese-vendor line with the price actually paid. Listing URLs expire; model numbers
+      don't. Three lines came in below list.</p>
     </div>
     <div class="fade-up bl-wrap">
       <table class="bl-table">
-        <thead><tr><th>Uncosted item</th><th>Qty</th><th>Estimate</th></tr></thead>
-        <tbody id="bomGaps"></tbody>
+        <thead><tr><th class="l">Model &amp; search string</th><th>List</th><th>Paid</th><th>USD</th><th>Lines</th></tr></thead>
+        <tbody id="bomTaobao"></tbody>
+      </table>
+    </div>
+    <p class="table-note fade-up">The DM8009P is the one worth knowing about: ¥1,899 against a ¥2,529 list price, a
+    25% discount worth $90.38 per motor and $361.52 across the four the arms need. DAMIAO pricing moves — treat
+    these as what was achievable, not guaranteed. Converted at 1&nbsp;CNY&nbsp;=&nbsp;$<span data-bom="fx">0.1434</span>.</p>
+  </div>
+</section>
+
+<!-- ─── OPEN ITEMS ─── -->
+<section class="soft-sec pad-y" id="open">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Open items</span>
+        <h2 class="display-md title">What's unresolved, <span class="italic accent">and what's missing.</span></h2>
+      </div>
+      <p class="lede">A bill that hides its gaps is not a bill. Three kinds of item live here — unresolved conflicts
+      between the parts list and the robot's own firmware, hardware that is on the robot but costed nowhere, and
+      two arithmetic slips in the build guide that this page corrects. None of it is in the totals above.</p>
+    </div>
+    <div class="fade-up bl-wrap">
+      <table class="bl-table">
+        <thead><tr><th class="l">Kind</th><th class="l">Item</th><th>Estimate</th></tr></thead>
+        <tbody id="bomOpen"></tbody>
       </table>
     </div>
     <div class="callout fade-up" style="margin-top:26px;">
-      <p><strong>This is where the sub-$10k claim gets tight.</strong> <span id="bomGapNote"></span></p>
+      <p><strong>Where the gaps leave the total.</strong> Carrying the estimated range, the Recommended build becomes
+      <strong><span data-bom="recWithGapsLo">$10,082</span> – <span data-bom="recWithGapsHi">$10,687</span></strong>.
+      Budget the Recommended number plus that range plus shipping and duties, which for the Chinese-vendor block are
+      not trivial. And resolve the swerve line before you order — it is the one item on this page where a reader
+      following the bill as written receives three modules that cannot move.</p>
     </div>
-    <p class="body fade-up" style="margin-top:24px; max-width:70ch;">The largest gap is the ORCA hand structure: the sheet buys 34 servos but no frame, tendon, bearings, tensioners or fingertip pads, and the hand is tendon-driven and printed. The distribution PCBs can't be verified from the repo at all — no gerbers have been released yet. Budget the S2 number plus this range plus shipping and duties, which for the Chinese-vendor block are not trivial.</p>
   </div>
 </section>
 
-<!-- ─── GET THE FILES ─── -->
+<!-- ─── DOWNLOAD ─── -->
 <section class="pad-y" id="get">
-  <div class="wrap-narrow">
-    <div class="sec-head-center fade-up">
-      <span class="eyebrow">Take it with you</span>
-      <h2 class="display-md title">Reproduce the <span class="italic accent">whole thing.</span></h2>
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Take it with you</span>
+        <h2 class="display-md title">Every file, <span class="italic accent">open.</span></h2>
+      </div>
+      <p class="lede">The CSVs are the source of truth. Every number on this page and in both PDFs is computed from
+      them by one script — nothing is typed twice.</p>
     </div>
-    <p class="body fade-up" style="text-align:center; max-width:62ch; margin:0 auto 28px;">
-      The CSV is the source of truth. Every number on this page, in the PDF and in each figure is computed from it
-      by one script — nothing is typed twice. Change a price, re-run, and the abstract of the paper moves with it.
-    </p>
-    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <a href="assets/bom/mabel_bom.pdf" class="btn btn-primary">Full BOM paper (PDF) ↗</a>
-      <a href="assets/bom/mabel_bom.csv" class="btn btn-ghost" download>Download CSV</a>
-      <a href="https://github.com/thejerrycheng/MABEL/tree/main/BOM" class="btn btn-ghost" target="_blank" rel="noopener">Source on GitHub ↗</a>
+    <div class="dl-grid fade-up">
+      <a class="dl" href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">
+        <span class="dl-kind">PDF · 13 pages</span>
+        <span class="dl-name">Build Guide ↗</span>
+        <span class="dl-meta">The buyer's document. Parts list with live vendor links, the five choices side by side, three complete builds, machined-parts operations, volume pricing, and verified Taobao prices.</span>
+      </a>
+      <a class="dl" href="assets/bom/mabel_bom.pdf" target="_blank" rel="noopener">
+        <span class="dl-kind">PDF · technical</span>
+        <span class="dl-name">Verified BOM paper ↗</span>
+        <span class="dl-meta">The audit. Method, currency handling, the verification protocol, cost-structure analysis, build-or-buy, and every open item with its evidence.</span>
+      </a>
+      <a class="dl" href="assets/bom/core.csv" download>
+        <span class="dl-kind">CSV</span>
+        <span class="dl-name">Core parts list</span>
+        <span class="dl-meta">All <span data-bom="coreLines">46</span> fixed lines with refs, specs, quantities, currencies, vendors and notes.</span>
+      </a>
+      <a class="dl" href="assets/bom/choices.csv" download>
+        <span class="dl-kind">CSV</span>
+        <span class="dl-name">The five choices</span>
+        <span class="dl-meta">Every option for compute, wrist, head, base depth and lidar, with the build tier each belongs to.</span>
+      </a>
+      <a class="dl" href="assets/bom/machined.csv" download>
+        <span class="dl-kind">CSV</span>
+        <span class="dl-name">Machined parts</span>
+        <span class="dl-meta">Seven parts, their operations, and the full volume-pricing ladder from ×1 to ×1000.</span>
+      </a>
+      <a class="dl" href="https://github.com/thejerrycheng/MABEL/tree/main/BOM" target="_blank" rel="noopener">
+        <span class="dl-kind">Source</span>
+        <span class="dl-name">BOM/ on GitHub ↗</span>
+        <span class="dl-meta">The CSVs, the build script, the LaTeX source and the figures. <code>make</code> regenerates all of it.</span>
+      </a>
     </div>
-    <div class="bib fade-up" style="margin-top:34px;">
+    <div class="bib fade-up" style="margin-top:30px;">
       <pre>cd BOM
-python3 tools/build_bom.py   # data/*.csv -> figures, LaTeX tables, website JSON
+python3 tools/build_bom.py   # data/*.csv -> figures, LaTeX tables, website bundle
 make                         # -> mabel_bom.pdf</pre>
     </div>
   </div>
@@ -338,8 +512,8 @@ make                         # -> mabel_bom.pdf</pre>
         <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
       </div>
-      <div class="foot-col"><h6>Hardware</h6><a href="hardware-arms.html">Arms</a><a href="hardware-hands.html">Hands</a><a href="hardware-base.html">Base</a><a href="hardware-electronics.html">Electronics</a><a href="bom.html">Bill of materials</a></div>
-      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="build.html">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Hardware</h6><a href="hardware-arms.html">Arms</a><a href="hardware-hands.html">Hands</a><a href="hardware-base.html">Base</a><a href="hardware-electronics.html">Electronics</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="build.html">Assembly guide</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
     <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
@@ -349,6 +523,5 @@ make                         # -> mabel_bom.pdf</pre>
 <script src="assets/mabel.js"></script>
 <script src="assets/bom/bom_data.js"></script>
 <script src="assets/bom-table.js"></script>
-<script src="assets/bom-donut.js"></script>
 </body>
 </html>

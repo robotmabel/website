@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
 <title>MABEL — Hardware</title>
-<meta name="description" content="MABEL hardware: 3-DOF active head, lift torso, twin 7-DOF arms, 17-DOF ORCA hands, and a three-module holonomic swerve base. Fully itemized BOM from $7,852 (platform only) to $12,874 (with a Jetson AGX Thor)." />
+<meta name="description" content="MABEL hardware: 3-DOF active head, lift torso, twin 7-DOF arms, 17-DOF ORCA hands, and a three-module holonomic swerve base. Fully itemized BOM: a $7,897 fixed core plus five choices, from $8,561 to $14,968." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -23,10 +23,14 @@
 .scn-val { font-family:var(--font-mono); font-size:21px; font-weight:500; margin-top:2px; }
 .scn.on .scn-val { color:var(--rust); }
 .scn-detail { font-size:12px; color:var(--ash); line-height:1.45; margin-top:2px; }
-#bomTable .row.dropped { opacity:.28; }
-#bomTable .row.dropped .val { text-decoration:line-through; }
-#bomTable .row.swapped .val { color:var(--rust); }
-.spec-total .label { text-transform:none; letter-spacing:.02em; font-size:11px; color:var(--ash); max-width:52ch; }
+.fn-row { display:grid; grid-template-columns:minmax(110px,1fr) 3fr auto 54px; gap:14px; align-items:center;
+  padding:9px 0; border-bottom:1px solid rgba(22,20,18,0.07); }
+.fn-name { font-size:13.5px; }
+.fn-bar { height:10px; border-radius:999px; background:rgba(22,20,18,0.07); overflow:hidden; }
+.fn-bar i { display:block; height:100%; border-radius:999px; background:var(--rust); transition:width .4s var(--ease-out); }
+.fn-val, .fn-pct { font-family:var(--font-mono); font-size:12px; white-space:nowrap; }
+.fn-pct { color:var(--ash); text-align:right; }
+@media (max-width:720px) { .fn-row { grid-template-columns:1fr auto; } .fn-bar, .fn-pct { display:none; } }
 </style>
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
@@ -73,7 +77,7 @@
       not a stack of parts.
     </p>
     <div class="spec" style="margin-top:28px;">
-      <span>56 functional DOF · 59 motors</span><span>2 × 7-DOF arms</span><span>2 × 17-DOF ORCA hands</span><span>3-module swerve base</span><span>$9,624 BOM · 57 lines</span>
+      <span>56 functional DOF · 59 motors</span><span>2 × 7-DOF arms</span><span>2 × 17-DOF ORCA hands</span><span>3-module swerve base</span><span>$8,561 – $14,968 BOM</span>
     </div>
   </div>
 </section>
@@ -139,7 +143,7 @@
           <div class="xp-progress"><span class="dot-live"></span> Exploded <b id="explodePct">0%</b> · scroll to separate</div>
         </div>
         <aside class="explode-copy fade-up">
-          <span class="eyebrow">51 DOF, five subsystems</span>
+          <span class="eyebrow">56 DOF, five subsystems</span>
           <h3 class="display-sm" id="explodeTitle">Five projects,<br/>one body.</h3>
           <p class="body" id="explodeBlurb">The ORCA hands, the OpenArm arms, the active head, the lift torso, the swerve base — each was a research effort on its own. Scroll to pull them apart, then read the deep-dive below.</p>
         </aside>
@@ -480,32 +484,42 @@
     <div class="sec-head fade-up">
       <div>
         <span class="eyebrow">Bill of materials</span>
-        <h2 class="display-md title">Itemized, <span class="italic accent">and honest.</span></h2>
+        <h2 class="display-md title">One core.<br/><span class="italic accent">Five choices.</span></h2>
       </div>
-      <p class="lede"><span data-bom="lines">57</span> line items, each re-priced against a vendor page and cross-checked against what the firmware says is bolted to the robot. Pick a build scenario — the breakdown follows.</p>
+      <p class="lede">A fixed core of <span data-bom="coreLines">46</span> parts — every actuator, every plate, all
+      structure and power — costs <strong data-bom="core">$7,897</strong> and never changes. Everything that moves
+      the total is five components you pick yourself.</p>
     </div>
 
-    <div class="scn-grid fade-up" id="bomScenarios" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:44px;"></div>
+    <div class="scn-grid fade-up" id="bomBuilds" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:44px;"></div>
 
-    <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:clamp(40px,6vw,88px); align-items:start;" class="bom-layout">
-      <div class="spec-table fade-up" id="bomTable"></div>
+    <div style="display:grid; grid-template-columns:1.25fr 1fr; gap:clamp(40px,6vw,80px); align-items:start;" class="bom-layout">
+      <div class="fade-up">
+        <h3 class="display-sm" style="margin-bottom:18px;">Where the money goes</h3>
+        <div id="bomFunctional"></div>
+        <p class="table-note">Follows the build selected above. Actuation is
+        <span data-bom="actuationPct">65.6%</span> of the Recommended build and no sourcing decision changes it —
+        cost scales with degrees of freedom.</p>
+      </div>
 
-      <aside class="fade-up d1" style="position:sticky; top:90px;">
-        <div class="bom-donut" id="bomDonut" aria-hidden="true"></div>
-        <p class="table-note" style="margin:-8px 0 22px;">The ring is the <strong>as-built</strong> split; the total follows the scenario.</p>
+      <aside class="fade-up d1">
         <h3 class="display-sm" style="margin-bottom:20px;">Cost is a <span class="italic accent">design parameter,</span> not an excuse.</h3>
         <p class="body" style="margin-bottom:16px;">Every component was chosen with two questions in mind: <em>does it work for the task</em>, and <em>could a grad student in Lagos, São Paulo, or Beijing buy it next week?</em></p>
-        <p class="body" style="margin-bottom:22px;">Onboard compute is 27% of the as-built cost and the least MABEL-specific part of it — which is why the total is a scenario, not a number. Roughly <span data-bom="s2">$9,624</span> buys the robot with a Jetson Orin Nano Super, or <span data-bom="perdof">$172</span> per functional degree of freedom.</p>
-        <a href="bom.html" class="btn btn-primary">Every line, every vendor →</a>
+        <p class="body" style="margin-bottom:16px;">The 14 arm actuators average <strong>$150.79</strong> each and the 34 hand servos <strong>$34.75</strong>. The hands carry most of MABEL's degrees of freedom for under 10% of its cost — dexterity is not what makes this robot expensive.</p>
+        <p class="body" style="margin-bottom:22px;">Onboard compute is the only line that moves by an order of magnitude: <span data-bom="nanoAfter">$399</span> to <span data-bom="thorAfter">$5,499</span> for the same robot.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="bom.html" class="btn btn-primary">Configure the build →</a>
+          <a href="assets/bom/MABEL_Build_Guide.pdf" class="btn btn-ghost" target="_blank" rel="noopener">Build Guide PDF ↗</a>
+        </div>
       </aside>
     </div>
 
-    <div class="callout fade-up" style="margin-top:36px;">
+    <div class="callout fade-up" style="margin-top:40px;">
       <p><strong>Before you quote a number.</strong> These totals cover the parts on the purchase record. An
-      estimated <strong>$510–$1,255</strong> of real hardware — the ORCA hand structure, printed shells, the
-      distribution PCBs, the E-stop — was never costed, which puts a fully costed build just over $10,000.
-      The <a href="bom.html#gaps">full BOM page</a> itemizes exactly what is missing, and the four lines the
-      audit corrected.</p>
+      estimated <span data-bom="gapsLo">$573</span>–<span data-bom="gapsHi">$1,178</span> of real hardware — the
+      ORCA hand structure, printed shells, the distribution PCBs, two Teensy boards — was never costed, and one
+      line (the swerve modules) is a lump that hides its motors and controllers. The
+      <a href="bom.html#open">full BOM page</a> itemizes every open item with its evidence.</p>
     </div>
   </div>
 </section>
@@ -545,7 +559,7 @@
       <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
       <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a></div>
-      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
     <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
@@ -555,6 +569,5 @@
 <script src="assets/mabel.js"></script>
 <script src="assets/bom/bom_data.js"></script>
 <script src="assets/bom-table.js"></script>
-<script src="assets/bom-donut.js"></script>
 </body>
 </html>
