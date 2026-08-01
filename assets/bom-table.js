@@ -359,6 +359,7 @@
   /* ── 7 · [data-bom] stamps ───────────────────────────────────────── */
   function stamps() {
     const B = (id) => D.builds.find((b) => b.id === id).total;
+    const sv = (k) => D.sensing_savings.find((s) => s.name.toLowerCase().includes(k.toLowerCase())).saving;
     const g = D.uncosted_gap_usd;
     const map = {
       core: usd(D.core_total),
@@ -391,6 +392,15 @@
       rest: usd(D.top_ten_rest), restCount: D.top_ten_rest_count,
       machinedOne: usd2(D.machined_set.p1), machinedTen: usd2(D.machined_set.p10),
       machinedDrop: Math.round((1 - D.machined_set.p10 / D.machined_set.p1) * 100) + '%',
+      filament: usd2(D.bulk_offer.filament_list),
+      filamentBulk: usd2(D.bulk_offer.filament_bulk),
+      coreBulk: usd(D.bulk_offer.core_at_bulk),
+      bulkPct: Math.round(D.bulk_offer.discount * 100) + '%',
+      bulkMin: D.bulk_offer.min_qty,
+      percCutRec: D.perception_cut.recommended + '%',
+      percCutEss: D.perception_cut.essential + '%',
+      saveWrist: usd2(sv('Wrist')), saveHead: usd2(sv('Head')),
+      saveBase: usd2(sv('Base depth')), saveLidar: usd2(sv('lidar')),
       handShareRec: D.hand_share_recommended + '%',
       handShareMax: D.hand_share_maximum + '%',
       percEss: usd2(D.perception_by_build.essential),

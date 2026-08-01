@@ -9,49 +9,55 @@ window.MABEL_BOM = {
   "thor_before": 3499.0,
   "thor_after": 5499.0,
   "nano_before": 249.0,
-  "nano_after": 399.0
+  "nano_after": 399.0,
+  "thor_as_quoted": 3500.0
  },
  "as_quoted_total": 12969.37,
- "as_quoted_today": 14969.37,
+ "as_quoted_today": 14968.37,
  "functional_dof": 56,
  "motor_count": 59,
- "core_total": 7897.36,
- "core_line_count": 46,
+ "core_total": 8058.29,
+ "core_line_count": 49,
  "core_sections": [
   {
    "name": "Mobile base",
    "usd": 2272.11,
-   "share": 28.77
+   "share": 28.2
   },
   {
    "name": "Body / torso",
    "usd": 889.06,
-   "share": 11.26
+   "share": 11.03
   },
   {
    "name": "Arms - both",
    "usd": 2622.24,
-   "share": 33.2
+   "share": 32.54
   },
   {
    "name": "Hands - both",
    "usd": 1194.61,
-   "share": 15.13
+   "share": 14.82
   },
   {
    "name": "Neck / head",
    "usd": 235.3,
-   "share": 2.98
+   "share": 2.92
   },
   {
    "name": "Structural hardware",
    "usd": 184.21,
-   "share": 2.33
+   "share": 2.29
   },
   {
    "name": "Electronics, power & cabling",
    "usd": 499.83,
-   "share": 6.33
+   "share": 6.2
+  },
+  {
+   "name": "3D printed material",
+   "usd": 160.93,
+   "share": 2.0
   }
  ],
  "core": [
@@ -790,11 +796,59 @@ window.MABEL_BOM = {
    "fgroup": "misc",
    "status": "tbd",
    "note": "Carried at zero in every total on this page."
+  },
+  {
+   "ref": "8.01",
+   "section": "3D printed material",
+   "item": "Bambu Lab PLA Basic, Jade White",
+   "spec": "1.75 mm, 1 kg with spool - covers, sensor mounts, trim",
+   "qty": 4,
+   "unit_usd": 22.99,
+   "ext_usd": 91.96,
+   "currency": "USD",
+   "unit_native": 22.99,
+   "vendor": "bambulab.com",
+   "link": "https://us.store.bambulab.com/collections/pla",
+   "fgroup": "structure",
+   "status": "sheet",
+   "note": "Priced at list. Bambu Lab's standing bulk offer takes 25% off four rolls or more, which brings all seven spools to $120.70 and the core to $8,018.06."
+  },
+  {
+   "ref": "8.02",
+   "section": "3D printed material",
+   "item": "Bambu Lab PLA Basic, Black",
+   "spec": "1.75 mm, 1 kg with spool - ORCA hand structure",
+   "qty": 2,
+   "unit_usd": 22.99,
+   "ext_usd": 45.98,
+   "currency": "USD",
+   "unit_native": 22.99,
+   "vendor": "bambulab.com",
+   "link": "https://us.store.bambulab.com/collections/pla",
+   "fgroup": "structure",
+   "status": "sheet",
+   "note": "The tendon-driven hand frames; the highest-wear printed parts on the robot."
+  },
+  {
+   "ref": "8.03",
+   "section": "3D printed material",
+   "item": "Bambu Lab PLA Basic, Light Gray",
+   "spec": "1.75 mm, 1 kg with spool - accent parts",
+   "qty": 1,
+   "unit_usd": 22.99,
+   "ext_usd": 22.99,
+   "currency": "USD",
+   "unit_native": 22.99,
+   "vendor": "bambulab.com",
+   "link": "https://us.store.bambulab.com/collections/pla",
+   "fgroup": "structure",
+   "status": "sheet",
+   "note": ""
   }
  ],
  "choices": [
   {
-   "id": "8.1",
+   "id": "9.1",
    "name": "Onboard compute",
    "qty": 1,
    "lo": 399.0,
@@ -864,7 +918,7 @@ window.MABEL_BOM = {
    ]
   },
   {
-   "id": "8.2",
+   "id": "9.2",
    "name": "Wrist cameras",
    "qty": 2,
    "lo": 97.98,
@@ -912,7 +966,7 @@ window.MABEL_BOM = {
    ]
   },
   {
-   "id": "8.3",
+   "id": "9.3",
    "name": "Head camera",
    "qty": 1,
    "lo": 97.99,
@@ -959,7 +1013,7 @@ window.MABEL_BOM = {
    ]
   },
   {
-   "id": "8.4",
+   "id": "9.4",
    "name": "Base depth camera",
    "qty": 1,
    "lo": 0.0,
@@ -995,7 +1049,7 @@ window.MABEL_BOM = {
    ]
   },
   {
-   "id": "8.5",
+   "id": "9.5",
    "name": "2D lidar",
    "qty": 1,
    "lo": 69.0,
@@ -1054,7 +1108,7 @@ window.MABEL_BOM = {
    ]
   },
   {
-   "id": "8.6",
+   "id": "9.6",
    "name": "Camera-specific cabling",
    "qty": 1,
    "lo": 0.0,
@@ -1100,42 +1154,42 @@ window.MABEL_BOM = {
    "id": "essential",
    "name": "Essential",
    "blurb": "Smallest Jetson, no base depth camera, LD19 lidar. A genuine working robot rather than a stripped one - the mechanism is identical and every difference upgrades later without touching the structure.",
-   "core_usd": 7897.36,
+   "core_usd": 8058.29,
    "choices_usd": 663.97,
-   "total": 8561.33,
+   "total": 8722.26,
    "picks": [
     {
-     "choice_id": "8.1",
+     "choice_id": "9.1",
      "choice": "Onboard compute",
      "option": "NVIDIA Jetson Orin Nano Super Dev Kit",
      "usd": 399.0
     },
     {
-     "choice_id": "8.2",
+     "choice_id": "9.2",
      "choice": "Wrist cameras",
      "option": "MMlove AR0144 GS-720P-60fps",
      "usd": 97.98
     },
     {
-     "choice_id": "8.3",
+     "choice_id": "9.3",
      "choice": "Head camera",
      "option": "MMlove 1200P stereo, 112 deg HFOV",
      "usd": 97.99
     },
     {
-     "choice_id": "8.4",
+     "choice_id": "9.4",
      "choice": "Base depth camera",
      "option": "Omit - rely on the 2D lidar",
      "usd": 0.0
     },
     {
-     "choice_id": "8.5",
+     "choice_id": "9.5",
      "choice": "2D lidar",
      "option": "youyeetoo FHL-LD19",
      "usd": 69.0
     },
     {
-     "choice_id": "8.6",
+     "choice_id": "9.6",
      "choice": "Camera-specific cabling",
      "option": "None needed",
      "usd": 0.0
@@ -1146,42 +1200,42 @@ window.MABEL_BOM = {
    "id": "recommended",
    "name": "Recommended",
    "blurb": "16 GB of memory, 1200P global-shutter wrists, RPLIDAR C1. Keeps what decides which policies run onboard and spends nothing on sensing you are unlikely to use.",
-   "core_usd": 7897.36,
+   "core_usd": 8058.29,
    "choices_usd": 1611.97,
-   "total": 9509.33,
+   "total": 9670.26,
    "picks": [
     {
-     "choice_id": "8.1",
+     "choice_id": "9.1",
      "choice": "Onboard compute",
      "option": "NVIDIA Jetson Orin NX 16 GB + carrier",
      "usd": 1249.0
     },
     {
-     "choice_id": "8.2",
+     "choice_id": "9.2",
      "choice": "Wrist cameras",
      "option": "MMlove AR0144 GS-1200P-90fps",
      "usd": 165.98
     },
     {
-     "choice_id": "8.3",
+     "choice_id": "9.3",
      "choice": "Head camera",
      "option": "MMlove 1200P stereo, 112 deg HFOV",
      "usd": 97.99
     },
     {
-     "choice_id": "8.4",
+     "choice_id": "9.4",
      "choice": "Base depth camera",
      "option": "Omit - rely on the 2D lidar",
      "usd": 0.0
     },
     {
-     "choice_id": "8.5",
+     "choice_id": "9.5",
      "choice": "2D lidar",
      "option": "Slamtec RPLIDAR C1",
      "usd": 99.0
     },
     {
-     "choice_id": "8.6",
+     "choice_id": "9.6",
      "choice": "Camera-specific cabling",
      "option": "None needed",
      "usd": 0.0
@@ -1192,42 +1246,42 @@ window.MABEL_BOM = {
    "id": "maximum",
    "name": "Maximum",
    "blurb": "Jetson Thor, RealSense D405 wrists, ZED Mini head, base depth camera. Everything the original bill of materials specified.",
-   "core_usd": 7897.36,
+   "core_usd": 8058.29,
    "choices_usd": 7071.01,
-   "total": 14968.37,
+   "total": 15129.3,
    "picks": [
     {
-     "choice_id": "8.1",
+     "choice_id": "9.1",
      "choice": "Onboard compute",
      "option": "NVIDIA Jetson AGX Thor Developer Kit",
      "usd": 5499.0
     },
     {
-     "choice_id": "8.2",
+     "choice_id": "9.2",
      "choice": "Wrist cameras",
      "option": "Intel RealSense D405",
      "usd": 576.0
     },
     {
-     "choice_id": "8.3",
+     "choice_id": "9.3",
      "choice": "Head camera",
      "option": "Stereolabs ZED Mini",
      "usd": 399.0
     },
     {
-     "choice_id": "8.4",
+     "choice_id": "9.4",
      "choice": "Base depth camera",
      "option": "Intel RealSense D435i",
      "usd": 319.72
     },
     {
-     "choice_id": "8.5",
+     "choice_id": "9.5",
      "choice": "2D lidar",
      "option": "Slamtec RPLIDAR A2M12",
      "usd": 228.63
     },
     {
-     "choice_id": "8.6",
+     "choice_id": "9.6",
      "choice": "Camera-specific cabling",
      "option": "Micro-B pair + ZED USB-C run",
      "usd": 48.66
@@ -1240,43 +1294,43 @@ window.MABEL_BOM = {
    "key": "actuation",
    "name": "Actuation",
    "usd": 6238.6,
-   "share": 65.61
+   "share": 64.51
   },
   {
    "key": "compute",
    "name": "Compute",
    "usd": 1249.0,
-   "share": 13.13
+   "share": 12.92
   },
   {
    "key": "structure",
    "name": "Structure",
-   "usd": 1021.78,
-   "share": 10.75
+   "usd": 1182.71,
+   "share": 12.23
   },
   {
    "key": "perception",
    "name": "Perception",
    "usd": 362.97,
-   "share": 3.82
+   "share": 3.75
   },
   {
    "key": "power",
    "name": "Power & wiring",
    "usd": 294.6,
-   "share": 3.1
+   "share": 3.05
   },
   {
    "key": "data",
    "name": "Data & connectivity",
    "usd": 248.89,
-   "share": 2.62
+   "share": 2.57
   },
   {
    "key": "misc",
    "name": "Control & misc",
    "usd": 93.49,
-   "share": 0.98
+   "share": 0.97
   }
  ],
  "functional_of": "recommended",
@@ -1285,25 +1339,25 @@ window.MABEL_BOM = {
    "item": "NVIDIA Jetson AGX Thor Developer Kit",
    "qty": 1,
    "ext_usd": 5499.0,
-   "share": 36.7
+   "share": 36.3
   },
   {
    "item": "REV Swerve Drive Module",
    "qty": 3,
    "ext_usd": 2025.0,
-   "share": 13.5
+   "share": 13.4
   },
   {
    "item": "DAMIAO DM8009P joint module",
    "qty": 4,
    "ext_usd": 1089.44,
-   "share": 7.3
+   "share": 7.2
   },
   {
    "item": "Feetech HL3915M servo",
    "qty": 32,
    "ext_usd": 1078.54,
-   "share": 7.2
+   "share": 7.1
   },
   {
    "item": "Intel RealSense D405",
@@ -1321,19 +1375,19 @@ window.MABEL_BOM = {
    "item": "DAMIAO DM4340 joint motor",
    "qty": 4,
    "ext_usd": 506.18,
-   "share": 3.4
+   "share": 3.3
   },
   {
    "item": "FlexiSpot E7 Pro lift column",
    "qty": 1,
    "ext_usd": 399.0,
-   "share": 2.7
+   "share": 2.6
   },
   {
    "item": "Stereolabs ZED Mini",
    "qty": 1,
    "ext_usd": 399.0,
-   "share": 2.7
+   "share": 2.6
   },
   {
    "item": "OpenArm structural set",
@@ -1343,9 +1397,9 @@ window.MABEL_BOM = {
   }
  ],
  "top_ten_sum": 12474.72,
- "top_ten_share": 83.3,
- "top_ten_rest": 2493.65,
- "top_ten_rest_count": 42,
+ "top_ten_share": 82.5,
+ "top_ten_rest": 2654.58,
+ "top_ten_rest_count": 45,
  "machined": [
   {
    "ref": "1.02",
@@ -1485,7 +1539,7 @@ window.MABEL_BOM = {
   {
    "model": "DAMIAO DM10422P torso actuator",
    "search": "DM10422P \u53cc\u7535\u611f\u7f16\u7801\u5668\u9ad8\u7cbe\u5ea6\u4e2d\u7a7a\u884c\u661f\u51cf\u901f\u5173\u8282\u7535\u673a\u6a21\u7ec4",
-   "spec": "Hollow-shaft planetary \u00b7 dual inductive encoder",
+   "spec": "Motor with built-in dual inductive encoder",
    "list_cny": null,
    "paid_cny": 1999.0,
    "usd": 286.7,
@@ -1668,15 +1722,6 @@ window.MABEL_BOM = {
   },
   {
    "kind": "gap",
-   "item": "3D-printed shells and covers",
-   "qty": 1,
-   "low_usd": 45.0,
-   "high_usd": 60.0,
-   "impact": "estimate",
-   "note": "~2.1 kg of PETG/ABS at ~36 print-hours, filament at $22-28/kg."
-  },
-  {
-   "kind": "gap",
    "item": "Custom distribution PCBs",
    "qty": 2,
    "low_usd": 50.0,
@@ -1710,33 +1755,50 @@ window.MABEL_BOM = {
    "high_usd": 30.0,
    "impact": "estimate",
    "note": "A speaker is costed; the paper describes head microphones for telepresence."
-  },
-  {
-   "kind": "guide-error",
-   "item": "Top ten line items sum",
-   "qty": 1,
-   "low_usd": 0.0,
-   "high_usd": 0.0,
-   "impact": "arithmetic",
-   "note": "The guide's cost-structure page states the ten largest lines carry $11,496.72 (88.6%) and the other 43 items $1,472.65. The ten listed values sum to $10,475.72 (80.8%) and the remainder is $2,493.65. The guide's own share column sums to 80.8%, so the page contradicts itself."
-  },
-  {
-   "kind": "guide-error",
-   "item": "Essential-build perception figure",
-   "qty": 1,
-   "low_usd": 0.0,
-   "high_usd": 0.0,
-   "impact": "arithmetic",
-   "note": "The guide says perception drops to $362.96 in the Essential build. $362.97 is the Recommended build's perception (1200P wrists + MMlove head + RPLIDAR C1). Essential perception is $264.97 (720P wrists + MMlove head + LD19)."
   }
  ],
  "uncosted_gap_usd": {
-  "low": 573.0,
-  "high": 1178.0
+  "low": 528.0,
+  "high": 1118.0
  },
  "hand_actuator_usd": 1181.52,
- "hand_share_recommended": 12.4,
- "hand_share_maximum": 7.9,
+ "hand_share_recommended": 12.2,
+ "hand_share_maximum": 7.8,
+ "bulk_offer": {
+  "vendor": "Bambu Lab",
+  "discount": 0.25,
+  "min_qty": 4,
+  "applies_to": "3D printed material",
+  "filament_list": 160.93,
+  "filament_bulk": 120.7,
+  "core_at_bulk": 8018.06
+ },
+ "sensing_savings": [
+  {
+   "id": "9.2",
+   "name": "Wrist cameras",
+   "saving": 478.02
+  },
+  {
+   "id": "9.3",
+   "name": "Head camera",
+   "saving": 301.01
+  },
+  {
+   "id": "9.4",
+   "name": "Base depth camera",
+   "saving": 319.72
+  },
+  {
+   "id": "9.5",
+   "name": "2D lidar",
+   "saving": 159.63
+  }
+ ],
+ "perception_cut": {
+  "recommended": 76,
+  "essential": 83
+ },
  "perception_by_build": {
   "essential": 264.97,
   "recommended": 362.97,
