@@ -5,22 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161412" />
 <title>MABEL — Learning</title>
-<meta name="description" content="MABEL learning: visuomotor imitation learning with Diffusion Policy and ACT, a teleoperation data engine, training recipes, and long-horizon autonomous deployment — all onboard." />
+<meta name="description" content="MABEL learning — visuomotor policies trained from teleoperation data and deployed onboard. This page is being written; the work is in progress." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/css/mabel.css" />
 <style>
-  /* Data Curation live-tool CTA */
-  .studio-card { padding: clamp(28px, 4vw, 48px); }
-  .studio-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
-  .studio-live { display: inline-flex; align-items: center; gap: 8px; font-family: "Geist Mono", monospace;
-    font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
-    color: var(--bone); opacity: 0.82; padding: 9px 13px; border: 1px solid rgba(242,238,230,0.22); border-radius: 999px; }
-  .studio-dot { width: 8px; height: 8px; border-radius: 50%; background: #3FB56B;
-    box-shadow: 0 0 0 4px rgba(63,181,107,0.18); animation: studioPulse 2.4s ease-in-out infinite; }
-  @keyframes studioPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(63,181,107,0.18); } 50% { box-shadow: 0 0 0 7px rgba(63,181,107,0.05); } }
-  @media (prefers-reduced-motion: reduce) { .studio-dot { animation: none; } }
+  /* ── Coming soon (scoped) ───────────────────────────────────────── */
+  .soon-badge { display:inline-flex; align-items:center; gap:9px; font-family:var(--font-mono);
+    font-size:11px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--rust);
+    border:1px solid rgba(194,91,42,.34); border-radius:999px; padding:8px 14px; margin-bottom:22px; }
+  .soon-dot { width:7px; height:7px; border-radius:50%; background:var(--rust);
+    box-shadow:0 0 0 4px rgba(194,91,42,.16); animation:soonPulse 2.6s ease-in-out infinite; }
+  @keyframes soonPulse { 0%,100%{box-shadow:0 0 0 4px rgba(194,91,42,.16);} 50%{box-shadow:0 0 0 8px rgba(194,91,42,.04);} }
+  @media (prefers-reduced-motion: reduce) { .soon-dot { animation:none; } }
+  .soon-list { border-top:1px solid rgba(22,20,18,.12); margin:clamp(40px,6vh,64px) 0 0; }
+  .soon-item { display:grid; grid-template-columns:104px 1fr; gap:18px; padding:20px 0;
+    border-bottom:1px solid rgba(22,20,18,.12); align-items:start; }
+  .soon-item .st { font-family:var(--font-mono); font-size:10px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--ash); padding-top:5px; }
+  .soon-item h5 { font-family:var(--font-display); font-weight:400; font-size:clamp(19px,1.8vw,23px);
+    letter-spacing:-.015em; margin-bottom:5px; }
+  .soon-item p { font-size:14px; color:var(--ink-soft); line-height:1.55; }
+  @media (max-width:620px) { .soon-item { grid-template-columns:1fr; gap:6px; } .soon-item .st { padding-top:0; } }
 </style>
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -34,257 +41,59 @@
     <a href="index.html">Overview</a>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="build.html">Build<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="build.html">Overview</a><a href="bom.html">Bill of materials</a><a href="assembly.html">Hardware assembly</a><a href="wiring.html">Wiring</a><a href="firmware.html">Firmware</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="ros.html">ROS 2</a><a href="server.html">Server &amp; Bridge</a><a href="simulation.html">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="ros.html">ROS 2</a><a href="simulation.html">Simulation</a><a href="calibration.html">Calibration</a><a href="server.html">Server &amp; Bridge</a><a href="controller.html">Controller</a><a href="wbc.html">Whole-Body Control</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="controller.html">Controller<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="controller.html">Overview</a><a href="wbc.html">Whole-Body Control</a></div></div>
-    <a href="navigation.html">Navigation</a>
-    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="data.html">Data</a><a href="learning.html" class="on">Learning</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="data.html">Data</a><a href="navigation.html">Navigation</a><a href="learning.html" class="on">Learning</a></div></div>
     <a href="connect.html">Connect</a>
     <a href="#" class="ext">Paper ↗</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Overview</a><a class="sub" href="bom.html">Bill of materials</a><a class="sub" href="assembly.html">Hardware assembly</a><a class="sub" href="wiring.html">Wiring</a><a class="sub" href="firmware.html">Firmware</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="ros.html">ROS 2</a><a class="sub" href="server.html">Server &amp; Bridge</a><a class="sub" href="simulation.html">Simulation</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Controller</span><a class="sub" href="controller.html">Overview</a><a class="sub" href="wbc.html">Whole-Body Control</a><a href="navigation.html">Navigation</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="data.html">Data</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Overview</a><a class="sub" href="bom.html">Bill of materials</a><a class="sub" href="assembly.html">Hardware assembly</a><a class="sub" href="wiring.html">Wiring</a><a class="sub" href="firmware.html">Firmware</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="ros.html">ROS 2</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="calibration.html">Calibration</a><a class="sub" href="server.html">Server &amp; Bridge</a><a class="sub" href="controller.html">Controller</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="data.html">Data</a><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 
 <aside class="sidenav" aria-label="Autonomy section navigation">
   <div class="sidenav-title">Autonomy</div>
-  <a href="autonomy.html">Overview</a><a href="data.html">Data</a><a href="learning.html" class="on">Learning</a>
+  <a href="autonomy.html">Overview</a><a href="data.html">Data</a><a href="navigation.html">Navigation</a><a href="learning.html" class="on">Learning</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
 <section class="page-hero">
   <div class="page-hero-inner">
-    <div class="crumbs"><a href="index.html">Overview</a> / Learning</div>
-    <span class="eyebrow">05 · Learning</span>
-    <h1 class="display-lg">Demonstrate. Train. Deploy.</h1>
-    <p class="lede">
-      Learn from demonstration. Vision Pro feeds the data; Diffusion Policy and ACT turn it into skills; the
-      controller deploys them — stitched into long-horizon autonomy, onboard.
-    </p>
-    <div class="spec" style="margin-top:28px;">
-      <span>Diffusion Policy</span><span>ACT</span><span>Goal-conditioned</span><span>HDF5 / Zarr</span><span>Onboard inference</span>
-    </div>
+    <div class="crumbs"><a href="index.html">Overview</a> / <a href="autonomy.html">Autonomy</a> / Learning</div>
+    <span class="soon-badge"><span class="soon-dot"></span> Coming soon</span>
+    <h1 class="display-lg">Learns from being driven.</h1>
+    <p class="lede">Every teleoperation session is already a labelled dataset. Turning those episodes into policies that run onboard is live work — this page goes up when there are measured results to put on it, not before.</p>
+    <div class="spec" style="margin-top:28px;"><span>Imitation learning</span><span>Teleop data engine</span><span>Onboard inference</span><span>Ablations</span></div>
   </div>
 </section>
 
-<!-- ─── DATA STUDIO · live tool ─── -->
-<section class="dark-sec pad-y" id="studio">
-  <div class="wrap">
-    <div class="card studio-card fade-up">
-      <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · in your browser</span>
-      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Curate the data in <span class="italic accent">Data Curation.</span></h2>
-      <p class="lede" style="margin:0 0 26px; max-width:62ch;">A dataset-quality curation studio for MABEL imitation-learning data. It ingests recorded episodes, automatically flags the defects that poison a policy — dropped frames, out-of-sync streams, frequency drops, dead motors, missing video — grades every episode, and lets you align, blade, trim, and cull non-destructively in a Final-Cut-style timeline before exporting a clean dataset in LeRobot format. The Rerun-style 3D viewer and seven synced camera feeds are still there to review every frame.</p>
-      <div class="studio-actions">
-        <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Curation ↗</a>
-        <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Trainer Studio ↗</a>
-        <a href="https://github.com/thejerrycheng/MABEL/tree/main/learning/data_curation" target="_blank" rel="noopener" class="btn btn-ghost">Source ↗</a>
-        <span class="studio-live"><span class="studio-dot"></span>Live demo</span>
-      </div>
-      <div class="spec" style="margin-top:24px;">
-        <span>Auto quality scoring</span><span>Sync + frequency detection</span><span>Non-destructive editing</span><span>LeRobot export</span><span>3D + 7-cam review</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── DATA ENGINE ─── -->
+<!-- ─── WHAT'S COMING ─── -->
 <section class="pad-y">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Data engine</span>
-        <h2 class="display-md title">Every demo is <span class="italic accent">a label.</span></h2>
-      </div>
-      <p class="lede">Collection is not a separate chore — it is a side effect of using the robot. Teleoperate to do the task; the dataset writes itself.</p>
+  <div class="wrap-narrow">
+    <div class="fade-up" style="margin-bottom:clamp(28px,4vh,44px);">
+      <span class="eyebrow" style="display:block; margin-bottom:16px;">Learning</span>
+      <h2 class="display-md title">What this page <span class="italic accent">will hold.</span></h2>
     </div>
-
-    <div class="feature fade-up">
-      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">Kinesthetic / teleop data capture</div></div></div>
-      <div class="feature-copy">
-        <span class="eyebrow">Capture</span>
-        <h3>From the headset to HDF5.</h3>
-        <p>Each <a href="teleop.html" style="color:var(--rust);">Vision Pro</a> session streams synchronized head and wrist images, full joint states, executed actions, and the goal image to disk. Episodes are stored as HDF5 — one file each, one schema shared by sim and the real robot — with dataset statistics computed for normalization at train time. <a href="data.html" style="color:var(--rust);">Full data infrastructure →</a></p>
-        <div class="spec"><span>Multi-cam RGB-D</span><span>Joint + action</span><span>Goal-conditioned</span></div>
-      </div>
+    <div class="soon-list fade-up">
+      <div class="soon-item"><div class="st">01 · Data</div><div><h5>From session to dataset</h5><p>How a driven episode becomes training data — what is recorded, how it is segmented, and what gets thrown away.</p></div></div>
+      <div class="soon-item"><div class="st">02 · Train</div><div><h5>The training recipe</h5><p>Model families, the loss, and the harness that makes a run reproducible: fixed seeds, bundled statistics, auto-resume.</p></div></div>
+      <div class="soon-item"><div class="st">03 · Evaluate</div><div><h5>Numbers, not anecdotes</h5><p>Held-out evaluation and ablations under one harness, so each design choice is backed by a measurement. Published when they are real.</p></div></div>
+      <div class="soon-item"><div class="st">04 · Deploy</div><div><h5>Onboard, no laptop</h5><p>Running a checkpoint on the Jetson and handing its actions to the whole-body controller — and where that still breaks.</p></div></div>
     </div>
   </div>
 </section>
 
-<!-- ─── MODELS ─── -->
+<!-- ─── MEANWHILE ─── -->
 <section class="soft-sec pad-y">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Policies</span>
-        <h2 class="display-md title">Two families, <span class="italic accent">one interface.</span></h2>
-      </div>
-      <p class="lede">Both consume the same observation graph and emit action chunks, so swapping a policy is a checkpoint change, not a rewrite.</p>
-    </div>
-
-    <div class="feature fade-up">
-      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">Diffusion Policy schematic</div></div></div>
-      <div class="feature-copy">
-        <span class="eyebrow">Diffusion Policy</span>
-        <h3>Multi-modal, smooth, robust.</h3>
-        <p>A conditional denoising policy models the full distribution of expert actions, so MABEL can commit to one of several valid strategies instead of averaging them into failure. Receding-horizon action chunks keep motion smooth and reactive — the primary model for contact-rich bimanual skills.</p>
-        <div class="spec"><span>Action chunking</span><span>Visual conditioning</span><span>Receding horizon</span></div>
-      </div>
-    </div>
-
-    <div class="feature flip fade-up">
-      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">ACT / transformer schematic</div></div></div>
-      <div class="feature-copy">
-        <span class="eyebrow">ACT</span>
-        <h3>Transformers that plan ahead.</h3>
-        <p>Action Chunking with Transformers predicts a horizon of future actions from a short observation window, with temporal ensembling for stability. It is a strong, fast baseline and a natural fit for the bimanual demonstrations the teleop rig produces.</p>
-        <div class="spec"><span>CVAE option</span><span>Temporal ensemble</span><span>Goal image input</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── TRAINING ─── -->
-<section class="dark-sec pad-y">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Training</span>
-        <h2 class="display-md title" style="color:var(--bone);">Reproducible by <span class="italic accent">construction.</span></h2>
-      </div>
-      <p class="lede">Fixed seeds, bundled statistics, and auto-resume. Re-run the same command and continue from the last checkpoint.</p>
-    </div>
-
-    <div class="points fade-up">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Sim pre-train, real fine-tune</h5>
-        <p>Policies are warm-started in the <a href="simulation.html" style="color:var(--rust);">Isaac Lab</a> twin, then fine-tuned on real teleoperation episodes — fewer real demonstrations for the same competence.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Normalization travels with the model</h5>
-        <p>Dataset statistics are saved alongside each checkpoint and applied at inference to un-normalize actions, so a model behaves identically on the bench and on the robot.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Ablations, not anecdotes</h5>
-        <p>RGB-only, +goal-image, and +joint-history variants are trained and evaluated under one harness, so every design choice is backed by a measured number.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
-        <h5>Onboard deployment</h5>
-        <p>Checkpoints run on the Jetson Thor through the policy runtime, handing actions to the whole-body controller — no laptop in the loop.</p>
-      </div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── RESULTS ─── -->
-<section class="pad-y" id="results">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Results</span>
-        <h2 class="display-md title">Measured, <span class="italic accent">not claimed.</span></h2>
-      </div>
-      <p class="lede">Representative offline metrics across policy variants. Numbers regenerate from the evaluation harness; figures are illustrative pending the camera-ready release.</p>
-    </div>
-
-    <div class="fade-up" style="overflow-x:auto;">
-      <table class="data-table">
-        <thead><tr><th>Method</th><th>Success</th><th>Visual Align.</th><th>Smoothness ↑</th></tr></thead>
-        <tbody>
-          <tr><td>Human expert (teleop)</td><td>—</td><td>1.000</td><td>1.0×</td></tr>
-          <tr class="best"><td>Diffusion Policy (full)</td><td class="hi">high</td><td class="hi">0.93</td><td class="hi">3.1×</td></tr>
-          <tr><td>ACT (full)</td><td>high</td><td>0.90</td><td>2.4×</td></tr>
-          <tr><td>+ goal image</td><td>med</td><td>0.82</td><td>2.0×</td></tr>
-          <tr><td>RGB only</td><td>low</td><td>0.61</td><td>1.6×</td></tr>
-        </tbody>
-      </table>
-      <p class="table-note">Visual alignment = cosine similarity of a learned image embedding to the goal frame. Smoothness reported relative to the human demonstrator (higher = less jerk). Placeholder values — replace with the evaluation-harness output.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ─── LONG HORIZON ─── -->
-<section class="soft-sec pad-y" id="long-horizon">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Long-horizon</span>
-        <h2 class="display-md title">Laundry. <span class="italic accent">From 28 to 6.</span></h2>
-      </div>
-      <p class="lede">One task, twelve sub-steps, two elevators, three doors, and one floor of a Manhattan high-rise that didn't know a robot was coming. Each step is a learned skill or a navigation goal; a task graph stitches them end-to-end and runs autonomously.</p>
-    </div>
-
-    <div class="fade-up media-frame r-169" style="margin-bottom:clamp(48px,7vh,80px);"><div class="ph"><div class="ph-label">Long-horizon rollout · drop demo reel</div></div></div>
-
-    <div class="timeline fade-up">
-      <div class="tl-step">
-        <div>
-          <div class="tl-meta">Step 01 · 00:00</div>
-          <h4>Picks up the laundry bag.</h4>
-          <p>Bimanual lift from the bedroom floor. The policy chooses the grasp; the second hand stabilizes the bag's weight transfer onto the lift column.</p>
-        </div>
-        <div class="tl-shot"><div class="ph"><div class="ph-label">Apt · floor 28 · bedroom</div></div></div>
-      </div>
-      <div class="tl-step">
-        <div>
-          <div class="tl-meta">Step 02 · 00:42</div>
-          <h4>Navigates to the elevator.</h4>
-          <p>SLAM-based global plan; the holonomic base strafes around the kitchen island, holding heading so the wrist cameras keep the bag in view.</p>
-        </div>
-        <div class="tl-shot"><div class="ph"><div class="ph-label">Apt corridor · floor 28</div></div></div>
-      </div>
-      <div class="tl-step">
-        <div>
-          <div class="tl-meta">Step 03 · 01:15</div>
-          <h4>Presses the elevator button.</h4>
-          <p>Active perception locates the call button. A single finger from the ORCA hand extends, presses, retracts. MABEL waits.</p>
-        </div>
-        <div class="tl-shot"><div class="ph"><div class="ph-label">Elevator lobby · 28F</div></div></div>
-      </div>
-      <div class="tl-step">
-        <div>
-          <div class="tl-meta">Step 04 · 02:08</div>
-          <h4>Enters the elevator. Selects floor 6.</h4>
-          <p>The base rotates to clear the doorframe and strafes in. The arm reads the floor panel, finds <em>6</em>, and presses. The doors close.</p>
-        </div>
-        <div class="tl-shot"><div class="ph"><div class="ph-label">Elevator car</div></div></div>
-      </div>
-      <div class="tl-step">
-        <div>
-          <div class="tl-meta">Step 05 · 03:30</div>
-          <h4>Exits, navigates to the laundry room.</h4>
-          <p>Pre-built floorplan with live SLAM correction. MABEL recognizes the laundry-room door, approaches, and pauses for the handle.</p>
-        </div>
-        <div class="tl-shot"><div class="ph"><div class="ph-label">Laundry room · 6F</div></div></div>
-      </div>
-      <div class="tl-step">
-        <div>
-          <div class="tl-meta">Step 06 · 04:12</div>
-          <h4>Opens the door. Loads the machine.</h4>
-          <p>Bimanual: one hand holds the door, the other opens the washer lid, lifts the bag, transfers the clothes, closes the lid, selects the cycle, pays.</p>
-        </div>
-        <div class="tl-shot"><div class="ph"><div class="ph-label">Washer · loaded · paid</div></div></div>
-      </div>
-      <div class="tl-step">
-        <div>
-          <div class="tl-meta">Step 07 · 06:48 · complete</div>
-          <h4>Returns to the apartment.</h4>
-          <p>The reverse path. Eyes shift from amber-attentive to soft-idle. MABEL parks, lowers its torso, and waits for the next task.</p>
-        </div>
-        <div class="tl-shot"><div class="ph"><div class="ph-label">Apt · floor 28 · idle</div></div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── CTA ─── -->
-<section class="pad-y">
   <div class="wrap-narrow" style="text-align:center;">
-    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Train your own policy.</h2>
+    <h2 class="display-sm fade-up" style="margin-bottom:16px;">In the meantime.</h2>
+    <p class="lede fade-up" style="margin:0 auto 26px; max-width:52ch;">The data engine that records the episodes and the curation studio that cleans them are running today, and the policy interface is documented.</p>
     <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <a href="#" class="btn btn-primary">Training code ↗</a>
-      <a href="connect.html" class="btn btn-ghost">Next: Connect →</a>
+      <a href="data.html" class="btn btn-primary">The data engine →</a>
+      <a href="autonomy.html" class="btn btn-ghost">Autonomy overview →</a>
+      <a href="teleop.html" class="btn btn-ghost">Teleop →</a>
     </div>
   </div>
 </section>
@@ -295,11 +104,11 @@
       <div>
         <div class="foot-brand">MABEL</div>
         <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
-        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a><a href="#" target="_blank" rel="noopener">X ↗</a></div>
       </div>
-      <div class="foot-col"><h6>Subsystems</h6><a href="hardware.html">Hardware</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="wbc.html">WBC</a><a href="learning.html">Learning</a></div>
-      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a></div>
-      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Contact ↗</a></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="#" target="_blank" rel="noopener">CAD files ↗</a><a href="#" target="_blank" rel="noopener">GitBook ↗</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
     <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
   </div>

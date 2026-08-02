@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Calibration</title>
+<meta name="description" content="MABEL calibration: two bench system-identification routines measure joint friction, reflected rotor inertia, link mass and centre of mass from motion, and write them straight back into the controllers and the MuJoCo twin." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/mabel.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="build.html">Build<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="build.html">Overview</a><a href="bom.html">Bill of materials</a><a href="assembly.html">Hardware assembly</a><a href="wiring.html">Wiring</a><a href="firmware.html">Firmware</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="ros.html">ROS 2</a><a href="simulation.html">Simulation</a><a href="calibration.html" class="on">Calibration</a><a href="server.html">Server &amp; Bridge</a><a href="controller.html">Controller</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="data.html">Data</a><a href="navigation.html">Navigation</a><a href="learning.html">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Overview</a><a class="sub" href="bom.html">Bill of materials</a><a class="sub" href="assembly.html">Hardware assembly</a><a class="sub" href="wiring.html">Wiring</a><a class="sub" href="firmware.html">Firmware</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="ros.html">ROS 2</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="calibration.html">Calibration</a><a class="sub" href="server.html">Server &amp; Bridge</a><a class="sub" href="controller.html">Controller</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="data.html">Data</a><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<aside class="sidenav" aria-label="Software section navigation">
+  <div class="sidenav-title">Software</div>
+  <a href="software.html">Overview</a><a href="ros.html">ROS 2</a><a href="simulation.html">Simulation</a><a href="calibration.html" class="on">Calibration</a><a href="server.html">Server &amp; Bridge</a><a href="controller.html">Controller</a><a href="wbc.html">Whole-Body Control</a>
+</aside>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / <a href="software.html">Software</a> / Calibration</div>
+    <span class="eyebrow">Software · Calibration</span>
+    <h1 class="display-lg">The numbers CAD won't give you.</h1>
+    <p class="lede">A CAD model hands you geometry, not physics. Two bench routines identify the messy real
+      quantities — joint friction, reflected rotor inertia, true link mass and centre of mass — from motion,
+      and write them back into both the controllers and the MuJoCo twin.</p>
+    <div class="spec" style="margin-top:28px;"><span>mabel_actid</span><span>Stribeck friction</span><span>Rotor inertia</span><span>Link mass · COM</span><span>MuJoCo + Isaac export</span></div>
+  </div>
+</section>
+
+<style>
+  /* ── calibration section (scoped) ── */
+  #calib .cal-eq{background:linear-gradient(180deg,#fbf9f4,#efeae0);border:1px solid rgba(22,20,18,.10);
+    border-radius:20px;padding:30px 26px 22px;margin:6px 0 40px;text-align:center;overflow-x:auto;}
+  #calib .cal-eq-cap{font:500 11px/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--rust);margin-bottom:14px;}
+  #calib .cal-eq .katex{font-size:1.18em;color:var(--ink);}
+  #calib .cal-eq-note{max-width:660px;margin:16px auto 0;color:var(--ash);font-size:14.5px;line-height:1.6;}
+  #calib .cal-split{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:0 0 14px;}
+  #calib .cal-card{border:1px solid rgba(22,20,18,.12);border-radius:18px;padding:22px 22px 20px;
+    background:rgba(255,255,255,.5);}
+  #calib .cal-card h3{font:400 23px/1.15 var(--font-display);margin:8px 0 8px;color:var(--ink);}
+  #calib .cal-card p{color:var(--ash);font-size:14.5px;line-height:1.6;margin:0 0 14px;}
+  #calib .cal-tag{font:500 11px/1 var(--font-mono);letter-spacing:.06em;color:var(--rust-dim);}
+  #calib .cal-tag code{font-size:12px;}
+  #calib .cal-map{font:500 12.5px/1.5 var(--font-mono);color:var(--ink-soft);background:rgba(194,91,42,.08);
+    border-radius:10px;padding:9px 12px;}
+  #calib .cal-sub{display:flex;align-items:baseline;gap:14px;margin:46px 0 6px;flex-wrap:wrap;}
+  #calib .cal-sub h3{font:400 30px/1.1 var(--font-display);color:var(--ink);margin:0;}
+  #calib .cal-sub .cal-sub-tag{font:500 11px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--rust);}
+  #calib .cal-eq.sm{padding:20px 22px;margin:18px 0 24px;}
+  #calib .cal-eq.sm .katex{font-size:1.04em;}
+  #calib .cal-fig-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0 6px;}
+  #calib .cal-flag{width:100%;border-collapse:collapse;margin:8px 0 4px;font-size:13.5px;}
+  #calib .cal-flag th,#calib .cal-flag td{text-align:left;padding:10px 12px;border-bottom:1px solid rgba(22,20,18,.10);
+    vertical-align:top;}
+  #calib .cal-flag th{font:500 10.5px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ash);}
+  #calib .cal-flag td code{font-size:12.5px;color:var(--ink);}
+  #calib .cal-flag .badge{display:inline-block;font:500 10px/1 var(--font-mono);letter-spacing:.05em;
+    padding:4px 7px;border-radius:6px;text-transform:uppercase;}
+  #calib .cal-flag .badge.meas{background:rgba(60,130,80,.16);color:#2c6e3f;}
+  #calib .cal-flag .badge.sheet{background:rgba(194,91,42,.14);color:var(--rust-dim);}
+  /* friction explorer widget */
+  #calib .cal-fric{display:grid;grid-template-columns:1.25fr .85fr;gap:24px;align-items:center;
+    background:linear-gradient(180deg,#1b1714,#100d0b);border:1px solid rgba(242,238,230,.12);
+    border-radius:20px;padding:24px;margin:8px 0 8px;}
+  #calib .cal-fric canvas{width:100%;height:auto;display:block;border-radius:12px;background:#0b0908;}
+  #calib .cal-fric .ctrl h4{font:400 21px/1.1 var(--font-display);color:var(--bone);margin:0 0 4px;}
+  #calib .cal-fric .ctrl p{color:var(--ash-light);font-size:13px;line-height:1.55;margin:0 0 16px;}
+  #calib .cal-fric .sl{margin:0 0 13px;}
+  #calib .cal-fric .sl label{display:flex;justify-content:space-between;font:500 11.5px/1 var(--font-mono);
+    color:var(--bone);margin-bottom:6px;}
+  #calib .cal-fric .sl label b{color:var(--rust);}
+  #calib .cal-fric input[type=range]{width:100%;accent-color:var(--rust);}
+  #calib .cal-fric .row{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;}
+  #calib .cal-fric .mini{flex:1;min-width:120px;font:500 11px/1.4 var(--font-mono);color:var(--ash-light);
+    background:rgba(242,238,230,.05);border:1px solid rgba(242,238,230,.1);border-radius:9px;padding:8px 10px;}
+  #calib .cal-fric .mini b{color:var(--bone);}
+  #calib .cal-fric button{font:500 12px/1 var(--font-sans);background:var(--rust);color:#fff;border:none;
+    border-radius:9px;padding:10px 14px;cursor:pointer;transition:background .2s;}
+  #calib .cal-fric button:hover{background:var(--rust-dim);}
+  #calib .cal-fric .leg{display:flex;gap:16px;font:500 11px/1 var(--font-mono);color:var(--ash-light);margin-top:12px;}
+  #calib .cal-fric .leg i{display:inline-block;width:16px;height:0;border-top-width:2px;border-top-style:solid;
+    vertical-align:middle;margin-right:6px;}
+  @media(max-width:760px){
+    #calib .cal-split,#calib .cal-fig-2,#calib .cal-fric{grid-template-columns:1fr;}
+    #calib .cal-eq .katex{font-size:.96em;}
+    #calib .cal-eq.sm .katex{font-size:.86em;}
+  }
+</style>
+
+<section class="pad-y" id="calib">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">System identification</span>
+        <h2 class="display-md title">Two fits, <span class="italic accent">one model.</span></h2>
+      </div>
+      <p class="lede">The arm calibration recovers mass and centre of mass; the motor calibration recovers
+        friction and reflected inertia. They are independent, complementary, and together they close the
+        dynamics the inner control loop runs on.</p>
+    </div>
+
+    <!-- the feed-forward decomposition -->
+    <div class="cal-eq fade-up">
+      <div class="cal-eq-cap">The feed-forward torque MABEL actually commands</div>
+      $$\underbrace{\tau_{\text{cmd}}}_{\text{joint torque}}=\underbrace{M(q)\,\ddot q+C(q,\dot q)\,\dot q+g(q)}_{\textbf{arm calibration — mass, COM}}+\underbrace{\tau_{f}(\dot q)+J\,\ddot q}_{\textbf{motor calibration — friction, inertia}}$$
+      <p class="cal-eq-note">The two halves are independent and complementary. The arm fit <em>zeroes</em>
+        friction so its regression stays linear; the motor fit identifies exactly those zeroed terms. Stitched
+        together they close the model the inner control loop runs on
+        (<a href="controller.html#cascade" style="color:var(--rust);">see the cascade →</a>).</p>
+    </div>
+
+    <div class="cal-split fade-up">
+      <article class="cal-card">
+        <div class="cal-tag">motor_calibration · <code>mabel_actid</code></div>
+        <h3>Per-joint friction &amp; inertia</h3>
+        <p>What each Damiao actuator loses to dry friction, viscous drag, and reflected rotor inertia —
+          recovered on a free shaft, exported as MuJoCo joint attributes and an Isaac Lab actuator config.</p>
+        <div class="cal-map">F_c → frictionloss&nbsp;·&nbsp;F_v → damping&nbsp;·&nbsp;J → armature</div>
+      </article>
+      <article class="cal-card">
+        <div class="cal-tag">arm_calibration · <code>mabel_sysid</code></div>
+        <h3>Per-link mass &amp; centre of mass</h3>
+        <p>The inertial parameters of all 7 arm links, recovered by regression on excitation trajectories —
+          exported as MuJoCo <code>&lt;inertial&gt;</code> for gravity comp and inverse dynamics.</p>
+        <div class="cal-map">mᵢ → mass&nbsp;·&nbsp;mᵢcᵢ → first moment → g(q)</div>
+      </article>
+    </div>
+
+    <!-- ── MOTOR ── -->
+    <div class="cal-sub fade-up">
+      <span class="cal-sub-tag">01 · Actuators</span>
+      <h3>Constant velocity tells the truth.</h3>
+    </div>
+    <p class="body fade-up" style="max-width:760px;">Hold a free shaft at a <strong>constant speed</strong> and
+      the rigid-body inertia term vanishes — so the torque the motor reports over CAN <em>is</em> the friction
+      at that velocity. A bidirectional velocity staircase traces the whole curve directly; a follow-up
+      frequency <strong>chirp</strong> then injects acceleration, and the reflected inertia falls out of
+      \(\tau-\tau_f(\dot q)=J\,\ddot q\).</p>
+
+    <div class="cal-eq sm fade-up">
+      <div class="cal-eq-cap">Coulomb + viscous + Stribeck friction (direction-asymmetric)</div>
+      $$\tau_f(\dot q)=\Big[\,F_c+(F_s-F_c)\,e^{-\lvert \dot q/v_s\rvert^{\delta}}\,\Big]\operatorname{sgn}(\dot q)+F_v\,\dot q$$
+    </div>
+
+    <div class="cal-fig-2 fade-up">
+      <div class="reveal-media media-frame fig" style="aspect-ratio:920/690;background:#fff;">
+        <img src="assets/img/calib-motor-friction.png" alt="DM-J4340P friction curve: measured constant-velocity torque vs the identified Coulomb+viscous+Stribeck model, R²=0.9998" loading="lazy" />
+        <span class="sim-cap"><span class="dot"></span>Staircase · friction vs velocity</span>
+      </div>
+      <div class="reveal-media media-frame fig" style="aspect-ratio:1170/760;background:#fff;">
+        <img src="assets/img/calib-motor-inertia.png" alt="DM-J4340P dynamic torque fit: measured torque vs J·a + tau_f(w) over a frequency chirp" loading="lazy" />
+        <span class="sim-cap"><span class="dot"></span>Chirp · reflected inertia J</span>
+      </div>
+    </div>
+
+    <div class="spec fade-up" style="margin:18px 0 4px;">
+      <span>DM-J4340P</span><span>F_c ≈ 0.34 N·m</span><span>F_v = 0.215 N·m·s/rad</span><span>J = 0.0246 kg·m²</span><span>fit R² = 0.9998</span>
+    </div>
+
+    <!-- interactive friction explorer -->
+    <div class="cal-fric fade-up" aria-label="Interactive friction-model explorer">
+      <div>
+        <canvas id="calFricCanvas" width="720" height="460"></canvas>
+        <div class="leg">
+          <span><i style="border-color:var(--rust);"></i>your model</span>
+          <span><i style="border-color:#7fb98a;border-top-style:dashed;"></i>DM-J4340P bench fit</span>
+          <span><i style="border:none;">●</i> measured</span>
+        </div>
+      </div>
+      <div class="ctrl">
+        <h4>Drag the model onto the bench.</h4>
+        <p>Move the four friction parameters and watch the curve. Match the dashed line and the measured
+          staircase points — that's exactly what the identifier solves for you.</p>
+        <div class="sl"><label>Coulomb <code>F_c</code><b id="vFc">0.20</b></label><input type="range" id="fFc" min="0" max="0.6" step="0.005" value="0.20"></div>
+        <div class="sl"><label>Viscous <code>F_v</code><b id="vFv">0.10</b></label><input type="range" id="fFv" min="0" max="0.4" step="0.005" value="0.10"></div>
+        <div class="sl"><label>Break-away <code>F_s</code><b id="vFs">0.30</b></label><input type="range" id="fFs" min="0" max="0.7" step="0.005" value="0.30"></div>
+        <div class="sl"><label>Stribeck <code>v_s</code><b id="vVs">0.15</b></label><input type="range" id="fVs" min="0.02" max="0.3" step="0.002" value="0.15"></div>
+        <div class="row">
+          <button id="fSnap" type="button">Snap to DM-J4340P fit</button>
+          <div class="mini">MuJoCo →<br><b id="fMj">frictionloss 0.20 · damping 0.10</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- what a free shaft can't measure -->
+    <div class="sec-head" style="margin:42px 0 4px;"><div><span class="eyebrow">Honesty</span>
+      <h2 class="display-sm title" style="font-size:clamp(22px,3vw,30px);">What a free shaft <span class="italic accent">can't</span> measure.</h2></div></div>
+    <p class="body fade-up" style="max-width:760px;margin-bottom:16px;">Everything obtainable from one motor with
+      an unloaded output shaft is measured; anything that fundamentally needs a dynamometer, a brake, or a
+      thermal soak is taken from the datasheet and <strong>flagged in every export</strong> — no silent
+      guesses leak into the model.</p>
+    <table class="cal-flag fade-up">
+      <thead><tr><th>Isaac / MuJoCo field</th><th>Value</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><code>armature</code> (J)</td><td>0.0246</td><td><span class="badge meas">measured</span> chirp inertia sweep</td></tr>
+        <tr><td><code>friction</code> (F_c)</td><td>0.3379</td><td><span class="badge meas">measured</span> velocity staircase</td></tr>
+        <tr><td><code>velocity_limit</code></td><td>5.887</td><td><span class="badge meas">measured</span> max-effort terminal speed</td></tr>
+        <tr><td><code>saturation_effort</code></td><td>27.0</td><td><span class="badge sheet">datasheet</span> stall torque needs a load</td></tr>
+        <tr><td><code>effort_limit</code></td><td>9.0</td><td><span class="badge sheet">datasheet</span> continuous/thermal limit</td></tr>
+        <tr><td><code>stiffness</code> (K_p)</td><td>—</td><td><span class="badge sheet">policy</span> a control gain, not a physical parameter</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── ARM ── -->
+    <div class="cal-sub fade-up">
+      <span class="cal-sub-tag">02 · Arm</span>
+      <h3>Dynamics are linear in the parameters.</h3>
+    </div>
+    <p class="body fade-up" style="max-width:760px;">The Euler–Lagrange dynamics are <strong>linear in the
+      inertial parameters</strong>, so identification is a regression: stack motion data into \(Y\), solve for
+      \(\pi\). Gravity compensation needs only \(g(q)\), which depends solely on the first moments \(m_i c_i\)
+      — so a set of <strong>static holding poses</strong> already pins it down. Two estimators agree: a
+      closed-form linear least-squares on the gravity model, and a MuJoCo-in-the-loop nonlinear fit that also
+      separates mass from COM. The whole pipeline is <strong>proven in simulation first</strong> — known
+      masses are scrambled ±30 % and recovered.</p>
+
+    <div class="cal-eq sm fade-up">
+      <div class="cal-eq-cap">Inverse dynamics, factored over the inertial parameters</div>
+      $$M(q)\ddot q+C(q,\dot q)\dot q+g(q)=\tau\;\;\Longrightarrow\;\;\tau=Y(q,\dot q,\ddot q)\,\pi,\qquad g(q)\ \text{depends only on}\ m_i c_i$$
+    </div>
+
+    <div class="reveal-media media-frame fig fade-up" style="aspect-ratio:1500/360;background:#fff;margin:22px 0 6px;">
+      <img src="assets/img/calib-arm-sysid.png" alt="Arm system-ID results: identified link mass vs truth, per-link COM error, and the gravity-regressor singular spectrum showing 14 observable directions before the cliff" loading="lazy" />
+      <span class="sim-cap"><span class="dot"></span>Mass recovery · COM error · regressor spectrum</span>
+    </div>
+
+    <div class="data-table fade-up" style="margin:20px 0 6px;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr>
+          <th style="text-align:left;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.14);font:500 10.5px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ash);">Metric</th>
+          <th style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.14);font:500 10.5px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ash);">Before (CAD prior)</th>
+          <th style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.14);font:500 10.5px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--rust-dim);">After (identified)</th>
+        </tr></thead>
+        <tbody style="font:500 14px/1.3 var(--font-mono);color:var(--ink);">
+          <tr><td style="padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);font-family:var(--font-sans);">Gravity-torque RMS</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--ash);">0.2024 N·m</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--rust);">0.0037 N·m</td></tr>
+          <tr><td style="padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);font-family:var(--font-sans);">Inverse-dynamics torque RMS</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--ash);">0.4038 N·m</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--rust);">0.0038 N·m</td></tr>
+          <tr><td style="padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);font-family:var(--font-sans);">COM mean error</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--ash);">—</td><td style="text-align:right;padding:11px 12px;border-bottom:1px solid rgba(22,20,18,.07);color:var(--rust);">11.4 mm</td></tr>
+          <tr><td style="padding:11px 12px;font-family:var(--font-sans);">Observable parameter directions</td><td style="text-align:right;padding:11px 12px;color:var(--ash);">28 unknowns</td><td style="text-align:right;padding:11px 12px;color:var(--rust);">14 observable</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout fade-up" style="margin-top:18px;"><p><strong>Identifiability, stated honestly:</strong>
+      static/gravity data sees only the first moments \(m_i c_i\), so individual link masses are only partially
+      recoverable — <strong>14 of 28</strong> parameter directions are observable (the cliff in the regressor
+      spectrum above). The controller needs only those identifiable combinations, and they return to the noise
+      floor: gravity comp drops <strong>55×</strong> even where a single link mass stays uncertain.</p></div>
+
+    <!-- export artifacts -->
+    <div class="cal-sub fade-up">
+      <span class="cal-sub-tag">03 · Export</span>
+      <h3>Straight into the model.</h3>
+    </div>
+    <p class="body fade-up" style="max-width:760px;margin-bottom:18px;">Every run writes a self-contained record
+      under <code>results/&lt;motor&gt;/</code> — fitted params, fit quality, plots, and two ready-to-paste
+      artifacts. The same engine backs the CLI and an Apple-styled live GUI that draws the fit as the motor
+      moves.</p>
+    <div class="fade-up" data-tabs>
+      <div class="tab-bar" role="tablist">
+        <button class="tab-btn on" role="tab" data-tab="ex-mj">MuJoCo joint</button>
+        <button class="tab-btn" role="tab" data-tab="ex-il">Isaac Lab</button>
+      </div>
+      <div id="ex-mj" class="tab-panel on">
+        <div class="bib"><button class="bib-copy" onclick="copyCode(this)">Copy</button>
+<pre>&lt;!-- MABEL actuator calibration: DM-J4340P --&gt;
+&lt;!-- frictionloss=Coulomb · damping=viscous · armature=reflected inertia --&gt;
+&lt;joint name="DM-J4340P" frictionloss="0.337872" damping="0.215194" armature="0.02458655"/&gt;</pre>
+        </div>
+      </div>
+      <div id="ex-il" class="tab-panel">
+        <div class="bib"><button class="bib-copy" onclick="copyCode(this)">Copy</button>
+<pre>from isaaclab.actuators import DCMotorCfg   # † = measured on the bench
+
+DM_J4340P = DCMotorCfg(
+    joint_names_expr=[".*"],
+    armature=0.02458655,       # † chirp inertia sweep
+    friction=0.337872,         # † velocity staircase
+    velocity_limit=5.8872,     # † max-effort terminal speed
+    saturation_effort=27.0,    #   datasheet — stall needs a load
+    effort_limit=9.0,          #   datasheet — thermal limit
+    stiffness={".*": 0.0},     #   control policy — set per task
+    damping=0.215194,          #   physical F_v (Isaac PD damping is a control gain)
+)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout fade-up" style="margin-top:26px;"><p><strong>Where it lands:</strong> the motor terms
+      feed the inner 1&nbsp;kHz joint loop's gravity + friction compensation, and the arm inertials feed both
+      that loop and the <a href="simulation.html" style="color:var(--rust);">MuJoCo twin</a> above — so sim and hardware
+      run the <em>same</em> identified dynamics. Full derivations, tables, and plots live in the
+      <code>ACTUATOR_CALIBRATION</code> and <code>ARM_CALIBRATION</code> reports.</p></div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Identified. Now run it.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="simulation.html" class="btn btn-primary">Simulation →</a>
+      <a href="controller.html" class="btn btn-ghost">Controller →</a>
+      <a href="software.html" class="btn btn-ghost">← Software overview</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/js/mabel.js"></script>
+<script src="assets/js/calib-friction.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+</body>
+</html>

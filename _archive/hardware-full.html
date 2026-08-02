@@ -10,6 +10,28 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/css/mabel.css" />
+<style>
+.scn { text-align:left; display:flex; flex-direction:column; gap:4px; padding:18px 18px 16px; border-radius:18px; cursor:pointer;
+  background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border); box-shadow:var(--glass-hi), var(--glass-sh);
+  transition:transform .35s var(--ease-out), border-color .3s, background .3s; font:inherit; color:inherit; }
+.scn:hover { transform:translateY(-3px); background:var(--glass-bg-2); }
+.scn.on { border-color:var(--rust); background:rgba(194,91,42,0.08); }
+.scn-id { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ash); }
+.scn.on .scn-id { color:var(--rust); }
+.scn-name { font-family:var(--font-display); font-size:19px; line-height:1.15; letter-spacing:-.015em; }
+.scn-val { font-family:var(--font-mono); font-size:21px; font-weight:500; margin-top:2px; }
+.scn.on .scn-val { color:var(--rust); }
+.scn-detail { font-size:12px; color:var(--ash); line-height:1.45; margin-top:2px; }
+.fn-row { display:grid; grid-template-columns:minmax(110px,1fr) 3fr auto 54px; gap:14px; align-items:center;
+  padding:9px 0; border-bottom:1px solid rgba(22,20,18,0.07); }
+.fn-name { font-size:13.5px; }
+.fn-bar { height:10px; border-radius:999px; background:rgba(22,20,18,0.07); overflow:hidden; }
+.fn-bar i { display:block; height:100%; border-radius:999px; background:var(--rust); transition:width .4s var(--ease-out); }
+.fn-val, .fn-pct { font-family:var(--font-mono); font-size:12px; white-space:nowrap; }
+.fn-pct { color:var(--ash); text-align:right; }
+@media (max-width:720px) { .fn-row { grid-template-columns:1fr auto; } .fn-bar, .fn-pct { display:none; } }
+</style>
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -26,16 +48,18 @@
     <a href="index.html">Overview</a>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="build.html">Build<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="build.html">Overview</a><a href="bom.html">Bill of materials</a><a href="assembly.html">Hardware assembly</a><a href="wiring.html">Wiring</a><a href="firmware.html">Firmware</a></div></div>
     <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html" class="on">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="ros.html">ROS 2</a><a href="simulation.html">Simulation</a><a href="calibration.html">Calibration</a><a href="server.html">Server &amp; Bridge</a><a href="controller.html">Controller</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="ros.html">ROS 2</a><a href="server.html">Server &amp; Bridge</a><a href="simulation.html">Simulation</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="data.html">Data</a><a href="navigation.html">Navigation</a><a href="learning.html">Learning</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="controller.html">Controller<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="controller.html">Overview</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <a href="navigation.html">Navigation</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="data.html">Data</a><a href="learning.html">Learning</a></div></div>
     <a href="connect.html">Connect</a>
     <a href="#" class="ext">Paper ↗</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Overview</a><a class="sub" href="bom.html">Bill of materials</a><a class="sub" href="assembly.html">Hardware assembly</a><a class="sub" href="wiring.html">Wiring</a><a class="sub" href="firmware.html">Firmware</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="ros.html">ROS 2</a><a class="sub" href="simulation.html">Simulation</a><a class="sub" href="calibration.html">Calibration</a><a class="sub" href="server.html">Server &amp; Bridge</a><a class="sub" href="controller.html">Controller</a><a class="sub" href="wbc.html">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="data.html">Data</a><a class="sub" href="navigation.html">Navigation</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Overview</a><a class="sub" href="bom.html">Bill of materials</a><a class="sub" href="assembly.html">Hardware assembly</a><a class="sub" href="wiring.html">Wiring</a><a class="sub" href="firmware.html">Firmware</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="ros.html">ROS 2</a><a class="sub" href="server.html">Server &amp; Bridge</a><a class="sub" href="simulation.html">Simulation</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Controller</span><a class="sub" href="controller.html">Overview</a><a class="sub" href="wbc.html">Whole-Body Control</a><a href="navigation.html">Navigation</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="data.html">Data</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
 </nav>
 
 <aside class="sidenav" aria-label="Hardware section navigation">
@@ -159,10 +183,9 @@
           <div class="point"><div class="num">01</div><div><h5>Built on open ORCA</h5><p>Each hand is the open-source <strong>ORCA</strong> hand — five fingers, tendon-routed, anthropomorphic. Print it, string it, run it; the design is fully released.</p></div></div>
           <div class="point"><div class="num">02</div><div><h5>17 DOF per hand</h5><p>Sixteen Feetech <strong>HLS3915</strong> finger servos plus an <strong>HLS3930</strong> wrist, all on one 1&nbsp;MHz TTL serial chain — abduction, MCP, and PIP per finger.</p></div></div>
           <div class="point"><div class="num">03</div><div><h5>Grasps that transfer</h5><p>Pinch, power, and tripod grasps; the same position commands drive the simulated and the real hand, so a grasp tuned in sim works on hardware.</p></div></div>
-          <div class="point"><div class="num">04</div><div><h5>Configured from our GUI</h5><p>Assign servo IDs, write registers, and read live load and temperature from the ORCA Hand Control Studio — no vendor tool. See <a href="firmware.html">Firmware</a>.</p></div></div>
+          <div class="point"><div class="num">04</div><div><h5>Configured from our GUI</h5><p>Assign servo IDs, write registers, and read live load and temperature from the ORCA Hand Control Studio — no vendor tool. See <a href="hardware.html#firmware">Firmware</a>.</p></div></div>
         </div>
         <div class="spec" style="margin-top:24px;"><span>2× ORCA · 34 DOF</span><span>16× HLS3915 + wrist</span><span>Tendon-routed</span><span>1 MHz TTL serial</span><span>Open-source</span></div>
-        <a href="hardware-hands.html" class="btn btn-ghost" style="margin-top:20px;">Hands — full page →</a>
       </div>
 
       <div id="hw-arms" class="tab-panel">
@@ -174,31 +197,28 @@
           <div class="point"><div class="num">04</div><div><h5>Human-scale reach</h5><p>Link lengths and shoulder spacing are tuned to a person's, so <a href="teleop.html">teleoperation</a> maps naturally and the embodiment gap stays small.</p></div></div>
         </div>
         <div class="spec" style="margin-top:24px;"><span>14 DOF · 2 × 7</span><span>OpenArm-derived</span><span>Damiao QDD · CAN</span><span>Torque-controlled</span><span>Back-drivable</span></div>
-        <a href="hardware-arms.html" class="btn btn-ghost" style="margin-top:20px;">Arms — full page →</a>
       </div>
 
       <div id="hw-base" class="tab-panel">
         <p class="lede" style="margin-bottom:24px;">A 3-module delta swerve on REV SPARK controllers gives true holonomic motion — strafe through a doorway, rotate in place, hold a heading while driving.</p>
         <div class="points">
           <div class="point"><div class="num">01</div><div><h5>Delta swerve</h5><p>Three independently steered-and-driven modules in a delta layout — full holonomic motion in any direction, decoupled from heading.</p></div></div>
-          <div class="point"><div class="num">02</div><div><h5>REV SPARK, owned</h5><p>NEO / NEO550 brushless on REV SPARK controllers — driven through a <strong>reverse-engineered CAN stack</strong>, zero dependency on REV's tools. See <a href="firmware.html">Firmware</a>.</p></div></div>
+          <div class="point"><div class="num">02</div><div><h5>REV SPARK, owned</h5><p>NEO / NEO550 brushless on REV SPARK controllers — driven through a <strong>reverse-engineered CAN stack</strong>, zero dependency on REV's tools. See <a href="hardware.html#firmware">Firmware</a>.</p></div></div>
           <div class="point"><div class="num">03</div><div><h5>Anti-slip kinematics</h5><p>Shortest-path steering and a cosine anti-slip choke keep the wheels from scrubbing; the math is shared with simulation.</p></div></div>
           <div class="point"><div class="num">04</div><div><h5>Tip-safe envelope</h5><p>A direction-aware tip-over model shrinks speed and braking limits as the lift raises the CoM — agile, but it won't tip.</p></div></div>
         </div>
         <div class="spec" style="margin-top:24px;"><span>3 × delta swerve</span><span>REV SPARK · NEO</span><span>38.1 mm wheels</span><span>Holonomic</span><span>Tip-safe</span></div>
-        <a href="hardware-base.html" class="btn btn-ghost" style="margin-top:20px;">Base — full page →</a>
       </div>
 
       <div id="hw-lift" class="tab-panel">
         <p class="lede" style="margin-bottom:24px;">A cascaded Z-lift adds 0.635 m of vertical travel; an RP2040 Pico runs closed-loop position-plus-velocity control over a brushed actuator.</p>
         <div class="points">
           <div class="point"><div class="num">01</div><div><h5>Cascaded travel</h5><p>Telescoping stages give <strong>0.635&nbsp;m</strong> of vertical range in a compact stow height — counter height to over a table.</p></div></div>
-          <div class="point"><div class="num">02</div><div><h5>Closed-loop on a Pico</h5><p>An RP2040 Pico runs cascaded <strong>position + velocity</strong> control over a BTS7960 H-bridge and a quadrature encoder, with a host library and an iOS GUI. See <a href="firmware.html">Firmware</a>.</p></div></div>
+          <div class="point"><div class="num">02</div><div><h5>Closed-loop on a Pico</h5><p>An RP2040 Pico runs cascaded <strong>position + velocity</strong> control over a BTS7960 H-bridge and a quadrature encoder, with a host library and an iOS GUI. See <a href="hardware.html#firmware">Firmware</a>.</p></div></div>
           <div class="point"><div class="num">03</div><div><h5>Coupled to stability</h5><p>Raising the lift raises the centre of mass, so the base's tip-safe limits tighten with height — modelled in <a href="controller.html">whole-body control</a>.</p></div></div>
           <div class="point"><div class="num">04</div><div><h5>Eye height for teleop</h5><p>Matching the operator's eye height shrinks the embodiment gap and makes <a href="teleop.html">teleop</a> feel like wearing the robot.</p></div></div>
         </div>
         <div class="spec" style="margin-top:24px;"><span>0.635 m travel</span><span>Cascaded stages</span><span>RP2040 Pico</span><span>BTS7960 + encoder</span><span>Pos + vel loop</span></div>
-        <a href="hardware-lift.html" class="btn btn-ghost" style="margin-top:20px;">Lift — full page →</a>
       </div>
 
       <div id="hw-body" class="tab-panel">
@@ -210,7 +230,6 @@
           <div class="point"><div class="num">04</div><div><h5>Part of the reach</h5><p>Torso and neck are degrees of freedom the <a href="controller.html">whole-body controller</a> coordinates alongside the base, lift, and arms.</p></div></div>
         </div>
         <div class="spec" style="margin-top:24px;"><span>Torso pitch · Damiao</span><span>3-DOF neck · Dynamixel</span><span>Yaw / pitch / roll</span><span>Active perception</span><span>Small embodiment gap</span></div>
-        <a href="hardware-body.html" class="btn btn-ghost" style="margin-top:20px;">Body &amp; head — full page →</a>
       </div>
 
       <div id="hw-sensors" class="tab-panel">
@@ -224,7 +243,6 @@
           <div class="point"><div class="num">06</div><div><h5>One topic bus</h5><p>Every sensor publishes onto the <a href="software.html">ROS 2</a> state bus (or its sim twin); consumers see topics, never the hardware. Over teleop the same feeds stream through the server.</p></div></div>
         </div>
         <div class="spec" style="margin-top:24px;"><span>Stereo RGB-D head</span><span>2× wrist cameras</span><span>2-D base LiDAR</span><span>Joint + wheel encoders</span><span>IMU</span><span>13″ touchscreen</span></div>
-        <a href="hardware-sensors.html" class="btn btn-ghost" style="margin-top:20px;">Sensors — full page →</a>
       </div>
 
       <div id="hw-electronics" class="tab-panel">
@@ -236,7 +254,6 @@
           <div class="point"><div class="num">04</div><div><h5>Untethered</h5><p>One battery powers the whole platform; nothing trails behind it as it drives the room.</p></div></div>
         </div>
         <div class="spec" style="margin-top:24px;"><span>Custom base + body PCB</span><span>CAN + Ethernet</span><span>Jetson Thor</span><span>Onboard · untethered</span><span>Single battery</span></div>
-        <a href="hardware-electronics.html" class="btn btn-ghost" style="margin-top:20px;">Electronics — full page →</a>
       </div>
     </div>
   </div>
@@ -244,6 +261,203 @@
 
 <!-- ─── NOVELTY / CONTRIBUTIONS ─── -->
 <!-- ════════════════════════════ FIRMWARE · OWN EVERY ACTUATOR ════════════════════════════ -->
+<!-- ════════════════════════════ FIRMWARE ════════════════════════════ -->
+<section class="pad-y" id="firmware">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Firmware</span>
+        <h2 class="display-md title">Our firmware, <span class="italic accent">not theirs.</span></h2>
+      </div>
+      <p class="lede">MABEL mixes actuators from five vendors — each shipping its own closed Windows tool to
+        flash, tune, and ID them. We replace as much as we can with <strong>one modular firmware stack and
+        one cross-platform GUI</strong>: change a register, reassign a motor ID, read live status, jog a
+        joint — all from the same app, on macOS or Ubuntu.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Modular — one target per limb</h5>
+        <p>One folder per subsystem (<code>swerve_drive</code>, <code>openarm</code>, <code>orca_hand</code>,
+          <code>head</code>, <code>lift</code>); flash or swap a board without touching the rest.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Own the protocol</h5>
+        <p>Where a vendor hides setup in a closed app, we re-implement it natively — most of all the REV
+          SPARK CAN stack, reverse-engineered end-to-end (below).</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Cross-platform on purpose</h5>
+        <p>GUI and host libraries run on <strong>macOS and Ubuntu</strong>. <em>Windows isn't tested
+          yet.</em> No vendor binary, no OS lock-in.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Always-usable · SIM mode</h5>
+        <p>Bus down or driver unbuilt? The GUI opens in <strong>SIM mode</strong> with simulated
+          telemetry — design and test with zero hardware.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE GUI ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Control Studio</span>
+        <h2 class="display-md title" style="color:var(--bone);">One app, <span class="italic accent">every actuator.</span></h2>
+      </div>
+      <p class="lede">A shared iOS-styled GUI — same dark palette, sliders, and pill toggles across the
+        swerve, hand, and lift apps. Reassign IDs, write registers, read live status, and jog any joint.</p>
+    </div>
+
+    <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:16/9; margin-bottom:18px;">
+      <img src="assets/img/gui-swerve-demo.svg" alt="Using Swerve Studio — toggle a motor on, drag the steering axis to an absolute angle, throttle the drive wheel, all with live telemetry" />
+      <span class="sim-cap"><span class="dot"></span>Using it · enable → steer → throttle, live</span>
+    </div>
+
+    <div class="gui-grid fade-up">
+      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
+        <img src="assets/img/gui-swerve.svg" alt="MABEL Swerve Studio — per-module steer/drive control, live telemetry, E-STOP" />
+        <span class="sim-cap"><span class="dot"></span>Swerve Studio · REV SPARK base</span>
+      </div>
+      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
+        <img src="assets/img/gui-hand.svg" alt="MABEL ORCA Hand Control Studio — 17 per-finger joint sliders, grasp presets" />
+        <span class="sim-cap"><span class="dot"></span>ORCA Hand · 17 Feetech servos</span>
+      </div>
+    </div>
+
+    <div class="points fade-up" style="margin-top:30px;">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Reassign IDs &amp; write registers</h5>
+        <p>Give a fresh Feetech servo its ID or change a Damiao CAN ID; edit registers live — REV SPARK
+          control mode, idle brake, PID <code>kP</code>, the steering encoder zero — and burn them to flash.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Jog any joint · E-STOP</h5>
+        <p>Drag a steering axis to an absolute angle, throttle a drive wheel by duty-cycle, move a finger
+          or fire a grasp preset, enable / disable a motor, or hit <strong>E-STOP</strong> — instantly.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Read everything, live</h5>
+        <p>A telemetry sidebar streams position, velocity, current and temperature per controller,
+          colour-coded as values approach their limits — so you see a hot or stalling motor before it faults.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Bus &amp; bring-up tools</h5>
+        <p>Bring the CAN interface up / restart / scan / doctor it from a panel with a streaming console;
+          sine-sweep a motor, zero an encoder, clear faults, read limits — the vendor-app chores, built in.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── REV SWERVE REVERSE ENGINEERING ─── -->
+<section class="pad-y" id="rev">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Swerve drive · the deep cut</span>
+        <h2 class="display-md title">Reverse-engineering <span class="italic accent">REV SPARK.</span></h2>
+      </div>
+      <p class="lede">The base runs REV SPARK controllers on a 3-module delta swerve. REV only exposes them
+        through their Hardware Client and vendor libraries — so we read the <code>sparkcan</code> source,
+        documented the wire protocol, and re-implemented it raw in Python (SocketCAN) and C++ (Teensy
+        FlexCAN_T4). Zero dependency on REV's stack.</p>
+    </div>
+
+    <!-- arbitration callout -->
+    <div class="fade-up" style="background:linear-gradient(180deg,#1b1714,#100d0b); border:1px solid rgba(242,238,230,0.10); border-radius:18px; padding:22px 24px; margin:6px 0 30px; overflow-x:auto;">
+      <div style="font:500 11px/1 'Geist Mono',monospace; letter-spacing:0.12em; color:var(--rust); text-transform:uppercase; margin-bottom:12px;">29-bit extended arbitration ID</div>
+      <pre style="margin:0; font:500 13.5px/1.7 'Geist Mono',monospace; color:var(--bone); white-space:pre;">arbId = (0x02 &lt;&lt; 24)        <span style="color:var(--ash-light)">// DEVICE_TYPE  = motor controller</span>
+      | (0x05 &lt;&lt; 16)        <span style="color:var(--ash-light)">// MANUFACTURER = REV Robotics</span>
+      | (apiClass &lt;&lt; 10)
+      | (apiIndex &lt;&lt; 6)
+      |  deviceId           <span style="color:var(--ash-light)">// 1,3,5 = drive · 2,4,6 = steer</span></pre>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Control + register frames</h5>
+        <p>Velocity / Position / DutyCycle share one payload — an IEEE-754 LE float in bytes 0–3. Registers
+          live under API class 48 with a type tag, so we set <code>kCtrlType</code>, <code>kIdleMode</code>,
+          PID <code>kP_0</code>, and the steering zero <code>kDutyCycleZeroOffset</code> directly.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Telemetry frames</h5>
+        <p>Periodic status: Period&nbsp;0 (duty / volts / current / temp), Period&nbsp;2 (encoder vel +
+          pos), Period&nbsp;5 (absolute steer encoder) — the last only streams once you flip
+          <code>kForceEnableStatus5</code>.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>One socket, cached</h5>
+        <p>A single RX thread reads the bus non-blocking, masks the device ID (<code>can_id &amp; 0x3F</code>),
+          and caches each motor's latest value behind a mutex — <code>GetVelocity()</code> is a free read.
+          Full mapping in <code>rev_can_protocol.md</code>.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ACTUATOR FAMILIES ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">The fleet</span>
+      <h2 class="display-md">Every actuator, owned.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>Swerve base · REV SPARK</h4><p>NEO / NEO550 on 3 delta modules. Reverse-engineered SPARK CAN in Python + Teensy C++.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>Arms · Damiao DM</h4><p>OpenArm-derived 7-DOF arms, quasi-direct-drive over CAN (Teensy + FlexCAN_T4), MIT-mode.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Body &amp; torso · Damiao</h4><p>Torso pitch shares the arms' Damiao/CAN driver, status, and quick-control.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>Hands · Feetech</h4><p>16× HLS3915 fingers + 1× HLS3930 wrist on a 1 MHz TTL chain; USB adapter auto-detected.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Neck · Dynamixel</h4><p>3-DOF neck (yaw / pitch / roll) via our <code>dynamixel_neck</code> library.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Lift · RP2040 Pico</h4><p>MicroPython, BTS7960 + quad encoder, cascaded position + velocity, host lib + iOS GUI.</p></div></div>
+  </div>
+</section>
+
+<section class="soft-sec pad-y" id="novelty">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Why it's new</span>
+        <h2 class="display-md title">Not another arm <span class="italic accent">on a cart.</span></h2>
+      </div>
+      <p class="lede">Five things set MABEL apart from the mobile manipulators before it.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>A first of its kind</h5>
+        <p>The first open-source design for <em>low-cost bimanual mobile manipulation</em> — two dexterous hands, two arms, and a holonomic base, fully open, and itemized down to the last cable.</p>
+        <div class="spec"><span>Open-source</span><span>Bimanual + mobile</span><span>&lt; $10k</span></div>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Custom PCBs, one fast network</h5>
+        <p>Purpose-built boards for the mobile base and body put every actuator on <em>CAN and Ethernet</em> — a single low-latency local network instead of a tangle of USB.</p>
+        <div class="spec"><span>Custom PCB</span><span>CAN + Ethernet</span><span>Low latency</span></div>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Built for learning — a small embodiment gap</h5>
+        <p>Body height, arm length, eye spacing, neck range of motion, and lift travel are all matched to a person's — so teleoperation feels natural and the demonstrations transfer.</p>
+        <div class="spec"><span>Human-scaled</span><span>Natural teleop</span><span>Transferable data</span></div>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Degrees of freedom that matter</h5>
+        <p>Active perception, a tilting torso, and a vertical lift add the extra DOF that make teleop feel like <em>reaching</em>, not driving — a more natural operator experience.</p>
+        <div class="spec"><span>Active head</span><span>Torso tilt</span><span>Vertical lift</span></div>
+      </div></div>
+      <div class="point"><div class="num">05</div><div>
+        <h5>Stands on open shoulders</h5>
+        <p>Built on proven open hardware — the <em>ORCA hand</em>, <em>OpenArm</em>, and the <em>YOR</em> paper — extended and integrated into one complete mobile body.</p>
+        <div class="spec"><span>ORCA hand</span><span>OpenArm</span><span>YOR</span></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
 <!-- ─── CAPABILITIES ─── -->
 <section class="pad-y" id="capabilities">
   <div class="wrap">
@@ -262,6 +476,52 @@
     <div class="card fade-up"><span class="card-num">D</span><div><h4>Eye-in-hand vision</h4><p>Wrist cameras give close-up perception exactly where the grasp happens.</p></div></div>
     <div class="card fade-up d1"><span class="card-num">E</span><div><h4>Expressive HRI</h4><p>LED eyes and the touchscreen torso make MABEL's state legible to the people around it.</p></div></div>
     <div class="card fade-up d2"><span class="card-num">F</span><div><h4>Open &amp; reproducible</h4><p>Every CAD file, gerber, and URDF is released. Reproduce or remix — that's the contract.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── BOM ─── -->
+<section class="pad-y" id="bom">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Bill of materials</span>
+        <h2 class="display-md title">One core.<br/><span class="italic accent">Five choices.</span></h2>
+      </div>
+      <p class="lede">A fixed core of <span data-bom="coreLines">49</span> parts — every actuator, every plate, all
+      structure and power — costs <strong data-bom="core">$8,058</strong> and never changes. Everything that moves
+      the total is five components you pick yourself.</p>
+    </div>
+
+    <div class="scn-grid fade-up" id="bomBuilds" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:44px;"></div>
+
+    <div style="display:grid; grid-template-columns:1.25fr 1fr; gap:clamp(40px,6vw,80px); align-items:start;" class="bom-layout">
+      <div class="fade-up">
+        <h3 class="display-sm" style="margin-bottom:18px;">Where the money goes</h3>
+        <div id="bomFunctional"></div>
+        <p class="table-note">Follows the build selected above. Actuation is
+        <span data-bom="actuationPct">65.6%</span> of the Recommended build and no sourcing decision changes it —
+        cost scales with degrees of freedom.</p>
+      </div>
+
+      <aside class="fade-up d1">
+        <h3 class="display-sm" style="margin-bottom:20px;">Cost is a <span class="italic accent">design parameter,</span> not an excuse.</h3>
+        <p class="body" style="margin-bottom:16px;">Every component was chosen with two questions in mind: <em>does it work for the task</em>, and <em>could a grad student in Lagos, São Paulo, or Beijing buy it next week?</em></p>
+        <p class="body" style="margin-bottom:16px;">The 14 arm actuators average <strong>$150.79</strong> each and the 34 hand servos <strong>$34.75</strong>. The hands carry most of MABEL's degrees of freedom for under 10% of its cost — dexterity is not what makes this robot expensive.</p>
+        <p class="body" style="margin-bottom:22px;">Onboard compute is the only line that moves by an order of magnitude: <span data-bom="nanoAfter">$399</span> to <span data-bom="thorAfter">$5,499</span> for the same robot.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="bom.html" class="btn btn-primary">Configure the build →</a>
+          <a href="assets/pdf/MABEL_Build_Guide.pdf" class="btn btn-ghost" target="_blank" rel="noopener">Build Guide PDF ↗</a>
+        </div>
+      </aside>
+    </div>
+
+    <div class="callout fade-up" style="margin-top:40px;">
+      <p><strong>Before you quote a number.</strong> These totals cover the parts on the purchase record. An
+      estimated <span data-bom="gapsLo">$573</span>–<span data-bom="gapsHi">$1,178</span> of real hardware — the
+      ORCA hand structure, printed shells, the distribution PCBs, two Teensy boards — was never costed, and one
+      line (the swerve modules) is a lump that hides its motors and controllers. The
+      <a href="bom.html#open">full BOM page</a> itemizes every open item with its evidence.</p>
+    </div>
   </div>
 </section>
 
@@ -288,7 +548,7 @@
     <div class="fade-up" style="margin-top:48px; display:flex; gap:10px; flex-wrap:wrap;">
       <a href="#" class="btn btn-primary">CAD &amp; STEP files ↗</a>
       <a href="#" class="btn btn-ghost">Assembly guide ↗</a>
-      <a href="firmware.html" class="btn btn-ghost">Next: Firmware →</a>
+      <a href="hardware.html#firmware" class="btn btn-ghost">Next: Firmware →</a>
     </div>
   </div>
 </section>
@@ -308,5 +568,7 @@
 </footer>
 
 <script src="assets/js/mabel.js"></script>
+<script src="assets/js/bom-data.js"></script>
+<script src="assets/js/bom-table.js"></script>
 </body>
 </html>

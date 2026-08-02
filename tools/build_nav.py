@@ -45,8 +45,11 @@ NAV = [
     ("Software", "software.html", [
         ("Overview", "software.html"),
         ("ROS 2", "ros.html"),
-        ("Server &amp; Bridge", "server.html"),
         ("Simulation", "simulation.html"),
+        ("Calibration", "calibration.html"),
+        ("Server &amp; Bridge", "server.html"),
+        ("Controller", "controller.html"),
+        ("Whole-Body Control", "wbc.html"),
     ]),
     ("Teleop", "teleop.html", [
         ("Overview", "teleop.html"),
@@ -54,14 +57,10 @@ NAV = [
         ("Vision Pro", "teleop-visionpro.html"),
         ("iPhone", "teleop-ios.html"),
     ]),
-    ("Controller", "controller.html", [
-        ("Overview", "controller.html"),
-        ("Whole-Body Control", "wbc.html"),
-    ]),
-    ("Navigation", "navigation.html", []),
     ("Autonomy", "autonomy.html", [
         ("Overview", "autonomy.html"),
         ("Data", "data.html"),
+        ("Navigation", "navigation.html"),
         ("Learning", "learning.html"),
     ]),
     ("Connect", "connect.html", []),

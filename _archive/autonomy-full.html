@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#161412" />
+<title>MABEL — Autonomy</title>
+<meta name="description" content="MABEL autonomy: teleoperation writes the dataset, Diffusion Policy and ACT turn demos into skills, and learned policies stitch into long-horizon, onboard tasks." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/mabel.css" />
+<style>
+  /* Data Curation live-tool CTA */
+  .studio-card { padding: clamp(28px, 4vw, 48px); }
+  .studio-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+  .studio-live { display: inline-flex; align-items: center; gap: 8px; font-family: "Geist Mono", monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--bone); opacity: 0.82; padding: 9px 13px; border: 1px solid rgba(242,238,230,0.22); border-radius: 999px; }
+  .studio-dot { width: 8px; height: 8px; border-radius: 50%; background: #3FB56B;
+    box-shadow: 0 0 0 4px rgba(63,181,107,0.18); animation: studioPulse 2.4s ease-in-out infinite; }
+  @keyframes studioPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(63,181,107,0.18); } 50% { box-shadow: 0 0 0 7px rgba(63,181,107,0.05); } }
+  @media (prefers-reduced-motion: reduce) { .studio-dot { animation: none; } }
+
+  /* ── interactive architecture viewer ── */
+  .av-shell { border: 1px solid rgba(22,20,18,0.12); border-radius: 18px; background: #FAF8F2; overflow: hidden;
+    box-shadow: var(--glass-sh); }
+  .av-tabs { display: flex; gap: 6px; padding: 12px 12px 0; flex-wrap: wrap; }
+  .av-tab { font-family: var(--font-mono); font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 10px 10px 0 0;
+    background: transparent; border: 1px solid transparent; color: var(--ash); cursor: pointer; transition: all .18s var(--ease-out); }
+  .av-tab:hover { color: var(--ink); background: rgba(22,20,18,0.04); }
+  .av-tab.on { color: var(--rust); background: #fff; border-color: rgba(22,20,18,0.12); border-bottom-color: #fff; font-weight: 600; }
+  .av-desc { font-family: var(--font-mono); font-size: 11.5px; color: var(--ash); padding: 10px 16px; border-top: 1px solid rgba(22,20,18,0.08);
+    border-bottom: 1px solid rgba(22,20,18,0.08); background: #fff; }
+  .av-desc strong { color: var(--ink-soft); } .av-decode { color: var(--rust); } .av-paper { color: var(--ash-light); }
+  .av-stage { position: relative; height: clamp(440px, 62vh, 660px); background:
+    radial-gradient(120% 120% at 50% 0%, #FFFFFF 0%, #F4F1E9 100%); }
+  #archCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+  #archCanvas:active { cursor: grabbing; }
+  .arch-legend { position: absolute; top: 10px; left: 12px; display: flex; gap: 10px; flex-wrap: wrap; z-index: 3; pointer-events: none; max-width: 60%; }
+  .lg-chip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 9.5px; color: var(--ash);
+    background: rgba(255,255,255,0.75); padding: 3px 7px; border-radius: 999px; border: 1px solid rgba(22,20,18,0.08); }
+  .lg-chip i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+  .arch-toolbar { position: absolute; top: 10px; right: 12px; display: flex; align-items: center; gap: 6px; z-index: 4; flex-wrap: wrap; justify-content: flex-end; }
+  .arch-toolbar .crumbs { display: flex; align-items: center; gap: 4px; }
+  .arch-toolbar .crumb { font-family: var(--font-mono); font-size: 11px; color: var(--ash); background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(22,20,18,0.08); border-radius: 7px; padding: 3px 8px; cursor: pointer; }
+  .arch-toolbar .crumb.on { color: var(--ink); font-weight: 600; }
+  .arch-toolbar .crumb-sep { color: var(--ash-light); font-size: 10px; }
+  .arch-toolbar .mini { font-family: var(--font-mono); font-size: 11px; color: var(--rust); background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(22,20,18,0.08); border-radius: 7px; padding: 3px 8px; cursor: pointer; }
+  .arch-toolbar .ro-chip { display: none; }
+  .arch-tip { position: absolute; display: none; pointer-events: none; z-index: 6; background: rgba(20,18,16,0.95); color: var(--bone);
+    border: 1px solid rgba(242,238,230,0.16); border-radius: 8px; padding: 7px 10px; font-size: 12px; line-height: 1.45; max-width: 240px; box-shadow: 0 10px 28px -12px rgba(0,0,0,0.5); }
+  .arch-tip i { color: var(--ash-light); font-size: 10px; font-style: normal; }
+  .av-hint { position: absolute; bottom: 10px; left: 14px; font-family: var(--font-mono); font-size: 10px; color: var(--ash-light); pointer-events: none; z-index: 3; }
+  .av-fail { padding: 60px; text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--ash); }
+
+  /* ── contribute form (on the dark section card) ── */
+  .cf-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px 20px; margin-bottom: 22px; }
+  .cf-fields { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+  .cf-field { display: flex; flex-direction: column; gap: 7px; }
+  .cf-field.cf-wide { grid-column: 1 / -1; }
+  .cf-field > span { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--bone); opacity: 0.7; }
+  .cf-field > span em { color: var(--rust); cursor: help; font-style: normal; }
+  .cf-field input, .cf-field select, .cf-out { font-family: var(--font-sans); font-size: 14px; color: var(--bone);
+    background: rgba(242,238,230,0.06); border: 1px solid rgba(242,238,230,0.18); border-radius: 10px; padding: 10px 12px; width: 100%; }
+  .cf-out { color: var(--rust); font-family: var(--font-mono); font-size: 12.5px; }
+  .cf-field input:focus, .cf-field select:focus { outline: none; border-color: var(--rust); background: rgba(242,238,230,0.1); }
+  .cf-field select option { color: #161412; }
+  .cf-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .cf-msg { font-family: var(--font-mono); font-size: 12px; color: var(--bone); opacity: 0.85; }
+  .cf-msg.ok { color: #6FCF97; opacity: 1; } .cf-msg.err { color: #E88; opacity: 1; }
+  .cf-queue-wrap { margin-top: 28px; border-top: 1px solid rgba(242,238,230,0.14); padding-top: 18px; }
+  .cf-queue-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cf-refresh { font-family: var(--font-mono); font-size: 11px; color: var(--bone); opacity: 0.7; background: transparent; border: 1px solid rgba(242,238,230,0.18);
+    border-radius: 8px; padding: 5px 11px; cursor: pointer; } .cf-refresh:hover { opacity: 1; border-color: var(--rust); }
+  .cf-queue { display: flex; flex-direction: column; gap: 8px; }
+  .cf-q-empty { font-family: var(--font-mono); font-size: 12px; color: var(--bone); opacity: 0.55; padding: 8px 0; }
+  .cf-q-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(242,238,230,0.05); border: 1px solid rgba(242,238,230,0.1); }
+  .cf-q-arch { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--rust); min-width: 34px; }
+  .cf-q-main { flex: 1; font-size: 13px; color: var(--bone); opacity: 0.9; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cf-q-main b { font-weight: 600; } .cf-q-note { color: var(--ash-light); font-style: italic; }
+  .cf-q-status { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 9px; border-radius: 999px;
+    border: 1px solid currentColor; opacity: 0.9; }
+  .s-pending { color: #E7C24B; } .s-approved { color: #6FCF97; } .s-running { color: #56A6E0; } .s-done { color: #9AD; } .s-rejected { color: #C77; }
+  @media (max-width: 720px) { .cf-grid { grid-template-columns: 1fr; } }
+</style>
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body class="sec-page">
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="build.html">Build<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="build.html">Overview</a><a href="bom.html">Bill of materials</a><a href="assembly.html">Hardware assembly</a><a href="wiring.html">Wiring</a><a href="firmware.html">Firmware</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="hardware-hands.html">Hands</a><a href="hardware-arms.html">Arms</a><a href="hardware-base.html">Base</a><a href="hardware-lift.html">Lift</a><a href="hardware-body.html">Body</a><a href="hardware-sensors.html">Sensors</a><a href="hardware-electronics.html">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="ros.html">ROS 2</a><a href="server.html">Server &amp; Bridge</a><a href="simulation.html">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="retargeting.html">Retargeting</a><a href="teleop-visionpro.html">Vision Pro</a><a href="teleop-ios.html">iPhone</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="controller.html">Controller<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="controller.html">Overview</a><a href="wbc.html">Whole-Body Control</a></div></div>
+    <a href="navigation.html">Navigation</a>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html" class="on">Overview</a><a href="data.html">Data</a><a href="learning.html">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="#" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Overview</a><a class="sub" href="bom.html">Bill of materials</a><a class="sub" href="assembly.html">Hardware assembly</a><a class="sub" href="wiring.html">Wiring</a><a class="sub" href="firmware.html">Firmware</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="hardware-hands.html">Hands</a><a class="sub" href="hardware-arms.html">Arms</a><a class="sub" href="hardware-base.html">Base</a><a class="sub" href="hardware-lift.html">Lift</a><a class="sub" href="hardware-body.html">Body</a><a class="sub" href="hardware-sensors.html">Sensors</a><a class="sub" href="hardware-electronics.html">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="ros.html">ROS 2</a><a class="sub" href="server.html">Server &amp; Bridge</a><a class="sub" href="simulation.html">Simulation</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="retargeting.html">Retargeting</a><a class="sub" href="teleop-visionpro.html">Vision Pro</a><a class="sub" href="teleop-ios.html">iPhone</a><span class="mob-grp">Controller</span><a class="sub" href="controller.html">Overview</a><a class="sub" href="wbc.html">Whole-Body Control</a><a href="navigation.html">Navigation</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="data.html">Data</a><a class="sub" href="learning.html">Learning</a><a href="connect.html">Connect</a><a href="#" class="ext">Paper ↗</a>
+</nav>
+
+<aside class="sidenav" aria-label="Autonomy section navigation">
+  <div class="sidenav-title">Autonomy</div>
+  <a href="autonomy.html" class="on">Overview</a><a href="data.html">Data</a><a href="learning.html">Learning</a>
+</aside>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / Autonomy</div>
+    <span class="eyebrow">Autonomy</span>
+    <h1 class="display-lg">Demonstrate. Train. Deploy.</h1>
+    <p class="lede">
+      Learn from demonstration. <a href="teleop.html"><strong>Teleoperation</strong></a> feeds the data; Diffusion Policy and ACT
+      turn it into skills; the <a href="controller.html">controller</a> deploys them — stitched into long-horizon autonomy, onboard.
+    </p>
+    <div class="spec" style="margin-top:28px;">
+      <span>Diffusion Policy</span><span>ACT</span><span>59-DOF action label</span><span>HDF5 · one file / episode</span><span>Onboard inference</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DATA STUDIO · live tool ─── -->
+<section class="dark-sec pad-y" id="studio">
+  <div class="wrap">
+    <div class="card studio-card fade-up">
+      <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · in your browser</span>
+      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Curate the data in <span class="italic accent">Data Curation.</span></h2>
+      <p class="lede" style="margin:0 0 26px; max-width:62ch;">A dataset-quality curation studio for MABEL imitation-learning data. It ingests recorded episodes, automatically flags the defects that poison a policy — dropped frames, out-of-sync streams, frequency drops, dead motors, missing video — grades every episode, and lets you align, blade, trim, and cull non-destructively in a Final-Cut-style timeline before exporting a clean dataset in LeRobot format. The Rerun-style 3D viewer and seven synced camera feeds are still there to review every frame.</p>
+      <div class="studio-actions">
+        <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Curation ↗</a>
+        <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Trainer Studio ↗</a>
+        <a href="https://github.com/thejerrycheng/MABEL/tree/main/learning/data_curation" target="_blank" rel="noopener" class="btn btn-ghost">Source ↗</a>
+        <span class="studio-live"><span class="studio-dot"></span>Live demo</span>
+      </div>
+      <div class="spec" style="margin-top:24px;">
+        <span>Auto quality scoring</span><span>Sync + frequency detection</span><span>Non-destructive editing</span><span>LeRobot export</span><span>3D + 7-cam review</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DATA ENGINE ─── -->
+<section class="pad-y" id="data"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The data engine</span><h2 class="display-md title">The dataset <span class="italic accent">writes itself.</span></h2></div>
+    <p class="lede">Collection isn&rsquo;t a separate chore — it&rsquo;s a side effect of using the robot. You <a href="teleop.html"><strong>teleoperate</strong></a> MABEL through the <em>same</em> <code>TeleopController</code> the live viewer uses; every frame logs all cameras, the LiDAR, every joint&rsquo;s position / velocity / torque, and <strong>the target command for every actuator</strong>. One schema, identical in <a href="simulation.html">simulation</a> and on the real robot. Cut an episode with a keypress; a background thread writes it while you keep working.</p></div>
+  <div class="arch-fig fade-up"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" viewBox="0 0 1240 470" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1240" height="470" rx="16" fill="#FAF8F2" stroke="rgba(22,20,18,0.14)" stroke-width="1"/>
+<text x="40" y="46" fill="#6B6660" font-size="13" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure — the data engine: teleop becomes a labelled dataset</text>
+<rect x="40" y="120" width="250" height="250" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="58" cy="142" r="3.5" fill="#C25B2A"/>
+<text x="72" y="147" fill="#2A2622" font-size="11.5" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">TELEOP</text>
+<text x="58" y="168" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">drive to collect</text>
+<circle cx="62" cy="202" r="2.4" fill="#C25B2A"/>
+<text x="74" y="206" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">shared TeleopController</text>
+<circle cx="62" cy="232" r="2.4" fill="#C25B2A"/>
+<text x="74" y="236" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">MuJoCo sim — or real robot</text>
+<circle cx="62" cy="262" r="2.4" fill="#C25B2A"/>
+<text x="74" y="266" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">cut episodes on the fly · SPACE</text>
+<text x="58" y="354" fill="#A09A91" font-size="9.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 01</text>
+<line x1="290" y1="245.0" x2="335" y2="245.0" stroke="#C25B2A" stroke-width="1.8"/><path d="M 333 240.0 L 343 245.0 L 333 250.0" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="343" y="120" width="250" height="250" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="361" cy="142" r="3.5" fill="#C25B2A"/>
+<text x="375" y="147" fill="#2A2622" font-size="11.5" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">RECORD</text>
+<text x="361" y="168" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">EpisodeRecorder · 15 Hz</text>
+<circle cx="365" cy="202" r="2.4" fill="#C25B2A"/>
+<text x="377" y="206" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">log every obs + the action</text>
+<circle cx="365" cy="232" r="2.4" fill="#C25B2A"/>
+<text x="377" y="236" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">background-thread HDF5</text>
+<circle cx="365" cy="262" r="2.4" fill="#C25B2A"/>
+<text x="377" y="266" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">one file per episode</text>
+<text x="361" y="354" fill="#A09A91" font-size="9.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 02</text>
+<line x1="593" y1="245.0" x2="638" y2="245.0" stroke="#C25B2A" stroke-width="1.8"/><path d="M 636 240.0 L 646 245.0 L 636 250.0" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="646" y="120" width="250" height="250" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="664" cy="142" r="3.5" fill="#C25B2A"/>
+<text x="678" y="147" fill="#2A2622" font-size="11.5" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">EPISODE</text>
+<text x="664" y="168" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">HDF5 · one schema</text>
+<circle cx="668" cy="202" r="2.4" fill="#C25B2A"/>
+<text x="680" y="206" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">7 cams + LiDAR + 59 joints</text>
+<circle cx="668" cy="232" r="2.4" fill="#C25B2A"/>
+<text x="680" y="236" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">action/ctrl [59] — the label</text>
+<circle cx="668" cy="262" r="2.4" fill="#C25B2A"/>
+<text x="680" y="266" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim &amp; real share the keys</text>
+<text x="664" y="354" fill="#A09A91" font-size="9.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 03</text>
+<line x1="896" y1="245.0" x2="941" y2="245.0" stroke="#C25B2A" stroke-width="1.8"/><path d="M 939 240.0 L 949 245.0 L 939 250.0" stroke="#C25B2A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="949" y="120" width="250" height="250" rx="14" fill="#FFFFFF" stroke="rgba(22,20,18,0.14)" stroke-width="1.2"/>
+<circle cx="967" cy="142" r="3.5" fill="#C25B2A"/>
+<text x="981" y="147" fill="#2A2622" font-size="11.5" font-weight="600" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">TRAIN</text>
+<text x="967" y="168" fill="#6B6660" font-size="10" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">imitation learning</text>
+<circle cx="971" cy="202" r="2.4" fill="#C25B2A"/>
+<text x="983" y="206" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">ACT · CVAE · Diffusion</text>
+<circle cx="971" cy="232" r="2.4" fill="#C25B2A"/>
+<text x="983" y="236" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">stats → normalization</text>
+<circle cx="971" cy="262" r="2.4" fill="#C25B2A"/>
+<text x="983" y="266" fill="#2A2622" font-size="11" font-weight="500" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">→ deploy as a policy</text>
+<text x="967" y="354" fill="#A09A91" font-size="9.5" font-weight="600" font-family="'Geist Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 04</text>
+<text x="620.0" y="450" fill="#A09A91" font-size="12" font-weight="400" font-family="'Geist', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">collection is a side effect of teleop · identical keys sim↔real → policies deploy without remapping I/O</text>
+</svg></div>
+
+  <div class="points fade-up" style="margin-top:clamp(40px,6vh,72px);">
+    <div class="point"><div class="num">01</div><div><h5>Shared controller</h5><p>You collect through the <code>TeleopController</code> that already drives the sim and the <a href="software.html">bridge</a> — so the demonstrations are generated by the exact control path a policy will later replace.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Uniform schema</h5><p><code>SimStateProvider</code> and <code>RealStateProvider</code> emit the same obs/action keys. Same field names in sim and on the robot is what lets a policy deploy <a href="#policies">across sim→real</a> with no I/O remapping.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Non-blocking writes</h5><p><code>EpisodeRecorder</code> accumulates frames and saves HDF5 on a background thread — one file per episode. Numbering auto-resumes, so you can stop and restart a session without overwriting.</p></div></div>
+    <div class="point"><div class="num">04</div><div><h5>Honest about the bottleneck</h5><p>Rendering seven cameras is the limit: ~15 Hz with a GPU offscreen context, ~2 Hz on a CPU-only laptop. The inspector reports the rate you actually achieved — drop cameras or resolution to hold the target.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ─── EPISODE SCHEMA ─── -->
+<section class="soft-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">What&rsquo;s in an episode</span><h2 class="display-md title">Everything the body <span class="italic accent">knows.</span></h2></div>
+    <p class="lede">One HDF5 file per episode, axis&nbsp;0 = frame. The actuator names, camera list, and units travel with the data in the file attrs (<code>schema_json</code>) and <code>dataset_meta.json</code>.</p></div>
+  <div class="feature fade-up">
+    <div class="feature-copy">
+      <table class="tt">
+        <thead><tr><th>Field</th><th>Shape</th><th>What</th></tr></thead>
+        <tbody>
+          <tr><td>obs/cam/&lt;name&gt;/rgb</td><td>JPEG</td><td>7 cams: 2 wrist, ZED L/R, 3 body</td></tr>
+          <tr><td>obs/cam/&lt;name&gt;/depth</td><td>uint16</td><td>millimetres, on a subset</td></tr>
+          <tr><td>obs/lidar</td><td>[360]</td><td>planar ranges, 1° resolution</td></tr>
+          <tr><td>obs/joint_pos·vel·torque</td><td>[59]</td><td>aligned to the actuator list</td></tr>
+          <tr><td>obs/qpos · qvel</td><td>[81]·[78]</td><td>full state (sim ground truth)</td></tr>
+          <tr><td>obs/pose/{chassis,head,palms}</td><td>[7]</td><td>world position + quaternion</td></tr>
+          <tr><td>obs/base_twist</td><td>[3]</td><td>measured (vx, vy, wz)</td></tr>
+          <tr><td>action/ctrl</td><td>[59]</td><td><span class="pub">the label</span> — target for every actuator</td></tr>
+          <tr><td>teleop/* · time/*</td><td>—</td><td>palm targets, grasp, mode; sim &amp; wall clock</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="feature-copy">
+      <span class="eyebrow">the action label</span>
+      <h3>One vector to imitate.</h3>
+      <p><code>action/ctrl</code> is a single <strong>59-D target-position command</strong> for every actuator at once — arm, wrist, and finger joints, the neck, the lift, the torso, plus the base&rsquo;s steer angles and drive velocities. That is the quantity a policy learns to predict. Observations describe the world; this one array <em>is</em> the supervision.</p>
+      <div class="bib" style="margin-top:18px;">
+        <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+        <pre>episode_0007.h5
+├─ obs/
+│   ├─ cam/{l_wrist,r_wrist,zed_left,…}/rgb
+│   ├─ lidar [360]
+│   └─ joint_pos|vel|torque [59]
+├─ action/ctrl [59]      # ← the target-joint label
+└─ attrs: schema_json, task, fps</pre>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── OPERATOR KEYS ─── -->
+<section class="dark-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Cut on the fly</span><h2 class="display-md title" style="color:var(--bone);">Episodes, <span class="italic accent">by keypress.</span></h2></div>
+    <p class="lede">Global hot-keys (the viewer needn&rsquo;t be focused) let one operator drive and segment at once — keep the good takes, discard the bad ones, never break flow.</p></div>
+  <div class="feature fade-up">
+    <div class="feature-copy">
+      <table class="tt">
+        <thead><tr><th>Key</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>SPACE</td><td>start a new episode / stop &amp; <strong>save</strong></td></tr>
+          <tr><td>X</td><td>discard the in-progress episode</td></tr>
+          <tr><td>C</td><td>recalibrate the teleop clutch at your pose</td></tr>
+          <tr><td>M</td><td>toggle manipulation ↔ navigation</td></tr>
+          <tr><td>B</td><td>toggle lazy base-follow</td></tr>
+          <tr><td>R</td><td>reset to home + re-randomize the object</td></tr>
+          <tr><td>Q · ESC</td><td>quit (auto-discards an unsaved take)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="feature-copy">
+      <span class="eyebrow">inspect · visualize · merge</span>
+      <h3>A small toolbox around the files.</h3>
+      <p><code>inspect_episode.py</code> prints the schema, shapes, and timing — or tile-replays every camera stream. <code>visualize_dataset.py</code> regenerates vector-PDF diagnostics. <code>merge_dataset.py</code> pools several collection folders into one, renumbering episodes so sessions compose cleanly.</p>
+      <div class="bib" style="margin-top:18px;">
+        <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+        <pre>python collect_sim.py --name pick_cube_v1 --task "pick the blue cube"
+python inspect_episode.py datasets/pick_cube_v1/episode_0000.h5 --play
+python merge_dataset.py --out datasets/all datasets/pick_cube_v1 datasets/pick_cube_v2</pre>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── POLICIES ─── -->
+<section class="pad-y" id="policies"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Policies</span><h2 class="display-md title">Two families, <span class="italic accent">one interface.</span></h2></div>
+    <p class="lede">Both consume the same observation graph and emit action chunks, so swapping a policy is a checkpoint change, not a rewrite.</p></div>
+
+  <div class="feature fade-up">
+    <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">Diffusion Policy schematic</div></div></div>
+    <div class="feature-copy">
+      <span class="eyebrow">Diffusion Policy</span>
+      <h3>Multi-modal, smooth, robust.</h3>
+      <p>A conditional denoising policy models the full distribution of expert actions, so MABEL can commit to one of several valid strategies instead of averaging them into failure. Receding-horizon action chunks keep motion smooth and reactive — the primary model for contact-rich bimanual skills.</p>
+      <div class="spec"><span>Action chunking</span><span>Visual conditioning</span><span>Receding horizon</span></div>
+    </div>
+  </div>
+
+  <div class="feature flip fade-up">
+    <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">ACT / transformer schematic</div></div></div>
+    <div class="feature-copy">
+      <span class="eyebrow">ACT</span>
+      <h3>Transformers that plan ahead.</h3>
+      <p>Action Chunking with Transformers predicts a horizon of future actions from a short observation window, with temporal ensembling for stability. It is a strong, fast baseline and a natural fit for the bimanual demonstrations the teleop rig produces.</p>
+      <div class="spec"><span>CVAE option</span><span>Temporal ensemble</span><span>Goal image input</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── INTERACTIVE ARCHITECTURE VIEWER ─── -->
+<section class="pad-y" id="arch"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Architectures · live</span>
+    <h2 class="display-md title">See the network. <span class="italic accent">Every block.</span></h2></div>
+    <p class="lede">The exact, config-accurate diagram from the <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Trainer Studio</a> — the same graph the real training run compiles. Switch between <strong>ACT</strong>, the <strong>Diffusion Transformer</strong>, and <strong>π₀ / π₀.₅</strong>; drag, scroll to zoom, and <em>double-click any block to look inside</em> down to the individual Conv / Linear / attention atoms.</p></div>
+
+  <div class="av-shell fade-up">
+    <div class="av-tabs" id="av-tabs"></div>
+    <div class="av-desc" id="av-desc"></div>
+    <div class="av-stage" id="av-stage">
+      <div class="arch-toolbar" id="archToolbar"></div>
+      <div class="arch-legend" id="archLegend"></div>
+      <canvas id="archCanvas"></canvas>
+      <div class="arch-tip" id="archTip"></div>
+      <div class="av-hint">drag · scroll to zoom · double-click a block to look inside</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── CONTRIBUTE A TRAINING JOB ─── -->
+<section class="dark-sec pad-y" id="contribute"><div class="wrap">
+  <div class="card studio-card fade-up">
+    <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Community training · help train MABEL</span>
+    <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Queue a real <span class="italic accent">training job.</span></h2>
+    <p class="lede" style="margin:0 0 26px; max-width:64ch;">Pick an architecture above, choose one of MABEL&rsquo;s curated datasets, tune a few hyperparameters, and submit. Your job joins the <strong>community queue</strong>; once we review it, it trains on MABEL&rsquo;s GPU and the resulting policy and learning curves are published back here. No account needed — everyone can help teach the robot.</p>
+
+    <div class="cf-grid">
+      <label class="cf-field"><span>Architecture</span><output id="cf-arch" class="cf-out">…</output></label>
+      <label class="cf-field"><span>Dataset</span><select id="cf-dataset"></select></label>
+      <div class="cf-fields" id="cf-fields"></div>
+      <label class="cf-field"><span>Your name / handle</span><input id="cf-name" maxlength="40" placeholder="anon" autocomplete="off" /></label>
+      <label class="cf-field cf-wide"><span>Note <em>(optional)</em></span><input id="cf-note" maxlength="140" placeholder="what skill are you trying to teach?" autocomplete="off" /></label>
+    </div>
+
+    <div class="cf-actions">
+      <button class="btn btn-primary" id="cf-submit">Submit to the queue →</button>
+      <span class="cf-msg" id="cf-msg"></span>
+    </div>
+
+    <div class="cf-queue-wrap">
+      <div class="cf-queue-head"><span class="eyebrow" style="color:var(--bone); opacity:.8;">Community queue</span><button class="cf-refresh" id="cf-refresh">↻ refresh</button></div>
+      <div class="cf-queue" id="cf-queue"></div>
+    </div>
+
+    <div class="spec" style="margin-top:24px;">
+      <span>Owner-approved before it runs</span><span>Runs on MABEL&rsquo;s hardware</span><span>ACT · DiT · π₀ · π₀.₅</span><span>Results published back</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── TRAINING + RESULTS ─── -->
+<section class="dark-sec pad-y" id="training"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Training</span><h2 class="display-md title" style="color:var(--bone);">Reproducible by <span class="italic accent">construction.</span></h2></div>
+    <p class="lede">Fixed seeds, bundled statistics, and auto-resume. Re-run the same command and continue from the last checkpoint.</p></div>
+
+  <div class="points fade-up">
+    <div class="point"><div class="num">01</div><div>
+      <h5>Sim pre-train, real fine-tune</h5>
+      <p>Policies are warm-started in the <a href="simulation.html" style="color:var(--rust);">Isaac Lab</a> twin, then fine-tuned on real teleoperation episodes — fewer real demonstrations for the same competence.</p>
+    </div></div>
+    <div class="point"><div class="num">02</div><div>
+      <h5>Normalization travels with the model</h5>
+      <p>Dataset statistics are saved alongside each checkpoint and applied at inference to un-normalize actions, so a model behaves identically on the bench and on the robot.</p>
+    </div></div>
+    <div class="point"><div class="num">03</div><div>
+      <h5>Ablations, not anecdotes</h5>
+      <p>RGB-only, +goal-image, and +joint-history variants are trained and evaluated under one harness, so every design choice is backed by a measured number.</p>
+    </div></div>
+    <div class="point"><div class="num">04</div><div>
+      <h5>Onboard deployment</h5>
+      <p>Checkpoints run on the Jetson Thor through the policy runtime, handing actions to the <a href="controller.html" style="color:var(--rust);">whole-body controller</a> — no laptop in the loop.</p>
+    </div></div>
+  </div>
+
+  <div class="fade-up" style="overflow-x:auto; margin-top:clamp(40px,6vh,72px);">
+    <table class="data-table">
+      <thead><tr><th>Method</th><th>Success</th><th>Visual Align.</th><th>Smoothness ↑</th></tr></thead>
+      <tbody>
+        <tr><td>Human expert (teleop)</td><td>—</td><td>1.000</td><td>1.0×</td></tr>
+        <tr class="best"><td>Diffusion Policy (full)</td><td class="hi">high</td><td class="hi">0.93</td><td class="hi">3.1×</td></tr>
+        <tr><td>ACT (full)</td><td>high</td><td>0.90</td><td>2.4×</td></tr>
+        <tr><td>+ goal image</td><td>med</td><td>0.82</td><td>2.0×</td></tr>
+        <tr><td>RGB only</td><td>low</td><td>0.61</td><td>1.6×</td></tr>
+      </tbody>
+    </table>
+    <p class="table-note">Visual alignment = cosine similarity of a learned image embedding to the goal frame. Smoothness reported relative to the human demonstrator (higher = less jerk). Placeholder values — replace with the evaluation-harness output.</p>
+  </div>
+</div></section>
+
+<!-- ─── LONG HORIZON ─── -->
+<section class="soft-sec pad-y" id="long"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Long-horizon</span><h2 class="display-md title">Laundry. <span class="italic accent">From 28 to 6.</span></h2></div>
+    <p class="lede">One task, twelve sub-steps, two elevators, three doors, and one floor of a Manhattan high-rise that didn't know a robot was coming. Each step is a learned skill or a <a href="navigation.html">navigation goal</a>; a task graph stitches them end-to-end and runs autonomously.</p></div>
+
+  <div class="fade-up media-frame r-169" style="margin-bottom:clamp(48px,7vh,80px);"><div class="ph"><div class="ph-label">Long-horizon rollout · drop demo reel</div></div></div>
+
+  <div class="timeline fade-up">
+    <div class="tl-step">
+      <div>
+        <div class="tl-meta">Step 01 · 00:00</div>
+        <h4>Picks up the laundry bag.</h4>
+        <p>Bimanual lift from the bedroom floor. The policy chooses the grasp; the second hand stabilizes the bag's weight transfer onto the lift column.</p>
+      </div>
+      <div class="tl-shot"><div class="ph"><div class="ph-label">Apt · floor 28 · bedroom</div></div></div>
+    </div>
+    <div class="tl-step">
+      <div>
+        <div class="tl-meta">Step 02 · 00:42</div>
+        <h4>Navigates to the elevator.</h4>
+        <p>SLAM-based global plan; the holonomic base strafes around the kitchen island, holding heading so the wrist cameras keep the bag in view.</p>
+      </div>
+      <div class="tl-shot"><div class="ph"><div class="ph-label">Apt corridor · floor 28</div></div></div>
+    </div>
+    <div class="tl-step">
+      <div>
+        <div class="tl-meta">Step 03 · 01:15</div>
+        <h4>Presses the elevator button.</h4>
+        <p>Active perception locates the call button. A single finger from the ORCA hand extends, presses, retracts. MABEL waits.</p>
+      </div>
+      <div class="tl-shot"><div class="ph"><div class="ph-label">Elevator lobby · 28F</div></div></div>
+    </div>
+    <div class="tl-step">
+      <div>
+        <div class="tl-meta">Step 04 · 02:08</div>
+        <h4>Enters the elevator. Selects floor 6.</h4>
+        <p>The base rotates to clear the doorframe and strafes in. The arm reads the floor panel, finds <em>6</em>, and presses. The doors close.</p>
+      </div>
+      <div class="tl-shot"><div class="ph"><div class="ph-label">Elevator car</div></div></div>
+    </div>
+    <div class="tl-step">
+      <div>
+        <div class="tl-meta">Step 05 · 03:30</div>
+        <h4>Exits, navigates to the laundry room.</h4>
+        <p>Pre-built floorplan with live SLAM correction. MABEL recognizes the laundry-room door, approaches, and pauses for the handle.</p>
+      </div>
+      <div class="tl-shot"><div class="ph"><div class="ph-label">Laundry room · 6F</div></div></div>
+    </div>
+    <div class="tl-step">
+      <div>
+        <div class="tl-meta">Step 06 · 04:12</div>
+        <h4>Opens the door. Loads the machine.</h4>
+        <p>Bimanual: one hand holds the door, the other opens the washer lid, lifts the bag, transfers the clothes, closes the lid, selects the cycle, pays.</p>
+      </div>
+      <div class="tl-shot"><div class="ph"><div class="ph-label">Washer · loaded · paid</div></div></div>
+    </div>
+    <div class="tl-step">
+      <div>
+        <div class="tl-meta">Step 07 · 06:48 · complete</div>
+        <h4>Returns to the apartment.</h4>
+        <p>The reverse path. Eyes shift from amber-attentive to soft-idle. MABEL parks, lowers its torso, and waits for the next task.</p>
+      </div>
+      <div class="tl-shot"><div class="ph"><div class="ph-label">Apt · floor 28 · idle</div></div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y"><div class="wrap-narrow" style="text-align:center;">
+  <h2 class="display-sm fade-up" style="margin-bottom:24px;">From demo to deployment.</h2>
+  <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+    <a href="teleop.html" class="btn btn-primary">Teleop · the data source →</a>
+    <a href="controller.html" class="btn btn-ghost">Controller · deploy target →</a>
+    <a href="navigation.html" class="btn btn-ghost">Navigation →</a>
+  </div>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="controller.html">Controller</a><a href="navigation.html">Navigation</a><a href="autonomy.html">Autonomy</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/thejerrycheng/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built in New York · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/js/mabel.js"></script>
+<script type="module" src="assets/js/arch-contribute.js"></script>
+</body>
+</html>
