@@ -260,10 +260,10 @@ function init() {
       pose: (t) => {
         const o = {};
         const up = smooth(t / 0.7) * smooth((4.6 - t) / 0.6);
-        o.right_arm_2 = -1.0 * up;
-        o.right_arm_4 = -1.25 * up;
-        o.right_arm_6 = 0.35 * up;
-        o.right_wrist = 0.3 * up;
+        o.right_arm_2 = -0.9 * up;            // out…
+        o.right_arm_4 = -1.35 * up;           // …elbow folded…
+        o.right_arm_6 = 0.9 * up;             // …bend plane turned so the
+        o.right_wrist = 0.25 * up;            // raised hand reads on camera
         o.neck_yaw = -0.3 * up;               // robot watches its own hand
         o.neck_pitch = 0.06 * up;
         const pump = (c) => Math.exp(-14 * Math.abs(t - c)) * 0.28;
