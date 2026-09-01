@@ -7,9 +7,9 @@
 <title>MABEL — A Mobile Bimanual Platform for Everyday Work</title>
 <meta name="description" content="MABEL is an open-source mobile bimanual robot from $8,722: 17-DOF ORCA hands, a 3-module holonomic swerve base, Apple Vision Pro teleoperation, whole-body control, and long-horizon autonomy on Jetson Thor." />
 
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
-<link rel="icon" href="assets/favicon.png" sizes="32x32" type="image/png" />
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+<link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
@@ -174,6 +174,7 @@
       <span class="burst sm pin" aria-hidden="true">Vroom!</span>
       <div class="sim-stage" id="simStage">
         <img src="assets/wild/sim-poster.jpg" alt="The MABEL browser simulator console" loading="lazy" />
+        <span class="panel-speech tail-br" style="top:7%; right:5%; z-index:3;">Take the wheels!</span>
         <div class="sim-boot-veil">
           <button class="btn btn-primary" id="simBoot" type="button">⚡ Power on the simulator</button>
           <span class="sim-boot-note">Runs on your phone too</span>
@@ -350,6 +351,7 @@
         </div>
       </aside>
       <div class="anat-stage anat-free" id="anat3d">
+        <span class="panel-speech" style="top:4%; right:4%; max-width:46%;">Look inside me!</span>
         <canvas id="anatCanvas"></canvas>
         <div class="ph viewer-loading"><div class="ph-label">Loading MABEL · anatomy rig</div></div>
         <div class="viewer-hint"><span class="dot-live"></span> Drag to orbit · scroll to zoom</div>
@@ -381,6 +383,7 @@
 
                               <div id="t-vp" class="tab-panel on">
         <span class="burst sm pin" aria-hidden="true">Sync!</span>
+        <span class="panel-speech" style="top:10%; left:4%; z-index:3;">Do as I do!</span>
         <div class="demo-media"><div class="media-frame r-169" style="background:#0B0E15;"><video muted loop playsinline preload="none" poster="assets/wild/d-overview.jpg" data-lo="assets/wild/d-overview-lo.mp4" data-lazyvid="assets/wild/d-overview.mp4" style="object-fit:contain;" aria-label="Vision Pro mirror mode in the studio"></video></div></div>
         <p class="demo-caption">Apple Vision Pro — the native app in mirror mode: head, hands, and gaze</p>
       </div>
@@ -429,7 +432,7 @@
       <figure class="wall-item "><video muted loop playsinline preload="none" poster="assets/wild/v-avp.jpg" data-lo="assets/wild/v-avp-lo.mp4" data-lazyvid="assets/wild/v-avp.mp4" aria-label="Mirror mode · Vision Pro teleop"></video><span class="burst sm" aria-hidden="true">Sync!</span><figcaption class="wall-cap">Mirror mode · Vision Pro teleop</figcaption></figure>
       <figure class="wall-item t2"><img src="assets/wild/w-typing.jpg" alt="Office hours" loading="lazy" /><figcaption class="wall-cap">Office hours</figcaption></figure>
       <figure class="wall-item "><video muted loop playsinline preload="none" poster="assets/wild/v-bridge.jpg" data-lo="assets/wild/v-bridge-lo.mp4" data-lazyvid="assets/wild/v-bridge.mp4" aria-label="Crossing the Brooklyn Bridge"></video><figcaption class="wall-cap">Crossing the Brooklyn Bridge</figcaption></figure>
-      <figure class="wall-item "><span class="panel-speech" style="top:8%; right:6%;">We built a robot!</span><img src="assets/wild/w-crew.jpg" alt="The crew · launch week" loading="lazy" /><figcaption class="wall-cap">The crew · launch week</figcaption></figure>
+      <figure class="wall-item "><span class="panel-speech tail-br" style="top:5%; left:4%;">We built a robot!</span><img src="assets/wild/w-crew.jpg" alt="The crew · launch week" loading="lazy" /><figcaption class="wall-cap">The crew · launch week</figcaption></figure>
       <figure class="wall-item t2"><video muted loop playsinline preload="none" poster="assets/wild/v-grip.jpg" data-lo="assets/wild/v-grip-lo.mp4" data-lazyvid="assets/wild/v-grip.mp4" aria-label="17-DOF ORCA hand"></video><span class="burst sm" aria-hidden="true">Grip!</span><figcaption class="wall-cap">17-DOF ORCA hand</figcaption></figure>
       <figure class="wall-item "><img src="assets/wild/w-tada.jpg" alt="56 DOF, all present" loading="lazy" /><span class="burst sm" aria-hidden="true">Ta-da!</span><figcaption class="wall-cap">56 DOF, all present</figcaption></figure>
       <figure class="wall-item "><video muted loop playsinline preload="none" poster="assets/wild/v-face.jpg" data-lo="assets/wild/v-face-lo.mp4" data-lazyvid="assets/wild/v-face.mp4" aria-label="Say hello, MABEL"></video><span class="burst sm" aria-hidden="true">Beep!</span><figcaption class="wall-cap">Say hello, MABEL</figcaption></figure>
@@ -438,7 +441,7 @@
       <figure class="wall-item "><img src="assets/wild/w-bench.jpg" alt="Week two · arms on the bench" loading="lazy" /><figcaption class="wall-cap">Week two · arms on the bench</figcaption></figure>
       <figure class="wall-item t2"><video muted loop playsinline preload="none" poster="assets/wild/v-cybertruck.jpg" data-lo="assets/wild/v-cybertruck-lo.mp4" data-lazyvid="assets/wild/v-cybertruck.mp4" aria-label="Making friends"></video><span class="burst sm" aria-hidden="true">Honk!</span><figcaption class="wall-cap">Making friends</figcaption></figure>
       <figure class="wall-item "><img src="assets/wild/w-shop.jpg" alt="Born in the shop" loading="lazy" /><figcaption class="wall-cap">Born in the shop</figcaption></figure>
-      <figure class="wall-item t2"><span class="panel-speech" style="top:7%; left:6%;">Inbox zero, eventually.</span><video muted loop playsinline preload="none" poster="assets/wild/v-typing.jpg" data-lo="assets/wild/v-typing-lo.mp4" data-lazyvid="assets/wild/v-typing.mp4" aria-label="MABEL at a MacBook"></video><span class="burst sm" aria-hidden="true">Clack!</span><figcaption class="wall-cap">Inbox zero, eventually</figcaption></figure>
+      <figure class="wall-item t2"><span class="panel-speech tail-br" style="top:5%; left:5%;">Inbox zero, eventually.</span><video muted loop playsinline preload="none" poster="assets/wild/v-typing.jpg" data-lo="assets/wild/v-typing-lo.mp4" data-lazyvid="assets/wild/v-typing.mp4" aria-label="MABEL at a MacBook"></video><span class="burst sm" aria-hidden="true">Clack!</span><figcaption class="wall-cap">Inbox zero, eventually</figcaption></figure>
       <figure class="wall-item "><video muted loop playsinline preload="none" poster="assets/wild/v-elevator.jpg" data-lo="assets/wild/v-elevator-lo.mp4" data-lazyvid="assets/wild/v-elevator.mp4" aria-label="Long-horizon teleop run, elevator included"></video><span class="burst sm" aria-hidden="true">Ding!</span><figcaption class="wall-cap">Long-horizon run · elevator included</figcaption></figure>
       <figure class="wall-item t2"><img src="assets/wild/w-dusk-setup.jpg" alt="Golden-hour field rig" loading="lazy" /><figcaption class="wall-cap">Golden-hour field rig</figcaption></figure>
       <figure class="wall-item "><img src="assets/wild/w-night.jpg" alt="Manhattan, meet MABEL" loading="lazy" /><figcaption class="wall-cap">Manhattan, meet MABEL</figcaption></figure>

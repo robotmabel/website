@@ -6,9 +6,9 @@
 <meta name="theme-color" content="#151820" />
 <title>MABEL — Teleop</title>
 <meta name="description" content="Teleoperate MABEL: try the browser operator console live with no install, then drive it from Apple Vision Pro or iPhone — three clients, one wire protocol, sim or real robot." />
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
-<link rel="icon" href="assets/favicon.png" sizes="32x32" type="image/png" />
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+<link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
@@ -82,6 +82,7 @@
     <!-- ── PILOT ────────────────────────────────────────────────── -->
     <div class="ta-view on" data-view="teleop">
       <div class="ta-video">
+        <span class="panel-speech tail-br" style="top:6%; left:5%; z-index:7;">Grab the sticks!</span>
         <img id="taCamMain" alt="" style="display:none;" />
         <!-- H.264/WebCodecs canvas (LAN low-latency); overlays the MJPEG <img>, shown only while decoding -->
         <canvas id="taCanvasMain" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas>
