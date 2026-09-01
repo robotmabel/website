@@ -126,9 +126,10 @@ function init() {
     const h = sz.y || 1;
     const tanV = Math.tan((camera.fov / 2) * Math.PI / 180);
     const tanH = tanV * camera.aspect;
-    const span = h * 1.2;
+    const portrait = camera.aspect < 0.95;      // phone hero: centred, tighter
+    const span = h * (portrait ? 0.95 : 1.2);
     const dist = Math.max((h * 0.64) / tanV, (span * 0.62) / tanH);
-    const panWorld = 0.46 * tanH * dist;
+    const panWorld = portrait ? 0 : 0.46 * tanH * dist;
     camera.position.set(c.x - dist, c.y + h * 0.10, c.z - panWorld + dist * 0.10);
     camera.lookAt(c.x, c.y, c.z - panWorld);
     camera.near = h / 50; camera.far = dist * 20;
@@ -796,8 +797,9 @@ function init() {
     if (dbgLook) { tx = dbgLook[0]; ty = dbgLook[1]; }
     else if (idleFor < 4) {
       const r = box.getBoundingClientRect();
-      const hx = (r.left + r.width * 0.72) / innerWidth;
-      const hy = (r.top + r.height * 0.26) / innerHeight;
+      const wide = r.width / Math.max(1, r.height) >= 0.95;
+      const hx = (r.left + r.width * (wide ? 0.72 : 0.5)) / innerWidth;
+      const hy = (r.top + r.height * (wide ? 0.26 : 0.3)) / innerHeight;
       tx = clamp((px - hx) * 2.6, -1, 1);
       ty = clamp((py - hy) * 3.0, -1, 1);
     } else {
