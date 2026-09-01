@@ -2075,3 +2075,39 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   .panel-speech { font-size: 11px; padding: 6px 9px 5px; }
   .adv-burst .ab-mabel { font-size: 26px; } .adv-burst .ab-sub { font-size: 12px; }
 }
+
+/* ─── Exaggerated comic lettering (Crime Alley / K-RAWSH refs) ────── */
+/* jumpy baseline: letters wobble off the line */
+.jumpy span { display: inline-block; }
+.jumpy span:nth-child(4n+1) { transform: rotate(-3deg) translateY(1px); }
+.jumpy span:nth-child(4n+2) { transform: rotate(2deg) translateY(-2px); }
+.jumpy span:nth-child(4n+3) { transform: rotate(-1.5deg) translateY(2px); }
+.jumpy span:nth-child(4n)   { transform: rotate(3deg) translateY(-1px); }
+.hero-sub .rl:nth-child(3n+1) { transform: rotate(-2.5deg) translateY(1px); }
+.hero-sub .rl:nth-child(3n+2) { transform: rotate(2deg) translateY(-1.5px); }
+/* K-RAWSH! floating sound-effect lettering — no box, just outlined type */
+.sfx {
+  position: absolute; z-index: 6; pointer-events: none;
+  font-family: var(--font-comic); font-size: clamp(34px, 4.5vw, 64px);
+  letter-spacing: 0.04em; color: var(--yellow);
+  -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke;
+  text-shadow: 3px 4px 0 rgba(21,24,32,0.55);
+  transform: rotate(-8deg);
+}
+.sfx.red { color: var(--rust); } .sfx.orange { color: var(--orange); } .sfx.green { color: #7ED957; }
+.sfx.pop { animation: sfxPop 1.4s var(--spring) both; }
+@keyframes sfxPop {
+  0% { opacity: 0; transform: rotate(-8deg) scale(0.3); }
+  18% { opacity: 1; transform: rotate(-8deg) scale(1.15); }
+  30% { transform: rotate(-8deg) scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(-8deg) scale(1.05) translateY(-14px); }
+}
+/* ambient scene lettering — the "Caw Caw" voice */
+.ambient {
+  position: absolute; z-index: 2; pointer-events: none;
+  font-family: var(--font-comic); font-size: clamp(16px, 1.8vw, 24px);
+  letter-spacing: 0.08em; color: var(--gold); opacity: 0.85;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+}
+@media (prefers-reduced-motion: reduce) { .sfx.pop { animation: none; opacity: 0; } }

@@ -682,9 +682,33 @@ function init() {
   let applied = {};           // last values actually set, incl. __spin
   let trans = null;           // {from, t0}
   const TRANS_DUR = 0.45;
+  const ACT_SFX = {
+    sneeze: ['CHOO!', 'red'], rps: ['SNIP!', 'orange'], flexit: ['FLEX!', 'orange'],
+    rev: ['VROOM!', 'red'], bow: ['TA-DA!', ''], hello: ['HI!', 'orange'],
+    wavehi: ['HELLO!', 'orange'], overhead: ['HEY HEY!', ''], ballet: ['TWIRL!', ''],
+    shake: ['PLEASED!', 'green'], fistbump: ['BUMP!', 'orange'], heart: ['<3', 'red'],
+    happy: ['WOO!', ''], sad: ['*SIGH*', ''], angry: ['GRRR!', 'red'],
+    groove: ['BOOGIE!', 'orange'], spinmove: ['WHOOSH!', ''], inspect: ['HMM...', 'green'],
+    peace: ['PEACE!', 'green'], piano: ['PLINK!', ''], clap: ['CLAP!', 'orange'],
+    finger: ['HONK!', 'red'],
+  };
+  function popSfx(name) {
+    const cfg = ACT_SFX[name];
+    if (!cfg || !box.parentElement) return;
+    const el = document.createElement('span');
+    el.className = 'sfx pop' + (cfg[1] ? ' ' + cfg[1] : '');
+    el.textContent = cfg[0];
+    const r = box.getBoundingClientRect();
+    const pr = box.parentElement.getBoundingClientRect();
+    el.style.left = (r.left - pr.left + r.width * (0.52 + Math.random() * 0.2)) + 'px';
+    el.style.top = (r.top - pr.top + r.height * (0.14 + Math.random() * 0.12)) + 'px';
+    box.parentElement.appendChild(el);
+    setTimeout(() => el.remove(), 1500);
+  }
   function startAct(name) {
     trans = { from: Object.assign({}, applied), t0: performance.now() };
     act = { name, t0: performance.now() };
+    popSfx(name);
   }
 
   /* ── pointer: gaze + poke ── */

@@ -480,3 +480,20 @@
   });
   map.classList.add('pick-hw');
 })();
+
+/* ── Jumpy comic baseline: split .jumpy elements into letter spans ── */
+(function () {
+  'use strict';
+  document.querySelectorAll('.jumpy').forEach(function (el) {
+    if (el.dataset.jumped) return;
+    el.dataset.jumped = '1';
+    var text = el.textContent;
+    el.textContent = '';
+    for (var i = 0; i < text.length; i++) {
+      if (text[i] === ' ') { el.appendChild(document.createTextNode(' ')); continue; }
+      var sp = document.createElement('span');
+      sp.textContent = text[i];
+      el.appendChild(sp);
+    }
+  });
+})();
