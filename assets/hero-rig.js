@@ -413,14 +413,265 @@ function init() {
       return o;
     },
   };
+  /* ── ports from the control-center clip library (web_gui motions.js —
+     validated on the live sim; same MJCF-zero joint space as this rig).
+     Adapter: `grip` keys expand to ORCA finger curls, GUI lift metres are
+     scaled onto the rig's ± range, and nav yaw integrates into __spin. */
+  const ease01 = (u) => 0.5 - 0.5 * Math.cos(Math.PI * clamp(u, 0, 1));
+  const seg = (t, t0, t1) => ease01((t - t0) / Math.max(1e-6, t1 - t0));
+  const win = (t, t0, t1, r = 0.5) => {
+    if (t <= t0 || t >= t1) return 0;
+    return Math.min(seg(t, t0, t0 + r), 1 - seg(t, t1 - r, t1));
+  };
+  const osc = (t, f, t0, t1, r = 0.5) =>
+    win(t, t0, t1, r) * Math.sin(2 * Math.PI * f * (t - t0));
+  const breath = (t, t0, t1, f = 0.28) =>
+    win(t, t0, t1, 0.8) * Math.sin(2 * Math.PI * f * (t - t0));
+  const yawInt = (rxFn, t, dt = 0.05) => {           // ∫ 1.5·rx dt  (wire cal)
+    let a = 0;
+    for (let u = dt / 2; u < t; u += dt) a += 1.5 * rxFn(u) * dt;
+    return a;
+  };
+  const fromGUI = (o) => {                            // adapter, in place
+    for (const side of ['left', 'right']) {
+      const g = o[`${side}_grip`];
+      if (g !== undefined) {
+        delete o[`${side}_grip`];
+        FINGERS.forEach((f) => {
+          o[`${side}_${f}_mcp`] = g * 1.55; o[`${side}_${f}_pip`] = g * 1.35;
+        });
+        o[`${side}_thumb_mcp`] = g * 0.85;
+      }
+    }
+    if (o.lift_lower !== undefined) o.lift_lower *= 0.5;
+    if (o.lift_upper !== undefined) o.lift_upper *= 0.5;
+    return o;
+  };
+
+  Object.assign(ACTS, {
+    /* wave hello, hand up beside the head — GUI `wave` */
+    wavehi: {
+      dur: 5.0, headOwn: 0.25,
+      pose: (t) => {
+        const d = 5.0, up = win(t, 0.1, d - 0.1, 1.3);
+        const wig = osc(t, 0.95, 1.2, d - 1.0, 0.6), brt = breath(t, 0, d);
+        return fromGUI({
+          right_arm_1: 2.0 * up, right_arm_2: -0.6 * up, right_arm_3: -0.9 * up,
+          right_arm_4: (-1.0 + 0.32 * wig) * up, right_arm_7: 0.4 * wig * up,
+          right_grip: 0.06 * up,
+          left_arm_1: 1.25 * up + 0.02 * brt, left_arm_4: 0.35 * up,
+          torso: -0.06 * up + 0.015 * brt,
+        });
+      },
+    },
+    /* BOTH hands over the head, waving side to side — per request */
+    overhead: {
+      dur: 5.0, headOwn: 0.3,
+      pose: (t) => {
+        const d = 5.0, up = win(t, 0.1, d - 0.1, 1.2);
+        const sway = osc(t, 0.8, 1.1, d - 0.9, 0.7);
+        return fromGUI({
+          left_arm_1: -2.5 * up, right_arm_1: 2.5 * up,
+          left_arm_2: (0.35 + 0.25 * sway) * up, right_arm_2: (-0.35 + 0.25 * sway) * up,
+          left_arm_3: -0.5 * up, right_arm_3: 0.5 * up,
+          left_arm_4: (0.55 + 0.2 * sway) * up, right_arm_4: (-0.55 + 0.2 * sway) * up,
+          left_grip: 0.05 * up, right_grip: 0.05 * up,
+          torso: 0.05 * up, lift_lower: 0.06 * up, lift_upper: 0.06 * up,
+        });
+      },
+    },
+    /* ballet: pirouette sway — port de bras arms, torso rises, robot
+       rotates left and right like a music box */
+    ballet: {
+      dur: 7.0, headOwn: 0.35,
+      pose: (t) => {
+        const d = 7.0, up = win(t, 0.15, d - 0.15, 1.2);
+        const turn = osc(t, 0.2, 0.6, d - 0.6, 1.4);
+        const o = fromGUI({
+          left_arm_1: -2.2 * up, right_arm_1: 2.2 * up,     // rounded overhead
+          left_arm_2: 0.65 * up, right_arm_2: -0.65 * up,
+          left_arm_3: 0.9 * up, right_arm_3: -0.9 * up,     // curve the frame
+          left_arm_4: 0.9 * up, right_arm_4: -0.9 * up,
+          left_arm_5: -0.4 * up, right_arm_5: 0.4 * up,
+          left_grip: 0.15 * up, right_grip: 0.15 * up,
+          torso: 0.08 * up, lift_lower: 0.1 * up, lift_upper: 0.1 * up,
+        });
+        o.__spin = 0.8 * turn;                              // the sway-turn
+        return o;
+      },
+    },
+    /* handshake offer — GUI `handshake` */
+    shake: {
+      dur: 6.0, headOwn: 0.25,
+      pose: (t) => {
+        const d = 6.0, offer = win(t, 0.1, d - 0.1, 1.1);
+        const bob = osc(t, 0.9, 2.0, 4.4, 0.5), brt = breath(t, 0, d);
+        return fromGUI({
+          right_arm_1: 0.18 * offer + 0.06 * bob, right_arm_2: -0.15 * offer,
+          right_arm_3: -0.9 * offer, right_arm_4: 0.25 * offer,
+          right_arm_6: 0.12 * offer, right_grip: 0.18 * offer,
+          left_arm_1: 1.3 * offer + 0.02 * brt, left_arm_4: 0.3 * offer,
+          torso: -0.1 * offer,
+        });
+      },
+    },
+    /* fist bump — GUI `fistbump` */
+    fistbump: {
+      dur: 4.5, headOwn: 0.25,
+      pose: (t) => {
+        const d = 4.5, arm = win(t, 0.1, d - 0.1, 0.9);
+        const wind = win(t, 0.7, 2.0, 0.55), punch = win(t, 1.8, 3.6, 0.55);
+        return fromGUI({
+          right_arm_1: 0.45 * arm - 0.75 * punch, right_arm_2: -0.1 * arm,
+          right_arm_4: -0.35 * wind, right_arm_5: 0.7 * arm,
+          right_grip: Math.min(1, 1.15 * seg(t, 0.15, 1.9)) * (1 - seg(t, d - 1.6, d - 0.15)),
+          left_arm_1: 1.28 * arm, left_arm_4: 0.32 * arm,
+          torso: -0.05 * arm - 0.06 * punch,
+        });
+      },
+    },
+    /* heart hands, raised overhead — GUI `heart` */
+    heart: {
+      dur: 8.0, headOwn: 0.3,
+      pose: (t) => {
+        const d = 8.0, up = win(t, 0.1, d - 0.1, 1.5);
+        const hi = win(t, 3.4, d - 1.0, 1.1), brt = breath(t, 1.6, d - 1.6);
+        const sN = up + 0.012 * brt;
+        const a1 = -1.9 * sN - 0.1 * hi, a2 = (0.2 + 0.1 * hi) * sN;
+        const a3 = 1.4 * sN * (1 - hi), a4 = (1.6 - 0.05 * hi) * sN;
+        return fromGUI({
+          left_arm_1: a1, right_arm_1: -a1, left_arm_2: a2, right_arm_2: -a2,
+          left_arm_3: a3, right_arm_3: -a3, left_arm_4: a4, right_arm_4: -a4,
+          left_arm_6: 0.3 * sN, right_arm_6: 0.3 * sN,
+          left_grip: 0.25 * up, right_grip: 0.25 * up,
+          torso: 0.06 * up,
+        });
+      },
+    },
+    /* happy bounce — GUI `happy` */
+    happy: {
+      dur: 6.0, headOwn: 0.3,
+      pose: (t) => {
+        const d = 6.0, upW = win(t, 0.1, d - 0.1, 1.25);
+        const bounce = osc(t, 1.1, 0.9, d - 0.9, 0.7);
+        const lift = 0.13 * upW + 0.11 * upW * Math.max(0, bounce);
+        return fromGUI({
+          left_arm_1: (-1.75 + 0.16 * bounce) * upW, right_arm_1: (1.75 + 0.19 * bounce) * upW,
+          left_arm_2: 0.5 * upW, right_arm_2: -0.44 * upW,
+          left_arm_4: (0.35 - 0.22 * bounce) * upW, right_arm_4: (-0.35 - 0.25 * bounce) * upW,
+          left_grip: 0.05 * upW, right_grip: 0.05 * upW,
+          lift_lower: lift, lift_upper: lift,
+          torso: 0.07 * upW + 0.02 * bounce * upW,
+        });
+      },
+    },
+    /* sad slump — GUI `sad` (trimmed) */
+    sad: {
+      dur: 6.0, headOwn: 0.85,
+      pose: (t) => {
+        const d = 6.0, slump = win(t, 0.15, d - 0.15, 2.0);
+        const sigh = breath(t, 1.4, d - 1.4, 0.16);
+        const o = fromGUI({
+          torso: -0.7 * slump - 0.05 * sigh,
+          left_arm_1: 1.1 * slump, right_arm_1: -1.1 * slump,
+          left_arm_2: 0.22 * slump, right_arm_2: -0.22 * slump,
+          left_arm_4: 0.2 * slump + 0.03 * sigh, right_arm_4: -0.2 * slump - 0.03 * sigh,
+          left_arm_6: 0.4 * slump, right_arm_6: 0.4 * slump,
+          left_grip: 0.28 * slump, right_grip: 0.28 * slump,
+        });
+        o.neck_pitch = 0.5 * slump;                       // head hangs (rig can)
+        return o;
+      },
+    },
+    /* angry fists shaking overhead — GUI `angry` */
+    angry: {
+      dur: 5.0, headOwn: 0.4,
+      pose: (t) => {
+        const d = 5.0, tense = win(t, 0.1, d - 0.1, 1.3);
+        const tremor = win(t, 1.2, d - 1.0, 0.4) * Math.sin(2 * Math.PI * 4.0 * t) * 0.045;
+        const stomp = win(t, 2.1, 3.3, 0.35);
+        const grip = Math.min(1, 1.2 * seg(t, 0.1, 2.0)) * (1 - seg(t, d - 1.7, d - 0.1));
+        return fromGUI({
+          left_arm_1: (-2.0 - 0.15 * stomp) * tense + tremor,
+          right_arm_1: (2.0 + 0.15 * stomp) * tense - tremor,
+          left_arm_2: 0.2 * tense, right_arm_2: -0.2 * tense,
+          left_arm_3: -0.9 * tense, right_arm_3: 0.9 * tense,
+          left_arm_4: 1.5 * tense + 2 * tremor, right_arm_4: -1.5 * tense - 2 * tremor,
+          left_grip: grip, right_grip: grip,
+          torso: -0.22 * tense - 0.06 * stomp,
+          lift_lower: 0.05 * tense, lift_upper: 0.05 * tense,
+        });
+      },
+    },
+    /* groove — GUI dance, sway mapped onto the spin group */
+    groove: {
+      dur: 9.0, headOwn: 0.3,
+      pose: (t) => {
+        const d = 9.0, on = win(t, 0.1, d - 0.1, 1.0);
+        const beat = osc(t, 0.85, 0.6, d - 0.7, 0.7);
+        const off = osc(t, 0.85, 0.85, d - 0.7, 0.7);
+        const pump = Math.max(0, beat), dip = Math.max(0, -beat);
+        const lift = 0.1 * on + 0.1 * on * pump;
+        const o = fromGUI({
+          left_arm_1: (-0.85 - 0.42 * beat) * on, right_arm_1: (0.85 - 0.42 * off) * on,
+          left_arm_2: 0.35 * on, right_arm_2: -0.35 * on,
+          left_arm_4: (0.9 + 0.35 * beat) * on, right_arm_4: (-0.9 + 0.35 * off) * on,
+          left_arm_5: -0.4 * on, right_arm_5: 0.4 * on,
+          left_grip: 0.35 * on, right_grip: 0.35 * on,
+          torso: (-0.14 - 0.1 * dip) * on,
+          lift_lower: lift, lift_upper: lift,
+        });
+        o.__spin = 0.25 * osc(t, 0.425, 0.9, d - 1.0, 0.9);   // hip wiggle
+        return o;
+      },
+    },
+    /* pirouette — GUI `spin`: figure-skater arms + a full integrated turn */
+    spinmove: {
+      dur: 8.0, headOwn: 0.5,
+      pose: (t) => {
+        const d = 8.0, pose = win(t, 0.1, d - 0.1, 1.0), flare = win(t, 1.0, d - 1.0, 1.2);
+        const o = fromGUI({
+          left_arm_1: -0.55 * pose, right_arm_1: 0.55 * pose,
+          left_arm_2: 1.15 * flare, right_arm_2: -1.15 * flare,
+          left_arm_4: 0.25 * pose, right_arm_4: -0.25 * pose,
+          left_arm_5: -0.6 * flare, right_arm_5: 0.6 * flare,
+          left_grip: 0.1 * pose, right_grip: 0.1 * pose,
+          torso: 0.05 * pose,
+          lift_lower: 0.08 * flare, lift_upper: 0.08 * flare,
+        });
+        o.__spin = yawInt((u) => 0.78 * win(u, 0.9, d - 0.7, 1.0), t);
+        return o;
+      },
+    },
+    /* inspect hands — fingertips meet in front of the face, palms turning */
+    inspect: {
+      dur: 7.0, headOwn: 0.8,
+      pose: (t) => {
+        const d = 7.0, raise = win(t, 0.2, d - 0.2, 1.2);
+        const turn = osc(t, 0.3, 2.0, 5.4, 0.8), brt = breath(t, 1.5, d - 1.2);
+        const o = fromGUI({
+          left_arm_1: -1.9 * raise, right_arm_1: 1.9 * raise,
+          left_arm_2: 0.2 * raise, right_arm_2: -0.2 * raise,
+          left_arm_3: 1.4 * raise, right_arm_3: -1.4 * raise,
+          left_arm_4: 1.6 * raise, right_arm_4: -1.6 * raise,
+          left_arm_5: 0.3 * turn * raise, right_arm_5: -0.3 * turn * raise,
+          left_grip: 0.12 * raise, right_grip: 0.12 * raise,
+          torso: -0.25 * raise - 0.02 * brt,
+        });
+        o.neck_pitch = 0.4 * raise;                     // actually look at them
+        return o;
+      },
+    },
+  });
+
   /* click playlists: repeated pokes cycle, never repeat back-to-back */
   const PLAYLISTS = {
-    head: ['sneeze'],
-    hands: ['rps', 'peace', 'piano', 'finger', 'clap', 'hello'],
-    arms: ['flexit', 'clap', 'hello', 'piano', 'peace'],
-    base: ['rev'],
-    torso: ['bow'],
-    lift: ['bow'],
+    head: ['sneeze', 'inspect', 'sad', 'happy', 'heart'],
+    hands: ['rps', 'peace', 'piano', 'finger', 'clap', 'heart', 'fistbump', 'shake', 'inspect', 'wavehi'],
+    arms: ['flexit', 'wavehi', 'overhead', 'angry', 'happy', 'groove', 'clap', 'piano', 'heart'],
+    base: ['rev', 'spinmove', 'ballet', 'groove'],
+    torso: ['bow', 'ballet', 'groove', 'sad', 'happy'],
+    lift: ['bow', 'happy', 'ballet', 'groove'],
   };
   const playIx = {};
 

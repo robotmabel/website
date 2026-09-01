@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" role="img" aria-label="MABEL head">
+  <g stroke="#151820" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+    <line x1="52" y1="34" x2="30" y2="8"/>
+    <line x1="148" y1="34" x2="170" y2="8"/>
+    <circle cx="30" cy="8" r="7" fill="#F0762E"/>
+    <circle cx="170" cy="8" r="7" fill="#F0762E"/>
+    <rect x="22" y="30" width="156" height="80" rx="36" fill="#FDF6E2"/>
+    <rect x="36" y="42" width="128" height="56" rx="26" fill="none" stroke="#F0762E" stroke-width="7"/>
+    <circle cx="74" cy="70" r="19" fill="#FFF9F0"/>
+    <circle cx="126" cy="70" r="19" fill="#FFF9F0"/>
+    <circle cx="74" cy="70" r="11" fill="#151820" stroke="none"/>
+    <circle cx="126" cy="70" r="11" fill="#151820" stroke="none"/>
+    <circle cx="78" cy="66" r="4" fill="#FFF9F0" stroke="none"/>
+    <circle cx="130" cy="66" r="4" fill="#FFF9F0" stroke="none"/>
+    <rect x="86" y="110" width="28" height="18" rx="8" fill="#9A9A9A"/>
+  </g>
+</svg>
