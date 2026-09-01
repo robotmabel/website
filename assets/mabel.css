@@ -2037,12 +2037,16 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   .contrib-cell:hover { transform: none; }
 }
 /* mobile: title stickers pin to the header corner — no wasted line */
+/* title stickers pin to the section header's top-right at EVERY size —
+   inline placement was pushing them onto their own line */
+.sec-head, .sec-head-center { position: relative; }
+.sec-head .sticker, .sec-head-center .sticker {
+  position: absolute !important; top: -18px; right: 0;
+  width: 84px !important; margin: 0 !important;
+}
+.sec-head .sticker + .sticker, .sec-head-center .sticker + .sticker { right: 88px; }
 @media (max-width: 700px) {
-  .sec-head, .sec-head-center { position: relative; }
-  .sec-head .sticker, .sec-head-center .sticker {
-    position: absolute !important; top: -34px; right: 0;
-    width: 58px !important; margin: 0 !important;
-  }
+  .sec-head .sticker, .sec-head-center .sticker { top: -34px; width: 58px !important; }
   .sec-head .sticker + .sticker, .sec-head-center .sticker + .sticker { right: 62px; }
 }
 
