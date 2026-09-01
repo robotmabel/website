@@ -76,7 +76,7 @@ function init() {
   const camera = new THREE.PerspectiveCamera(26, 1, 0.05, 80);
   comicLights(scene);
 
-  let root = null;
+  let root = null, spin = null;
   const J = {};
   const meshModule = new Map();
   const MODULE_ROOTS = [
@@ -91,7 +91,9 @@ function init() {
     .load('assets/mabel_rig.glb', (gltf) => {
       root = gltf.scene;
       comicize(root);
-      scene.add(root);
+      spin = new THREE.Group();
+      spin.add(root);
+      scene.add(spin);
       const rootOf = {};
       for (const [k, roots] of MODULE_ROOTS) for (const r of roots) rootOf[r] = k;
       root.traverse((n) => {
@@ -308,10 +310,130 @@ function init() {
         return o;
       },
     },
+    /* peace sign — V up by the head, palm out, proud little head tilt */
+    peace: {
+      dur: 3.0, headOwn: 0.5,
+      pose: (t) => {
+        const o = {};
+        const up = smooth(t / 0.6) * smooth((3.0 - t) / 0.6);
+        o.right_arm_2 = -0.9 * up; o.right_arm_4 = -1.35 * up;
+        o.right_arm_6 = 0.9 * up; o.right_wrist = 0.25 * up;
+        o.right_index_mcp = -0.1; o.right_index_pip = -0.05;
+        o.right_middle_mcp = -0.1; o.right_middle_pip = -0.05;
+        o.right_index_abd = -0.55; o.right_middle_abd = 0.35;
+        o.right_ring_mcp = 1.55; o.right_ring_pip = 1.4;
+        o.right_pinky_mcp = 1.6; o.right_pinky_pip = 1.4;
+        o.right_thumb_mcp = 0.9; o.right_thumb_pip = 1.2;
+        o.neck_roll = -0.14 * up;                       // cheeky tilt
+        o.neck_yaw = -0.2 * up;
+        return o;
+      },
+    },
+    /* air piano — both hands out front, fingers rippling fast */
+    piano: {
+      dur: 4.2, headOwn: 0.6,
+      pose: (t) => {
+        const o = {};
+        const up = smooth(t / 0.6) * smooth((4.2 - t) / 0.6);
+        o.left_arm_1 = -0.75 * up; o.right_arm_1 = 0.75 * up;
+        o.left_arm_4 = (0.9 + Math.sin(t * 5) * 0.05) * up;
+        o.right_arm_4 = (-0.9 + Math.sin(t * 5 + 1) * 0.05) * up;
+        o.left_wrist = Math.sin(t * 5) * 0.12 * up;
+        o.right_wrist = Math.sin(t * 5 + 1.5) * 0.12 * up;
+        for (const side of ['left', 'right']) {
+          const ph = side === 'left' ? 0 : 2.1;
+          FINGERS.forEach((f, i) => {
+            const key = 0.45 + 0.45 * Math.sin(t * 9 + ph + i * 1.25);
+            o[`${side}_${f}_mcp`] = key * up; o[`${side}_${f}_pip`] = key * 0.6 * up;
+          });
+          o[`${side}_thumb_mcp`] = (0.2 + 0.2 * Math.sin(t * 9 + ph + 5)) * up;
+        }
+        o.neck_pitch = 0.28 * up;                       // watching the keys
+        o.neck_yaw = Math.sin(t * 2.2) * 0.18 * up;     // following the runs
+        o.torso = -0.08 * up;
+        return o;
+      },
+    },
+    /* the New York salute — right hand up, middle finger only */
+    finger: {
+      dur: 2.6, headOwn: 0.45,
+      pose: (t) => {
+        const o = {};
+        const up = smooth(t / 0.55) * smooth((2.6 - t) / 0.55);
+        o.right_arm_2 = -0.9 * up; o.right_arm_4 = -1.35 * up;
+        o.right_arm_6 = 0.9 * up; o.right_wrist = 0.25 * up;
+        o.right_middle_mcp = -0.12; o.right_middle_pip = -0.06;
+        o.right_index_mcp = 1.6; o.right_index_pip = 1.45;
+        o.right_ring_mcp = 1.6; o.right_ring_pip = 1.45;
+        o.right_pinky_mcp = 1.65; o.right_pinky_pip = 1.45;
+        o.right_thumb_mcp = 1.0; o.right_thumb_pip = 1.2;
+        o.neck_roll = 0.12 * up;                        // deadpan tilt
+        return o;
+      },
+    },
+    /* hello — the classic wave, as a clickable act */
+    hello: { dur: 3.2, headOwn: 0.2, pose: (t) => POSES.wave(t) },
+    /* clapping — hands meet at the midline, flat palms */
+    clap: {
+      dur: 3.2, headOwn: 0.3,
+      pose: (t) => {
+        const o = {};
+        const up = smooth(t / 0.5) * smooth((3.2 - t) / 0.5);
+        const beat = Math.max(0, Math.sin(t * 7.5));    // clap rhythm
+        o.left_arm_1 = -0.7 * up; o.right_arm_1 = 0.7 * up;
+        o.left_arm_4 = 1.05 * up; o.right_arm_4 = -1.05 * up;
+        o.left_arm_2 = (0.35 - 0.3 * beat) * up;
+        o.right_arm_2 = (-0.35 + 0.3 * beat) * up;
+        o.left_arm_6 = -0.5 * up; o.right_arm_6 = 0.5 * up;
+        handShape(o, 'left', 'paper'); handShape(o, 'right', 'paper');
+        o.neck_pitch = 0.12 * up;
+        o.torso = (-0.06 - 0.02 * beat) * up;
+        return o;
+      },
+    },
   };
-  const MODULE_ACT = { head: 'sneeze', hands: 'rps', arms: 'flexit', base: 'rev', torso: 'bow', lift: 'bow' };
+  /* base rev v2: the robot does a full turn in place, waving both hands,
+     wheels spinning under it. __spin drives the whole-model yaw. */
+  ACTS.rev = {
+    dur: 4.0, headOwn: 0.4,
+    pose: (t) => {
+      const o = {};
+      const on = smooth(t / 0.5) * smooth((4.0 - t) / 0.5);
+      o.__spin = Math.PI * 2 * smooth(clamp((t - 0.3) / 3.3, 0, 1));
+      const spinWheel = wrap(t * 11);
+      o.fl_drive = spinWheel; o.fr_drive = spinWheel; o.b_drive = spinWheel;
+      o.fl_steer = 1.2 * on; o.fr_steer = -1.2 * on; o.b_steer = 0.8 * on;
+      /* both hands up, waving at everyone as it turns */
+      o.left_arm_2 = 1.05 * on; o.right_arm_2 = -1.05 * on;
+      o.left_arm_4 = 1.1 * on; o.right_arm_4 = -1.1 * on;
+      o.left_arm_6 = Math.sin(t * 6) * 0.4 * on;
+      o.right_arm_6 = -Math.sin(t * 6) * 0.4 * on;
+      FINGERS.forEach((f) => { o[`left_${f}_abd`] = 0.25 * on; o[`right_${f}_abd`] = 0.25 * on; });
+      o.neck_roll = Math.sin(t * 3) * 0.08 * on;
+      return o;
+    },
+  };
+  /* click playlists: repeated pokes cycle, never repeat back-to-back */
+  const PLAYLISTS = {
+    head: ['sneeze'],
+    hands: ['rps', 'peace', 'piano', 'finger', 'clap', 'hello'],
+    arms: ['flexit', 'clap', 'hello', 'piano', 'peace'],
+    base: ['rev'],
+    torso: ['bow'],
+    lift: ['bow'],
+  };
+  const playIx = {};
 
   let act = null;   // {name, t0}; t0 === -1 → frozen debug act at dbgPt
+  /* smooth interrupt: when a new act starts, blend from the exact pose on
+     screen — no jumps, even mid-animation. */
+  let applied = {};           // last values actually set, incl. __spin
+  let trans = null;           // {from, t0}
+  const TRANS_DUR = 0.45;
+  function startAct(name) {
+    trans = { from: Object.assign({}, applied), t0: performance.now() };
+    act = { name, t0: performance.now() };
+  }
 
   /* ── pointer: gaze + poke ── */
   let px = 0.5, py = 0.42, lastMove = -1e9;
@@ -343,8 +465,10 @@ function init() {
   addEventListener('click', (e) => {
     const mod = moduleAt(e);
     if (!mod) return;
-    const name = MODULE_ACT[mod];
-    if (name) act = { name, t0: performance.now() };
+    const list = PLAYLISTS[mod];
+    if (!list) return;
+    playIx[mod] = ((playIx[mod] ?? -1) + 1) % list.length;
+    startAct(list[playIx[mod]]);
   });
 
   let yaw = 0, pitch = 0;
@@ -436,9 +560,26 @@ function init() {
     target.neck_pitch = (target.neck_pitch || 0) + (pitch + Math.sin(t * 0.9) * 0.012) * cede;
     target.neck_roll = (target.neck_roll || 0) + Math.sin(t * 0.23) * 0.03 * cede;
 
+    /* smooth-interrupt blend from the pose that was on screen */
+    if (trans) {
+      const k = smooth((performance.now() - trans.t0) / 1000 / TRANS_DUR);
+      if (k >= 1) trans = null;
+      else {
+        for (const key of new Set([...Object.keys(trans.from), ...Object.keys(target)])) {
+          target[key] = lerp(trans.from[key] || 0, target[key] || 0, k);
+        }
+      }
+    }
     for (const [k, v] of Object.entries(target)) {
+      if (k === '__spin') continue;
       const j = J[k]; if (!j) continue;
-      setJ(k, clamp(v, j.lo, j.hi));
+      const cv = clamp(v, j.lo, j.hi);
+      setJ(k, cv);
+      applied[k] = cv;
+    }
+    if (spin) {
+      spin.rotation.y = target.__spin || 0;
+      applied.__spin = spin.rotation.y;
     }
     renderer.render(scene, camera);
   });
