@@ -10,20 +10,20 @@
 // a breadcrumb — just like Simulink subsystems.
 
 const MOD = {
-  vision:       { f: '#AFD3EC', d: '#5E86A6', ink: '#1e3040', name: 'vision' },
-  proprio:      { f: '#BEE3A6', d: '#7CB05E', ink: '#213316', name: 'proprioception' },
-  latent:       { f: '#F4B9B2', d: '#D98177', ink: '#3f1d1a', name: 'VAE / latent' },
-  text:         { f: '#F3C8DB', d: '#D68BAE', ink: '#3f1d2e', name: 'text' },
-  trunk:        { f: '#DAC5EE', d: '#A97FCB', ink: '#2c1f3c', name: 'transformer' },
-  attention:    { f: '#ECCDF2', d: '#C08FD0', ink: '#381f40', name: 'attention' },
-  action:       { f: '#BEE3A6', d: '#7CB05E', ink: '#213316', name: 'action' },
-  noise:        { f: '#E4E1D6', d: '#B0AC9E', ink: '#33302a', name: 'noise' },
-  dit:          { f: '#CDBBEE', d: '#9578C8', ink: '#2c1f3c', name: 'DiT block' },
-  diffusion:    { f: '#C3CAEE', d: '#8E97D0', ink: '#1f2340', name: 'diffusion' },
-  flow:         { f: '#ADE3D3', d: '#5FB39C', ink: '#153630', name: 'flow matching' },
-  vla_backbone: { f: '#EDDCAB', d: '#C9A85B', ink: '#3a3016', name: 'VLA backbone' },
-  audio:        { f: '#C9E4CA', d: '#79B37F', ink: '#1e3320', name: 'audio' },
-  goal:         { f: '#F0D0A8', d: '#D0A566', ink: '#3a2c14', name: 'goal cond' },
+  vision:       { f: '#A8CBE4', d: '#151820', ink: '#1e3040', name: 'vision' },
+  proprio:      { f: '#9AD8B2', d: '#151820', ink: '#213316', name: 'proprioception' },
+  latent:       { f: '#F2B3A6', d: '#151820', ink: '#3f1d1a', name: 'VAE / latent' },
+  text:         { f: '#F3C8DB', d: '#151820', ink: '#3f1d2e', name: 'text' },
+  trunk:        { f: '#F8C89E', d: '#151820', ink: '#2c1f3c', name: 'transformer' },
+  attention:    { f: '#F0B27E', d: '#151820', ink: '#381f40', name: 'attention' },
+  action:       { f: '#9AD8B2', d: '#151820', ink: '#213316', name: 'action' },
+  noise:        { f: '#E0D0A6', d: '#151820', ink: '#33302a', name: 'noise' },
+  dit:          { f: '#D9C2EA', d: '#151820', ink: '#2c1f3c', name: 'DiT block' },
+  diffusion:    { f: '#C3CAEE', d: '#151820', ink: '#1f2340', name: 'diffusion' },
+  flow:         { f: '#ADE3D3', d: '#151820', ink: '#153630', name: 'flow matching' },
+  vla_backbone: { f: '#F2C94C', d: '#151820', ink: '#3a3016', name: 'VLA backbone' },
+  audio:        { f: '#C9E4CA', d: '#151820', ink: '#1e3320', name: 'audio' },
+  goal:         { f: '#F0D0A8', d: '#151820', ink: '#3a2c14', name: 'goal cond' },
 };
 // INPUT modality blocks (sources) — the realistic conditioning inputs for
 // ACT / DiT / VLA policies. OUTPUT blocks (sinks) — what a policy can emit.
@@ -112,22 +112,22 @@ const GROUP_COL = {
 // is built from these, and they render with one consistent glyph + colour so the
 // same "Conv" or "Linear" reads identically under ACT, DiT or a VLA.
 const PRIM = {
-  conv:     { f: '#AFD3EC', d: '#5E86A6', ink: '#1e3040', name: 'Conv' },
-  pool:     { f: '#CBE0F0', d: '#7FA6C4', ink: '#22323f', name: 'Pool' },
-  linear:   { f: '#BEE3A6', d: '#7CB05E', ink: '#213316', name: 'Linear / FC' },
-  norm:     { f: '#E9E2C6', d: '#BBAE7C', ink: '#3a3416', name: 'Norm' },
-  act:      { f: '#F4C89A', d: '#D89A5C', ink: '#402c14', name: 'Activation' },
-  matmul:   { f: '#ECCDF2', d: '#C08FD0', ink: '#381f40', name: 'MatMul' },
-  softmax:  { f: '#DAC5EE', d: '#A97FCB', ink: '#2c1f3c', name: 'Softmax' },
-  residual: { f: '#E4E1D6', d: '#B0AC9E', ink: '#33302a', name: 'Residual ⊕' },
-  embed:    { f: '#CDE8DE', d: '#5FB39C', ink: '#153630', name: 'Embed' },
+  conv:     { f: '#A8CBE4', d: '#151820', ink: '#1e3040', name: 'Conv' },
+  pool:     { f: '#CBE0F0', d: '#151820', ink: '#22323f', name: 'Pool' },
+  linear:   { f: '#9AD8B2', d: '#151820', ink: '#213316', name: 'Linear / FC' },
+  norm:     { f: '#E9E2C6', d: '#151820', ink: '#3a3416', name: 'Norm' },
+  act:      { f: '#F4C89A', d: '#151820', ink: '#402c14', name: 'Activation' },
+  matmul:   { f: '#F0B27E', d: '#151820', ink: '#381f40', name: 'MatMul' },
+  softmax:  { f: '#F8C89E', d: '#151820', ink: '#2c1f3c', name: 'Softmax' },
+  residual: { f: '#E0D0A6', d: '#151820', ink: '#33302a', name: 'Residual ⊕' },
+  embed:    { f: '#CDE8DE', d: '#151820', ink: '#153630', name: 'Embed' },
   dropout:  { f: '#E0DAD2', d: '#A8A196', ink: '#33302a', name: 'Dropout' },
   // extended atoms surfaced by the nn.Module compiler
   convT:    { f: '#BFDCF0', d: '#6E92AE', ink: '#1e3040', name: 'ConvT' },
   concat:   { f: '#DCD6C8', d: '#A8A08C', ink: '#33302a', name: 'Concat' },
   reshape:  { f: '#E4DFD6', d: '#ABA394', ink: '#33302a', name: 'Reshape' },
   scale:    { f: '#F1D9B8', d: '#CFA76A', ink: '#3a2c14', name: 'Scale / FiLM' },
-  attention:{ f: '#ECCDF2', d: '#C08FD0', ink: '#381f40', name: 'Attention' },
+  attention:{ f: '#F0B27E', d: '#151820', ink: '#381f40', name: 'Attention' },
   posemb:   { f: '#CFE0DA', d: '#7FA69A', ink: '#153630', name: 'Pos. embed' },
   recurrent:{ f: '#D8C8E8', d: '#9A82BC', ink: '#2c1f3c', name: 'RNN / LSTM' },
 };

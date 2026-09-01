@@ -1,20 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 560" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif">
-<rect x="0" y="0" width="1240" height="560" rx="16" fill="#FDF6E2" stroke="rgba(21,24,32,0.14)" stroke-width="1"/>
+<rect x="0" y="0" width="1240" height="560" rx="6" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
 <text x="40" y="46" fill="#6D6551" font-size="13" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure — the server: one two-port contract, no ROS on the client</text>
-<rect x="40" y="120" width="210" height="380" rx="14" fill="#FFFFFF" stroke="rgba(21,24,32,0.14)" stroke-width="1.2"/>
+<rect x="40" y="120" width="210" height="380" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/>
 <circle cx="50" cy="141" r="3.5" fill="#C6301A"/>
 <text x="64" y="146" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">OPERATOR APPS</text>
 <text x="64" y="162" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">no ROS on the client</text>
-<rect x="58" y="190" width="174" height="28" rx="8" fill="#F4EAD2" stroke="rgba(21,24,32,0.14)" stroke-width="1"/>
+<rect x="58" y="190" width="174" height="28" rx="4" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/>
 <text x="70" y="208" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Apple Vision Pro · 60 Hz</text>
-<rect x="58" y="228" width="174" height="28" rx="8" fill="#F4EAD2" stroke="rgba(21,24,32,0.14)" stroke-width="1"/>
+<rect x="58" y="228" width="174" height="28" rx="4" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/>
 <text x="70" y="246" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">iPhone · 20 Hz</text>
-<rect x="58" y="266" width="174" height="28" rx="8" fill="#F4EAD2" stroke="rgba(21,24,32,0.14)" stroke-width="1"/>
+<rect x="58" y="266" width="174" height="28" rx="4" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/>
 <text x="70" y="284" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">any future client</text>
 <text x="64" y="330" fill="#6D6551" font-size="11" font-weight="400" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">emit one JSON</text>
 <text x="64" y="348" fill="#6D6551" font-size="11" font-weight="400" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">TeleopFrame; render</text>
 <text x="64" y="366" fill="#6D6551" font-size="11" font-weight="400" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">MJPEG in a WKWebView.</text>
-<rect x="370" y="120" width="330" height="168" rx="14" fill="#FFFFFF" stroke="rgba(21,24,32,0.14)" stroke-width="1.2"/>
+<rect x="370" y="120" width="330" height="168" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/>
 <circle cx="380" cy="141" r="3.5" fill="#C6301A"/>
 <text x="394" y="146" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">THE BRIDGE</text>
 <text x="394" y="162" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim_teleop_bridge.py</text>
@@ -26,7 +26,7 @@
 <text x="408" y="238" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step MuJoCo · real-time accumulator</text>
 <circle cx="396" cy="258" r="2.6" fill="#C6301A"/>
 <text x="408" y="262" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">newest-frame only · drop stale</text>
-<rect x="760" y="120" width="200" height="168" rx="14" fill="#FFFFFF" stroke="rgba(21,24,32,0.14)" stroke-width="1.2" stroke-dasharray="2 5"/>
+<rect x="760" y="120" width="200" height="168" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5" stroke-dasharray="2 5"/>
 <circle cx="770" cy="141" r="3.5" fill="#C6301A"/>
 <text x="784" y="146" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">MuJoCo SIM</text>
 <text x="784" y="162" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">or REAL ROBOT</text>
@@ -35,7 +35,7 @@
 <text x="784" y="228" fill="#23272F" font-size="11" font-weight="500" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">51-DOF robot.</text>
 <text x="784" y="258" fill="#C6301A" font-size="10.5" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">same control code,</text>
 <text x="784" y="274" fill="#C6301A" font-size="10.5" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">same two ports.</text>
-<rect x="370" y="400" width="590" height="118" rx="14" fill="#FFFFFF" stroke="rgba(21,24,32,0.14)" stroke-width="1.2"/>
+<rect x="370" y="400" width="590" height="118" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/>
 <circle cx="380" cy="421" r="3.5" fill="#C6301A"/>
 <text x="394" y="426" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">CAMERA BOX</text>
 <text x="394" y="442" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim_camera_server.py · own core</text>
