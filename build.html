@@ -784,58 +784,7 @@
 </section>
 
 <!-- ─── THE GUI ─── -->
-<section class="dark-sec pad-y">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Control Studio</span>
-        <h2 class="display-md title" style="color:var(--bone);">One app, <span class="italic accent">every actuator.</span></h2>
-      </div>
-      <p class="lede">A shared iOS-styled GUI — same dark palette, sliders, and pill toggles across the
-        swerve, hand, and lift apps. Reassign IDs, write registers, read live status, and jog any joint.</p>
-    </div>
 
-    <!-- animated "how to use it" demo -->
-    <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:16/9; margin-bottom:18px;">
-      <img src="assets/gui-swerve-demo.svg" alt="Using Swerve Studio — toggle a motor on, drag the steering axis to an absolute angle, throttle the drive wheel, all with live telemetry" />
-      <span class="sim-cap"><span class="dot"></span>Using it · enable → steer → throttle, live</span>
-    </div>
-
-    <div class="gui-grid fade-up">
-      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
-        <img src="assets/gui-swerve.svg" alt="MABEL Swerve Studio — per-module steer/drive control, live telemetry, E-STOP" />
-        <span class="sim-cap"><span class="dot"></span>Swerve Studio · REV SPARK base</span>
-      </div>
-      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
-        <img src="assets/gui-hand.svg" alt="MABEL ORCA Hand Control Studio — 17 per-finger joint sliders, grasp presets" />
-        <span class="sim-cap"><span class="dot"></span>ORCA Hand · 17 Feetech servos</span>
-      </div>
-    </div>
-
-    <div class="points fade-up" style="margin-top:30px;">
-      <div class="point"><div class="num">01</div><div>
-        <h5>Reassign IDs &amp; write registers</h5>
-        <p>Give a fresh Feetech servo its ID or change a Damiao CAN ID; edit registers live — REV SPARK
-          control mode, idle brake, PID <code>kP</code>, the steering encoder zero — and burn them to flash.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>Jog any joint</h5>
-        <p>Drag a steering axis to an absolute angle, throttle a drive wheel by duty-cycle, move a finger
-          or fire a grasp preset, enable / disable a motor, or hit <strong>E-STOP</strong> — instantly.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Read everything, live</h5>
-        <p>A telemetry sidebar streams position, velocity, current and temperature per controller,
-          colour-coded as values approach their limits — so you see a hot or stalling motor before it faults.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
-        <h5>Bus &amp; bring-up tools</h5>
-        <p>Bring the CAN interface up / restart / scan / doctor it from a panel with a streaming console;
-          sine-sweep a motor, zero an encoder, clear faults, read limits — the vendor-app chores, built in.</p>
-      </div></div>
-    </div>
-  </div>
-</section>
 
 <!-- ─── REV SWERVE REVERSE ENGINEERING ─── -->
 <section class="pad-y" id="rev">
