@@ -1941,3 +1941,11 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   .appgal.ios figure { width: 62vw; }
   .feature > * { min-width: 0; max-width: 100%; }
 }
+
+/* ─── Tabs are context-aware: readable on paper by default, cream on night ── */
+.tab-bar { border-bottom-color: rgba(21,24,32,0.35); }
+.tab-btn { color: var(--ash); }
+.tab-btn.on { color: var(--orange); border-bottom-color: var(--orange); }
+.dark-sec .tab-bar, .page-hero .tab-bar { border-bottom-color: rgba(217,161,63,0.5); }
+.dark-sec .tab-btn, .page-hero .tab-btn { color: rgba(244,234,210,0.5); }
+.dark-sec .tab-btn.on, .page-hero .tab-btn.on { color: var(--gold); border-bottom-color: var(--gold); }
