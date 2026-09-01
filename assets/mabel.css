@@ -2191,23 +2191,25 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   .av-stage { height: 380px !important; }
 }
 
-/* ─── Equation cards — the math, but friendly ─────────────────────── */
-.eq-card { background: var(--panel); border: var(--line-w) solid var(--ink); border-radius: 10px;
-  box-shadow: 4px 4px 0 rgba(21,24,32,0.9); padding: 14px 18px 12px;
-  transform: rotate(-0.5deg); margin-top: clamp(20px, 3vh, 32px); max-width: 720px; }
-.eq-card .eq-k { display: block; font-family: var(--font-comic); font-size: 15px;
-  letter-spacing: 0.12em; color: var(--orange); margin-bottom: 8px; }
-.eq-card .eq { display: block; font-family: var(--font-mono); font-weight: 700;
-  font-size: clamp(14px, 1.6vw, 19px); color: var(--ink); letter-spacing: 0.01em;
-  line-height: 1.5; overflow-wrap: break-word; }
-.eq-card .eq b { color: var(--rust); }
+/* ─── Equation cards — terminal plate, monospace math ─────────────── */
+.eq-card { background: #12151C; border: var(--line-w) solid var(--ink); border-radius: 10px;
+  box-shadow: 5px 5px 0 rgba(21,24,32,0.9); padding: 0; margin-top: clamp(20px, 3vh, 32px);
+  overflow: hidden; max-width: 860px; }
+.eq-card .eq-k { display: flex; align-items: center; gap: 8px;
+  background: var(--ink); color: var(--gold);
+  font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.14em;
+  padding: 8px 14px 6px; border-bottom: 2px solid rgba(217,161,63,0.45); }
+.eq-card .eq-k::before { content: '▸'; color: var(--orange); }
+.eq-card .eq { display: block; font-family: var(--font-mono); font-weight: 400;
+  font-size: clamp(12.5px, 1.15vw, 15px); color: #E9E2D0; letter-spacing: 0;
+  line-height: 1.85; white-space: pre; overflow-x: auto; padding: 16px 18px 6px; }
+.eq-card .eq b { color: var(--orange); font-weight: 700; }
+.eq-card .eq i { color: #8FC7A8; font-style: normal; }   /* constraint comments */
 .eq-card .eq-gloss { display: block; font-family: var(--font-mono); font-size: 11.5px;
-  color: var(--ash); margin-top: 8px; letter-spacing: 0.02em; }
-.dark-sec .eq-card { background: rgba(253,246,226,0.06); border-color: rgba(217,161,63,0.6);
-  box-shadow: 4px 4px 0 rgba(0,0,0,0.6); }
-.dark-sec .eq-card .eq { color: var(--bone); }
-.dark-sec .eq-card .eq b { color: var(--yellow); }
-.dark-sec .eq-card .eq-k { color: var(--gold); }
+  color: var(--ash-light); padding: 0 18px 15px; letter-spacing: 0.02em; line-height: 1.65; }
+.eq-card .eq-gloss b { color: var(--gold); font-weight: 700; }
+.dark-sec .eq-card { background: #0E1119; border-color: rgba(217,161,63,0.6);
+  box-shadow: 5px 5px 0 rgba(0,0,0,0.6); }
 
 /* ─── Mobile companion: past the hero, the robot docks in the corner ── */
 @media (max-width: 979px) {
@@ -2230,3 +2232,83 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
 }
 /* balloons stay small enough to clear faces at any width */
 .panel-speech { font-size: clamp(11px, 1.05vw, 15px); padding: clamp(7px,0.8vw,13px) clamp(12px,1.4vw,22px); }
+
+/* ═══ Every 3-D stage floats on the page (the anatomy treatment) ═══ */
+.viewer-3d, .wbc-stage, .explode-stage, .swerve-stage, .drift-stage {
+  border: 0 !important; background: transparent !important;
+  box-shadow: none !important; border-radius: 0 !important;
+}
+.viewer-3d .ph, .wbc-stage .ph { background: none !important; }
+.viewer-3d .ph::before, .wbc-stage .ph::before { display: none !important; }
+.viewer-3d .ph-label, .wbc-stage .ph-label {
+  left: 50%; top: 50%; bottom: auto; transform: translate(-50%,-50%);
+  background: var(--panel); border: 2px solid var(--ink); box-shadow: 3px 3px 0 rgba(21,24,32,0.85);
+}
+/* the hint chip, comic edition */
+.viewer-hint {
+  font-family: var(--font-comic) !important; font-size: 13px !important; letter-spacing: 0.08em;
+  color: var(--ink) !important; background: var(--yellow) !important;
+  border: 2px solid var(--ink) !important; border-radius: 6px !important;
+  box-shadow: 3px 3px 0 rgba(21,24,32,0.85) !important; padding: 6px 11px 5px !important;
+  text-transform: uppercase;
+}
+.dark-sec .viewer-hint { background: var(--gold) !important; }
+.viewer-fs {
+  background: var(--panel) !important; border: 2px solid var(--ink) !important;
+  border-radius: 8px !important; box-shadow: 3px 3px 0 rgba(21,24,32,0.85) !important;
+  color: var(--ink) !important;
+}
+.viewer-fs:hover { background: var(--yellow) !important; transform: translate(-1px,-1px); }
+
+/* ═══ Control panels: comic panels, not frosted glass ═══ */
+.jp, .wbc-ctl {
+  background: var(--panel) !important; border: var(--line-w) solid var(--ink) !important;
+  border-radius: 12px !important; box-shadow: 5px 5px 0 rgba(21,24,32,0.9) !important;
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+}
+.jp-head { border-bottom: 2px solid var(--ink); }
+.jp-title, .wbc-ctl-title {
+  font-family: var(--font-comic) !important; font-size: 15px !important;
+  letter-spacing: 0.12em; color: var(--orange) !important;
+}
+.jp-reset, .wbc-reset {
+  font-family: var(--font-comic) !important; font-size: 13px !important; letter-spacing: 0.08em;
+  background: var(--orange) !important; color: #FFF9F0 !important;
+  border: 2px solid var(--ink) !important; border-radius: 7px !important;
+  box-shadow: 2px 2px 0 rgba(21,24,32,0.85) !important; padding: 5px 12px 4px !important;
+}
+.jp-reset:hover, .wbc-reset:hover { background: var(--rust) !important; transform: translate(-1px,-1px); }
+/* segmented tabs → comic chips */
+.jp-tab, .wbc-seg button {
+  font-family: var(--font-comic) !important; font-size: 13px !important; letter-spacing: 0.06em;
+  color: var(--ink) !important; background: var(--bone) !important;
+  border: 2px solid var(--ink) !important; border-radius: 7px !important;
+  box-shadow: 2px 2px 0 rgba(21,24,32,0.85);
+  transition: transform 0.12s var(--ease-out), background 0.15s ease;
+}
+.jp-tab:hover, .wbc-seg button:hover { transform: translate(-1px,-1px); }
+.jp-tab.on, .wbc-seg button.on { background: var(--ink) !important; color: var(--gold) !important; }
+.jp-name, .wbc-row-top .lab { font-family: var(--font-sans); font-weight: 600; color: var(--ink-soft) !important; }
+.jp-val, .wbc-row-top .out {
+  font-family: var(--font-mono) !important; font-weight: 700; color: var(--orange) !important;
+}
+/* sliders: thick ink track, chunky knob */
+.jp-slider, .wbc-slider {
+  height: 8px !important; border-radius: 5px !important;
+  background: var(--bone) !important; border: 2px solid var(--ink);
+}
+.jp-slider::-webkit-slider-thumb, .wbc-slider::-webkit-slider-thumb {
+  width: 22px !important; height: 22px !important; border-radius: 6px !important;
+  background: var(--orange) !important; border: 2.5px solid var(--ink) !important;
+  box-shadow: 2px 2px 0 rgba(21,24,32,0.85) !important;
+}
+.jp-slider::-moz-range-thumb, .wbc-slider::-moz-range-thumb {
+  width: 22px !important; height: 22px !important; border-radius: 6px !important;
+  background: var(--orange) !important; border: 2.5px solid var(--ink) !important;
+}
+.jp-row { border-bottom-color: rgba(21,24,32,0.14) !important; }
+/* the drive pad */
+.wbc-pad { border: 2px solid var(--ink) !important; border-radius: 10px !important;
+  background: var(--bone) !important; box-shadow: inset 0 0 0 2px var(--panel); }
+.wbc-knob { border-radius: 7px !important; background: var(--orange) !important;
+  border: 2.5px solid var(--ink) !important; box-shadow: 2px 2px 0 rgba(21,24,32,0.7) !important; }
