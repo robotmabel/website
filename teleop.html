@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Archivo:ital,wght@0,100..900;1,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/mabel.css" />
 <link rel="stylesheet" href="assets/teleop-app.css?v=20260630-balldrag" />
 <script>document.documentElement.classList.add('js');</script>
@@ -325,13 +325,13 @@
 <section class="pad-y" id="retargeting"><div class="wrap">
   <div class="sec-head fade-up"><div><span class="eyebrow">The pipeline</span><h2 class="display-md title">Human in, <span class="italic accent">targets out.</span></h2></div>
     <p class="lede">The operator never commands joints directly. Their pose is retargeted into robot-frame targets, and a single whole-body solve resolves those targets into all 51 joint commands.</p></div>
-  <div class="arch-fig fade-up"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" viewBox="0 0 1240 560" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+  <div class="arch-fig fade-up"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" viewBox="0 0 1240 560" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif">
 <rect x="0" y="0" width="1240" height="560" rx="6" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
 <style>a{cursor:pointer}a rect,a text{transition:fill .15s,stroke .15s}a:hover rect{stroke:#C6301A;stroke-width:2;fill:#FAE7C8}a:hover text{fill:#C6301A}</style>
 <text x="40" y="46" fill="#6D6551" font-size="13" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure — teleop retargeting: human keypoints → robot targets → joints</text>
 <rect x="40" y="150" width="250" height="232" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/>
 <circle cx="50" cy="171" r="3.5" fill="#C6301A"/>
-<text x="64" y="176" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">OPERATOR</text>
+<text x="64" y="176" fill="#23272F" font-size="11" font-weight="600" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">OPERATOR</text>
 <text x="64" y="192" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Apple Vision Pro</text>
 <rect x="58" y="224" width="214" height="28" rx="4" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/>
 <text x="70" y="242" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Head pose · 6-DoF</text>
@@ -343,7 +343,7 @@
 <text x="70" y="350" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">gaze · pinch state</text>
 <rect x="370" y="98" width="470" height="160" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/>
 <circle cx="380" cy="119" r="3.5" fill="#C6301A"/>
-<text x="394" y="124" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">HAND RETARGETING</text>
+<text x="394" y="124" fill="#23272F" font-size="11" font-weight="600" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">HAND RETARGETING</text>
 <text x="394" y="140" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">per-frame keypoint optimization</text>
 <text x="426" y="170" fill="#23272F" font-size="12.5" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Σ‖ vᵢʰ − vᵢʳ(q) ‖²  +  λ‖q − q₋₁‖²</text>
 <text x="394" y="166" fill="#23272F" font-size="12.5" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">min</text>
@@ -352,23 +352,23 @@
 <text x="818" y="230" fill="#C6301A" font-size="11" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="end">→ ORCA hand: 16 finger DOF + wrist roll</text>
 <rect x="370" y="288" width="470" height="168" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/>
 <circle cx="380" cy="309" r="3.5" fill="#C6301A"/>
-<text x="394" y="314" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">WHOLE-BODY RETARGETING</text>
+<text x="394" y="314" fill="#23272F" font-size="11" font-weight="600" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">WHOLE-BODY RETARGETING</text>
 <text x="394" y="330" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Cartesian QP · redundancy resolution</text>
 <text x="394" y="360" fill="#23272F" font-size="11.5" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">head → neck      wrist → arm end-effector target</text>
 <text x="426" y="390" fill="#23272F" font-size="12.5" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">‖ J q̇ − ẋ* ‖²  +  regularize the null space</text>
 <text x="394" y="386" fill="#23272F" font-size="12.5" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">min</text>
 <text x="409" y="398" fill="#6D6551" font-size="8" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">q̇</text>
 <text x="818" y="428" fill="#C6301A" font-size="11" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="end">→ arms 7×2 · torso · lift · base</text>
-<a href="software.html#wbc" target="_top"><rect x="900" y="150" width="300" height="232" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/><circle cx="910" cy="171" r="3.5" fill="#C6301A"/><text x="924" y="176" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">WHOLE-BODY CONTROL</text><text x="924" y="192" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">shared solver · click →</text></a>
-<text x="924" y="236" fill="#23272F" font-size="11.5" font-weight="500" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">resolves every target together</text>
-<text x="924" y="258" fill="#6D6551" font-size="11" font-weight="400" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">across all 51 joints, with the</text>
-<text x="924" y="276" fill="#6D6551" font-size="11" font-weight="400" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">tip-safe + balance constraints</text>
+<a href="software.html#wbc" target="_top"><rect x="900" y="150" width="300" height="232" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/><circle cx="910" cy="171" r="3.5" fill="#C6301A"/><text x="924" y="176" fill="#23272F" font-size="11" font-weight="600" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">WHOLE-BODY CONTROL</text><text x="924" y="192" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">shared solver · click →</text></a>
+<text x="924" y="236" fill="#23272F" font-size="11.5" font-weight="500" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">resolves every target together</text>
+<text x="924" y="258" fill="#6D6551" font-size="11" font-weight="400" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">across all 51 joints, with the</text>
+<text x="924" y="276" fill="#6D6551" font-size="11" font-weight="400" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">tip-safe + balance constraints</text>
 <rect x="918" y="300" width="264" height="30" rx="4" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/>
 <text x="1050.0" y="320" fill="#C6301A" font-size="11.5" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">→ 51 coordinated joint commands</text>
 <text x="924" y="370" fill="#A99F87" font-size="10" font-weight="400" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">the same solver autonomy uses</text>
 <line x1="290" y1="266.0" x2="363" y2="266.0" stroke="#F0762E" stroke-width="2.5"/><path d="M 361 261.0 L 370 266.0 L 361 271.0" stroke="#F0762E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <line x1="840" y1="266.0" x2="893" y2="266.0" stroke="#F0762E" stroke-width="2.5"/><path d="M 891 261.0 L 900 266.0 L 891 271.0" stroke="#F0762E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="620.0" y="538" fill="#A99F87" font-size="12" font-weight="400" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">human keypoints become robot targets, then one whole-body solve turns targets into joints — every frame at 60 Hz</text>
+<text x="620.0" y="538" fill="#A99F87" font-size="12" font-weight="400" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">human keypoints become robot targets, then one whole-body solve turns targets into joints — every frame at 60 Hz</text>
 </svg></div>
 </div></section>
 
