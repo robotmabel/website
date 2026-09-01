@@ -2213,3 +2213,5 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
     z-index: 90; filter: drop-shadow(3px 4px 0 rgba(21,24,32,0.35));
   }
 }
+/* jumpy letters must not break mid-word */
+.jumpy { display: inline-block; white-space: nowrap; }
