@@ -266,58 +266,16 @@
 <section class="pad-y" id="data"><div class="wrap">
   <div class="sec-head fade-up"><div><span class="eyebrow">The data engine</span><h2 class="display-md title">Teleop in, <span class="italic accent">labels out.</span></h2></div>
     <p class="lede">The operator drives MABEL through the <em>same</em> <code>TeleopController</code> the live viewer and the AVP bridge use. Cut an episode with a keypress; a background thread writes it to disk while you keep working.</p></div>
-  <div class="arch-fig fade-up"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" viewBox="0 0 1240 470" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif">
-<rect x="0" y="0" width="1240" height="470" rx="6" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
-<text x="40" y="46" fill="#6D6551" font-size="13" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure — the data engine: teleop becomes a labelled dataset</text>
-<rect x="40" y="120" width="250" height="250" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/>
-<circle cx="58" cy="142" r="3.5" fill="#C6301A"/>
-<text x="72" y="147" fill="#23272F" font-size="11.5" font-weight="600" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">TELEOP</text>
-<text x="58" y="168" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">drive to collect</text>
-<circle cx="62" cy="202" r="2.4" fill="#C6301A"/>
-<text x="74" y="206" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">shared TeleopController</text>
-<circle cx="62" cy="232" r="2.4" fill="#C6301A"/>
-<text x="74" y="236" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">MuJoCo sim — or real robot</text>
-<circle cx="62" cy="262" r="2.4" fill="#C6301A"/>
-<text x="74" y="266" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">cut episodes on the fly · SPACE</text>
-<text x="58" y="354" fill="#A99F87" font-size="9.5" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 01</text>
-<line x1="290" y1="245.0" x2="335" y2="245.0" stroke="#C6301A" stroke-width="1.8"/><path d="M 333 240.0 L 343 245.0 L 333 250.0" stroke="#C6301A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="343" y="120" width="250" height="250" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/>
-<circle cx="361" cy="142" r="3.5" fill="#C6301A"/>
-<text x="375" y="147" fill="#23272F" font-size="11.5" font-weight="600" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">RECORD</text>
-<text x="361" y="168" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">EpisodeRecorder · 15 Hz</text>
-<circle cx="365" cy="202" r="2.4" fill="#C6301A"/>
-<text x="377" y="206" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">log every obs + the action</text>
-<circle cx="365" cy="232" r="2.4" fill="#C6301A"/>
-<text x="377" y="236" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">background-thread HDF5</text>
-<circle cx="365" cy="262" r="2.4" fill="#C6301A"/>
-<text x="377" y="266" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">one file per episode</text>
-<text x="361" y="354" fill="#A99F87" font-size="9.5" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 02</text>
-<line x1="593" y1="245.0" x2="638" y2="245.0" stroke="#C6301A" stroke-width="1.8"/><path d="M 636 240.0 L 646 245.0 L 636 250.0" stroke="#C6301A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="646" y="120" width="250" height="250" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/>
-<circle cx="664" cy="142" r="3.5" fill="#C6301A"/>
-<text x="678" y="147" fill="#23272F" font-size="11.5" font-weight="600" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">EPISODE</text>
-<text x="664" y="168" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">HDF5 · one schema</text>
-<circle cx="668" cy="202" r="2.4" fill="#C6301A"/>
-<text x="680" y="206" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">7 cams + LiDAR + 59 joints</text>
-<circle cx="668" cy="232" r="2.4" fill="#C6301A"/>
-<text x="680" y="236" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">action/ctrl [59] — the label</text>
-<circle cx="668" cy="262" r="2.4" fill="#C6301A"/>
-<text x="680" y="266" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim &amp; real share the keys</text>
-<text x="664" y="354" fill="#A99F87" font-size="9.5" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 03</text>
-<line x1="896" y1="245.0" x2="941" y2="245.0" stroke="#C6301A" stroke-width="1.8"/><path d="M 939 240.0 L 949 245.0 L 939 250.0" stroke="#C6301A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="949" y="120" width="250" height="250" rx="6" fill="#FFFFFF" stroke="#151820" stroke-width="2.5"/>
-<circle cx="967" cy="142" r="3.5" fill="#C6301A"/>
-<text x="981" y="147" fill="#23272F" font-size="11.5" font-weight="600" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">TRAIN</text>
-<text x="967" y="168" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">imitation learning</text>
-<circle cx="971" cy="202" r="2.4" fill="#C6301A"/>
-<text x="983" y="206" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">ACT · CVAE · Diffusion</text>
-<circle cx="971" cy="232" r="2.4" fill="#C6301A"/>
-<text x="983" y="236" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">stats → normalization</text>
-<circle cx="971" cy="262" r="2.4" fill="#C6301A"/>
-<text x="983" y="266" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">→ deploy as a policy</text>
-<text x="967" y="354" fill="#A99F87" font-size="9.5" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step 04</text>
-<text x="620.0" y="450" fill="#A99F87" font-size="12" font-weight="400" font-family="'Jost', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">collection is a side effect of teleop · identical keys sim↔real → policies deploy without remapping I/O</text>
-</svg></div>
+  <div class="ros-game fade-up">
+      <div class="rg-head"><span class="rg-title">THE DATA ENGINE</span><span class="rg-coin">▶ every session is a dataset</span></div>
+      <div class="rg-row">
+        <div class="rg-tile blue"><b>01 · TELEOP</b><span>drive · sim or real</span></div>
+        <div class="rg-tile orange"><b>02 · RECORD</b><span>15 Hz · HDF5 thread</span></div>
+        <div class="rg-tile green"><b>03 · EPISODE</b><span>7 cams + 59 joints</span></div>
+        <div class="rg-tile yellow"><b>04 · TRAIN</b><span>ACT · CVAE · Diffusion</span></div>
+      </div>
+      <div class="rg-bus green"><span class="rg-blink">▶</span> SAME KEYS SIM ↔ REAL <code>policies deploy with no remapping</code></div>
+    </div>
 </div></section>
 
 <!-- HOW IT RECORDS -->

@@ -1890,32 +1890,39 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
 .price-seal b { font-size: 26px; }
 .price-seal span { margin-top: 0 !important; }
 
-/* ─── Retro-game ROS graph ────────────────────────────────────────── */
-.ros-game { background: var(--ink); border: var(--line-w) solid var(--ink); border-radius: 12px;
+/* ─── Retro-game ROS graph — paper edition (matches the arch map) ── */
+.ros-game { background: var(--panel); border: var(--line-w) solid var(--ink); border-radius: 12px;
   box-shadow: 6px 6px 0 rgba(21,24,32,0.9); padding: clamp(14px, 2.4vw, 28px);
-  background-image: var(--dots-cream); background-size: 18px 18px; }
+  position: relative; overflow: hidden; }
+.ros-game::after { content: ''; position: absolute; right: 0; bottom: 0; width: 40%; height: 45%;
+  background-image: var(--dots-red); background-size: 14px 14px; opacity: 0.4; pointer-events: none;
+  mask-image: radial-gradient(ellipse at 100% 100%, black 15%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse at 100% 100%, black 15%, transparent 72%); }
+.ros-game > * { position: relative; z-index: 1; }
 .rg-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
-  flex-wrap: wrap; margin-bottom: 16px; }
-.rg-title { font-family: var(--font-comic); font-size: 16px; letter-spacing: 0.12em; color: var(--gold); }
-.rg-coin { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; color: var(--ash-light); }
+  flex-wrap: wrap; margin-bottom: 14px; }
+.rg-title { font-family: var(--font-comic); font-size: 16px; letter-spacing: 0.12em; color: var(--orange); }
+.rg-coin { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; color: var(--ash); }
 .rg-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 10px 0; }
 .rg-tile { min-width: 118px; text-align: center; padding: 9px 10px 8px;
-  background: rgba(253,246,226,0.05); border: 2px solid var(--bone); border-radius: 3px;
-  transition: transform 0.12s ease, background 0.12s ease; }
+  background: var(--bone); border: 2px solid var(--ink); border-radius: 7px;
+  box-shadow: 3px 3px 0 rgba(21,24,32,0.85);
+  transition: transform 0.12s ease, box-shadow 0.12s var(--ease-out); }
 .rg-tile b { display: block; font-family: var(--font-mono); font-weight: 700; font-size: 12.5px;
-  color: var(--bone); letter-spacing: 0.02em; }
-.rg-tile span { font-family: var(--font-mono); font-size: 9.5px; color: var(--ash-light); letter-spacing: 0.04em; }
-.rg-tile:hover { transform: translate(-1px,-1px); background: rgba(253,246,226,0.12); }
-.rg-tile.blue { border-color: #7FA8C9; } .rg-tile.blue b { color: #A8CBE4; }
-.rg-tile.orange { border-color: var(--orange); } .rg-tile.orange b { color: #F8A96E; }
-.rg-tile.green { border-color: #6FBF8F; } .rg-tile.green b { color: #9AD8B2; }
-.rg-tile.yellow { border-color: var(--yellow); } .rg-tile.yellow b { color: var(--yellow); }
-.rg-bus { margin: 8px 0; padding: 9px 14px 8px; border-radius: 3px;
-  font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.1em; color: var(--ink); }
+  color: var(--ink); letter-spacing: 0.02em; }
+.rg-tile span { font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-soft); opacity: 0.75; letter-spacing: 0.04em; }
+.rg-tile:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 rgba(21,24,32,0.85); }
+.rg-tile.blue { background: #A8CBE4; }
+.rg-tile.orange { background: #F8C89E; }
+.rg-tile.green { background: #9AD8B2; }
+.rg-tile.yellow { background: var(--yellow); }
+.rg-bus { margin: 8px 0; padding: 9px 14px 8px; border-radius: 7px;
+  font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.1em; color: var(--ink);
+  border: 2px solid var(--ink); box-shadow: 3px 3px 0 rgba(21,24,32,0.85); }
 .rg-bus code { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0; margin-left: 8px; }
-.rg-bus.blue { background: #A8CBE4; border: 2px solid var(--ink); }
-.rg-bus.green { background: #9AD8B2; border: 2px solid var(--ink); }
-.rg-blink { display: inline-block; animation: rgBlink 1.1s steps(2) infinite; margin-right: 6px; }
+.rg-bus.blue { background: #A8CBE4; }
+.rg-bus.green { background: #9AD8B2; }
+.rg-blink { display: inline-block; animation: rgBlink 1.1s steps(2) infinite; margin-right: 6px; color: var(--rust); }
 @keyframes rgBlink { 50% { opacity: 0.15; } }
 @media (prefers-reduced-motion: reduce) { .rg-blink { animation: none; } }
 
@@ -2135,3 +2142,65 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
 .strip-cap { display: block; background: var(--ink); color: var(--bone);
   font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em;
   line-height: 1.45; padding: 8px 10px; }
+
+/* ─── Mobile: WBC controls dock ON the visualizer; tight tables ───── */
+@media (max-width: 700px) {
+  .table-scroll.tight { overflow: visible; }
+  .table-scroll.tight .data-table { min-width: 0; width: 100%; }
+  .table-scroll.tight .data-table td { font-size: 12px; padding: 9px 10px; }
+  .table-scroll.tight .data-table td:last-child { text-align: right; }
+}
+@media (max-width: 760px) {
+  .wbc-block { display: block !important; position: relative; }
+  .wbc-stage { height: 74vh !important; min-height: 480px !important; }
+  .wbc-ctl {
+    position: absolute !important; left: 8px; right: 8px; bottom: 8px; top: auto !important;
+    width: auto !important; max-width: none; padding: 10px 12px !important; gap: 8px !important;
+    background: rgba(253,246,226,0.94);
+  }
+  .wbc-note { display: none; }
+  .wbc-seg button { padding: 8px 4px !important; font-size: 10px !important; }
+  .wbc-row-top .lab { font-size: 11.5px !important; }
+  .wbc-slider { height: 4px !important; }
+  .wbc-slider::-webkit-slider-thumb { width: 20px !important; height: 20px !important; }
+  .wbc-slider::-moz-range-thumb { width: 20px !important; height: 20px !important; }
+}
+
+/* mobile: contract tables stack into cards — everything visible, no scroll */
+@media (max-width: 700px) {
+  .tt, .tt tbody, .tt tr, .tt td { display: block; width: 100%; }
+  .tt thead { display: none; }
+  .tt tr { border: 2px solid var(--ink); border-radius: 8px; background: var(--panel);
+    margin-bottom: 8px; padding: 8px 10px; box-shadow: 2px 2px 0 rgba(21,24,32,0.8); }
+  .tt td { border: 0 !important; padding: 2px 0 !important; white-space: normal !important; font-size: 12px; }
+  .tt td:first-child { font-family: var(--font-mono); font-weight: 700; color: var(--orange) !important; font-size: 12.5px; }
+  /* the policy-graph explorer needs a big screen */
+  .av-stage { height: 380px !important; }
+}
+
+/* ─── Equation cards — the math, but friendly ─────────────────────── */
+.eq-card { background: var(--panel); border: var(--line-w) solid var(--ink); border-radius: 10px;
+  box-shadow: 4px 4px 0 rgba(21,24,32,0.9); padding: 14px 18px 12px;
+  transform: rotate(-0.5deg); margin-top: clamp(20px, 3vh, 32px); max-width: 720px; }
+.eq-card .eq-k { display: block; font-family: var(--font-comic); font-size: 15px;
+  letter-spacing: 0.12em; color: var(--orange); margin-bottom: 8px; }
+.eq-card .eq { display: block; font-family: var(--font-mono); font-weight: 700;
+  font-size: clamp(14px, 1.6vw, 19px); color: var(--ink); letter-spacing: 0.01em;
+  line-height: 1.5; overflow-wrap: break-word; }
+.eq-card .eq b { color: var(--rust); }
+.eq-card .eq-gloss { display: block; font-family: var(--font-mono); font-size: 11.5px;
+  color: var(--ash); margin-top: 8px; letter-spacing: 0.02em; }
+.dark-sec .eq-card { background: rgba(253,246,226,0.06); border-color: rgba(217,161,63,0.6);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.6); }
+.dark-sec .eq-card .eq { color: var(--bone); }
+.dark-sec .eq-card .eq b { color: var(--yellow); }
+.dark-sec .eq-card .eq-k { color: var(--gold); }
+
+/* ─── Mobile companion: past the hero, the robot docks in the corner ── */
+@media (max-width: 979px) {
+  .hero-rig.mini {
+    position: fixed !important; inset: auto 8px 74px auto !important;
+    width: 128px !important; height: 168px !important; min-height: 0 !important;
+    z-index: 90; filter: drop-shadow(3px 4px 0 rgba(21,24,32,0.35));
+  }
+}

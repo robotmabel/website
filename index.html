@@ -675,6 +675,21 @@
     var t = document.createElement('script');
     t.type = 'module'; t.src = 'assets/hero-rig.js';
     document.body.appendChild(t);
+    /* phones: once the hero scrolls away, the robot docks as a wee
+       corner companion — still watching the cursor, still poke-able */
+    if (window.matchMedia('(max-width: 979px)').matches) {
+      var rig = document.getElementById('heroRig');
+      var heroSec = document.getElementById('hero');
+      var mini = false;
+      window.addEventListener('scroll', function () {
+        var want = window.scrollY > (heroSec ? heroSec.offsetHeight : 700) - 160;
+        if (want !== mini) {
+          mini = want;
+          rig.classList.toggle('mini', mini);
+          window.dispatchEvent(new Event('resize'));
+        }
+      }, { passive: true });
+    }
   }
 })();
 </script>
