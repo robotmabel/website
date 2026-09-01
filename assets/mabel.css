@@ -1974,6 +1974,11 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
 @media (max-width: 880px) {
   .anat-wrap { display: grid !important; grid-template-columns: 118px minmax(0, 1fr); gap: 10px; align-items: start; }
   .anat-wrap > aside { display: contents; }
+  /* explicit placement — auto-flow was dropping the stage into the
+     118px column on its own row (tiny robot, chips above) */
+  .anat-rail { grid-column: 1; grid-row: 1; }
+  .anat-wrap .anat-stage { grid-column: 2; grid-row: 1; }
+  .anat-copy { grid-column: 1 / -1; grid-row: 2; }
   .anat-rail { flex-direction: column !important; gap: 6px; }
   .anat-rail button { flex: none !important; padding: 8px 9px 7px; border-radius: 8px;
     box-shadow: 2px 2px 0 rgba(21,24,32,0.9); }
@@ -2111,3 +2116,22 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
 }
 @media (prefers-reduced-motion: reduce) { .sfx.pop { animation: none; opacity: 0; } }
+/* mobile: wall media never taller than 4:3 — portrait clips crop to fit */
+@media (max-width: 700px) {
+  .wall-item img, .wall-item video { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; height: auto; }
+}
+
+/* ─── The build comic strip — read it like a page ─────────────────── */
+.comic-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  background: var(--panel); border: var(--line-w) solid var(--ink); border-radius: 12px;
+  box-shadow: 6px 6px 0 rgba(21,24,32,0.9); padding: clamp(12px, 1.8vw, 20px);
+  margin: 8px 0 clamp(24px, 4vh, 40px); }
+@media (max-width: 880px) { .comic-strip { grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; } }
+.strip-panel { position: relative; display: block; text-decoration: none; color: inherit;
+  border: 2.5px solid var(--ink); border-radius: 6px; overflow: hidden;
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out); }
+.strip-panel:hover { transform: translate(-2px,-2px) rotate(-0.5deg); box-shadow: 5px 5px 0 rgba(21,24,32,0.9); z-index: 2; }
+.strip-panel .panel-note { max-width: 88%; }
+.strip-cap { display: block; background: var(--ink); color: var(--bone);
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em;
+  line-height: 1.45; padding: 8px 10px; }
