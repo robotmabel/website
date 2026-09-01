@@ -2219,3 +2219,14 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
 }
 /* jumpy letters must not break mid-word */
 .jumpy { display: inline-block; white-space: nowrap; }
+/* headers: tighter, and never reserve a row for the stickers */
+.sec-head { margin-bottom: clamp(22px, 3vh, 38px); }
+.sec-head-center { position: relative; }
+.sec-head .title, .sec-head-center h2 { margin-bottom: 0; }
+.sec-head .sticker, .sec-head-center .sticker { top: 0; }
+@media (min-width: 701px) {
+  .sec-head .sticker, .sec-head-center .sticker { width: 76px !important; }
+  .sec-head .sticker + .sticker, .sec-head-center .sticker + .sticker { right: 80px; }
+}
+/* balloons stay small enough to clear faces at any width */
+.panel-speech { font-size: clamp(11px, 1.05vw, 15px); padding: clamp(7px,0.8vw,13px) clamp(12px,1.4vw,22px); }
