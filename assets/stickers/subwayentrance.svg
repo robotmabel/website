@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220">
+  <polygon points="211.5,120.2 179.2,136.2 192.8,169.6 156.8,167.3 151.9,203.0 121.9,183.0 99.8,211.5 83.8,179.2 50.4,192.8 52.7,156.8 17.0,151.9 37.0,121.9 8.5,99.8 40.8,83.8 27.2,50.4 63.2,52.7 68.1,17.0 98.1,37.0 120.2,8.5 136.2,40.8 169.6,27.2 167.3,63.2 203.0,68.1 183.0,98.1" fill="#FFFFFF"/>
+  <polygon points="203.5,119.4 173.6,134.1 186.3,164.9 153.0,162.6 148.6,195.7 121.0,177.1 100.6,203.5 85.9,173.6 55.1,186.3 57.4,153.0 24.3,148.6 42.9,121.0 16.5,100.6 46.4,85.9 33.7,55.1 67.0,57.4 71.4,24.3 99.0,42.9 119.4,16.5 134.1,46.4 164.9,33.7 162.6,67.0 195.7,71.4 177.1,99.0" fill="#F2C94C" stroke="#151820" stroke-width="3"/>
+  
+  <g stroke="#151820" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+    <line x1="76" y1="60" x2="76" y2="150"/>
+    <circle cx="76" cy="52" r="9" fill="#7ED957"/>
+    <rect x="88" y="70" width="72" height="18" rx="4" fill="#2E7D4F"/>
+    <text x="124" y="84" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="13" fill="#FFF9F0" stroke="none">SUBWAY</text>
+    <path d="M92 150 h16 v-10 h14 v-10 h14 v-10 h14 v-10 h10" fill="none" stroke-width="4"/>
+    <path d="M76 104 h84 M76 126 h84 M76 148 h84" stroke-width="3.5"/>
+    <path d="M96 104 v44 M120 104 v44 M144 104 v44" stroke-width="2.5" opacity="0.7"/>
+  </g>
+</svg>
