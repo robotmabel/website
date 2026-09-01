@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#151820" />
+<title>MABEL — Build</title>
+<meta name="description" content="Build MABEL: four guides — bill of materials, hardware assembly, wiring, firmware — plus what to know before you start, the safety rules, calibration and troubleshooting." />
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Archivo:ital,wght@0,100..900;1,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<style>
+  /* Build-guide-scoped primitives, in the MABEL design language */
+  pre.code { background: var(--ink); color: #EDE7DA; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.75; padding: 18px 22px; border-radius: 16px; overflow-x: auto; margin: 16px 0; white-space: pre; -webkit-overflow-scrolling: touch; box-shadow: 0 12px 34px -18px rgba(21,24,32,0.5); }
+  pre.code .c { color: #A7A099; }               /* comment */
+  .bg-fig { margin: 26px 0; }
+  .bg-fig img { width: 100%; border-radius: 18px; border: 1px solid rgba(21,24,32,0.10); background: #fff; box-shadow: 0 20px 50px -28px rgba(21,24,32,0.42); }
+  .bg-fig figcaption { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; color: var(--ash); margin-top: 12px; text-align: center; text-transform: uppercase; }
+  .bg-lead { max-width: 62ch; }
+  .bg-two { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
+  @media (max-width: 880px) { .bg-two { grid-template-columns: 1fr; } }
+  .bg-anchor { scroll-margin-top: 92px; }
+  .bg-chip { display:inline-block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; color: var(--rust-dim); background: rgba(198,48,26,0.10); border:1px solid rgba(198,48,26,0.22); border-radius: 999px; padding: 3px 11px; margin: 0 6px 8px 0; }
+  .bg-secnum { font-family: var(--font-mono); font-size: 12px; color: var(--rust); letter-spacing: 0.1em; }
+  ul.bg-list { list-style: none; margin: 14px 0; padding: 0; }
+  ul.bg-list li { position: relative; padding: 7px 0 7px 24px; color: var(--ink-soft); font-size: 15px; line-height: 1.55; border-bottom: 1px solid rgba(21,24,32,0.07); }
+  ul.bg-list li::before { content: "→"; position: absolute; left: 0; color: var(--rust); }
+  .bg-cardgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 22px 0; }
+  /* guide cards */
+  .gcards { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+  .gcard { display:flex; flex-direction:column; gap:8px; padding:26px; border-radius:20px; text-decoration:none; color:inherit;
+    background:var(--glass-bg); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
+    border:1px solid var(--glass-border); box-shadow:var(--glass-hi), var(--glass-sh);
+    transition:transform .35s var(--ease-out), background .3s; }
+  .gcard:hover { transform:translateY(-4px); background:var(--glass-bg-2); }
+  .gcard.soon { opacity:.62; cursor:default; }
+  .gcard.soon:hover { transform:none; background:var(--glass-bg); }
+  .gnum { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--rust); }
+  .gname { font-family:var(--font-display); font-size:26px; line-height:1.1; letter-spacing:-.02em; }
+  .gdesc { font-size:13.5px; color:var(--ash); line-height:1.6; flex:1; }
+  .gmeta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:6px; }
+  .gtag { font-family:var(--font-mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+    padding:3px 9px; border-radius:999px; }
+  .gtag.pdf { background:rgba(198,48,26,0.14); color:#93220F; }
+  .gtag.page { background:rgba(21,24,32,0.07); color:var(--ash); }
+  .gtag.wip { background:rgba(21,24,32,0.06); color:var(--ash-light); border:1px dashed rgba(21,24,32,0.18); }
+</style>
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  /* ── Assembly-scoped primitives, in the MABEL design language ── */
+  .asm-anchor { scroll-margin-top: 92px; }
+  .asm-lead { max-width: 60ch; }
+
+  /* Stage head: big module number + title */
+  .asm-head { display: grid; grid-template-columns: auto 1fr; gap: clamp(18px, 3vw, 38px); align-items: start; }
+  .asm-num { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em; color: var(--rust); padding-top: 14px; }
+  .asm-head h2 { margin: 0; }
+  .asm-head .lede { margin-top: 14px; }
+  @media (max-width: 640px) { .asm-head { grid-template-columns: 1fr; gap: 6px; } .asm-num { padding-top: 0; } }
+
+  /* Spec chips */
+  .asm-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 20px; }
+  .asm-chips span { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; color: var(--rust-dim);
+    background: rgba(198,48,26,0.09); border: 1px solid rgba(198,48,26,0.20); border-radius: 999px; padding: 4px 12px; }
+
+  /* IKEA-style numbered steps */
+  ol.asm-steps { list-style: none; counter-reset: asmstep; margin: 0; padding: 0; }
+  ol.asm-steps li { counter-increment: asmstep; position: relative; padding: 15px 0 15px 46px;
+    border-bottom: 1px solid rgba(21,24,32,0.09); font-size: 15.5px; line-height: 1.55; color: var(--ink-soft); }
+  ol.asm-steps li:last-child { border-bottom: none; }
+  ol.asm-steps li::before { content: counter(asmstep); position: absolute; left: 0; top: 14px;
+    width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(21,24,32,0.26);
+    font-family: var(--font-mono); font-size: 11.5px; color: var(--ink); display: flex; align-items: center; justify-content: center; }
+  ol.asm-steps li strong { color: var(--ink); font-weight: 500; }
+  ol.asm-steps li .tip { display: block; font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.03em;
+    color: var(--ash); margin-top: 6px; }
+
+  /* Exploded view: drawing + part manifest */
+  .asm-explode { display: grid; grid-template-columns: 1.55fr 1fr; gap: clamp(24px, 4vw, 52px); align-items: start; margin: 30px 0 4px; }
+  @media (max-width: 900px) { .asm-explode { grid-template-columns: 1fr; } }
+  .asm-fig { margin: 0; }
+  .asm-fig a { display: block; background: #fff; border: 1px solid rgba(21,24,32,0.10); border-radius: 20px;
+    padding: 10px; box-shadow: 0 22px 54px -30px rgba(21,24,32,0.45); transition: box-shadow 0.35s var(--ease-out), transform 0.35s var(--ease-out); }
+  .asm-fig a:hover { box-shadow: 0 28px 64px -30px rgba(21,24,32,0.55); transform: translateY(-2px); }
+  .asm-fig img { display: block; width: 100%; height: auto; }
+  .asm-fig figcaption { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--ash); margin-top: 13px; display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .asm-fig figcaption .zoom { color: var(--rust); }
+
+  /* Part manifest */
+  .asm-parts h6 { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ash); font-weight: 600; margin: 0 0 4px; }
+  .asm-parts ol { list-style: none; counter-reset: part; margin: 0; padding: 0; border-top: 1px solid rgba(21,24,32,0.16); }
+  .asm-parts li { counter-increment: part; display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid rgba(21,24,32,0.08); align-items: baseline; }
+  .asm-parts li::before { content: counter(part, decimal-leading-zero); font-family: var(--font-mono); font-size: 10.5px; color: var(--ash); }
+  .asm-parts .pname { font-size: 14.5px; color: var(--ink); line-height: 1.35; }
+  .asm-parts .pmeta { display: block; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; color: var(--ash); margin-top: 3px; }
+
+  /* Build-order rail */
+  .asm-rail { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 30px; }
+  .asm-rail a { display: flex; align-items: baseline; gap: 9px; text-decoration: none; padding: 10px 16px;
+    border-radius: 999px; border: 1px solid rgba(21,24,32,0.15); background: rgba(255,255,255,0.40);
+    transition: background 0.25s, border-color 0.25s, transform 0.25s var(--ease-out); }
+  .asm-rail a:hover { background: #fff; border-color: rgba(21,24,32,0.30); transform: translateY(-2px); }
+  .asm-rail .k { font-family: var(--font-mono); font-size: 10.5px; color: var(--rust); letter-spacing: 0.1em; }
+  .asm-rail .n { font-size: 14.5px; color: var(--ink); }
+
+  /* Prep cards */
+  .asm-prep { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 30px; }
+  .asm-prep div { border-top: 1px solid rgba(21,24,32,0.18); padding-top: 16px; }
+  .asm-prep h6 { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--rust); font-weight: 600; margin: 0 0 9px; }
+  .asm-prep p { font-size: 14.5px; line-height: 1.6; color: var(--ink-soft); margin: 0; }
+
+  /* Two-column body for stages without a drawing */
+  .asm-body { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 56px); align-items: start; margin-top: 26px; }
+  @media (max-width: 900px) { .asm-body { grid-template-columns: 1fr; gap: 22px; } }
+  .asm-side { border-top: 1px solid rgba(21,24,32,0.16); padding-top: 16px; }
+  .asm-side h6 { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ash); font-weight: 600; margin: 0 0 10px; }
+  .asm-side dl { margin: 0; }
+  .asm-side dt { font-family: var(--font-mono); font-size: 11px; color: var(--ash); letter-spacing: 0.05em; margin-top: 12px; }
+  .asm-side dd { margin: 3px 0 0; font-size: 14.5px; color: var(--ink); line-height: 1.4; }
+  .asm-more { display: inline-block; margin-top: 22px; font-family: var(--font-mono); font-size: 11.5px;
+    letter-spacing: 0.06em; color: var(--rust); text-decoration: none; }
+  .asm-more:hover { text-decoration: underline; }
+
+  /* Keep content clear of the floating sidenav rail (fixed, right edge at 236px).
+     The offset shrinks to nothing once the page gutter is wide enough on its own,
+     so nothing here is pushed off-centre on a large display. */
+  @media (min-width: 1180px) {
+    .wrap { padding-left: max(var(--gutter), calc(264px - (100vw - var(--max)) / 2)); }
+    .page-hero { padding-left: max(var(--gutter), calc(264px - (100vw - var(--max)) / 2)); }
+  }
+</style>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="build.html">Build<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="build.html">Guide</a><a href="build.html#assembly">Assembly</a><a href="build.html#firmware">Firmware</a><a href="bom.html">Bill of materials</a></div></div>
+    <a href="bom.html">BOM</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS 2</a><a href="software.html#simulation">Simulation</a><a href="software.html#server">Server & Bridge</a><a href="software.html#controller">Controller</a><a href="software.html#wbc">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="teleop.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a></div></div>
+    <a href="simulator.html">Simulator</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#data">Data</a><a href="autonomy.html#navigation">Navigation</a><a href="autonomy.html#learning">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="index.html#paper" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Guide</a><a class="sub" href="build.html#assembly">Assembly</a><a class="sub" href="build.html#firmware">Firmware</a><a class="sub" href="bom.html">Bill of materials</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="anatomy.html">Anatomy explorer</a><a class="sub" href="hardware.html#hw-hands">Hands</a><a class="sub" href="hardware.html#hw-arms">Arms</a><a class="sub" href="hardware.html#hw-base">Base</a><a class="sub" href="hardware.html#hw-electronics">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="software.html#ros">ROS 2</a><a class="sub" href="software.html#simulation">Simulation</a><a class="sub" href="software.html#server">Server &amp; Bridge</a><a class="sub" href="software.html#controller">Controller</a><a class="sub" href="software.html#wbc">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="teleop.html#retargeting">Retargeting</a><a class="sub" href="teleop.html#vp-app">Vision Pro app</a><a class="sub" href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Simulator</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="autonomy.html#data">Data</a><a class="sub" href="autonomy.html#navigation">Navigation</a><a class="sub" href="autonomy.html#learning">Learning</a><a href="connect.html">Connect</a><a href="index.html#paper" class="ext">Paper ↗</a>
+</nav>
+
+<aside class="sidenav" aria-label="Build section navigation"><div class="sidenav-title">Build</div><a href="#guides">Guides &amp; PDFs</a><a href="#start">Quick start</a><a href="#safety">Safety</a><a href="#assembly">Assembly</a><a href="#firmware">Firmware</a><a href="bom.html">Bill of materials ↗</a></aside>
+
+<!-- ─── HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / Build</div>
+    <span class="eyebrow">Build</span>
+    <h1 class="display-lg">Build one.</h1>
+    <p class="lede">Four guides take you from an empty bench to a robot that moves: what to buy, how it goes
+    together, how it is wired, and what to flash. Two are published; two are being written.</p>
+    <div class="spec" style="margin-top:28px;">
+      <span>56 functional DOF</span><span>from $8,722</span><span>catalog parts</span><span>no machine shop</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE FOUR GUIDES ─── -->
+<section class="pad-y bg-anchor" id="guides"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div>
+      <span class="eyebrow">The guides</span>
+      <h2 class="display-md title">Four documents, <span class="italic accent">in order.</span></h2>
+    </div>
+    <p class="lede">Each one stands alone, but this is the order they are meant to be read in. Buy it, build it,
+    wire it, flash it.</p>
+  </div>
+  <div class="gcards fade-up">
+    <a class="gcard" href="bom.html">
+      <span class="gnum">01</span>
+      <span class="gname">Bill of materials</span>
+      <span class="gdesc">Every part, every vendor, every price. An $8,058 fixed core plus five choices you make
+      yourself, giving three complete builds. Interactive configurator on the page, 15-page guide as a PDF.</span>
+      <span class="gmeta"><span class="gtag pdf">PDF · 15 pages</span><span class="gtag page">interactive</span></span>
+    </a>
+    <a class="gcard" href="build.html#assembly">
+      <span class="gnum">02</span>
+      <span class="gname">Hardware assembly</span>
+      <span class="gdesc">Seven modules, exploded. Base, lift, body, arms, hands, head and electronics — what
+      bolts to what, in what order, with the 3D model to turn around while you do it.</span>
+      <span class="gmeta"><span class="gtag page">interactive</span><span class="gtag wip">PDF in progress</span></span>
+    </a>
+    <a class="gcard" href="build.html#assembly">
+      <span class="gnum">03</span>
+      <span class="gname">Wiring</span>
+      <span class="gdesc">Two power rails and one computer. The power tree, the data tree, a per-port table, and
+      the order to bring it all up without finding out the hard way which connector was loose.</span>
+      <span class="gmeta"><span class="gtag pdf">PDF · 6 pages</span><span class="gtag page">interactive</span></span>
+    </a>
+    <a class="gcard" href="build.html#firmware">
+      <span class="gnum">04</span>
+      <span class="gname">Firmware</span>
+      <span class="gdesc">What runs on the two Teensies and the Pico: the swerve base loop, the DAMIAO MIT-mode
+      CAN buses, and how to flash and verify each one.</span>
+      <span class="gmeta"><span class="gtag page">interactive</span><span class="gtag wip">PDF in progress</span></span>
+    </a>
+  </div>
+
+  <div class="callout fade-up" style="margin-top:28px;">
+    <p><strong>The one rule that keeps MABEL honest.</strong> The MuJoCo model <code>mabel_full.xml</code> is the
+    single source of truth for the body. The ROS URDF, the web model, the iOS and Vision Pro rigs and the
+    tip-over constants are all generated from it — regenerate them after any geometry change, or they drift
+    apart silently.</p>
+  </div>
+</div></section>
+
+<!-- ─── 2 · BEFORE ─── -->
+<section class="pad-y bg-anchor" id="start"><div class="wrap">
+  <span class="bg-secnum">02</span>
+  <h2 class="display-md title">Before You <span class="italic accent">Start.</span></h2>
+  <div class="bg-two">
+    <div>
+      <p class="lede">You can do everything up to real hardware on a Mac alone — ROS 2 is only needed on the robot.</p>
+      <ul class="bg-list">
+        <li><strong>macOS laptop</strong> → runs the full simulation stack</li>
+        <li><strong>Ubuntu 22.04 + ROS 2</strong> on Jetson Thor → runs the real robot</li>
+        <li>Skills: basic 3D printing, a terminal, light electronics</li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-family:var(--font-mono); font-size:12px; color:var(--ash); letter-spacing:0.05em; margin-bottom:8px;">THE GOLDEN RULES</p>
+      <ul class="bg-list">
+        <li>Simulate first — prove every motion in the twin</li>
+        <li>One source of truth — the MJCF defines the body</li>
+        <li>Power up current-limited, always</li>
+        <li>Know your stop before energizing anything</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── 3 · SAFETY ─── -->
+<section class="pad-y soft-sec bg-anchor" id="safety"><div class="wrap">
+  <span class="bg-secnum">03</span>
+  <h2 class="display-md title">Safety <span class="italic accent">first.</span></h2>
+  <p class="lede bg-lead">MABEL is a 62 kg machine with 400 N·m in its torso. Every safeguard below is real and lives in the code.</p>
+  <div class="bg-cardgrid">
+    <div class="card"><div class="card-num">Stop</div><h4>E-stop, everywhere</h4><p>Any client sends <code>estop</code>; the bridge zeros all commands and latches stopped. A hardware E-stop de-energizes actuators independently of the host.</p></div>
+    <div class="card"><div class="card-num">Watchdog</div><h4>Dead-command safety</h4><p>No fresh command in 0.3 s → drive zeros. Lose the Teensy heartbeat → controllers disable in ~150 ms.</p></div>
+    <div class="card"><div class="card-num">Limits</div><h4>Never tip</h4><p>A ZMP tip-over model bounds base speed/accel from the measured CoM. Self-collision avoidance (CBF-QP) keeps arms out of each other.</p></div>
+    <div class="card"><div class="card-num">Control</div><h4>One driver</h4><p>A single-driver lock means two operators can't fight. Lost hand tracking holds pose instead of extrapolating.</p></div>
+  </div>
+</div></section>
+
+<!-- ─── 7 · CALIBRATION ─── -->
+<section class="pad-y soft-sec bg-anchor" id="calibration"><div class="wrap">
+  <span class="bg-secnum">07</span>
+  <h2 class="display-md title">Calibration.</h2>
+  <div class="bg-two">
+    <div>
+      <p class="lede">Five routines turn a pile of motors into a robot that matches its twin: swerve steer offsets, arm system-ID, motor friction/inertia, ORCA hand end-stops, and the whole-body CoM check.</p>
+      <div class="callout"><p><strong>Don't skip the CoM check</strong> after any mass change: <code>wbc_stability.py --only 4</code>. If E4 shows &gt;1 cm bias, update the tip-over constants in <code>config.py</code>. This is what keeps MABEL from tipping.</p></div>
+    </div>
+    <figure class="bg-fig"><img src="assets/build-guide/calibration.png" alt="Arm system identification results"/><figcaption>Arm system-ID · torque-fit residuals</figcaption></figure>
+  </div>
+</div></section>
+
+<!-- ─── WHERE TO GO NEXT ─── -->
+<section class="pad-y bg-anchor" id="next"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div>
+      <span class="eyebrow">After the build</span>
+      <h2 class="display-md title">Then make it <span class="italic accent">do something.</span></h2>
+    </div>
+    <p class="lede">The build guides stop at a robot that powers on and holds position. Everything past that
+    lives on its own page.</p>
+  </div>
+  <div class="bg-cardgrid fade-up">
+    <a class="card" href="software.html" style="text-decoration:none; color:inherit;"><div class="card-num">Software</div><h4>The stack</h4><p>ROS 2, the server and bridge, and the simulation twin you should prove every motion in first.</p></a>
+    <a class="card" href="software.html#controller" style="text-decoration:none; color:inherit;"><div class="card-num">Control</div><h4>Whole-body control</h4><p>The safety gate every command passes through, the tip-over model, and the QP that keeps the arms out of each other.</p></a>
+    <a class="card" href="teleop.html" style="text-decoration:none; color:inherit;"><div class="card-num">Teleop</div><h4>Drive it</h4><p>Vision Pro, iPhone or browser — one wire contract, three clients, and the retargeting in between.</p></a>
+    <a class="card" href="autonomy.html#navigation" style="text-decoration:none; color:inherit;"><div class="card-num">Nav</div><h4>Let it drive itself</h4><p>SLAM, costmaps and planning on the swerve base.</p></a>
+    <a class="card" href="autonomy.html" style="text-decoration:none; color:inherit;"><div class="card-num">Autonomy</div><h4>Teach it</h4><p>Collect demonstrations, curate them, train a policy, deploy it back onto the robot.</p></a>
+    <a class="card" href="connect.html" style="text-decoration:none; color:inherit;"><div class="card-num">Connect</div><h4>Get in touch</h4><p>The live studios, the repo, and how to reach the people building it.</p></a>
+  </div>
+</div></section>
+
+<!-- ─── 13 · FAQ ─── -->
+<section class="pad-y soft-sec bg-anchor" id="faq"><div class="wrap">
+  <span class="bg-secnum">13</span>
+  <h2 class="display-md title">Troubleshooting &amp; <span class="italic accent">FAQ.</span></h2>
+  <div class="bg-cardgrid">
+    <div class="card"><h4>Do I need hardware to start?</h4><p>No. The full stack — teleop, control, learning — runs against the MuJoCo twin on a laptop.</p></div>
+    <div class="card"><h4>A motor won't respond</h4><p>Check the bus is up (<code>./can_scan.sh</code>), 1 Mbit, and 120 Ω terminated both ends.</p></div>
+    <div class="card"><h4>Wrist cameras swapped or slow</h4><p>They're identical — pinned by hub port. Keep both on one powered USB-3 hub at 640×480.</p></div>
+    <div class="card"><h4>App shows a different robot</h4><p>You edited the MJCF without regenerating the derived models. Re-run the §8 pipeline, in order.</p></div>
+  </div>
+  <div style="text-align:center; margin-top:40px;">
+    <a href="https://app.notion.com/p/3932403b2611812bafeaf63a6afdb42d" target="_blank" rel="noopener" class="btn btn-primary">Open the full interactive wiki ↗</a>
+  </div>
+</div></section>
+
+
+<!-- ═══ ASSEMBLY (merged from assembly.html) ═══ -->
+<!-- ─── BEFORE YOU START ─── -->
+<section class="pad-y-sm asm-anchor" id="assembly"><div class="wrap">
+  <span class="eyebrow">Before you start</span>
+  <h2 class="display-sm title">Print first. <span class="italic accent">Test as you go.</span></h2>
+  <p class="lede asm-lead">The shells take about 36 hours on one printer — start them before the actuator kits arrive, and build the electrical kits while they run.</p>
+
+  <div class="asm-prep fade-up">
+    <div>
+      <h6>Print</h6>
+      <p>≈ 2.1 kg of PETG or ABS. Every mesh is generated from the MuJoCo model <code>mabel_full.xml</code> — never hand-edit a printed part, regenerate it.</p>
+    </div>
+    <div>
+      <h6>Order of operations</h6>
+      <p>Bottom-up. Never mount a module onto one you haven't range-tested — a base with a twisted swerve module is invisible once the body is on it.</p>
+    </div>
+    <div>
+      <h6>Bus IDs</h6>
+      <p>Assign every CAN and serial ID <em>before</em> the part goes into the chain, one device powered at a time. A wrong ID buried mid-arm means taking the arm apart.</p>
+    </div>
+    <div>
+      <h6>Torque off</h6>
+      <p>Every actuator stays limp until its module is mechanically complete and its limits are set. Bring the whole robot up with torque disabled.</p>
+    </div>
+  </div>
+
+  <div class="callout fade-up" style="margin-top:32px;">
+    <p><strong>What these drawings are.</strong> The exploded views below are the authority for <em>which parts exist and in what order they stack</em>. A fully itemized fastener and torque schedule has not been published yet — use the hardware that ships with each actuator, and match the drawing. Published drawings today: <strong>body</strong> and <strong>head</strong>; the remaining five modules are documented as build sequences here and in the <a href="build.html">build guide</a>.</p>
+  </div>
+
+  <div class="asm-rail fade-up">
+    <a href="#base"><span class="k">01</span><span class="n">Base</span></a>
+    <a href="#lift"><span class="k">02</span><span class="n">Lift</span></a>
+    <a href="#body"><span class="k">03</span><span class="n">Body</span></a>
+    <a href="#arms"><span class="k">04</span><span class="n">Arms</span></a>
+    <a href="#hands"><span class="k">05</span><span class="n">Hands</span></a>
+    <a href="#head"><span class="k">06</span><span class="n">Head</span></a>
+    <a href="#electronics"><span class="k">07</span><span class="n">Electronics</span></a>
+  </div>
+</div></section>
+
+<!-- ─── 01 · BASE ─── -->
+<section class="pad-y soft-sec asm-anchor" id="base"><div class="wrap">
+  <div class="asm-head fade-up">
+    <span class="asm-num">01</span>
+    <div>
+      <h2 class="display-md title">Base.</h2>
+      <p class="lede asm-lead">Three independently steered modules in a delta layout — the rolling foundation everything else stacks onto.</p>
+      <div class="asm-chips">
+        <span>3 × delta swerve</span><span>REV NEO + NEO 550</span><span>6 × SPARK MAX / Flex</span><span>CAN · 120 Ω</span><span>Teensy 4.1</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="asm-body fade-up">
+    <ol class="asm-steps">
+      <li><strong>Build all three swerve modules first.</strong> Each pairs a NEO for drive with a NEO 550 for steer. Build them identically and completely before any of them touches the chassis.</li>
+      <li><strong>Mount them in the delta layout</strong> — three modules at 120°. Keep every bolt pattern square to the chassis plate.<span class="tip">A twisted module reads as permanent heading drift later.</span></li>
+      <li><strong>Fit the 38.1 mm wheels</strong> and turn each module through a full steer rotation by hand. Nothing should bind or tug a cable.</li>
+      <li><strong>Daisy-chain the CAN bus</strong> across all six SPARK controllers, with a 120 Ω terminator at each end of the chain.</li>
+      <li><strong>Assign CAN IDs 1–6</strong>, one controller powered at a time so two devices can never answer to the same ID.</li>
+      <li><strong>Seat the compute bay</strong> — Teensy 4.1 for the swerve loop, Jetson Thor for everything above it.</li>
+      <li><strong>Range-test the finished base</strong> before the lift goes on. Steer each module through its full travel and spin each wheel.</li>
+    </ol>
+    <div class="asm-side">
+      <h6>Module</h6>
+      <dl>
+        <dt>Drive</dt><dd>REV NEO × 3 · CAN</dd>
+        <dt>Steer</dt><dd>REV NEO 550 × 3 · CAN</dd>
+        <dt>Controllers</dt><dd>REV SPARK MAX / Flex × 6</dd>
+        <dt>Wheels</dt><dd>38.1 mm</dd>
+        <dt>Firmware</dt><dd>Teensy 4.1 · reverse-engineered REV CAN stack</dd>
+      </dl>
+      <a class="asm-more" href="hardware.html#hw-base">Base hardware in depth →</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── 02 · LIFT ─── -->
+<section class="pad-y asm-anchor" id="lift"><div class="wrap">
+  <div class="asm-head fade-up">
+    <span class="asm-num">02</span>
+    <div>
+      <h2 class="display-md title">Lift.</h2>
+      <p class="lede asm-lead">A cascaded Z-column that adds 0.635 m of vertical travel — counter height to over a table.</p>
+      <div class="asm-chips">
+        <span>0.635 m travel</span><span>Brushed DC + leadscrew</span><span>BTS7960 H-bridge</span><span>RP2040 Pico</span><span>Quadrature encoder</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="asm-body fade-up">
+    <ol class="asm-steps">
+      <li><strong>Assemble the telescoping stages dry</strong> — no motor, no leadscrew. Run the column through its full travel by hand; it must slide with no stiction at any height.</li>
+      <li><strong>Fit the leadscrew and the brushed DC actuator</strong>, then turn the screw by hand end to end before energising anything.</li>
+      <li><strong>Mount the quadrature encoder</strong> and wire the BTS7960 H-bridge to the RP2040 Pico.</li>
+      <li><strong>Bolt the column to the base.</strong> It carries every module above it — tighten the base flange in a cross pattern.</li>
+      <li><strong>Home it empty.</strong> Close the position + velocity loop with nothing mounted and confirm both end stops before the body goes on.<span class="tip">Homing a loaded column against an unproven end stop is how leadscrews get bent.</span></li>
+    </ol>
+    <div class="asm-side">
+      <h6>Module</h6>
+      <dl>
+        <dt>Travel</dt><dd>0.635 m, cascaded stages</dd>
+        <dt>Actuator</dt><dd>Brushed DC + leadscrew</dd>
+        <dt>Driver</dt><dd>BTS7960 H-bridge</dd>
+        <dt>Control</dt><dd>RP2040 Pico · cascaded position + velocity</dd>
+        <dt>Link</dt><dd>USB serial to the host</dd>
+      </dl>
+      <a class="asm-more" href="hardware.html#hw-lift">Lift hardware in depth →</a>
+    </div>
+  </div>
+
+  <div class="callout fade-up" style="margin-top:30px;">
+    <p><strong>The lift changes the base's limits.</strong> Raising the column raises the centre of mass, so the tip-safe speed and braking envelope tightens with height. That coupling is modelled in <a href="software.html#wbc">whole-body control</a> — it is not something you tune out mechanically.</p>
+  </div>
+</div></section>
+
+<!-- ─── 03 · BODY ─── -->
+<section class="pad-y soft-sec asm-anchor" id="body"><div class="wrap">
+  <div class="asm-head fade-up">
+    <span class="asm-num">03</span>
+    <div>
+      <h2 class="display-md title">Body.</h2>
+      <p class="lede asm-lead">The torso that leans, and the frame that carries the arms, the neck, and the body electronics.</p>
+      <div class="asm-chips">
+        <span>DaMiao DM-J10422P</span><span>400 N·m</span><span>Body CAN</span><span>Custom PCB</span><span>U2D2</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="asm-explode fade-up">
+    <figure class="asm-fig">
+      <a href="assets/assembly/body-exploded.svg" target="_blank" rel="noopener">
+        <img src="assets/assembly/body-exploded.svg" alt="Exploded view of the MABEL body: back housing cover, custom PCB, PCB mount, neck mounting plate, arm mounting plate, torso output shaft, torso actuator, U2D2 controller, front housing cover" loading="lazy" />
+      </a>
+      <figcaption><span>Body · exploded view</span><span class="zoom">Open full size ↗</span></figcaption>
+    </figure>
+    <div class="asm-parts">
+      <h6>Parts</h6>
+      <ol>
+        <li><span class="pname">Torso Actuator<span class="pmeta">DaMiao DM-J10422P · 400 N·m · CAN</span></span></li>
+        <li><span class="pname">Torso Output Shaft<span class="pmeta">Bolts to the actuator output flange</span></span></li>
+        <li><span class="pname">PCB Mount<span class="pmeta">3D printed</span></span></li>
+        <li><span class="pname">Custom PCB<span class="pmeta">Body power + bus routing</span></span></li>
+        <li><span class="pname">Neck Mounting Plate<span class="pmeta">Receives the neck yaw actuator (§6)</span></span></li>
+        <li><span class="pname">Arm Mounting Plate 1<span class="pmeta">Mirrored for the second arm</span></span></li>
+        <li><span class="pname">U2D2 Controller<span class="pmeta">USB ↔ half-duplex TTL for the neck servos</span></span></li>
+        <li><span class="pname">Back Housing Cover<span class="pmeta">3D printed</span></span></li>
+        <li><span class="pname">Front Housing Cover<span class="pmeta">3D printed · closes last</span></span></li>
+      </ol>
+    </div>
+  </div>
+
+  <ol class="asm-steps fade-up" style="margin-top:26px;">
+    <li><strong>Mount the torso actuator</strong> to the lift carriage. It is the strongest joint on the robot — keep its torque disabled for the whole of this stage.</li>
+    <li><strong>Bolt the torso output shaft</strong> to the actuator's output flange. Everything above the torso hangs off this joint.</li>
+    <li><strong>Fit the PCB mount</strong> to the frame, then land the custom PCB on it.</li>
+    <li><strong>Add the neck mounting plate</strong> at the top of the frame — the neck yaw actuator lands here in §6.</li>
+    <li><strong>Add the arm mounting plates</strong>, left and right. Check both are coplanar before the arms go on.<span class="tip">A skewed plate biases every Cartesian target on that arm.</span></li>
+    <li><strong>Seat the U2D2 controller</strong> and route its TTL run up toward the neck plate.</li>
+    <li><strong>Close the back housing cover, then the front.</strong> Leave both off until the arms and head are wired — the covers are the last thing on the body, not the first.</li>
+  </ol>
+
+  <a class="asm-more fade-up" href="hardware.html#hw-body">Body hardware in depth →</a>
+</div></section>
+
+<!-- ─── 04 · ARMS ─── -->
+<section class="pad-y asm-anchor" id="arms"><div class="wrap">
+  <div class="asm-head fade-up">
+    <span class="asm-num">04</span>
+    <div>
+      <h2 class="display-md title">Arms.</h2>
+      <p class="lede asm-lead">Two 7-DOF OpenArm-derived arms on quasi-direct-drive motors — low gearing, real torque control, back-drivable by hand.</p>
+      <div class="asm-chips">
+        <span>2 × 7 DOF</span><span>OpenArm-derived</span><span>DaMiao QDD</span><span>can0 / can1</span><span>14 motors</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="asm-body fade-up">
+    <ol class="asm-steps">
+      <li><strong>Build each arm link by link, from the shoulder out.</strong> Per arm: 2 × DM-J8009P shoulder, 2 × DM-J4340 shoulder-roll and elbow, 3 × DM-J4310 wrist.</li>
+      <li><strong>Assign IDs 1–7 before each motor goes into the chain</strong>, one motor powered at a time.<span class="tip">A wrong ID buried mid-arm means dismantling the arm to reach it.</span></li>
+      <li><strong>Keep the arms on separate buses</strong> — left on <code>can0</code>, right on <code>can1</code>. Do not merge them onto one chain.</li>
+      <li><strong>Bolt each arm to its mounting plate</strong> on the body, and route the bus down through the shoulder before the housing covers go on.</li>
+      <li><strong>Set each joint's zero at a known pose</strong>, the same pose for both arms.</li>
+      <li><strong>Check back-drivability.</strong> With torque off, every joint should move under hand pressure. A joint that fights you is a mechanical fault, not a gain problem.</li>
+    </ol>
+    <div class="asm-side">
+      <h6>Per arm · 7 DOF</h6>
+      <dl>
+        <dt>Shoulder × 2</dt><dd>DaMiao DM-J8009P · 40 N·m</dd>
+        <dt>Shoulder-roll + elbow × 2</dt><dd>DaMiao DM-J4340 · 27 N·m</dd>
+        <dt>Wrist × 3</dt><dd>DaMiao DM-J4310 · 7–10 N·m</dd>
+        <dt>Bus</dt><dd>CAN · 1 Mbit/s</dd>
+        <dt>Lineage</dt><dd>Open-source OpenArm</dd>
+      </dl>
+      <a class="asm-more" href="hardware.html#hw-arms">Arm hardware in depth →</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── 05 · HANDS ─── -->
+<section class="pad-y soft-sec asm-anchor" id="hands"><div class="wrap">
+  <div class="asm-head fade-up">
+    <span class="asm-num">05</span>
+    <div>
+      <h2 class="display-md title">Hands.</h2>
+      <p class="lede asm-lead">Two open-source ORCA hands — five tendon-routed fingers each, 17 actuated DOF per hand on a single serial chain.</p>
+      <div class="asm-chips">
+        <span>2 × ORCA · 34 DOF</span><span>16 × Feetech HLS3915</span><span>1 × HLS3930 wrist</span><span>1 MHz TTL</span><span>Tendon-routed</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="asm-body fade-up">
+    <ol class="asm-steps">
+      <li><strong>Print and assemble the ORCA hand frames</strong> — the design is fully released, so build to the ORCA documentation.</li>
+      <li><strong>Assign every servo ID before stringing.</strong> Once tendons are routed, reaching a servo means unstringing the finger.</li>
+      <li><strong>Route and string the tendons</strong>, five fingers per hand: abduction, MCP and PIP on each.</li>
+      <li><strong>Tension every tendon until no slack remains</strong>, then check again after the first few cycles.<span class="tip">Slack read as calibration error is the single most common hand build failure — tension before you calibrate, not after.</span></li>
+      <li><strong>Chain all 17 servos on one 1 MHz TTL bus</strong> per hand — 16 finger servos plus the wrist.</li>
+      <li><strong>Mount each hand to its arm wrist flange</strong> and route the serial run back along the forearm.</li>
+      <li><strong>Run the grasp check</strong> — pinch, power, tripod. The same commands drive sim and hardware, so a grasp tuned in sim should reproduce here.</li>
+    </ol>
+    <div class="asm-side">
+      <h6>Per hand · 17 DOF</h6>
+      <dl>
+        <dt>Fingers</dt><dd>Feetech HLS3915 × 16</dd>
+        <dt>Wrist</dt><dd>Feetech HLS3930 × 1</dd>
+        <dt>Bus</dt><dd>1 MHz TTL serial, one chain</dd>
+        <dt>Config</dt><dd>ORCA Hand Control Studio — IDs, registers, live load &amp; temperature</dd>
+      </dl>
+      <a class="asm-more" href="hardware.html#hw-hands">Hand hardware in depth →</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── 06 · HEAD ─── -->
+<section class="pad-y asm-anchor" id="head"><div class="wrap">
+  <div class="asm-head fade-up">
+    <span class="asm-num">06</span>
+    <div>
+      <h2 class="display-md title">Head.</h2>
+      <p class="lede asm-lead">A 3-DOF neck and the stereo eyes it aims. Yaw runs on the body CAN bus; roll and pitch are a pair of Dynamixel servos on TTL.</p>
+      <div class="asm-chips">
+        <span>3-DOF neck</span><span>Yaw · DaMiao on CAN</span><span>Roll + pitch · 2 × XC330-T181</span><span>TTL · 1 Mbaud</span><span>ZED Mini</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="asm-explode fade-up">
+    <figure class="asm-fig">
+      <a href="assets/assembly/head-exploded.svg" target="_blank" rel="noopener">
+        <img src="assets/assembly/head-exploded.svg" alt="Exploded view of the MABEL head: neck yaw actuator, neck output shaft, Dynamixel roll and pitch actuator, camera mount, ZED Mini, head flash light, front and back head covers, two WiFi antennas" loading="lazy" />
+      </a>
+      <figcaption><span>Head &amp; neck · exploded view</span><span class="zoom">Open full size ↗</span></figcaption>
+    </figure>
+    <div class="asm-parts">
+      <h6>Parts</h6>
+      <ol>
+        <li><span class="pname">Neck Yaw Actuator<span class="pmeta">DaMiao QDD · body CAN</span></span></li>
+        <li><span class="pname">Neck Output Shaft<span class="pmeta">3D printed</span></span></li>
+        <li><span class="pname">Roll &amp; Pitch Actuator<span class="pmeta">2 × Dynamixel XC330-T181 · half-duplex TTL</span></span></li>
+        <li><span class="pname">Camera Mount<span class="pmeta">3D printed</span></span></li>
+        <li><span class="pname">ZED Mini<span class="pmeta">Stereo eyes · USB 3</span></span></li>
+        <li><span class="pname">Head Flash Light<span class="pmeta">Front-facing illumination</span></span></li>
+        <li><span class="pname">Back Head Cover<span class="pmeta">3D printed</span></span></li>
+        <li><span class="pname">WiFi Antenna × 2<span class="pmeta">Screw in through the back cover</span></span></li>
+        <li><span class="pname">Front Head Cover<span class="pmeta">3D printed · closes last</span></span></li>
+      </ol>
+    </div>
+  </div>
+
+  <ol class="asm-steps fade-up" style="margin-top:26px;">
+    <li><strong>Mount the neck yaw actuator</strong> to the neck mounting plate you fitted in §3.</li>
+    <li><strong>Bolt the printed neck output shaft</strong> to the yaw actuator's output.</li>
+    <li><strong>Fit the two Dynamixel XC330-T181 servos</strong> into the output shaft — this pair drives roll and pitch. Set their IDs on the bench, before they go in.</li>
+    <li><strong>Attach the camera mount</strong> to the roll/pitch block.</li>
+    <li><strong>Seat the ZED Mini</strong> in the camera mount, and the head flash light beneath it. Route both leads down through the neck with enough slack for full yaw travel.<span class="tip">Check slack at both yaw extremes — a cable that is fine centred can tear at end of travel.</span></li>
+    <li><strong>Bring the back head cover</strong> over the assembly and screw in both WiFi antennas.</li>
+    <li><strong>Close the front head cover last</strong>, once the neck has been moved through its full range with torque off.</li>
+  </ol>
+
+  <div class="callout fade-up" style="margin-top:30px;">
+    <p><strong>Bring the neck up limp.</strong> The X-series servos <em>latch</em> torque-enable across a host reconnect — a previous session that energised the neck leaves it stiff at the next bring-up. The driver asserts the safe limp state on connect; do not defeat it while assembling.</p>
+  </div>
+
+  <a class="asm-more fade-up" href="hardware.html#hw-body">Neck &amp; body hardware in depth →</a>
+</div></section>
+
+<!-- ─── 07 · ELECTRONICS ─── -->
+<section class="pad-y soft-sec asm-anchor" id="electronics"><div class="wrap">
+  <div class="asm-head fade-up">
+    <span class="asm-num">07</span>
+    <div>
+      <h2 class="display-md title">Electronics.</h2>
+      <p class="lede asm-lead">Custom base and body boards tie every actuator onto one low-latency local network — CAN for the motor buses, Ethernet and USB 3 for the bandwidth.</p>
+      <div class="asm-chips">
+        <span>Custom base + body PCB</span><span>CAN + Ethernet</span><span>Jetson Thor</span><span>Single battery</span><span>Untethered</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="asm-body fade-up">
+    <ol class="asm-steps">
+      <li><strong>Land both custom PCBs</strong> — the base board in the chassis, the body board on its printed mount (§3).</li>
+      <li><strong>Fan power out from one battery.</strong> Nothing trails behind the robot; the whole platform runs off a single pack.</li>
+      <li><strong>Bring up the CAN buses</strong> — base (6 SPARK controllers), body (torso + neck yaw), and the two arms on <code>can0</code> / <code>can1</code>. Terminate each chain at both ends.</li>
+      <li><strong>Bring up the serial buses</strong> — one 1 MHz TTL chain per hand, the neck servos through the U2D2, and the lift Pico over USB.</li>
+      <li><strong>Connect the sensing</strong> — ZED Mini (eyes), RealSense D435i (chest), two Arducam global-shutter wrist cameras, RPLIDAR A3. Keep the wrist cameras pinned by hub port on one powered USB 3 hub.<span class="tip">The two wrist cams are identical — without a fixed port assignment they swap between boots.</span></li>
+      <li><strong>Seat the Jetson Thor</strong> and its Ethernet run. It carries SLAM, navigation, perception, and whole-body control onboard.</li>
+      <li><strong>Label every bus and terminate every chain</strong> before the covers go on. This is the last moment any of it is reachable.</li>
+    </ol>
+    <div class="asm-side">
+      <h6>Module</h6>
+      <dl>
+        <dt>Boards</dt><dd>Custom base PCB + body PCB</dd>
+        <dt>Motor buses</dt><dd>CAN · 1 Mbit/s</dd>
+        <dt>Serial</dt><dd>TTL (hands, neck) + USB (lift)</dd>
+        <dt>Compute</dt><dd>Jetson Thor · onboard, no tether</dd>
+        <dt>Sensing</dt><dd>7 cameras + LiDAR on USB 3</dd>
+      </dl>
+      <a class="asm-more" href="hardware.html#hw-electronics">Electronics in depth →</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- ─── POWER-ON ─── -->
+<section class="pad-y asm-anchor" id="poweron"><div class="wrap">
+  <span class="eyebrow">Assembled</span>
+  <h2 class="display-md title">First <span class="italic accent">power-on.</span></h2>
+  <p class="lede asm-lead">Mechanically complete is not commissioned. Bring the robot up limp, one bus at a time, then hand over to the build guide for firmware and calibration.</p>
+
+  <div class="asm-body fade-up">
+    <ol class="asm-steps">
+      <li><strong>Power on with every actuator torque-disabled.</strong> No exceptions, on any bus.</li>
+      <li><strong>Enumerate each bus separately</strong> and confirm the device count matches what you built — 6 on the base, torso + neck yaw on the body, 7 per arm, 17 per hand, 2 neck servos on TTL.</li>
+      <li><strong>Read state before writing any.</strong> Every joint should report a plausible position with the robot standing still.</li>
+      <li><strong>Home the lift empty-handed first</strong>, then verify the tip-safe envelope tightens as it rises.</li>
+      <li><strong>Enable torque one module at a time</strong>, lowest first, with the robot supported.</li>
+    </ol>
+    <div class="asm-side">
+      <h6>What comes next</h6>
+      <dl>
+        <dt>06 · Firmware</dt><dd><a href="build.html#firmware">Flash the Teensy, Pico and arm boards</a></dd>
+        <dt>07 · Calibration</dt><dd><a href="build.html#calibration">Zeros, limits, and friction identification</a></dd>
+        <dt>08 · Software</dt><dd><a href="software.html">ROS 2 workspace and the HAL</a></dd>
+        <dt>09 · Teleop</dt><dd><a href="teleop.html">Drive it from a browser, iPhone, or Vision Pro</a></dd>
+      </dl>
+      <a class="asm-more" href="build.html">Open the full build guide →</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- ═══ FIRMWARE (merged from firmware.html) ═══ -->
+<!-- ─── PHILOSOPHY ─── -->
+<section class="pad-y" id="firmware">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The idea</span>
+        <h2 class="display-md title">Off the <span class="italic accent">vendor tools.</span></h2>
+      </div>
+      <p class="lede">Every actuator company hands you a proprietary GUI — REV's Hardware Client, the
+        Feetech debugger, Damiao's assistant, Dynamixel Wizard — usually Windows-only, each its own
+        silo. We pulled the parts we need into our own code so the whole robot speaks one language.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Modular — one target per limb</h5>
+        <p>One folder per subsystem (<code>swerve_drive</code>, <code>openarm</code>, <code>orca_hand</code>,
+          <code>head</code>, <code>lift</code>); flash or swap a board without touching the rest.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Own the protocol</h5>
+        <p>Where a vendor hides setup in a closed app, we re-implement it natively — most of all the REV
+          SPARK CAN stack, reverse-engineered end-to-end (below).</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Cross-platform on purpose</h5>
+        <p>GUI and host libraries run on <strong>macOS and Ubuntu</strong>. <em>Windows isn't tested
+          yet.</em> No vendor binary, no OS lock-in.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Always-usable</h5>
+        <p>Bus down or driver unbuilt? The GUI opens in <strong>SIM mode</strong> with simulated
+          telemetry — design and test with zero hardware.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE GUI ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Control Studio</span>
+        <h2 class="display-md title" style="color:var(--bone);">One app, <span class="italic accent">every actuator.</span></h2>
+      </div>
+      <p class="lede">A shared iOS-styled GUI — same dark palette, sliders, and pill toggles across the
+        swerve, hand, and lift apps. Reassign IDs, write registers, read live status, and jog any joint.</p>
+    </div>
+
+    <!-- animated "how to use it" demo -->
+    <div class="reveal-media media-frame gui fade-up" style="aspect-ratio:16/9; margin-bottom:18px;">
+      <img src="assets/gui-swerve-demo.svg" alt="Using Swerve Studio — toggle a motor on, drag the steering axis to an absolute angle, throttle the drive wheel, all with live telemetry" />
+      <span class="sim-cap"><span class="dot"></span>Using it · enable → steer → throttle, live</span>
+    </div>
+
+    <div class="gui-grid fade-up">
+      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
+        <img src="assets/gui-swerve.svg" alt="MABEL Swerve Studio — per-module steer/drive control, live telemetry, E-STOP" />
+        <span class="sim-cap"><span class="dot"></span>Swerve Studio · REV SPARK base</span>
+      </div>
+      <div class="reveal-media media-frame gui" style="aspect-ratio:16/10;">
+        <img src="assets/gui-hand.svg" alt="MABEL ORCA Hand Control Studio — 17 per-finger joint sliders, grasp presets" />
+        <span class="sim-cap"><span class="dot"></span>ORCA Hand · 17 Feetech servos</span>
+      </div>
+    </div>
+
+    <div class="points fade-up" style="margin-top:30px;">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Reassign IDs &amp; write registers</h5>
+        <p>Give a fresh Feetech servo its ID or change a Damiao CAN ID; edit registers live — REV SPARK
+          control mode, idle brake, PID <code>kP</code>, the steering encoder zero — and burn them to flash.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Jog any joint</h5>
+        <p>Drag a steering axis to an absolute angle, throttle a drive wheel by duty-cycle, move a finger
+          or fire a grasp preset, enable / disable a motor, or hit <strong>E-STOP</strong> — instantly.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Read everything, live</h5>
+        <p>A telemetry sidebar streams position, velocity, current and temperature per controller,
+          colour-coded as values approach their limits — so you see a hot or stalling motor before it faults.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Bus &amp; bring-up tools</h5>
+        <p>Bring the CAN interface up / restart / scan / doctor it from a panel with a streaming console;
+          sine-sweep a motor, zero an encoder, clear faults, read limits — the vendor-app chores, built in.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── REV SWERVE REVERSE ENGINEERING ─── -->
+<section class="pad-y" id="rev">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Swerve drive · the deep cut</span>
+        <h2 class="display-md title">Reverse-engineering <span class="italic accent">REV SPARK.</span></h2>
+      </div>
+      <p class="lede">The base runs REV SPARK controllers on a 3-module delta swerve. REV only exposes them
+        through their Hardware Client and vendor libraries — so we read the <code>sparkcan</code> source,
+        documented the wire protocol, and re-implemented it raw in Python (SocketCAN) and C++ (Teensy
+        FlexCAN_T4). Zero dependency on REV's stack.</p>
+    </div>
+
+    <!-- arbitration callout -->
+    <div class="fade-up" style="background:linear-gradient(180deg,#1b1714,#100d0b); border:1px solid rgba(244,234,210,0.10); border-radius:18px; padding:22px 24px; margin:6px 0 30px; overflow-x:auto;">
+      <div style="font:500 11px/1 'Space Mono',monospace; letter-spacing:0.12em; color:var(--rust); text-transform:uppercase; margin-bottom:12px;">29-bit extended arbitration ID</div>
+      <pre style="margin:0; font:500 13.5px/1.7 'Space Mono',monospace; color:var(--bone); white-space:pre;">arbId = (0x02 &lt;&lt; 24)        <span style="color:var(--ash-light)">// DEVICE_TYPE  = motor controller</span>
+      | (0x05 &lt;&lt; 16)        <span style="color:var(--ash-light)">// MANUFACTURER = REV Robotics</span>
+      | (apiClass &lt;&lt; 10)
+      | (apiIndex &lt;&lt; 6)
+      |  deviceId           <span style="color:var(--ash-light)">// 1,3,5 = drive · 2,4,6 = steer</span></pre>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Control + register frames</h5>
+        <p>Velocity / Position / DutyCycle share one payload — an IEEE-754 LE float in bytes 0–3. Registers
+          live under API class 48 with a type tag, so we set <code>kCtrlType</code>, <code>kIdleMode</code>,
+          PID <code>kP_0</code>, and the steering zero <code>kDutyCycleZeroOffset</code> directly.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Telemetry frames</h5>
+        <p>Periodic status: Period&nbsp;0 (duty / volts / current / temp), Period&nbsp;2 (encoder vel +
+          pos), Period&nbsp;5 (absolute steer encoder) — the last only streams once you flip
+          <code>kForceEnableStatus5</code>.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>One socket, cached</h5>
+        <p>A single RX thread reads the bus non-blocking, masks the device ID (<code>can_id &amp; 0x3F</code>),
+          and caches each motor's latest value behind a mutex — <code>GetVelocity()</code> is a free read.
+          Full mapping in <code>rev_can_protocol.md</code>.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ACTUATOR FAMILIES ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">The fleet</span>
+      <h2 class="display-md">Every actuator, owned.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>Swerve base · REV SPARK</h4><p>NEO / NEO550 on 3 delta modules. Reverse-engineered SPARK CAN in Python + Teensy C++.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>Arms · Damiao DM</h4><p>OpenArm-derived 7-DOF arms, quasi-direct-drive over CAN (Teensy + FlexCAN_T4), MIT-mode.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Body &amp; torso · Damiao</h4><p>Torso pitch shares the arms' Damiao/CAN driver, status, and quick-control.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>Hands · Feetech</h4><p>16× HLS3915 fingers + 1× HLS3930 wrist on a 1 MHz TTL chain; USB adapter auto-detected.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Neck · Dynamixel</h4><p>3-DOF neck (yaw / pitch / roll) via our <code>dynamixel_neck</code> library.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Lift · RP2040 Pico</h4><p>MicroPython, BTS7960 + quad encoder, cascaded position + velocity, host lib + iOS GUI.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Flash it. Tune it. Drive it.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" class="btn btn-primary">Firmware on GitHub ↗</a>
+      <a href="connect.html" class="btn btn-ghost">Download the GUI →</a>
+      <a href="software.html#ros" class="btn btn-ghost">Next: ROS →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="build.html#assembly">Assembly</a><a href="build.html#firmware">Firmware</a><a href="#calibration">Calibration</a></div>
+      <div class="foot-col"><h6>Run</h6><a href="software.html">Software & ROS</a><a href="teleop.html">Teleop</a><a href="software.html#server">Your own server</a><a href="software.html#simulation">Simulation</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built with love · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+<script>
+/* Sidenav scroll-spy — highlights the module you're reading. */
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.sidenav a'));
+  var map = {};
+  var targets = [];
+  links.forEach(function (a) {
+    var el = document.querySelector(a.getAttribute('href'));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  if (!targets.length || !('IntersectionObserver' in window)) return;
+
+  var visible = {};
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+    for (var i = 0; i < targets.length; i++) {
+      if (visible[targets[i].id]) {
+        links.forEach(function (a) { a.classList.remove('on'); });
+        map[targets[i].id].classList.add('on');
+        break;
+      }
+    }
+  }, { rootMargin: '-45% 0px -50% 0px' });
+
+  targets.forEach(function (el) { io.observe(el); });
+})();
+</script>
+</body>
+</html>

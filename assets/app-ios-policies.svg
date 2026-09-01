@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 820" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="390" height="820" rx="46" fill="#000" opacity="1"/>
+<rect x="6" y="6" width="378" height="808" rx="42" fill="#0C0A08" opacity="1"/>
+<rect x="143.0" y="18" width="104" height="30" rx="15" fill="#000" opacity="1"/>
+<text x="34" y="36" fill="#F4EAD2" font-size="14" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">9:41</text>
+<rect x="334" y="26" width="22" height="11" rx="3" fill="none" opacity="1" stroke="#B9B3A8" stroke-width="1"/>
+<rect x="336" y="28" width="16" height="7" rx="1.5" fill="#2E9E52" opacity="1"/>
+<rect x="20" y="56" width="86" height="24" rx="12" fill="#19150F" opacity="1" stroke="rgba(244,234,210,0.12)" stroke-width="1"/>
+<circle cx="34" cy="68" r="3.5" fill="#2E9E52"/>
+<text x="44" y="72" fill="#F4EAD2" font-size="10" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Connected</text>
+<rect x="112" y="56" width="48" height="24" rx="12" fill="#19150F" opacity="1" stroke="rgba(244,234,210,0.12)" stroke-width="1"/>
+<text x="136" y="72" fill="#F4EAD2" font-size="10" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">77%</text>
+<rect x="294" y="56" width="76" height="24" rx="12" fill="#D23B2A" opacity="1"/>
+<text x="332" y="72" fill="#fff" font-size="11" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">STOP</text>
+<rect x="6" y="742" width="378" height="72" rx="0" fill="#0C0A08" opacity="1"/>
+<line x1="6" y1="742" x2="384" y2="742" stroke="rgba(244,234,210,0.12)" stroke-width="1"/>
+<circle cx="43.8" cy="768" r="3.5" fill="#857F75"/>
+<text x="43.8" y="792" fill="#857F75" font-size="10" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Drive</text>
+<circle cx="119.39999999999999" cy="768" r="3.5" fill="#857F75"/>
+<text x="119.39999999999999" y="792" fill="#857F75" font-size="10" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Body</text>
+<circle cx="195.0" cy="768" r="3.5" fill="#857F75"/>
+<text x="195.0" y="792" fill="#857F75" font-size="10" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Maps</text>
+<circle cx="270.59999999999997" cy="768" r="3.5" fill="#C6301A"/>
+<text x="270.59999999999997" y="792" fill="#C6301A" font-size="10" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Policies</text>
+<circle cx="346.2" cy="768" r="3.5" fill="#857F75"/>
+<text x="346.2" y="792" fill="#857F75" font-size="10" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Robot</text>
+<rect x="135.0" y="800" width="120" height="5" rx="2.5" fill="#B9B3A8"/>
+<defs><radialGradient id="rg" cx="0.4" cy="0.35" r="0.8"><stop offset="0" stop-color="#E07A45"/><stop offset="1" stop-color="#C6301A"/></radialGradient><linearGradient id="cam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26201a"/><stop offset="1" stop-color="#0e0b09"/></linearGradient></defs>
+<text x="28" y="116" fill="#F4EAD2" font-size="26" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Policies</text>
+<text x="28" y="138" fill="#B9B3A8" font-size="13" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Dispatch a learned skill</text>
+<rect x="28" y="158" width="334" height="92" rx="16" fill="#19150F" opacity="1" stroke="rgba(244,234,210,0.12)" stroke-width="1"/>
+<rect x="40" y="172" width="10" height="64" rx="4" fill="#C6301A" opacity="1"/>
+<text x="62" y="188" fill="#F4EAD2" font-size="14" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Home → Set Dressing</text>
+<rect x="62" y="200" width="76.0" height="20" rx="10" fill="rgba(244,234,210,0.06)" opacity="1" stroke="#C6301A" stroke-width="1"/>
+<text x="70" y="214" fill="#C6301A" font-size="10" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Navigation</text>
+<text x="298" y="198" fill="#F4EAD2" font-size="18" font-weight="700" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">97%</text>
+<text x="298" y="216" fill="#857F75" font-size="9" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="end">success</text>
+<text x="298" y="232" fill="#B9B3A8" font-size="10" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">20 Hz</text>
+<rect x="312" y="188" width="42" height="42" rx="12" fill="#C6301A" opacity="1"/>
+<polygon points="328,202 328,216 340,209" fill="#fff"/>
+<rect x="28" y="262" width="334" height="92" rx="16" fill="#19150F" opacity="1" stroke="rgba(244,234,210,0.12)" stroke-width="1"/>
+<rect x="40" y="276" width="10" height="64" rx="4" fill="#B18CFF" opacity="1"/>
+<text x="62" y="292" fill="#F4EAD2" font-size="14" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Cinematic Crane Reach</text>
+<rect x="62" y="304" width="114.4" height="20" rx="10" fill="rgba(244,234,210,0.06)" opacity="1" stroke="#B18CFF" stroke-width="1"/>
+<text x="70" y="318" fill="#B18CFF" font-size="10" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Imitation · CVAE</text>
+<text x="298" y="302" fill="#F4EAD2" font-size="18" font-weight="700" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">88%</text>
+<text x="298" y="320" fill="#857F75" font-size="9" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="end">success</text>
+<text x="298" y="336" fill="#B9B3A8" font-size="10" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">15 s</text>
+<rect x="312" y="292" width="42" height="42" rx="12" fill="#C6301A" opacity="1"/>
+<polygon points="328,306 328,320 340,313" fill="#fff"/>
+<rect x="28" y="366" width="334" height="92" rx="16" fill="#19150F" opacity="1" stroke="rgba(244,234,210,0.12)" stroke-width="1"/>
+<rect x="40" y="380" width="10" height="64" rx="4" fill="#B18CFF" opacity="1"/>
+<text x="62" y="396" fill="#F4EAD2" font-size="14" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Bimanual Lift</text>
+<rect x="62" y="408" width="114.4" height="20" rx="10" fill="rgba(244,234,210,0.06)" opacity="1" stroke="#B18CFF" stroke-width="1"/>
+<text x="70" y="422" fill="#B18CFF" font-size="10" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Imitation · CVAE</text>
+<text x="298" y="406" fill="#F4EAD2" font-size="18" font-weight="700" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">82%</text>
+<text x="298" y="424" fill="#857F75" font-size="9" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="end">success</text>
+<text x="298" y="440" fill="#B9B3A8" font-size="10" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">18 s</text>
+<rect x="312" y="396" width="42" height="42" rx="12" fill="#C6301A" opacity="1"/>
+<polygon points="328,410 328,424 340,417" fill="#fff"/>
+<rect x="28" y="470" width="334" height="92" rx="16" fill="#19150F" opacity="1" stroke="rgba(244,234,210,0.12)" stroke-width="1"/>
+<rect x="40" y="484" width="10" height="64" rx="4" fill="#2E9E52" opacity="1"/>
+<text x="62" y="500" fill="#F4EAD2" font-size="14" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Track Subject</text>
+<rect x="62" y="512" width="63.2" height="20" rx="10" fill="rgba(244,234,210,0.06)" opacity="1" stroke="#2E9E52" stroke-width="1"/>
+<text x="70" y="526" fill="#2E9E52" font-size="10" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Scripted</text>
+<text x="298" y="510" fill="#F4EAD2" font-size="18" font-weight="700" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">94%</text>
+<text x="298" y="528" fill="#857F75" font-size="9" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="end">success</text>
+<text x="298" y="544" fill="#B9B3A8" font-size="10" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">live</text>
+<rect x="312" y="500" width="42" height="42" rx="12" fill="#C6301A" opacity="1"/>
+<polygon points="328,514 328,528 340,521" fill="#fff"/>
+<rect x="28" y="574" width="334" height="92" rx="16" fill="#19150F" opacity="1" stroke="rgba(244,234,210,0.12)" stroke-width="1"/>
+<rect x="40" y="588" width="10" height="64" rx="4" fill="#C6301A" opacity="1"/>
+<text x="62" y="604" fill="#F4EAD2" font-size="14" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Return to Dock</text>
+<rect x="62" y="616" width="76.0" height="20" rx="10" fill="rgba(244,234,210,0.06)" opacity="1" stroke="#C6301A" stroke-width="1"/>
+<text x="70" y="630" fill="#C6301A" font-size="10" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">Navigation</text>
+<text x="298" y="614" fill="#F4EAD2" font-size="18" font-weight="700" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">99%</text>
+<text x="298" y="632" fill="#857F75" font-size="9" font-weight="600" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="end">success</text>
+<text x="298" y="648" fill="#B9B3A8" font-size="10" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">55 s</text>
+<rect x="312" y="604" width="42" height="42" rx="12" fill="#C6301A" opacity="1"/>
+<polygon points="328,618 328,632 340,625" fill="#fff"/>
+</svg>

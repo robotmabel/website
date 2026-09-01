@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#151820" />
+<title>MABEL Simulator — drive it in your browser</title>
+<meta name="description" content="Drive MABEL in your browser: joysticks, body control and navigation over an in-browser kinematic twin — the same wire protocol as the iPhone and Vision Pro apps. No install." />
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Archivo:ital,wght@0,100..900;1,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<link rel="stylesheet" href="assets/teleop-app.css?v=20260630-balldrag" />
+<script>document.documentElement.classList.add('js');
+if (new URLSearchParams(location.search).has('embed')) document.documentElement.classList.add('embed');</script>
+<script type="importmap">
+{ "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
+</script>
+<style>
+  body { background: var(--ink); }
+  .sim-top {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 14px;
+  }
+  .sim-top .nav-logo { color: var(--bone); font-size: 19px; }
+  .sim-top .nav-logo .dot { border-color: var(--gold); }
+  .sim-chip { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--gold); }
+  .sim-top a.site { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ash-light); text-decoration: none; }
+  .sim-top a.site:hover { color: var(--gold); }
+  html.embed .sim-top { display: none; }
+  .sim-shell { padding: 0 10px 10px; }
+  html.embed .sim-shell { padding: 0; }
+  .sim-shell .ta-wrap { position: relative; }
+  .sim-shell .ta-app { height: calc(100dvh - 130px); min-height: 480px; border-radius: 12px;
+    border: var(--line-w) solid rgba(217,161,63,0.55); box-shadow: none; }
+  html.embed .sim-shell .ta-app { height: 100dvh; min-height: 0; border: none; border-radius: 0; }
+</style>
+</head>
+<body>
+
+<div class="sim-top">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <span class="sim-chip">Simulator &middot; Issue N&ordm; 01</span>
+  <a class="site" href="teleop.html">Full teleop docs &#8599;</a>
+</div>
+
+<div class="sim-shell">
+<section class="ta-wrap" id="taSection">
+  <div class="ta-app" id="taApp">
+
+    <!-- ── PILOT ────────────────────────────────────────────────── -->
+    <div class="ta-view on" data-view="teleop">
+      <div class="ta-video">
+        <img id="taCamMain" alt="" style="display:none;" />
+        <!-- H.264/WebCodecs canvas (LAN low-latency); overlays the MJPEG <img>, shown only while decoding -->
+        <canvas id="taCanvasMain" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas>
+        <div class="ta-novid" id="taNoVid"><div class="inner">
+          <b>Drive MABEL in your browser</b>
+          <p id="taNoVidMsg">Joysticks, body control, and navigation over a live MuJoCo simulation — the same wire protocol as the iPhone and Vision&nbsp;Pro apps. The hosted sim may be offline; either way the controls stay live on the in-browser model.</p>
+          <button class="ta-trylive" id="taTryLive">▶&nbsp; Try it live</button>
+        </div></div>
+      </div>
+      <div class="ta-pip l"><img id="taCamL" alt="" /><canvas id="taCanvasL" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas><span class="tag">L WRIST</span></div>
+      <div class="ta-pip r"><img id="taCamR" alt="" /><canvas id="taCanvasR" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas><span class="tag">R WRIST</span></div>
+
+      <div class="ta-top">
+        <span class="ta-title">PILOT</span>
+        <div class="ta-seg" data-ck>
+          <button class="on" data-mode="drive">Drive</button>
+          <button data-mode="arms">Arms</button>
+        </div>
+        <span class="ta-title" data-ta="speed">0.00 m/s</span>
+      </div>
+
+      <!-- Start / Stop teleop — gates the joysticks (mirrors the iOS app's
+           play/stop teleop button: controls are hidden until you press start) -->
+      <button class="ta-startteleop" id="taStartTeleop" type="button">
+        <svg class="ic-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor" stroke="none"/></svg>
+        <svg class="ic-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="9"/><rect x="9" y="9" width="6" height="6" rx="1.2" fill="currentColor" stroke="none"/></svg>
+        <span class="lab">Start Teleop</span>
+      </button>
+
+      <!-- drive sticks -->
+      <div class="ta-joy l" data-joy="navL" data-show="drive"><span class="knob"></span><span class="lab">TRANSLATE</span></div>
+      <div class="ta-joy r accent" data-joy="navR" data-show="drive"><span class="knob"></span><span class="lab">ROTATE · LIFT</span></div>
+
+      <!-- arm clusters -->
+      <div class="ta-cluster l" data-show="arms" style="display:none;">
+        <div class="ta-nudge"><button data-side="left" data-dir="1">⌃</button><button data-side="left" data-dir="-1">⌄</button><span class="lab">RAISE</span></div>
+        <div class="ta-joy" style="position:static;" data-joy="armL"><span class="knob"></span><span class="lab">L WRIST</span></div>
+        <div class="ta-grip" data-side="left"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">L GRIP</span></div>
+      </div>
+      <div class="ta-cluster r" data-show="arms" style="display:none;">
+        <div class="ta-nudge"><button data-side="right" data-dir="1">⌃</button><button data-side="right" data-dir="-1">⌄</button><span class="lab">RAISE</span></div>
+        <div class="ta-joy accent" style="position:static;" data-joy="armR"><span class="knob"></span><span class="lab">R WRIST</span></div>
+        <div class="ta-grip" data-side="right"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">R GRIP</span></div>
+      </div>
+
+      <!-- synced miniature -->
+      <div class="ta-mini">
+        <div class="ta-stage"><canvas></canvas><div class="ta-loading">RIG</div></div>
+        <span class="tag">ROBOT STATE</span>
+      </div>
+    </div>
+
+    <!-- ── MANIPULATION ─────────────────────────────────────────── -->
+    <div class="ta-view" data-view="body">
+      <div class="ta-stage"><canvas></canvas><div class="ta-loading">LOADING MABEL</div></div>
+
+      <div class="ta-top">
+        <span class="ta-title">MANIPULATE</span>
+        <span></span>
+      </div>
+
+      <!-- Stiff / Soft — the control law on the joints -->
+      <div class="ta-feelbar">
+        <div class="ta-seg" data-feel>
+          <button class="on" data-val="impedance">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            Stiff</button>
+          <button data-val="compliance">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1V4.5a1.5 1.5 0 0 1 3 0V10m0-.5V6a1.5 1.5 0 0 1 3 0v7a6 6 0 0 1-6 6h-1.5a5 5 0 0 1-4-2l-2.5-3.5a1.6 1.6 0 0 1 2.4-2L9 14"/></svg>
+            Soft</button>
+        </div>
+      </div>
+
+      <!-- context hint — changes with Stiff/Soft + Task/Joint -->
+      <div class="ta-manip-hint" id="taManipHint">Drag the green ball to pose the arm; spin a ring to set the wrist.</div>
+
+      <!-- compact RIGHT-side control panel — all toggles visible at a glance -->
+      <aside class="ta-side ta-manip-side" id="taManipSide">
+        <!-- SPACE (Stiff only) -->
+        <div class="ta-seg sm full" data-space data-spacepanel>
+          <button class="on" data-sv="task">Task</button>
+          <button data-sv="joint">Joint</button>
+        </div>
+        <!-- CONTROL REGION (task space OR soft) -->
+        <div class="ta-panel pc" data-regionpanel>
+          <span class="ta-seglabel">REGION</span>
+          <div class="ta-seg sm full" data-region>
+            <button class="on" data-rv="arm">Arms</button>
+            <button data-rv="upper_body">Upper</button>
+            <button data-rv="whole_body">Whole</button>
+          </div>
+        </div>
+        <!-- TASK → stiffness + hand grips -->
+        <div class="ta-panel pc" data-taskonly>
+          <div class="row"><span class="k">STIFFNESS</span><span class="v" data-stiff-out>32 Nm/rad</span></div>
+          <input class="ta-slider" type="range" data-stiff min="0.1" max="1" step="0.01" value="0.7" />
+          <div class="ta-grip2">
+            <label><span class="k">L HAND</span><input class="ta-slider" data-grip="left" type="range" min="0" max="1" step="0.01" value="0" /></label>
+            <label><span class="k">R HAND</span><input class="ta-slider" data-grip="right" type="range" min="0" max="1" step="0.01" value="0" /></label>
+          </div>
+        </div>
+        <!-- JOINT → group tabs + sliders (2 columns for arms/hands) -->
+        <div class="ta-panel pc ta-joints" data-jointonly style="display:none;">
+          <div class="ta-jtabs" data-jtabs></div>
+          <div class="ta-jlist" data-jlist></div>
+        </div>
+        <!-- SOFT → view-only note -->
+        <div class="ta-panel pc ta-soft-note" data-softnote style="display:none;">
+          <b>View only.</b> The body is compliant — pose MABEL by hand (real or sim). This view mirrors the live state.
+        </div>
+      </aside>
+
+      <!-- viewport buttons: re-center · fit -->
+      <div class="ta-viewbtns" data-viewbtns="body">
+        <button class="ta-vbtn" data-vb="recenter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21"/></svg>Re-center</button>
+        <button class="ta-vbtn" data-vb="fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>Fit</button>
+      </div>
+    </div>
+
+    <!-- ── NAVIGATE ─────────────────────────────────────────────── -->
+    <div class="ta-view" data-view="nav">
+      <div class="ta-stage"><canvas></canvas><div class="ta-loading">BUILDING ROOM</div></div>
+
+      <div class="ta-top">
+        <span class="ta-title" data-ta="navroom">—</span>
+        <span class="ta-title" data-ta="navpts">—</span>
+      </div>
+
+      <div class="ta-rooms"></div>
+
+      <!-- viewport buttons: re-center · fit · follow robot -->
+      <div class="ta-viewbtns" data-viewbtns="nav">
+        <button class="ta-vbtn" data-vb="recenter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21"/></svg>Re-center</button>
+        <button class="ta-vbtn" data-vb="fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>Fit</button>
+        <button class="ta-vbtn" data-vb="followcam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>Follow robot</button>
+      </div>
+
+      <!-- bottom: Go / Clear the A* path (pure-pursuit follows) -->
+      <div class="ta-navhud">
+        <button class="ta-btn primary" id="taFollow" disabled>Go</button>
+        <button class="ta-btn ghost" id="taClearGoal" title="Clear goal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+      </div>
+    </div>
+
+    <!-- ── E-STOP veil ──────────────────────────────────────────── -->
+    <div class="ta-estop-veil"><span class="tag">E-STOP — OUTPUTS HALTED</span></div>
+  </div>
+
+  <!-- ── THE DOCK — floating liquid glass, two rows: views on top, status below ── -->
+  <div class="ta-dock" id="taDock">
+    <nav class="ta-tabs" data-tabs>
+      <button class="on" data-go="teleop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="4"/><path d="M7 12h3M8.5 10.5v3"/><circle cx="16" cy="11" r="1"/><circle cx="18.5" cy="13.5" r="1"/></svg>
+        Pilot
+      </button>
+      <button data-go="body">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.3"/><path d="M12 7.5v5M5 9l7 1 7-1M12 12.5l-4 7M12 12.5l4 7"/></svg>
+        Manipulate
+      </button>
+      <button data-go="nav">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l6-2.5 6 2.5 6-2.5V5l-6 2.5L9 5 3 7.5z"/><path d="M9 5v12M15 7.5v12"/></svg>
+        Navigate
+      </button>
+    </nav>
+    <div class="ta-dock-row">
+      <span class="ta-pill" id="taPill"><span class="dot"></span><span>LOCAL SIM</span></span>
+      <label class="ta-host" title="Wi-Fi auto-discovers — leave blank and the console races the bridge on this machine, the host it was served from, and your last-used LAN IP, connecting to whichever answers (the browser analog of the Vision Pro app's Bonjour scan). Type a LAN IP only to force one.">
+        <span>WI-FI</span><input id="taHostLocal" type="text" placeholder="auto-discover" spellcheck="false" autocomplete="off" aria-label="Local Wi-Fi host (auto-discovers)" /></label>
+      <label class="ta-host" title="From any network: the Mac's Tailscale IP (tailscale ip -4) — or, from this https page, its ts.net name (tailscale status). One-time setup — Tailscale on the Mac and this device, same account.">
+        <span>VPN</span><input id="taHostVpn" type="text" placeholder="100.x.y.z · mac.ts.net" spellcheck="false" autocomplete="off" aria-label="Tailscale VPN host" /></label>
+      <label class="ta-host ta-host-relay" title="From anywhere on the public internet: the secure relay hostname (e.g. mabel.duckdns.org). The robot dials OUT to a token-gated VPS — no VPN app, no open inbound port. See relay/README.md.">
+        <span>RELAY</span><input id="taHostRelay" type="text" placeholder="mabel.duckdns.org" spellcheck="false" autocomplete="off" aria-label="Secure relay host" /></label>
+      <label class="ta-host ta-host-key" title="The relay access token (APP_TOKEN). Every request must carry it as ?key= or the VPS returns 403 before reaching the robot. Treat it like a password.">
+        <span>KEY</span><input id="taRelayKey" type="text" placeholder="access token" spellcheck="false" autocomplete="off" aria-label="Relay access token" /></label>
+      <div class="ta-hostpick" id="taHostPick">
+        <button class="ta-connect" id="taConnect" type="button" aria-haspopup="true" aria-expanded="false" title="Choose which robot / sim to drive"><span class="hp-lbl">Connect</span><span class="hp-cv">▾</span></button>
+        <div class="ta-hostmenu" id="taHostMenu" role="menu" hidden></div>
+      </div>
+      <div class="ta-metrics">
+        <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
+        <span class="ta-metric">LAT<b data-ta="lat">—</b></span>
+        <span class="ta-metric">BATT<b data-ta="batt">—</b></span>
+      </div>
+      <span class="ta-divider"></span>
+      <button class="ta-sbtn" id="taReset">Reset</button>
+      <button class="ta-estop" id="taEstop">E-STOP</button>
+      <button class="ta-sbtn ta-fs" id="taFs" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></button>
+    </div>
+  </div>
+
+  <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code>, and mirror the same <code>robot_state</code>. Start it with <code>server/start_teleop.sh</code> — the page links up by itself, cycling three paths every 5&nbsp;s, exactly like the apps: <strong>Wi-Fi</strong> (<strong>auto-discovered</strong> — leave the field blank and it races the bridge on this machine, the host it was served from, and your last-used LAN IP, the browser analog of the Vision&nbsp;Pro app's Bonjour scan) → <strong>VPN</strong> (its Tailscale IP / <code>ts.net</code> name) → <strong>Relay</strong> (the <a href="software.html#relay">secure internet relay</a> — a token-gated <code>wss://&lt;host&gt;/teleop?key=…</code> on a public VPS the robot dials out to, so you can drive from anywhere with no VPN app and nothing exposed inbound). Cameras follow the winning path — MJPEG on port&nbsp;8080 over Wi-Fi, or the same token-gated HTTPS edge over the relay.</p>
+</section>
+</div>
+
+<script type="module" src="assets/teleop-app.js?v=20260630-balldrag"></script>
+</body>
+</html>

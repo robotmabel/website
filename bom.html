@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#151820" />
+<title>MABEL — Bill of Materials</title>
+<meta name="description" content="MABEL's audited bill of materials: an $8,058 core, complete builds from $8,722 — every part, every price, one PDF." />
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Archivo:ital,wght@0,100..900;1,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  .bom-grid { display: grid; grid-template-columns: minmax(0, 420px) 1fr; gap: clamp(24px, 4vw, 56px); align-items: start; }
+  @media (max-width: 880px) { .bom-grid { grid-template-columns: 1fr; } }
+  .bom-pie-wrap { position: relative; }
+  #bomPie svg { width: 100%; height: auto; display: block; }
+  .bom-centre { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; }
+  #bomPieVal { font-family: var(--font-display); font-size: clamp(26px, 3vw, 38px); color: var(--rust); line-height: 1; }
+  #bomPieKey { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ash); margin-top: 8px; max-width: 60%; line-height: 1.5; }
+  .bom-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; border: 1.5px solid var(--ink); margin-right: 9px; vertical-align: -1px; }
+  #bomRows td:first-child { font-weight: 600; }
+  tr.bom-row-hot td { background: rgba(198,48,26,0.08); }
+  #bomParts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; min-height: 66px; align-content: flex-start; }
+  .bom-part { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-soft);
+    border: 1.5px solid rgba(21,24,32,0.45); border-radius: 7px; background: var(--panel); padding: 6px 10px; }
+  .bom-part b { color: var(--rust); }
+  .bom-part.dim, .bom-parts-hint { color: var(--ash); font-family: var(--font-mono); font-size: 11.5px; padding: 6px 2px; }
+</style>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="build.html">Build<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="build.html">Guide</a><a href="build.html#assembly">Assembly</a><a href="build.html#firmware">Firmware</a><a href="bom.html">Bill of materials</a></div></div>
+    <a href="bom.html" class="on">BOM</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS 2</a><a href="software.html#simulation">Simulation</a><a href="software.html#server">Server & Bridge</a><a href="software.html#controller">Controller</a><a href="software.html#wbc">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="teleop.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a></div></div>
+    <a href="simulator.html">Simulator</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#data">Data</a><a href="autonomy.html#navigation">Navigation</a><a href="autonomy.html#learning">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="index.html#paper" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Guide</a><a class="sub" href="build.html#assembly">Assembly</a><a class="sub" href="build.html#firmware">Firmware</a><a class="sub" href="bom.html">Bill of materials</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="anatomy.html">Anatomy explorer</a><a class="sub" href="hardware.html#hw-hands">Hands</a><a class="sub" href="hardware.html#hw-arms">Arms</a><a class="sub" href="hardware.html#hw-base">Base</a><a class="sub" href="hardware.html#hw-electronics">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="software.html#ros">ROS 2</a><a class="sub" href="software.html#simulation">Simulation</a><a class="sub" href="software.html#server">Server &amp; Bridge</a><a class="sub" href="software.html#controller">Controller</a><a class="sub" href="software.html#wbc">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="teleop.html#retargeting">Retargeting</a><a class="sub" href="teleop.html#vp-app">Vision Pro app</a><a class="sub" href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Simulator</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="autonomy.html#data">Data</a><a class="sub" href="autonomy.html#navigation">Navigation</a><a class="sub" href="autonomy.html#learning">Learning</a><a href="connect.html">Connect</a><a href="index.html#paper" class="ext">Paper ↗</a>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / <a href="build.html">Build</a> / Bill of materials</div>
+    <span class="eyebrow">Bill of materials · audited</span>
+    <h1 class="display-lg">Every part, every price.</h1>
+    <p class="lede">An $8,058 core, complete builds from $8,722 — 49 line items, priced from real
+      invoices. The PDF is the authority; the pie is where it goes.</p>
+    <div class="spec">
+      <span>49 line items</span><span>56 DOF · 59 motors</span><span>priced 31 July 2026</span><span>no machine shop</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BREAKDOWN ─── -->
+<section class="pad-y" id="breakdown">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The breakdown</span>
+        <h2 class="display-md title">Where the money <span class="italic accent">goes.</span></h2>
+      </div>
+      <p class="lede">Eight subsystems make up the core bill. Hover a slice — or a row — and the
+        actual components inside it appear below.</p>
+    </div>
+    <div class="bom-grid fade-up">
+      <div class="bom-pie-wrap">
+        <div id="bomPie"></div>
+        <div class="bom-centre"><span id="bomPieVal"></span><span id="bomPieKey"></span></div>
+      </div>
+      <div>
+        <div class="table-scroll">
+          <table class="data-table" id="bomRows">
+            <thead><tr><th style="text-align:left;">Subsystem</th><th>Share</th><th style="text-align:right;">Cost</th></tr></thead>
+            <tbody>
+            <tr data-sec="Mobile base"><td><span class="bom-dot" style="background:#C6301A"></span>Mobile base</td><td>28%</td><td style="text-align:right;">$2,272</td></tr>
+            <tr data-sec="Body / torso"><td><span class="bom-dot" style="background:#D9A13F"></span>Body / torso</td><td>11%</td><td style="text-align:right;">$889</td></tr>
+            <tr data-sec="Arms - both"><td><span class="bom-dot" style="background:#23577E"></span>Arms - both</td><td>33%</td><td style="text-align:right;">$2,622</td></tr>
+            <tr data-sec="Hands - both"><td><span class="bom-dot" style="background:#2E7D4F"></span>Hands - both</td><td>15%</td><td style="text-align:right;">$1,195</td></tr>
+            <tr data-sec="Neck / head"><td><span class="bom-dot" style="background:#8B5A3C"></span>Neck / head</td><td>3%</td><td style="text-align:right;">$235</td></tr>
+            <tr data-sec="Structural hardware"><td><span class="bom-dot" style="background:#B77E1E"></span>Structural hardware</td><td>2%</td><td style="text-align:right;">$184</td></tr>
+            <tr data-sec="Electronics, power & cabling"><td><span class="bom-dot" style="background:#93220F"></span>Electronics, power & cabling</td><td>6%</td><td style="text-align:right;">$500</td></tr>
+            <tr data-sec="3D printed material"><td><span class="bom-dot" style="background:#151820"></span>3D printed material</td><td>2%</td><td style="text-align:right;">$161</td></tr>
+            <tr class="best"><td>Core total</td><td></td><td class="hi" style="text-align:right;">$8,058</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="bomParts"></div>
+        <p class="table-note" style="margin-top:14px;">Complete builds: <b>Essential $8,722</b> ·
+          <b>Recommended $9,670</b> · <b>Maximum $15,129</b> — same mechanism, different compute and
+          sensing, each upgradeable later without touching the structure.</p>
+      </div>
+    </div>
+    <div class="callout fade-up" style="margin-top:clamp(28px,4vh,44px);">
+      <p><strong>Prices move.</strong> NVIDIA raised every Jetson price 33–101% on 22 July 2026 —
+      the identical robot went from $12,969 to $14,968 overnight. Compute is a choice here, not a
+      component: the bill treats it that way.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE PDF ─── -->
+<section class="soft-sec pad-y" id="pdf">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The document</span>
+        <h2 class="display-md title">One PDF, <span class="italic accent">fully priced.</span></h2>
+      </div>
+      <p class="lede">Vendor links, quantities, unit prices, alternatives, and the machined-part
+        drawings — everything needed to order a MABEL, in one file.</p>
+    </div>
+    <div class="fade-up" style="display:flex; gap:12px; flex-wrap:wrap;">
+      <a href="assets/bom/mabel_bom.pdf" class="btn btn-primary" download>Download the BOM · PDF</a>
+      <a href="assets/bom/MABEL_Build_Guide.pdf" class="btn btn-ghost" download>Build guide · PDF</a>
+      <a href="build.html" class="btn btn-ghost">Assembly instructions →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MABEL</div>
+        <p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div>
+      </div>
+      <div class="foot-col"><h6>Hardware</h6><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-electronics">Electronics</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="build.html">Assembly guide</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built with love · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+<script src="assets/bom/bom_data.js"></script>
+<script src="assets/bom-pie.js"></script>
+</body>
+</html>

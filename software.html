@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#151820" />
+<title>MABEL — Software</title>
+<meta name="description" content="The MABEL software stack in six pieces: the ROS 2 graph, the MuJoCo twin, bench calibration, the server and bridge, the controller, and whole-body control — sim or real behind one interface." />
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Archivo:ital,wght@0,100..900;1,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css" />
+<script>document.documentElement.classList.add('js');</script>
+<script type="importmap">
+{ "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
+</script>
+<style>
+/* ── control cascade: nested loops ── */
+.cl-wrap{border:1px solid rgba(21,24,32,.14);border-radius:18px;background:#FDF6E2;padding:clamp(14px,2.4vw,28px);}
+.cl-flow{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font:500 12px/1.4 'Space Mono','SF Mono',Menlo,monospace;color:#6D6551;margin-bottom:16px;}
+.cl-flow b{color:#23272F;}
+.cl-key{display:inline-flex;align-items:center;gap:7px;}
+.cl-dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
+.cl-dot.cmd{background:#C6301A;} .cl-dot.fb{background:#2f9d5b;}
+/* page-level input / output banners */
+.cl-end{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 15px;border-radius:12px;font:600 13px/1.45 'Archivo',-apple-system,sans-serif;}
+.cl-end .tag{font:700 9.5px/1 'Space Mono','SF Mono',Menlo,monospace;letter-spacing:1.2px;padding:5px 8px;border-radius:6px;}
+.cl-end.in{background:#FBE9DF;color:#8a3f14;} .cl-end.in .tag{background:#C6301A;color:#fff;}
+.cl-end.out{background:#E4F3EB;color:#1c6e3e;} .cl-end.out .tag{background:#2f9d5b;color:#fff;}
+.cl-down{text-align:center;color:#C6301A;font-size:18px;line-height:1;margin:7px 0;}
+/* nested loop panels — inner sits inside outer's padding, so nesting reads visually */
+.cl-loop{position:relative;border-radius:15px;padding:clamp(13px,1.8vw,20px);border:1.4px solid;margin:12px 0;}
+.cl-loop .cl-loop{margin:14px 0 2px;}
+.cl-outer{background:#FFFFFF;border-color:#E8CDB9;}
+.cl-mid{background:#FBF4EC;border-color:#E2C09F;}
+.cl-inner{background:#FFF6EE;border-color:#C6301A;box-shadow:0 0 0 1px rgba(198,48,26,.18);}
+.cl-head{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:8px;}
+.cl-tier{font:700 10px/1 'Space Mono','SF Mono',Menlo,monospace;letter-spacing:1.3px;color:#C6301A;border:1px solid #e0b89e;border-radius:6px;padding:5px 7px;}
+.cl-name{font:600 16px/1.25 'Archivo',-apple-system,sans-serif;color:#23272F;}
+.cl-hz{margin-left:auto;font:600 11px/1 'Space Mono','SF Mono',Menlo,monospace;color:#8a5125;background:#F3E5D6;border:1px solid #e6ccb6;border-radius:999px;padding:6px 11px;white-space:nowrap;}
+.cl-does{font:400 14px/1.6 'Archivo',-apple-system,sans-serif;color:#4A463F;margin:0 0 15px;max-width:82ch;}
+.cl-does b{color:#23272F;font-weight:600;}
+/* input → output ports */
+.cl-io{display:grid;grid-template-columns:1fr 30px 1fr;gap:10px;align-items:stretch;margin-bottom:15px;}
+.cl-port{border-radius:11px;padding:11px 13px;background:#FDF6E2;border:1px solid rgba(21,24,32,.1);}
+.cl-port .lab{font:700 9.5px/1 'Space Mono','SF Mono',Menlo,monospace;letter-spacing:1px;display:block;margin-bottom:9px;}
+.cl-port.in .lab{color:#C6301A;} .cl-port.out .lab{color:#2f9d5b;}
+.cl-pv{display:flex;flex-direction:column;gap:7px;}
+.cl-chip{display:flex;align-items:baseline;gap:8px;background:#fff;border:1px solid rgba(21,24,32,.13);border-radius:9px;padding:7px 10px;font:400 12.5px/1.35 'Archivo',-apple-system,sans-serif;color:#5a554d;}
+.cl-chip .sym{flex:none;}
+.cl-arrow{display:flex;align-items:center;justify-content:center;color:#C6301A;font-size:22px;}
+.cl-eqlab{font:700 9.5px/1 'Space Mono','SF Mono',Menlo,monospace;letter-spacing:.8px;color:#8a847a;margin-bottom:9px;text-transform:uppercase;}
+.cl-eq{background:#fff;border:1px solid rgba(21,24,32,.12);border-radius:11px;padding:8px 14px;overflow-x:auto;overflow-y:hidden;}
+.cl-eq .katex{font-size:1.12em;color:#221f1c;}
+.cl-eq .katex-display{margin:.5em 0;}
+.cl-libs{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px;}
+.cl-libs span{font:500 11px/1 'Space Mono','SF Mono',Menlo,monospace;color:#23272F;background:#F1ECE3;border:1px solid rgba(21,24,32,.12);border-radius:999px;padding:6px 10px;}
+@media(max-width:640px){
+  .cl-io{grid-template-columns:1fr;}
+  .cl-arrow{transform:rotate(90deg);height:22px;}
+}
+
+/* ── retargeting: two parallel stages, same language as the loops ── */
+.cl-stages{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.cl-stages > .cl-loop{margin:0;}
+.cl-flat{background:#fff;border-color:#E3DED3;}
+@media(max-width:760px){.cl-stages{grid-template-columns:1fr;}}
+/* ── animated command(down)/force(up) flow on each loop edge; speed ∝ loop rate ── */
+.cl-loop::before,.cl-loop::after{content:"";position:absolute;top:12px;bottom:12px;width:3px;border-radius:3px;opacity:.45;pointer-events:none;}
+.cl-loop::before{left:-1px;background:linear-gradient(#C6301A 0 38%,transparent 38% 100%);background-size:100% 24px;animation:clDown 1.5s linear infinite;}
+.cl-loop::after{right:-1px;background:linear-gradient(#2f9d5b 0 38%,transparent 38% 100%);background-size:100% 24px;animation:clUp 1.5s linear infinite;}
+.cl-mid::before,.cl-mid::after{animation-duration:1.0s;}
+.cl-inner::before,.cl-inner::after{animation-duration:.55s;}
+@keyframes clDown{to{background-position:0 24px;}}
+@keyframes clUp{to{background-position:0 -24px;}}
+@media(prefers-reduced-motion:reduce){.cl-loop::before,.cl-loop::after{animation:none;opacity:.28;}}
+/* ── mobile tightening for the whole cl- system ── */
+@media(max-width:640px){
+  .cl-wrap{padding:13px;border-radius:14px;}
+  .cl-loop{padding:13px;border-radius:13px;margin:11px 0;}
+  .cl-loop .cl-loop{margin:12px 0 2px;}
+  .cl-head{gap:7px 9px;}
+  .cl-tier{font-size:9px;}
+  .cl-name{font-size:14.5px;}
+  .cl-hz{margin-left:0;}
+  .cl-does{font-size:13.5px;}
+  .cl-eq{padding:6px 10px;}
+  .cl-eq .katex{font-size:.92em;}
+  .cl-end{font-size:12.5px;padding:11px 13px;}
+  .cl-flow{font-size:11px;gap:8px 14px;}
+}
+</style>
+</head>
+<body class="sec-page">
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><span class="dot"></span> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="build.html">Build<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="build.html">Guide</a><a href="build.html#assembly">Assembly</a><a href="build.html#firmware">Firmware</a><a href="bom.html">Bill of materials</a></div></div>
+    <a href="bom.html">BOM</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS 2</a><a href="software.html#simulation">Simulation</a><a href="software.html#server">Server & Bridge</a><a href="software.html#controller">Controller</a><a href="software.html#wbc">Whole-Body Control</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="teleop.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a></div></div>
+    <a href="simulator.html">Simulator</a>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#data">Data</a><a href="autonomy.html#navigation">Navigation</a><a href="autonomy.html#learning">Learning</a></div></div>
+    <a href="connect.html">Connect</a>
+    <a href="index.html#paper" class="ext">Paper ↗</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Guide</a><a class="sub" href="build.html#assembly">Assembly</a><a class="sub" href="build.html#firmware">Firmware</a><a class="sub" href="bom.html">Bill of materials</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="anatomy.html">Anatomy explorer</a><a class="sub" href="hardware.html#hw-hands">Hands</a><a class="sub" href="hardware.html#hw-arms">Arms</a><a class="sub" href="hardware.html#hw-base">Base</a><a class="sub" href="hardware.html#hw-electronics">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="software.html#ros">ROS 2</a><a class="sub" href="software.html#simulation">Simulation</a><a class="sub" href="software.html#server">Server &amp; Bridge</a><a class="sub" href="software.html#controller">Controller</a><a class="sub" href="software.html#wbc">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="teleop.html#retargeting">Retargeting</a><a class="sub" href="teleop.html#vp-app">Vision Pro app</a><a class="sub" href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Simulator</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="autonomy.html#data">Data</a><a class="sub" href="autonomy.html#navigation">Navigation</a><a class="sub" href="autonomy.html#learning">Learning</a><a href="connect.html">Connect</a><a href="index.html#paper" class="ext">Paper ↗</a>
+</nav>
+
+<aside class="sidenav" aria-label="Software section navigation"><div class="sidenav-title">Software</div><a href="#ros">ROS 2</a><a href="#simulation">Simulation</a><a href="#server">Server &amp; Bridge</a><a href="#controller">Controller</a><a href="#wbc">Whole-Body Control</a></aside>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / Software</div>
+    <span class="eyebrow">Software</span>
+    <h1 class="display-lg">One graph. Every joint.<br>Sim or real.</h1>
+    <p class="lede">
+      One ROS 2 graph wraps every bus behind standard topics. A MuJoCo twin runs the
+      <strong>same control code</strong> as the robot. A teleop server puts both behind one contract, so a
+      Vision Pro, an iPhone or a browser drives sim or hardware without knowing which.
+      <strong>Flip one flag to choose the world.</strong>
+    </p>
+    <div class="spec" style="margin-top:28px;">
+      <span>ROS 2 Humble</span><span>MuJoCo · 500 Hz</span><span>System-ID · R²&nbsp;0.9998</span><span>JSON in · MJPEG out</span><span>sim ⇄ real, one flag</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE STACK · hub ─── -->
+<section class="soft-sec pad-y" id="stack">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The stack</span>
+        <h2 class="display-md title">Six pieces, <span class="italic accent">one interface.</span></h2>
+      </div>
+      <p class="lede">Each piece is its own page — the graph that carries every joint, the twin you prove
+        motion in first, the contract that lets a headset skip ROS entirely, and the control library every
+        command must pass through. Start anywhere.</p>
+    </div>
+
+    <div class="card-grid fade-up">
+      <a class="card" href="software.html#ros" style="text-decoration:none; color:inherit;">
+        <div class="card-num">01 · Graph</div>
+        <h4>ROS 2</h4>
+        <p>One graph wraps every bus behind standard topics. The live topic map, both boot modes, the command contract, and what's inside <code>mabel_ws/src</code>.</p>
+      </a>
+      <a class="card" href="software.html#simulation" style="text-decoration:none; color:inherit;">
+        <div class="card-num">02 · Twin</div>
+        <h4>Simulation</h4>
+        <p>A MuJoCo twin running the <em>same</em> control code as the robot, at 500 Hz. Prove the motion here, then flip one flag.</p>
+      </a>
+      <a class="card" href="build.html#calibration" style="text-decoration:none; color:inherit;">
+        <div class="card-num">03 · System ID</div>
+        <h4>Calibration</h4>
+        <p>Two bench fits recover the friction, rotor inertia, mass and centre of mass CAD never gives you — then write them back into the model.</p>
+      </a>
+      <a class="card" href="software.html#server" style="text-decoration:none; color:inherit;">
+        <div class="card-num">04 · Contract</div>
+        <h4>Server &amp; Bridge</h4>
+        <p>Eight JSON messages in, MJPEG out. A Vision Pro, an iPhone or a browser drives sim or hardware without ever importing ROS.</p>
+      </a>
+      <a class="card" href="software.html#controller" style="text-decoration:none; color:inherit;">
+        <div class="card-num">05 · Gate</div>
+        <h4>Controller</h4>
+        <p>Three nested loops turn a 6-DOF wish into safe motion at 51 joints. Every command from every device passes through here.</p>
+      </a>
+      <a class="card" href="software.html#wbc" style="text-decoration:none; color:inherit;">
+        <div class="card-num">06 · Whole body</div>
+        <h4>Whole-Body Control</h4>
+        <p>Redundancy resolved across base, lift, torso and arms — strong where it must be, soft where you touch it.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Stack is up. Now drive it.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" class="btn btn-primary">GitHub repo ↗</a>
+      <a href="teleop.html" class="btn btn-ghost">Teleop →</a>
+      <a href="autonomy.html#navigation" class="btn btn-ghost">Navigation →</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ ROS (merged from ros.html) ═══ -->
+<!-- ─── LIVE GRAPH ─── -->
+<section class="pad-y" id="ros">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The graph</span>
+        <h2 class="display-md title">Commands in, <span class="italic accent">state out.</span></h2>
+      </div>
+      <p class="lede">Teleop and autonomy publish onto the command bus; the actuator drivers and the
+        sensor nodes publish back onto the state bus — <code>/joint_states</code>, <code>/odom</code>,
+        the camera images, and the LiDAR scan. Boot the twin and one <code>mabel_mujoco_sim</code> node
+        stands in for all of them. Consumers never touch CAN or RS-485; they see topics.</p>
+    </div>
+    <div class="reveal-media media-frame gui fade-up" id="rosGraph" style="aspect-ratio:1320/940;">
+      <svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" viewBox="0 0 1320 940" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1320" height="940" rx="18" fill="#0B0A09" opacity="1" stroke="#38383A" stroke-width="1"/>
+<text x="36" y="42" fill="#8E8E93" font-size="12" font-weight="700" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="start" letter-spacing="1.5">mabel_ws · live graph</text>
+<g class="rg-node" data-title="teleop" data-desc="Vision Pro, the iPhone app, and a keyboard fallback publish operator intent — body twist, arm targets, and hand poses — straight onto the command bus." data-accent="#0A84FF">
+<rect x="340.0" y="60" width="200" height="62" rx="12" fill="#1C1C1E" opacity="1" stroke="#0A84FF" stroke-width="1.4"/>
+<circle cx="440" cy="76" r="3.5" fill="#0A84FF"/>
+<text x="440" y="94" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">teleop</text>
+<text x="440" y="111" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Vision Pro · iOS · keys</text>
+</g>
+<g class="rg-node" data-title="autonomy" data-desc="Nav2, the policy runtime, and whole-body control write the same command topics autonomously — the robot drives itself with no operator in the loop." data-accent="#0A84FF">
+<rect x="600.0" y="60" width="200" height="62" rx="12" fill="#1C1C1E" opacity="1" stroke="#0A84FF" stroke-width="1.4"/>
+<circle cx="700" cy="76" r="3.5" fill="#0A84FF"/>
+<text x="700" y="94" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">autonomy</text>
+<text x="700" y="111" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Nav2 · policy · WBC</text>
+</g>
+<g class="rg-node" data-title="COMMAND TOPICS" data-desc="The command bus — the handful of topics every driver (and the sim) subscribes to. It is the only path that ever writes to hardware." data-accent="#0A84FF">
+<rect x="50" y="156" width="1220" height="64" rx="14" fill="#10161F" opacity="1" stroke="#0A84FF" stroke-width="1.3"/>
+<text x="70" y="178" fill="#0A84FF" font-size="10.5" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="1.5">COMMAND TOPICS  ·  subscribed by the driver nodes</text>
+<text x="70" y="206" fill="#FFFFFF" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="start">/mabel_cmd   /body/command   /arms/command   /left_hand/command   /right_hand/command</text>
+</g>
+<g class="rg-node" data-title="swerve_node" data-desc="Owns the three-module swerve base and the lift column over REV CAN — runs swerve IK and the tip-safe envelope, publishes /joint_states + /odom at 200 Hz." data-accent="#FF9F0A">
+<rect x="54.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.4"/>
+<circle cx="120" cy="316" r="3.5" fill="#FF9F0A"/>
+<text x="120" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">swerve_node</text>
+<text x="120" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">base + lift</text>
+<text x="120" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">REV CAN</text>
+</g>
+<g class="rg-node" data-title="body_node" data-desc="Drives the tilting torso (Damiao CAN) and the pan/tilt/roll neck (Dynamixel), exposing both as ordinary joints on /joint_states." data-accent="#FF9F0A">
+<rect x="186.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.4"/>
+<circle cx="252" cy="316" r="3.5" fill="#FF9F0A"/>
+<text x="252" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">body_node</text>
+<text x="252" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">torso · neck</text>
+<text x="252" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Damiao · Dynamixel</text>
+</g>
+<g class="rg-node" data-title="arms_node" data-desc="Streams the two backdriveable 7-DOF arms (14 DOF total, OpenArm-derived) over Damiao CAN at 200 Hz." data-accent="#FF9F0A">
+<rect x="318.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.4"/>
+<circle cx="384" cy="316" r="3.5" fill="#FF9F0A"/>
+<text x="384" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">arms_node</text>
+<text x="384" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">14-DOF arms</text>
+<text x="384" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Damiao CAN</text>
+</g>
+<g class="rg-node" data-title="orca_hand_node" data-desc="Runs both 17-DOF ORCA hands over Feetech serial — 16 tendon-driven finger joints plus an active wrist roll per hand." data-accent="#FF9F0A">
+<rect x="450.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#FF9F0A" stroke-width="1.4"/>
+<circle cx="516" cy="316" r="3.5" fill="#FF9F0A"/>
+<text x="516" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">orca_hand_node</text>
+<text x="516" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">2× 17-DOF</text>
+<text x="516" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">Feetech</text>
+</g>
+<g class="rg-node" data-title="head_stereo" data-desc="ZED stereo camera on the neck — publishes rectified left/right images for perception and Vision Pro passthrough." data-accent="#32D0C8">
+<rect x="582.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#32D0C8" stroke-width="1.4"/>
+<circle cx="648" cy="316" r="3.5" fill="#32D0C8"/>
+<text x="648" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">head_stereo</text>
+<text x="648" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">ZED stereo</text>
+<text x="648" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">L + R eyes</text>
+</g>
+<g class="rg-node" data-title="left_wrist_cam" data-desc="Eye-in-hand camera in the left wrist; v4l2 capture, rectified, for close-in manipulation." data-accent="#32D0C8">
+<rect x="714.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#32D0C8" stroke-width="1.4"/>
+<circle cx="780" cy="316" r="3.5" fill="#32D0C8"/>
+<text x="780" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">left_wrist_cam</text>
+<text x="780" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">v4l2 · rectify</text>
+</g>
+<g class="rg-node" data-title="right_wrist_cam" data-desc="Eye-in-hand camera in the right wrist; v4l2 capture, rectified, for close-in manipulation." data-accent="#32D0C8">
+<rect x="846.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#32D0C8" stroke-width="1.4"/>
+<circle cx="912" cy="316" r="3.5" fill="#32D0C8"/>
+<text x="912" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">right_wrist_cam</text>
+<text x="912" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">v4l2 · rectify</text>
+</g>
+<g class="rg-node" data-title="rplidar" data-desc="RPLIDAR A3 under the base — publishes /scan for SLAM, localization, and obstacle avoidance." data-accent="#32D0C8">
+<rect x="978.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#32D0C8" stroke-width="1.4"/>
+<circle cx="1044" cy="316" r="3.5" fill="#32D0C8"/>
+<text x="1044" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">rplidar</text>
+<text x="1044" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">base 2-D LiDAR</text>
+<text x="1044" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">RPLIDAR A3</text>
+</g>
+<g class="rg-node" data-title="mujoco_sim" data-desc="With use_sim:=true this single node replaces every driver above — it owns the MuJoCo physics and publishes the exact same topics, so nothing upstream can tell sim from real." data-accent="#BF5AF2">
+<rect x="1110.0" y="300" width="132" height="74" rx="12" fill="#1C1C1E" opacity="1" stroke="#BF5AF2" stroke-width="1.4"/>
+<circle cx="1176" cy="316" r="3.5" fill="#BF5AF2"/>
+<text x="1176" y="334" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">mujoco_sim</text>
+<text x="1176" y="351" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">whole robot</text>
+<text x="1176" y="366" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">use_sim:=true</text>
+<rect x="1190.0" y="291" width="52" height="18" rx="9" fill="#BF5AF2" opacity="1"/>
+<text x="1216.0" y="302" fill="#0B0A09" font-size="9" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">SIM</text>
+</g>
+<text x="318.0" y="282" fill="#FF9F0A" font-size="10" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" letter-spacing="1.2">ACTUATOR DRIVERS</text>
+<text x="846.0" y="282" fill="#32D0C8" font-size="10" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" letter-spacing="1.2">SENSOR NODES</text>
+<text x="1176" y="282" fill="#BF5AF2" font-size="10" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" letter-spacing="1.2">SIMULATION</text>
+<line x1="582.0" y1="270" x2="582.0" y2="456" stroke="#38383A" stroke-width="1" stroke-dasharray="3 5"/>
+<line x1="1110.0" y1="270" x2="1110.0" y2="456" stroke="#38383A" stroke-width="1" stroke-dasharray="3 5"/>
+<g class="rg-node" data-title="STATE + SENSOR TOPICS" data-desc="The state + sensor bus — joint states, odometry, the camera images, and the LiDAR scan, published up to every consumer at once." data-accent="#30D158">
+<rect x="50" y="470" width="1220" height="86" rx="14" fill="#0E1A13" opacity="1" stroke="#30D158" stroke-width="1.3"/>
+<text x="70" y="492" fill="#30D158" font-size="10.5" font-weight="700" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="1.5">STATE + SENSOR TOPICS  ·  published up to consumers</text>
+<text x="70" y="542" fill="#FFFFFF" font-size="12.5" font-weight="500" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="start">/joint_states   /odom   /sensors/head/left·right/image   /sensors/{left,right}_wrist/image   /scan</text>
+</g>
+<text x="70" y="526" fill="#636366" font-size="10.5" font-weight="500" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="start">sensor_msgs/JointState · nav_msgs/Odometry · sensor_msgs/Image · LaserScan</text>
+<g class="rg-node" data-title="robot_state_publisher" data-desc="Reads the URDF plus /joint_states and broadcasts /tf — the live kinematic tree every other node depends on." data-accent="#9aa0a6">
+<rect x="75.0" y="640" width="210" height="66" rx="12" fill="#1C1C1E" opacity="1" stroke="#9aa0a6" stroke-width="1.4"/>
+<circle cx="180" cy="656" r="3.5" fill="#9aa0a6"/>
+<text x="180" y="674" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">robot_state_publisher</text>
+<text x="180" y="691" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">URDF → /tf</text>
+</g>
+<g class="rg-node" data-title="rviz2 · Foxglove" data-desc="Visualizes the topics live — joints, frames, cameras, and the LiDAR scan — for debugging in sim or on the real robot." data-accent="#9aa0a6">
+<rect x="315.0" y="640" width="210" height="66" rx="12" fill="#1C1C1E" opacity="1" stroke="#9aa0a6" stroke-width="1.4"/>
+<circle cx="420" cy="656" r="3.5" fill="#9aa0a6"/>
+<text x="420" y="674" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">rviz2 · Foxglove</text>
+<text x="420" y="691" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">visualize</text>
+</g>
+<g class="rg-node" data-title="whole_body_control" data-desc="Solves IK and compliance across all 51 joints, turning one Cartesian goal into coordinated base, lift, arm, and hand commands." data-accent="#9aa0a6">
+<rect x="555.0" y="640" width="210" height="66" rx="12" fill="#1C1C1E" opacity="1" stroke="#9aa0a6" stroke-width="1.4"/>
+<circle cx="660" cy="656" r="3.5" fill="#9aa0a6"/>
+<text x="660" y="674" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">whole_body_control</text>
+<text x="660" y="691" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">IK · compliance</text>
+</g>
+<g class="rg-node" data-title="nav2 · slam" data-desc="Builds a map and localizes from /scan + /odom, then plans a path and publishes velocity commands back onto the command bus." data-accent="#9aa0a6">
+<rect x="795.0" y="640" width="210" height="66" rx="12" fill="#1C1C1E" opacity="1" stroke="#9aa0a6" stroke-width="1.4"/>
+<circle cx="900" cy="656" r="3.5" fill="#9aa0a6"/>
+<text x="900" y="674" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">nav2 · slam</text>
+<text x="900" y="691" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">map · localize</text>
+</g>
+<g class="rg-node" data-title="learning" data-desc="Logs synchronized observations and actions for imitation learning, and replays trained policies as just another command publisher." data-accent="#9aa0a6">
+<rect x="1035.0" y="640" width="210" height="66" rx="12" fill="#1C1C1E" opacity="1" stroke="#9aa0a6" stroke-width="1.4"/>
+<circle cx="1140" cy="656" r="3.5" fill="#9aa0a6"/>
+<text x="1140" y="674" fill="#FFFFFF" font-size="11" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="middle">learning</text>
+<text x="1140" y="691" fill="#8E8E93" font-size="9.5" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">log · train</text>
+</g>
+<line x1="440" y1="122" x2="440" y2="156" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="440" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="122;156" dur="1.8s" begin="0.0s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.0s" repeatCount="indefinite"/></circle>
+<line x1="700" y1="122" x2="700" y2="156" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="700" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="122;156" dur="1.8s" begin="0.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.4s" repeatCount="indefinite"/></circle>
+<line x1="120" y1="220" x2="120" y2="300" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="120" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="220;300" dur="1.8s" begin="0.0s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.0s" repeatCount="indefinite"/></circle>
+<line x1="252" y1="220" x2="252" y2="300" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="252" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="220;300" dur="1.8s" begin="0.15s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.15s" repeatCount="indefinite"/></circle>
+<line x1="384" y1="220" x2="384" y2="300" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="384" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="220;300" dur="1.8s" begin="0.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.3s" repeatCount="indefinite"/></circle>
+<line x1="516" y1="220" x2="516" y2="300" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="516" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="220;300" dur="1.8s" begin="0.44999999999999996s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.44999999999999996s" repeatCount="indefinite"/></circle>
+<line x1="1176" y1="220" x2="1176" y2="300" stroke="#0A84FF" stroke-width="1.6" opacity="0.45"/>
+<circle cx="1176" r="3.5" fill="#0A84FF"><animate attributeName="cy" values="220;300" dur="1.8s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.6s" repeatCount="indefinite"/></circle>
+<line x1="120" y1="374" x2="120" y2="470" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="120" r="3.5" fill="#30D158"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.0s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.0s" repeatCount="indefinite"/></circle>
+<line x1="252" y1="374" x2="252" y2="470" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="252" r="3.5" fill="#30D158"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.12s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.12s" repeatCount="indefinite"/></circle>
+<line x1="384" y1="374" x2="384" y2="470" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="384" r="3.5" fill="#30D158"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.24s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.24s" repeatCount="indefinite"/></circle>
+<line x1="516" y1="374" x2="516" y2="470" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="516" r="3.5" fill="#30D158"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.36s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.36s" repeatCount="indefinite"/></circle>
+<line x1="648" y1="374" x2="648" y2="470" stroke="#32D0C8" stroke-width="1.6" opacity="0.45"/>
+<circle cx="648" r="3.5" fill="#32D0C8"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.48s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.48s" repeatCount="indefinite"/></circle>
+<line x1="780" y1="374" x2="780" y2="470" stroke="#32D0C8" stroke-width="1.6" opacity="0.45"/>
+<circle cx="780" r="3.5" fill="#32D0C8"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.6s" repeatCount="indefinite"/></circle>
+<line x1="912" y1="374" x2="912" y2="470" stroke="#32D0C8" stroke-width="1.6" opacity="0.45"/>
+<circle cx="912" r="3.5" fill="#32D0C8"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.72s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.72s" repeatCount="indefinite"/></circle>
+<line x1="1044" y1="374" x2="1044" y2="470" stroke="#32D0C8" stroke-width="1.6" opacity="0.45"/>
+<circle cx="1044" r="3.5" fill="#32D0C8"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.84s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.84s" repeatCount="indefinite"/></circle>
+<line x1="1176" y1="374" x2="1176" y2="470" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="1176" r="3.5" fill="#30D158"><animate attributeName="cy" values="374;470" dur="1.8s" begin="0.96s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.96s" repeatCount="indefinite"/></circle>
+<line x1="180" y1="556" x2="180" y2="640" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="180" r="3.5" fill="#30D158"><animate attributeName="cy" values="556;640" dur="1.8s" begin="0.0s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.0s" repeatCount="indefinite"/></circle>
+<line x1="420" y1="556" x2="420" y2="640" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="420" r="3.5" fill="#30D158"><animate attributeName="cy" values="556;640" dur="1.8s" begin="0.18s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.18s" repeatCount="indefinite"/></circle>
+<line x1="660" y1="556" x2="660" y2="640" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="660" r="3.5" fill="#30D158"><animate attributeName="cy" values="556;640" dur="1.8s" begin="0.36s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.36s" repeatCount="indefinite"/></circle>
+<line x1="900" y1="556" x2="900" y2="640" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="900" r="3.5" fill="#30D158"><animate attributeName="cy" values="556;640" dur="1.8s" begin="0.54s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.54s" repeatCount="indefinite"/></circle>
+<line x1="1140" y1="556" x2="1140" y2="640" stroke="#30D158" stroke-width="1.6" opacity="0.45"/>
+<circle cx="1140" r="3.5" fill="#30D158"><animate attributeName="cy" values="556;640" dur="1.8s" begin="0.72s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.72s" repeatCount="indefinite"/></circle>
+<circle cx="60" cy="910" r="5" fill="#0A84FF"/>
+<text x="74" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">commands</text>
+<circle cx="260" cy="910" r="5" fill="#FF9F0A"/>
+<text x="274" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">drivers</text>
+<circle cx="460" cy="910" r="5" fill="#32D0C8"/>
+<text x="474" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">sensors</text>
+<circle cx="660" cy="910" r="5" fill="#BF5AF2"/>
+<text x="674" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">sim (unified)</text>
+<circle cx="860" cy="910" r="5" fill="#30D158"/>
+<text x="874" y="914" fill="#8E8E93" font-size="12" font-weight="500" font-family="-apple-system, 'SF Pro Text', Inter, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">state + sensors out</text>
+<text x="1284" y="914" fill="#636366" font-size="12" font-weight="600" font-family="'SF Mono', Menlo, 'Space Mono', monospace" text-anchor="end">one DDS graph · sim or real</text>
+</svg>
+    </div>
+    <p class="fig-hint fade-up" style="margin-top:14px;">Hover any node or bus for what it does — or tap on touch.</p>
+  </div>
+</section>
+
+<!-- ─── BOOT MODES (interactive tabs) ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">One launch file</span>
+        <h2 class="display-md title" style="color:var(--bone);">Two ways to <span class="italic accent">boot.</span></h2>
+      </div>
+      <p class="lede"><code>mabel_bringup/robot.launch.py</code> takes a single <code>use_sim</code> argument —
+        the real robot is a federation of driver nodes; the sim is one monolithic node. The graph above is
+        identical either way.</p>
+    </div>
+
+    <div class="fade-up" data-tabs>
+      <div class="tab-bar" role="tablist">
+        <button class="tab-btn on" role="tab" data-tab="r-hw">Real hardware</button>
+        <button class="tab-btn" role="tab" data-tab="r-sim">Simulation</button>
+      </div>
+      <div id="r-hw" class="tab-panel on">
+        <div class="bib" style="margin-bottom:18px;">
+          <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+          <pre>ros2 launch mabel_bringup robot.launch.py</pre>
+        </div>
+        <div class="points">
+          <div class="point"><div class="num">A</div><div>
+            <h5>A federated robot</h5>
+            <p>Brings up <code>base.launch.py</code>, <code>body.launch.py</code>, <code>arms.launch.py</code>
+              and <code>sensors.launch.py</code> as independent nodes — each owns one firmware bus and can
+              be restarted alone.</p>
+          </div></div>
+          <div class="point"><div class="num">B</div><div>
+            <h5>Real buses, hidden</h5>
+            <p><code>mabel_swerve_node</code> (REV CAN), <code>arms/body_hardware_node</code> (Damiao CAN),
+              <code>orca_hand_node</code> (Feetech) each publish <code>/joint_states</code> at 200 Hz.</p>
+          </div></div>
+        </div>
+      </div>
+      <div id="r-sim" class="tab-panel">
+        <div class="bib" style="margin-bottom:18px;">
+          <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+          <pre>ros2 launch mabel_bringup robot.launch.py use_sim:=true</pre>
+        </div>
+        <div class="points">
+          <div class="point"><div class="num">A</div><div>
+            <h5>A monolithic universe</h5>
+            <p>One <code>mabel_mujoco_sim</code> node replaces every driver — it owns physics, publishes the
+              same <code>/joint_states</code>, and listens on the same command topics.</p>
+          </div></div>
+          <div class="point"><div class="num">B</div><div>
+            <h5>Nothing else changes</h5>
+            <p>Teleop, WBC, and Nav2 can't tell the difference — same topics, same types. Validate in sim,
+              drop the flag, deploy. See <a href="software.html#simulation" style="color:#e9a679;">Simulation</a>.</p>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── COMMAND CONTRACT ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The contract</span>
+        <h2 class="display-md title">What's on <span class="italic accent">the wire.</span></h2>
+      </div>
+      <p class="lede">A handful of topics is the entire interface between control and hardware. The base and
+        lift even share one custom message — twist plus lift height plus a state byte.</p>
+    </div>
+
+    <div class="feature fade-up">
+      <div class="feature-copy">
+        <table class="tt">
+          <thead><tr><th>Topic</th><th>Type</th><th>Dir</th></tr></thead>
+          <tbody>
+            <tr><td>/mabel_cmd</td><td>mabel_interfaces/MabelSwerveCmd</td><td><span class="sub">sub</span></td></tr>
+            <tr><td>/arms/command</td><td>arm joint command</td><td><span class="sub">sub</span></td></tr>
+            <tr><td>/body/command</td><td>torso + neck command</td><td><span class="sub">sub</span></td></tr>
+            <tr><td>/left_hand · /right_hand/command</td><td>17-DOF hand command</td><td><span class="sub">sub</span></td></tr>
+            <tr><td>/joint_states</td><td>sensor_msgs/JointState</td><td><span class="pub">pub</span></td></tr>
+            <tr><td>/odom</td><td>nav_msgs/Odometry</td><td><span class="pub">pub</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">mabel_interfaces · the base+lift message</span>
+        <h3>One twist drives the floor.</h3>
+        <p>The swerve base and the lift ride a single custom message — a body-frame twist, the target lift
+          height, and a hardware-state byte. The driver runs the swerve IK and the tip-safe envelope below
+          it; you just send where you want to go.</p>
+        <div class="bib" style="margin-top:18px;">
+          <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+          <pre># MabelSwerveCmd.msg
+float32 vx          # body-frame x velocity
+float32 vy          # body-frame y velocity
+float32 omega       # yaw rate
+float32 lift_pos    # target lift height (m)
+uint8   hardware_state</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PACKAGE MAP ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">Packages</span>
+      <h2 class="display-md">Inside <code>mabel_ws/src</code>.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>mabel_bringup</h4><p>One <code>robot.launch.py</code> with a <code>use_sim</code> flag — federated hardware or monolithic sim.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>mabel_base_hardware</h4><p><code>swerve_node</code>: takes <code>/mabel_cmd</code>, runs swerve IK, publishes <code>/odom</code> + <code>/joint_states</code>.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>arms · body _hardware</h4><p>Damiao-CAN driver nodes for the 14-DOF arms and the torso + neck.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>mabel_orca_hand</h4><p><code>orca_hand_node</code> + a joint-state relay for both 17-DOF Feetech hands.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>mabel_sensors</h4><p><code>camera_bridge</code>: head RGB-D, dual wrist cams, and the base 2-D LiDAR on one clock.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>description · interfaces · sim</h4><p>The shared URDF, the custom messages, and the MuJoCo node — one kinematic tree, sim and real.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Stack is up. Now find the room.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" class="btn btn-primary">GitHub repo ↗</a>
+      <a href="autonomy.html#navigation" class="btn btn-ghost">Next: Navigation →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SIMULATION (merged from simulation.html) ═══ -->
+<!-- ─── HERO CLIP: HOME NAVIGATION ─── -->
+<section class="pad-y" id="simulation">
+  <div class="wrap">
+    <div class="reveal-media media-frame r-169 sim-dark" style="margin-bottom:34px;">
+      <div class="sim-stage" id="simStage" style="position:absolute;inset:0;border:0;border-radius:0;box-shadow:none;">
+        <img src="assets/wild/sim-poster.jpg" alt="The MABEL browser simulator" loading="lazy" />
+        <div class="sim-boot-veil">
+          <button class="btn btn-primary" id="simBoot" type="button">⚡ Power on the simulator</button>
+          <span class="sim-boot-note">This is the twin — drive it yourself</span>
+        </div>
+      </div>
+    </div>
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The scene</span>
+        <h2 class="display-md title">A home, not a <span class="italic accent">checkerboard.</span></h2>
+      </div>
+      <p class="lede">The robot drives a delta-swerve loop through a kitchen — island, counter, dining
+        set — raising its lift mid-trip. The furniture is textured primitives; the graspable clutter on
+        the surfaces are real Google-Scanned objects. Same scene we use to collect demos and test
+        navigation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTROLLERS ─── -->
+<section class="dark-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Controllers</span>
+        <h2 class="display-md title" style="color:var(--bone);">The control stack, <span class="italic accent">on tape.</span></h2>
+      </div>
+      <p class="lede">The swerve base, the lift, the hands, and the whole-body arm solver. Each is a
+        module in <code>controller/mabel</code> — the clips are that exact code driving the twin, base
+        motion clamped by the same tip-over / fall envelope the keyboard teleop uses.</p>
+    </div>
+
+    <!-- swerve -->
+    <div class="feature fade-up">
+      <div class="reveal-media feature-media media-frame r-169 sim-dark">
+        <video muted loop playsinline preload="none" poster="assets/wild/d-nav.jpg" data-lo="assets/wild/d-nav-lo.mp4" data-lazyvid="assets/wild/d-nav.mp4" aria-label="Real footage: driving the halls on the holonomic base"></video>
+        <span class="sim-cap"><span class="dot"></span>swerve.py · strafe → strafe → spin-in-place</span>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">Holonomic base · <code>swerve.py</code></span>
+        <h3>Three modules, any direction.</h3>
+        <p>A 3-module delta swerve (wheel radius 38.1&nbsp;mm) maps a body twist
+          <em>(v<sub>x</sub>, v<sub>y</sub>, ω)</em> to per-module steer angle and wheel speed via
+          rigid-body kinematics <em>v<sub>i</sub> = V + ω × r<sub>i</sub></em>. Two tricks keep it from
+          scrubbing the floor: <strong>shortest-path steering</strong> (never sweep past ±90° — flip and
+          drive backward instead) and a <strong>cosine anti-slip choke</strong> that kills drive power
+          until the column catches up.</p>
+        <div class="spec"><span>0.8 m/s lin</span><span>2.0 rad/s ang</span><span>Shortest-path steer</span><span>Anti-slip choke</span></div>
+      </div>
+    </div>
+
+    <!-- lift -->
+    <div class="feature flip fade-up">
+      <div class="reveal-media feature-media media-frame r-169 sim-dark">
+        <img src="assets/wild/w-tada.jpg" alt="MABEL full body — lift and torso" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" />
+        <span class="sim-cap"><span class="dot"></span>cascaded Z-lift · 0 → 0.635 m + torso pitch</span>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">Z-lift &amp; torso</span>
+        <h3>Eye height on demand.</h3>
+        <p>A cascaded lift gives <strong>0.635&nbsp;m</strong> of vertical travel; a pitching torso adds
+          reach low. The clip shows them <strong>one at a time</strong> — lift first, then torso.
+          Raising the lift raises the CoM — <em>h = 0.443 + 0.432·z</em> — so the base gets easier to
+          tip; a direction-aware tip-over model shrinks the safe speed and braking limits as ~1/h
+          (<em>a<sub>tip</sub> = g·d / h</em>), forward braking conservative, lateral reversals agile.</p>
+        <div class="spec"><span>0.635 m travel</span><span>ZMP tip-safe</span><span>CoM-aware limits</span></div>
+      </div>
+    </div>
+
+    <!-- hands -->
+    <div class="feature fade-up">
+      <div class="reveal-media feature-media media-frame r-169 sim-dark">
+        <video muted loop playsinline preload="none" poster="assets/wild/v-grip.jpg" data-lo="assets/wild/v-grip-lo.mp4" data-lazyvid="assets/wild/v-grip.mp4" aria-label="Real footage: 17-DOF ORCA hand"></video>
+        <span class="sim-cap"><span class="dot"></span>ORCA hand · open → close → open</span>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">Dexterous hands</span>
+        <h3>Seventeen joints per side.</h3>
+        <p>Each hand is an open-source <strong>ORCA</strong> hand — five fingers, tendon-routed, with
+          abduction, MCP, and PIP joints modelled per finger. Open to a flat palm, curl to a full fist;
+          the same position commands drive the simulated and the real hand, so grasps tuned here
+          transfer straight across.</p>
+        <div class="spec"><span>5 fingers</span><span>Tendon-routed</span><span>Open-source ORCA</span></div>
+      </div>
+    </div>
+
+    <!-- whole body -->
+    <div class="feature flip fade-up">
+      <div class="reveal-media feature-media media-frame r-169 sim-dark">
+        <video muted loop playsinline preload="none" poster="assets/wild/v-avp.jpg" data-lo="assets/wild/v-avp-lo.mp4" data-lazyvid="assets/wild/v-avp.mp4" aria-label="Real footage: Vision Pro whole-body mirror mode"></video>
+        <span class="sim-cap"><span class="dot"></span>wbc.py · 18-DOF bimanual DLS IK</span>
+      </div>
+      <div class="feature-copy">
+        <span class="eyebrow">Whole-body IK · <code>wbc.py</code></span>
+        <h3>Both hands, one solve.</h3>
+        <p>The upper body is an 18-DOF chain — lift + torso + 7-DOF arm + wrist per side — solved as one
+          weighted damped-least-squares problem that tracks both 6-DOF palm targets at once. A
+          <strong>null-space posture task</strong> keeps the body near a natural configuration, and
+          weighting makes the lift and torso "lazy" so the arms lead and the body only joins in when it
+          has to — a slow, coordinated reach. <a href="software.html#wbc">More on the controller →</a></p>
+        <div class="spec"><span>18 DOF</span><span>Weighted DLS</span><span>Null-space posture</span><span>Lazy base follow</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SENSOR SUITE ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">On-board sensors</span>
+        <h2 class="display-md title">What MABEL <span class="italic accent">sees.</span></h2>
+      </div>
+      <p class="lede">Every camera on the robot is modelled in the twin. As it drives through the room,
+        the full suite streams at once — head stereo, both wrists, the body cam, and the base's
+        front/back views — the exact feeds the policies and teleop see.</p>
+    </div>
+    <div class="reveal-media media-frame sim-dark" style="aspect-ratio:3/2;">
+      <img src="assets/wild/sim-poster.jpg" alt="Onboard cameras in the operator console" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" />
+      <span class="sim-cap"><span class="dot"></span>Live on-board camera suite · driving through the home</span>
+    </div>
+    <div class="spec fade-up" style="justify-content:center; margin-top:22px;">
+      <span>Head ZED stereo</span><span>L / R wrist cams</span><span>Body cam</span><span>Base D435 front / back</span><span>360° LiDAR</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── GRAVITY COMP / COMPLIANCE ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">Also in the twin</span>
+      <h2 class="display-md">Beyond the three.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">A</span><div><h4>Gravity compensation</h4><p>An upper-body dynamics model computes the holding torques so the arms go back-drivable — drag them by hand, they stay put when released. The base for drag-to-move teleop.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">B</span><div><h4>Compliance &amp; admittance</h4><p>Arms run compliant; torso and lift run "lazy" (gravity-held, heavily damped). The base behaves as a virtual planar mass for force-driven whole-body motion.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">C</span><div><h4>Lazy-base follower</h4><p>When the hand targets drift to the edge of the arms' workspace, the swerve base creeps to re-centre them — MABEL's analogue of root-translation handling in GMR / HoMMI.</p></div></div>
+    <div class="card fade-up"><span class="card-num">D</span><div><h4>Teleop replay</h4><p>Vision Pro retargeting and keyboard teleop drive the very same twin, so a session can be replayed and debugged offline before it ever touches hardware.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">E</span><div><h4>Sensor sim</h4><p>A 360° planar LiDAR (RPLIDAR A3, 0.2–25 m) plus head RGB-D are modelled in-scene for mapping, SLAM, and navigation development.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">F</span><div><h4>Reproducible by script</h4><p>Every clip on this page regenerates from <code>scripts/tools/render_web_gifs.py</code> driving the real controllers — no hand-keyframing, fixed scenes, deterministic.</p></div></div>
+  </div>
+</section>
+
+<!-- ─── SIM-TO-REAL ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Sim-to-real</span>
+        <h2 class="display-md title">One model, <span class="italic accent">two worlds.</span></h2>
+      </div>
+      <p class="lede">The gap is closed by construction: the twin and the robot share geometry, share
+        interfaces, and the controllers don't know which one they're talking to.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Single source of geometry</h5>
+        <p>One URDF generates the MuJoCo MJCF, the on-robot kinematics, and the web's 3D viewer. The
+          swerve module positions, wheel radius, and lift limits the controllers use are read straight
+          from the same config — sim and hardware can't silently diverge.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>The same controller code</h5>
+        <p>Swerve IK, whole-body IK, the lazy base, and the tip-over safety all live in
+          <code>controller/mabel</code>. The simulator imports them unmodified; deployment swaps the
+          MuJoCo plant for the real RS-485 / CAN bus, not the math.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Tip-safety from measured geometry</h5>
+        <p>The support triangle and CoM projection in the ZMP limiter are measured from the model
+          (wheel contacts + subtree CoM). The robot inherits the same envelope, so "safe in sim" means
+          safe on the floor.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Built for data</h5>
+        <p>The furnished home is where teleoperated demonstrations get collected and replayed. Small
+          embodiment gap, real graspable objects, identical interfaces — the twin is the front door to
+          the learning pipeline.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">The twin runs. Now make it move.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" class="btn btn-primary">Sim &amp; controller code ↗</a>
+      <a href="software.html#wbc" class="btn btn-ghost">Next: Whole-Body Control →</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ FROM THE PAPER ═══ -->
+<section class="soft-sec pad-y" id="paper-figs">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">From the paper</span>
+        <h2 class="display-md title">One model, <span class="italic accent">every world.</span></h2>
+      </div>
+      <p class="lede">The simulation architecture — the twin is not a demo copy, it is the same stack.</p>
+    </div>
+    <div class="paper-grid fade-up" style="grid-template-columns:1fr;">
+      <div>
+        <div class="paper-fig"><img src="assets/paper/06_sim_architecture.jpg" alt="The simulation architecture: one canonical MJCF generates the URDF, the twin, and every derived artifact; the production controller drives MuJoCo at 500 Hz." loading="lazy" /></div>
+        <span class="fig-label paper-fig-cap"><b>Fig. 6</b> The simulation architecture: one canonical MJCF generates the URDF, the twin, and every derived artifact; the production controller drives MuJoCo at 500 Hz.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SERVER (merged from server.html) ═══ -->
+<!-- CONTRACT FIGURE -->
+<section class="pad-y" id="server"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The contract</span><h2 class="display-md title">Intent up, <span class="italic accent">video down.</span></h2></div>
+    <p class="lede">A single running server feeds every client at once. Operator intent arrives on one WebSocket; the robot's cameras leave as ordinary HTTP MJPEG, kept off the command socket so a heavy video decode can never delay control.</p></div>
+  <div class="arch-fig fade-up"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" viewBox="0 0 1240 560" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+<rect x="0" y="0" width="1240" height="560" rx="16" fill="#FDF6E2" stroke="rgba(21,24,32,0.55)" stroke-width="1"/>
+<text x="40" y="46" fill="#6D6551" font-size="13" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start" letter-spacing="0.3">Figure — the server: one two-port contract, no ROS on the client</text>
+<rect x="40" y="120" width="210" height="380" rx="14" fill="#FFFFFF" stroke="rgba(21,24,32,0.6)" stroke-width="1.6"/>
+<circle cx="50" cy="141" r="3.5" fill="#C6301A"/>
+<text x="64" y="146" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">OPERATOR APPS</text>
+<text x="64" y="162" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">no ROS on the client</text>
+<rect x="58" y="190" width="174" height="28" rx="8" fill="#F4EAD2" stroke="rgba(21,24,32,0.55)" stroke-width="1"/>
+<text x="70" y="208" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">Apple Vision Pro · 60 Hz</text>
+<rect x="58" y="228" width="174" height="28" rx="8" fill="#F4EAD2" stroke="rgba(21,24,32,0.55)" stroke-width="1"/>
+<text x="70" y="246" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">iPhone · 20 Hz</text>
+<rect x="58" y="266" width="174" height="28" rx="8" fill="#F4EAD2" stroke="rgba(21,24,32,0.55)" stroke-width="1"/>
+<text x="70" y="284" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">any future client</text>
+<text x="64" y="330" fill="#6D6551" font-size="11" font-weight="400" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">emit one JSON</text>
+<text x="64" y="348" fill="#6D6551" font-size="11" font-weight="400" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">TeleopFrame; render</text>
+<text x="64" y="366" fill="#6D6551" font-size="11" font-weight="400" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">MJPEG in a WKWebView.</text>
+<rect x="370" y="120" width="330" height="168" rx="14" fill="#FFFFFF" stroke="rgba(21,24,32,0.6)" stroke-width="1.6"/>
+<circle cx="380" cy="141" r="3.5" fill="#C6301A"/>
+<text x="394" y="146" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">THE BRIDGE</text>
+<text x="394" y="162" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim_teleop_bridge.py</text>
+<circle cx="396" cy="186" r="2.6" fill="#C6301A"/>
+<text x="408" y="190" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">adapt headset hands → AVPFrame</text>
+<circle cx="396" cy="210" r="2.6" fill="#C6301A"/>
+<text x="408" y="214" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">clutch retarget → whole-body IK</text>
+<circle cx="396" cy="234" r="2.6" fill="#C6301A"/>
+<text x="408" y="238" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">step MuJoCo · real-time accumulator</text>
+<circle cx="396" cy="258" r="2.6" fill="#C6301A"/>
+<text x="408" y="262" fill="#23272F" font-size="11" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">newest-frame only · drop stale</text>
+<rect x="760" y="120" width="200" height="168" rx="14" fill="#FFFFFF" stroke="rgba(21,24,32,0.6)" stroke-width="1.6" stroke-dasharray="2 5"/>
+<circle cx="770" cy="141" r="3.5" fill="#C6301A"/>
+<text x="784" y="146" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">MuJoCo SIM</text>
+<text x="784" y="162" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">or REAL ROBOT</text>
+<text x="784" y="192" fill="#23272F" font-size="11" font-weight="500" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">116-DOF physics on</text>
+<text x="784" y="210" fill="#23272F" font-size="11" font-weight="500" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">the Mac — or the</text>
+<text x="784" y="228" fill="#23272F" font-size="11" font-weight="500" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start">51-DOF robot.</text>
+<text x="784" y="258" fill="#C6301A" font-size="10.5" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">same control code,</text>
+<text x="784" y="274" fill="#C6301A" font-size="10.5" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">same two ports.</text>
+<rect x="370" y="400" width="590" height="118" rx="14" fill="#FFFFFF" stroke="rgba(21,24,32,0.6)" stroke-width="1.6"/>
+<circle cx="380" cy="421" r="3.5" fill="#C6301A"/>
+<text x="394" y="426" fill="#23272F" font-size="11" font-weight="600" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="start" letter-spacing="0.5">CAMERA BOX</text>
+<text x="394" y="442" fill="#6D6551" font-size="10" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">sim_camera_server.py · own core</text>
+<text x="394" y="474" fill="#23272F" font-size="11.5" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">mmap qpos  →  render head ZED + wrist cams  →  serve MJPEG</text>
+<text x="394" y="498" fill="#6D6551" font-size="10.5" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">separate process: the ~50–67 ms GPU readback never stalls physics</text>
+<line x1="250" y1="212" x2="362" y2="212" stroke="#C6301A" stroke-width="1.8"/><path d="M 360 207 L 370 212 L 360 217" stroke="#C6301A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="310.0" y="198" fill="#C6301A" font-size="10.5" font-weight="700" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">ws :9090</text>
+<text x="310.0" y="238" fill="#6D6551" font-size="9.5" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">TeleopFrame</text>
+<line x1="700" y1="210" x2="752" y2="210" stroke="#C6301A" stroke-width="1.8"/><path d="M 750 205 L 760 210 L 750 215" stroke="#C6301A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="730.0" y="198" fill="#C6301A" font-size="10.5" font-weight="700" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">drives</text>
+<line x1="860.0" y1="288" x2="860.0" y2="392" stroke="#C6301A" stroke-width="1.8"/><path d="M 855.0 390 L 860.0 400 L 865.0 390" stroke="#C6301A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="870.0" y="348.0" fill="#6D6551" font-size="10" font-weight="600" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="start">qpos · mmap</text>
+<line x1="370" y1="492" x2="258" y2="492" stroke="#C6301A" stroke-width="1.8"/><path d="M 260 487 L 250 492 L 260 497" stroke="#C6301A" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="310.0" y="478" fill="#C6301A" font-size="10.5" font-weight="700" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">http :8080/camera/*</text>
+<text x="310.0" y="506" fill="#6D6551" font-size="9.5" font-weight="500" font-family="'Space Mono', 'SF Mono', Menlo, monospace" text-anchor="middle">MJPEG · multipart</text>
+<text x="620.0" y="538" fill="#A99F87" font-size="12" font-weight="400" font-family="'Archivo', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">uplink = operator intent (one WebSocket) · downlink = cameras (plain HTTP MJPEG) · Bonjour finds the Mac, no IP typing</text>
+</svg></div>
+</div></section>
+
+<!-- WHY -->
+<section class="soft-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Why a bridge</span><h2 class="display-md title">Skip ROS to <span class="italic accent">drive the robot.</span></h2></div>
+    <p class="lede">ROS 2 is the robot's internal nervous system — but you don't want a headset or a phone speaking DDS. The bridge is the seam: apps speak a tiny app-friendly protocol, and the bridge does the robot-side work.</p></div>
+  <div class="points fade-up">
+    <div class="point"><div class="num">01</div><div><h5>Teleop from Apple devices</h5><p>Vision Pro and iPhone send JSON over a WebSocket and render MJPEG in a <code>WKWebView</code> — no ROS client, no DDS discovery, no message-type compilation on the device.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Test the sim on a Mac</h5><p>One command (<code>./run.sh</code>) brings up physics + cameras on the laptop. Add <code>--mock</code> to drive synthetic hands and exercise the entire stack with no headset attached.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Same contract reaches the real robot</h5><p>The WebSocket + MJPEG contract is hardware-agnostic and the control math is <a href="software.html#wbc" style="color:var(--rust);">shared</a>. Point a robot-side process at the same two ports and the apps connect unchanged — sim and hardware run identical logic.</p></div></div>
+  </div>
+</div></section>
+
+<!-- THE BRIDGE -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">sim_teleop_bridge.py</span><h2 class="display-md title">What the bridge <span class="italic accent">actually does.</span></h2></div>
+    <p class="lede">One process closes the operator→robot half of the loop. It receives the newest frame, turns it into robot motion, and publishes the result for the cameras to render.</p></div>
+  <div class="points fade-up">
+    <div class="point"><div class="num">A</div><div><h5>Receive &amp; adapt</h5><p>Take the newest <code>TeleopFrame</code> off the socket and adapt the headset's hand model into the controller's <code>AVPFrame</code> — each joint's world pose is <code>anchorTransform · localTransform</code>.</p></div></div>
+    <div class="point"><div class="num">B</div><div><h5>Retarget &amp; solve</h5><p>Run the <em>shared</em> whole-body controller — clutch-based hand <a href="teleop.html#retargeting" style="color:var(--rust);">retargeting → whole-body IK</a>, plus a lazy swerve base and a look-at neck. The same controller the desktop viewer uses, so they can't drift.</p></div></div>
+    <div class="point"><div class="num">C</div><div><h5>Step in real time</h5><p>Advance MuJoCo under a real-time accumulator that matches simulated time to wall-clock — clamped, so the robot never builds a latency backlog. <code>mj_step</code> is ≈ 3.9 ms for the 116-DOF model.</p></div></div>
+    <div class="point"><div class="num">D</div><div><h5>Publish qpos</h5><p>Write the robot's <code>qpos</code> to a memory-mapped file. The camera box and the optional desktop viewer mmap it and mirror the robot — physics and video run on separate cores, in parallel.</p></div></div>
+  </div>
+  <div class="callout fade-up" style="margin-top:26px;"><p><strong>The key latency decision:</strong> the bridge keeps a <em>one-slot</em> &ldquo;newest frame&rdquo; buffer and drops stale frames. Effective control latency is the uplink period (16.7 ms at 60 Hz, 50 ms at 20 Hz) plus one physics substep — never a queue backlog. On macOS the GL context must live on the main thread, so physics + IK + render run there while an asyncio thread hosts the WebSocket and MJPEG servers; they share only that one-slot buffer.</p></div>
+</div></section>
+
+<!-- PROTOCOL -->
+<section class="dark-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The wire protocol</span><h2 class="display-md title" style="color:var(--bone);">Eight messages, <span class="italic accent">mirrored in Swift.</span></h2></div>
+    <p class="lede">Every message is a two-layer JSON envelope, <code>{ "type", "payload" }</code>, with field names that match the Swift <code>Codable</code> types byte-for-byte — so a client and the bridge can never silently disagree. The Python side is stdlib-<code>json</code> only, so it drops straight into a ROS 2 node.</p></div>
+  <div class="feature fade-up">
+    <div class="feature-copy">
+      <table class="tt">
+        <thead><tr><th>Type</th><th>Dir</th><th>Carries</th></tr></thead>
+        <tbody>
+          <tr><td>teleop_frame</td><td><span class="sub">c→s</span></td><td>head + per-hand poses, mode, nav joystick</td></tr>
+          <tr><td>joint_command</td><td><span class="sub">c→s</span></td><td>direct joint targets <code>{id:rad}</code></td></tr>
+          <tr><td>control_mode</td><td><span class="sub">c→s</span></td><td>navigation · gravity_comp · compliance · joints</td></tr>
+          <tr><td>reset</td><td><span class="sub">c→s</span></td><td>home the simulation</td></tr>
+          <tr><td>robot_state</td><td><span class="pub">s→c</span></td><td>battery, joint positions, latency</td></tr>
+          <tr><td>hello</td><td><span class="pub">s→c</span></td><td>handshake: server name + version</td></tr>
+          <tr><td>ping · pong</td><td>both</td><td>application-level liveness</td></tr>
+          <tr><td>error</td><td><span class="pub">s→c</span></td><td>diagnostic string</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="feature-copy">
+      <span class="eyebrow">the teleop_frame</span>
+      <h3>One frame, two ways to drive.</h3>
+      <p>Populate the <strong>hands</strong> to drive manipulation, or the <strong>joystick</strong> to drive the base — same message either way. Every pose is a row-major 4×4 (16 floats) in the ARKit world frame; a hand is an <code>anchorTransform</code> plus 27 named joint transforms.</p>
+      <div class="bib" style="margin-top:18px;">
+        <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+        <pre>{ "type": "teleop_frame",
+  "payload": {
+    "sequence": 412, "timestamp": 7.71e8,
+    "head": { "transform": { "matrix": [/*16*/] } },
+    "mode": "Base Driving",
+    "navJoystick": { "lx":0, "ly":0.8, "rx":-0.2, "ry":0 }
+  } }</pre>
+      </div>
+    </div>
+  </div>
+  <div class="points fade-up" style="margin-top:32px;">
+    <div class="point"><div class="num">01</div><div><h5 style="color:var(--bone);">Discovery, no IP typing</h5><p>The server advertises <code>_mabel-teleop._tcp</code> over Bonjour; clients browse and resolve it. Pick the server from a list — or type the Mac's LAN IP.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5 style="color:var(--bone);">Resilient by design</h5><p>An 8 s handshake watchdog, a 5 s non-fatal ping, and auto-reconnect with linear backoff capped at 4 s. One dropped frame out of a 20 Hz stream never tears the session down.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5 style="color:var(--bone);">Forward-compatible</h5><p>A new message is one enum entry on each side; unknown types are rejected at decode, so compatibility is explicit rather than silent.</p></div></div>
+  </div>
+</div></section>
+
+<!-- REACH: LAN / VPN / RELAY -->
+<section class="pad-y" id="relay"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Reaching the robot</span><h2 class="display-md title">Three ways in, <span class="italic accent">one Connect button.</span></h2></div>
+    <p class="lede">The same two-port contract is reachable over three paths, and every client — Vision&nbsp;Pro, iPhone, and the <a href="teleop.html" style="color:var(--rust);">browser console</a> — just tries them in order. No mode switch, no second app.</p></div>
+
+  <div class="points fade-up">
+    <div class="point"><div class="num">01</div><div><h5>Wi-Fi · same LAN</h5><p>The Mac's LAN IP on <code>:9090</code> / <code>:8080</code> — lowest latency, advertised over Bonjour (<code>_mabel-teleop._tcp</code>) so clients resolve it without typing an IP.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>VPN · same tailnet</h5><p>The Mac's <strong>Tailscale</strong> IP / <code>ts.net</code> name reaches it from any network with no public exposure. From an https page a bare host upgrades to the TLS proxy (<code>tailscale&nbsp;serve&nbsp;--https=8443</code>).</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Relay · from anywhere</h5><p>A token-gated <strong>secure internet relay</strong>: the robot dials <em>out</em> to a public VPS, so anyone can drive from anywhere with just a hostname and a token — the control loop never faces the internet.</p></div></div>
+  </div>
+
+  <div class="feature fade-up" style="margin-top:40px;">
+    <div class="feature-copy">
+      <span class="eyebrow" style="color:#9a86c8;">The secure relay</span>
+      <h3>Dial out, gate hard.</h3>
+      <p>The robot opens an outbound <strong>rathole</strong> tunnel to the VPS (piercing enterprise NAT &amp; client isolation — outbound is always allowed). <strong>Caddy</strong> is the only public port: auto-TLS, and every request must carry the secret <code>?key=&lt;APP_TOKEN&gt;</code> or it gets a <code>403</code> before reaching the tunnel. Video rides the same token-gated HTTPS edge, so there's no public UDP port to flood.</p>
+      <div class="spec"><span>wss://relay/teleop?key=…</span><span>https://relay/camera/*</span><span>robot dials out</span><span>403 without the token</span></div>
+    </div>
+    <div class="feature-copy">
+      <div class="bib">
+        <button class="bib-copy" onclick="copyCode(this)">Copy</button>
+        <pre>[ app ] ─wss://relay/teleop?key=TOKEN─▶ [ VPS ]            [ Robot Mac ]
+         ─https://relay/camera/*?key──▶  Caddy :443  ──┐    bridge :9090
+              (one Connect button)        (TLS +       │ rathole  cameras :8080
+                                          token gate)  │ tunnel
+                                          403 if none  │
+                                          rathole :2333 ◀── dials OUT ──┘</pre>
+      </div>
+      <p class="table-note" style="margin-top:12px;">Three layers guard it: <strong>TLS + token</strong> at Caddy, a separate <strong>tunnel token</strong> for rathole, and an <strong>edge firewall</strong> (only 22 / 443 / 2333 open). The bridge itself re-checks <code>MABEL_TOKEN</code>, so even a direct hit on the tunnel can't drive the robot. Run it with <code>./run.sh&nbsp;--relay</code>; full setup in <code>server/relay/README.md</code>.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- WATCH IT LIVE · THE MONITOR -->
+<section class="dark-sec pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Watch it live · the monitor</span><h2 class="display-md title" style="color:var(--bone);">See what the robot <span class="italic accent">is recording.</span></h2></div>
+    <p class="lede">The <strong>Teleop Logger</strong> is the operator's window onto the bridge. It renders the bridge's off-screen camera feeds and a record-state HUD, so an operator can confirm the camera pipeline, framing, and episode-recording state at a glance while teleoperating.</p></div>
+  <div class="gui-grid fade-up">
+    <div class="reveal-media media-frame">
+      <img src="assets/teleop-logger-idle.png" alt="Teleop Logger in IDLE state — armed, awaiting ENTER to record, with head and wrist camera feeds rendered" />
+      <span class="sim-cap"><span class="dot"></span>IDLE — armed, awaiting ENTER to record</span>
+    </div>
+    <div class="reveal-media media-frame">
+      <img src="assets/teleop-logger-rec.png" alt="Teleop Logger in REC state — episode capture in progress, head and wrist camera feeds the bridge serves as MJPEG" />
+      <span class="sim-cap"><span class="dot"></span>REC — episode capture; rendered head + wrist camera feeds the bridge serves as MJPEG</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- VIDEO + RATES -->
+<section class="pad-y"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The video channel</span><h2 class="display-md title">Cameras as <span class="italic accent">plain HTTP.</span></h2></div>
+    <p class="lede">Each camera is a standalone <code>multipart/x-mixed-replace</code> MJPEG stream the headset pulls into a <code>WKWebView &lt;img&gt;</code> — the exact path it would use for a hardware camera. Rendered in a separate process because the off-screen MuJoCo render is a fixed per-frame GPU-readback stall (≈73 ms with shadows, ≈41 ms without); running it on the physics thread would starve real-time control. The feeds render <strong>shadows off by default</strong> — the shadow pass alone costs ~32 ms/frame, so dropping it nearly doubles the budget and keeps the head <em>and</em> wrist streams responsive.</p></div>
+  <div class="stats-grid fade-up">
+    <div class="stat"><div class="stat-num">60 / 20 Hz</div><div class="stat-label">Vision Pro · iPhone uplink</div></div>
+    <div class="stat"><div class="stat-num">~12 / 6 fps</div><div class="stat-label">head / each wrist stream</div></div>
+    <div class="stat"><div class="stat-num">~3.9 ms</div><div class="stat-label">one mj_step · 116 DOF</div></div>
+    <div class="stat"><div class="stat-num">≈ 1.0×</div><div class="stat-label">real-time factor @ 4 ms</div></div>
+  </div>
+  <div class="fade-up" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:30px;">
+    <a href="teleop.html#vp-app" class="btn btn-primary">Vision Pro teleop →</a>
+    <a href="teleop.html#ios-app" class="btn btn-ghost">iPhone teleop →</a>
+    <a href="software.html#simulation" class="btn btn-ghost">The simulation →</a>
+    <a href="software.html#ros" class="btn btn-ghost">The ROS path →</a>
+  </div>
+</div></section>
+
+<!-- ═══ CONTROLLER (merged from controller.html) ═══ -->
+<!-- ─── RETARGETING ─── -->
+<section class="pad-y" id="controller"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Front end · retargeting</span><h2 class="display-md title">Human in, <span class="italic accent">targets out.</span></h2></div>
+    <p class="lede">The operator never commands joints. Their measured pose is retargeted into robot-frame targets — two small optimizations, solved every frame at 60&nbsp;Hz — and only then does the <a href="#cascade" style="color:var(--rust);">cascade</a> below resolve them into motion.</p></div>
+
+  <div class="cl-wrap fade-up">
+    <div class="cl-end in"><span class="tag">INPUT</span><span>From the operator (Apple Vision Pro): a head pose, two 6-DoF wrist poses, 25 hand-joint poses per hand, and gaze + pinch state.</span></div>
+    <div class="cl-down">↓ &nbsp;two retargeters run in parallel&nbsp; ↓</div>
+
+    <div class="cl-stages">
+      <div class="cl-loop cl-flat">
+        <div class="cl-head"><span class="cl-tier">STAGE A · HANDS</span><span class="cl-name">Keypoint retargeting</span><span class="cl-hz">60 Hz</span></div>
+        <p class="cl-does"><b>What it does:</b> matches the <em>shape</em> of your hand, not its angles — human and ORCA kinematics differ, so equal joint angles would not make the same grasp. It fits the robot's fingers to your landmark vectors.</p>
+        <div class="cl-io">
+          <div class="cl-port in"><span class="lab">INPUT</span><div class="cl-pv"><span class="cl-chip"><span class="sym">\(v_i^{h}\)</span> 25 human hand-keypoint vectors</span></div></div>
+          <div class="cl-arrow">→</div>
+          <div class="cl-port out"><span class="lab">OUTPUT</span><div class="cl-pv"><span class="cl-chip"><span class="sym">\(q\)</span> 16 ORCA finger DOF + wrist roll</span></div></div>
+        </div>
+        <div class="cl-eqlab">Per-frame keypoint optimization — smoothed, joint-limited</div>
+        <div class="cl-eq">$$\min_{q}\ \sum_i \big\lVert v_i^{h} - v_i^{r}(q)\big\rVert^2 + \lambda\,\lVert q - q_{-1}\rVert^2 \quad \text{s.t.}\ \ q^- \le q \le q^+$$</div>
+        <div class="cl-libs"><span>dex-retargeting</span><span>warm-started</span><span>joint-limit bounds</span><span>temporal smoothing λ</span></div>
+      </div>
+
+      <div class="cl-loop cl-flat">
+        <div class="cl-head"><span class="cl-tier">STAGE B · BODY</span><span class="cl-name">Cartesian QP retargeting</span><span class="cl-hz">60 Hz</span></div>
+        <p class="cl-does"><b>What it does:</b> turns your head + two wrist poses into Cartesian targets, then resolves the robot's <em>redundancy</em> — picking the whole-body solution that stays off the limits and lets the base lazily follow to extend reach.</p>
+        <div class="cl-io">
+          <div class="cl-port in"><span class="lab">INPUT</span><div class="cl-pv"><span class="cl-chip"><span class="sym">\(\dot{x}^{*}\)</span> head + 2 wrist 6-DoF targets</span></div></div>
+          <div class="cl-arrow">→</div>
+          <div class="cl-port out"><span class="lab">OUTPUT</span><div class="cl-pv"><span class="cl-chip"><span class="sym">\(\dot{q}\)</span> arms 7×2 · torso · lift · base</span></div></div>
+        </div>
+        <div class="cl-eqlab">Redundancy resolution with null-space regularization</div>
+        <div class="cl-eq">$$\min_{\dot q}\ \big\lVert J\,\dot q - \dot{x}^{*}\big\rVert^2 + \alpha\,\big\lVert \dot q\big\rVert_N^2$$</div>
+        <div class="cl-libs"><span>Cartesian QP</span><span>null-space posture</span><span>lazy base follow</span><span>51-DOF redundancy</span></div>
+      </div>
+    </div>
+
+    <div class="cl-down">↓</div>
+    <div class="cl-end out"><span class="tag">OUTPUT</span><span>Robot-frame targets for every joint — handed to the <a href="#cascade" style="color:inherit;"><strong>control cascade</strong></a> below, which makes them compliant, collision-free, and real.</span></div>
+  </div>
+</div></section>
+
+<!-- ─── THE CONTROL CASCADE (nested loops) ─── -->
+<section class="soft-sec pad-y" id="cascade"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">The cascade</span><h2 class="display-md title">Three nested loops, <span class="italic accent">one motion.</span></h2></div>
+    <p class="lede">A command doesn't go straight to the motors. It descends through three loops nested one inside the next — the outer one slow and soft, the inner one fast and precise. Each takes a clear <strong style="color:#C6301A;">input</strong>, does one job, and hands a clear <strong style="color:#2f9d5b;">output</strong> to the loop inside it. Sensed force climbs back out the way it came.</p></div>
+
+  <div class="cl-wrap fade-up">
+    <div class="cl-flow">
+      <span class="cl-key"><span class="cl-dot cmd"></span> <b>Command</b> flows down &amp; inward — slower → faster</span>
+      <span class="cl-key"><span class="cl-dot fb"></span> <b>Sensed force</b> climbs back up &amp; outward</span>
+    </div>
+
+    <!-- page-level INPUT -->
+    <div class="cl-end in"><span class="tag">INPUT</span><span>From <a href="#retarget" style="color:inherit;">retargeting</a> — where the operator (or a policy) wants the hands to go, as a Cartesian velocity command \(v_{cmd}\).</span></div>
+    <div class="cl-down">↓</div>
+
+    <!-- OUTER: admittance -->
+    <div class="cl-loop cl-outer">
+      <div class="cl-head"><span class="cl-tier">LOOP&nbsp;1 · OUTER</span><span class="cl-name">Admittance — “make it soft”</span><span class="cl-hz">perception rate · GPU</span></div>
+      <p class="cl-does"><b>What it does:</b> turns a <em>felt push</em> into <em>yielding motion</em>. The robot gives way to contact instead of fighting it — so it's safe to touch and every teleop demo is back-drivable.</p>
+      <div class="cl-io">
+        <div class="cl-port in"><span class="lab">INPUT</span><div class="cl-pv">
+          <span class="cl-chip"><span class="sym">\(v_{cmd}\)</span> desired hand velocity (your intent)</span>
+          <span class="cl-chip"><span class="sym">\(F_{ext}\)</span> the force it feels (from the inner loop)</span>
+        </div></div>
+        <div class="cl-arrow">→</div>
+        <div class="cl-port out"><span class="lab">OUTPUT</span><div class="cl-pv">
+          <span class="cl-chip"><span class="sym">\(v_{ref}\)</span> a compliant velocity that gives way to contact</span>
+        </div></div>
+      </div>
+      <div class="cl-eqlab">Virtual mass–spring–damper → reference twist</div>
+      <div class="cl-eq">$$M_d\,\ddot{x}_c + D_d\,\dot{x}_c + K_d\,x_c = F_{ext} \qquad\Longrightarrow\qquad v_{ref} = v_{cmd} + \dot{x}_c$$</div>
+      <div class="cl-libs"><span>shared GPU memory</span><span>PyTorch / cuTENSOR</span><span>ZED Mini perception</span></div>
+
+      <!-- MIDDLE: cuRobo (nested inside outer) -->
+      <div class="cl-loop cl-mid">
+        <div class="cl-head"><span class="cl-tier">LOOP&nbsp;2 · MIDDLE</span><span class="cl-name">cuRobo — “make it safe”</span><span class="cl-hz">100–200 Hz · &lt;20 ms</span></div>
+        <p class="cl-does"><b>What it does:</b> finds a <em>collision-free, whole-body</em> way to deliver that velocity — spreading the motion across the swerve base and both arms, checked against a live 3-D map of the room. Thousands of candidate trajectories, in parallel on the GPU.</p>
+        <div class="cl-io">
+          <div class="cl-port in"><span class="lab">INPUT</span><div class="cl-pv">
+            <span class="cl-chip"><span class="sym">\(v_{ref}\)</span> the compliant velocity to achieve</span>
+          </div></div>
+          <div class="cl-arrow">→</div>
+          <div class="cl-port out"><span class="lab">OUTPUT</span><div class="cl-pv">
+            <span class="cl-chip"><span class="sym">\(q_d,\ \dot q_d\)</span> safe joint targets for all 51 joints</span>
+          </div></div>
+        </div>
+        <div class="cl-eqlab">Parallel trajectory optimization, hard safety constraints</div>
+        <div class="cl-eq">$$\min_{\text{seeds}}\ \mathcal{C}\big(q(t)\big) \quad \text{s.t.} \quad \underbrace{\mathrm{ESDF}(q)\ge 0}_{\text{room obstacles}},\ \ \underbrace{\mathrm{collisions}(q)\in \mathrm{ACM}}_{\text{hands may cooperate}}$$</div>
+        <div class="cl-libs"><span>NVIDIA cuRobo</span><span>nvblox ESDF</span><span>thousands of seeds</span><span>base + arms, one solve</span><span>ACM bimanual mask</span></div>
+
+        <!-- INNER: joint loop (nested inside middle) -->
+        <div class="cl-loop cl-inner">
+          <div class="cl-head"><span class="cl-tier">LOOP&nbsp;3 · INNER</span><span class="cl-name">Joint loop + gravity comp — “make it move”</span><span class="cl-hz">1 kHz · RTOS thread</span></div>
+          <p class="cl-does"><b>What it does:</b> computes the exact <em>motor torque</em> to hit those targets while cancelling each link's own weight — and senses contact with <em>no force sensor</em>, feeding that force back out to Loop&nbsp;1.</p>
+          <div class="cl-io">
+            <div class="cl-port in"><span class="lab">INPUT</span><div class="cl-pv">
+              <span class="cl-chip"><span class="sym">\(q_d,\ \dot q_d\)</span> safe joint targets</span>
+            </div></div>
+            <div class="cl-arrow">→</div>
+            <div class="cl-port out"><span class="lab">OUTPUT</span><div class="cl-pv">
+              <span class="cl-chip"><span class="sym">\(\tau\)</span> torque to the 51 actuators</span>
+              <span class="cl-chip"><span class="sym">\(r \rightarrow F_{ext}\)</span> sensed contact, back to Loop&nbsp;1</span>
+            </div></div>
+          </div>
+          <div class="cl-eqlab">PD + feedforward gravity · sensorless momentum observer</div>
+          <div class="cl-eq">$$\tau_{cmd} = K_p\,(q_d - q) + K_d\,(\dot q_d - \dot q) + G(q)$$
+$$r \approx \tau_{meas} - \big(\, M(q)\,\ddot q + C(q,\dot q)\,\dot q + G(q) \,\big)$$</div>
+          <div class="cl-libs"><span>Pinocchio / mj_inverse</span><span>RNEA gravity G(q)</span><span>quasi-direct-drive torque</span><span>sensorless force r</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cl-down">↓</div>
+    <!-- page-level OUTPUT -->
+    <div class="cl-end out"><span class="tag">OUTPUT</span><span>To the actuators — coordinated <strong>torque at 56 joints</strong>, gravity-compensated, collision-free, and compliant. The robot moves.</span></div>
+  </div>
+
+  <p class="table-note fade-up" style="margin-top:16px;">All three loops live in one <strong>zero-copy GPU address space</strong> on <strong>NVIDIA Jetson Thor</strong> — perception, motion generation, and admittance share memory with no copy; only the 1&nbsp;kHz dynamics thread sits on an isolated CPU core. Architecture per <em>Hierarchical GPU-Accelerated Control for Safe Teleoperation of Bimanual Mobile Manipulators</em> (<a href="#refs" style="color:var(--rust);">references</a>). The live viewers below are in-browser stand-ins for the <em>feel</em> of these loops, not the cuRobo/MuJoCo controller itself.</p>
+</div></section>
+
+<!-- ─── COMMAND IT (operate viewer) ─── -->
+<section class="pad-y" id="command"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Command it · interactive</span><h2 class="display-md title">Three ways to <span class="italic accent">drive it.</span></h2></div>
+    <p class="lede">Not compliance — command. You set the target and the whole-body layer moves the robot. Toggle a mode and drive it live.</p></div>
+
+  <div class="wbc-block fade-up" data-wbc-viewer="operate">
+    <div class="viewer-3d wbc-stage">
+    <canvas></canvas>
+    <div class="ph viewer-loading"><div class="ph-label">Loading MABEL · pick a mode</div></div>
+    <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
+    </button>
+    <div class="viewer-hint"><span class="dot-live"></span> Toggle mode · drive the command</div>
+    </div>
+
+    <div class="wbc-ctl">
+      <div class="wbc-ctl-head">
+        <span class="wbc-ctl-title">Control mode</span>
+        <button class="wbc-reset" data-wbc-reset>Reset</button>
+      </div>
+      <div class="wbc-seg" data-wbc-segments>
+        <button class="on" data-mode="nav">1 · Nav</button>
+        <button data-mode="arm">2 · Arm</button>
+        <button data-mode="whole">3 · Whole&nbsp;body</button>
+      </div>
+
+      <div class="wbc-row" data-wbc-group="nav">
+        <div class="wbc-row-top"><span class="lab">Forward v<sub>x</sub></span><span class="out" data-wbc-out="vx">0.00 m/s</span></div>
+        <input class="wbc-slider" type="range" data-wbc-slider="vx" data-def="0" min="-0.8" max="0.8" step="0.01" value="0" />
+      </div>
+      <div class="wbc-row" data-wbc-group="nav">
+        <div class="wbc-row-top"><span class="lab">Strafe v<sub>y</sub></span><span class="out" data-wbc-out="vy">0.00 m/s</span></div>
+        <input class="wbc-slider" type="range" data-wbc-slider="vy" data-def="0" min="-0.8" max="0.8" step="0.01" value="0" />
+      </div>
+      <div class="wbc-row" data-wbc-group="nav">
+        <div class="wbc-row-top"><span class="lab">Yaw rate ω</span><span class="out" data-wbc-out="w">0.0 rad/s</span></div>
+        <input class="wbc-slider" type="range" data-wbc-slider="w" data-def="0" min="-2" max="2" step="0.05" value="0" />
+      </div>
+      <div class="wbc-row" data-wbc-group="nav">
+        <div class="wbc-row-top"><span class="lab">Lift height</span><span class="out" data-wbc-out="lift">0 cm</span></div>
+        <input class="wbc-slider" type="range" data-wbc-slider="lift" data-def="0" min="0" max="0.635" step="0.005" value="0" />
+      </div>
+      <p class="wbc-note" data-wbc-group="nav">Swerve base, holonomic. Caps: 0.8&nbsp;m/s linear, 2.0&nbsp;rad/s yaw — the tip-over model trims them as the lift rises.</p>
+
+      <div class="wbc-row" data-wbc-group="arm whole" style="border:none;padding-bottom:0;">
+        <div class="wbc-row-top"><span class="lab">Commanding hand</span></div>
+        <div class="wbc-seg" data-wbc-hand>
+          <button class="on" data-hand-side="l">Left palm</button>
+          <button data-hand-side="r">Right palm</button>
+        </div>
+      </div>
+      <div class="wbc-pad-wrap" data-wbc-group="arm whole">
+        <div class="wbc-pad" data-wbc-pad><span class="wbc-knob"></span></div>
+        <div class="wbc-pad-axes"><span>X&nbsp;<b data-wbc-out="padx">+0.00 m</b></span><span>Y&nbsp;<b data-wbc-out="pady">+0.00 m</b></span></div>
+      </div>
+      <div class="wbc-row" data-wbc-group="arm whole">
+        <div class="wbc-row-top"><span class="lab">Palm height Z</span><span class="out" data-wbc-out="armZ">+0 cm</span></div>
+        <input class="wbc-slider" type="range" data-wbc-slider="armZ" data-def="0" min="-0.3" max="0.4" step="0.005" value="0" />
+      </div>
+      <p class="wbc-note" data-wbc-group="arm">Pick a hand, then move the joystick — its <span class="green">green palm tracking point</span> follows and that arm tracks it by IK. Both palms are tracked bimanually; base and lift are held.</p>
+      <p class="wbc-note" data-wbc-group="whole">Same <span class="green">green palm targets</span>, but now the swerve base follows the hand centroid through the comfort box, and the lift &amp; torso are jointly engaged — lazier (50× / 2× weighted) — to keep both hands in reach.</p>
+    </div>
+  </div>
+  <p class="table-note fade-up" style="margin-top:14px;"><strong>Nav</strong> drives the swerve base + lift; <strong>Arm</strong> moves both palms in Cartesian space with the base &amp; lift frozen; <strong>Whole body</strong> adds the lazy base follower and engages the lift/torso so the hands stay in their dexterous range. The green points are the <code>left_palm</code> / <code>right_palm</code> targets the real <code>mabel/wbc.py</code> tracks.</p>
+</div></section>
+
+<!-- ─── FEEL IT (compliance viewer) ─── -->
+<section class="dark-sec pad-y" id="feel"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Feel it · interactive</span><h2 class="display-md title" style="color:var(--bone);">Strong, but <span class="italic accent">soft.</span></h2></div>
+    <p class="lede">This is the outer admittance loop made tactile. Model-based torque makes the arms weightless to push and gentle on contact. Grab a hand below and feel it — two modes, one controller.</p></div>
+
+  <div class="wbc-block fade-up" data-wbc-viewer="compliance">
+    <div class="viewer-3d wbc-stage">
+    <canvas></canvas>
+    <div class="ph dark viewer-loading"><div class="ph-label">Loading MABEL · grab a hand</div></div>
+    <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
+    </button>
+    <div class="viewer-hint"><span class="dot-live"></span> Grab a hand · drag · release</div>
+    </div>
+
+    <div class="wbc-ctl">
+      <div class="wbc-ctl-head">
+        <span class="wbc-ctl-title">Mode</span>
+        <button class="wbc-reset" data-wbc-reset>Reset</button>
+      </div>
+      <div class="wbc-seg" data-wbc-segments>
+        <button class="on" data-mode="gravity">Gravity&nbsp;comp</button>
+        <button data-mode="compliance">Compliance</button>
+      </div>
+      <p class="wbc-note" data-wbc-status>Gravity comp only — the arm floats and holds wherever you leave it; the base stays put.</p>
+      <p class="wbc-note">Grab a <b style="color:var(--rust);">rust palm handle</b> and drag — the gravity-comp arm is back-drivable and <strong>stays where you let go</strong> (no spring). In <strong>Compliance</strong>, push it past the comfort box and the whole <strong>base glides</strong> with you, then coasts to a stop. The arrow shows the drag wrench <code>F<sub>ext</sub></code>.</p>
+    </div>
+  </div>
+
+  <div class="feature fade-up" style="margin-top:18px;">
+    <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">τ = G(q) — feedforward against gravity</div></div></div>
+    <div class="feature-copy">
+      <span class="eyebrow">Mode 1 · Gravity compensation</span>
+      <h3>The arm floats.</h3>
+      <p>A full rigid-body model computes the gravity torque <em>G(q)</em> for every link and feeds it forward, so each joint exactly holds its own weight. The arms become weightless and back-drivable — guide them with a fingertip and they stay where you leave them. This is the inner loop's feedforward term, and the backbone of kinesthetic teaching and safe shared workspaces.</p>
+      <div class="spec"><span>Inverse dynamics G(q)</span><span>Feedforward torque</span><span>Lazy torso/lift</span><span>Backdrivable</span></div>
+    </div>
+  </div>
+
+  <div class="feature flip fade-up">
+    <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">M<sub>d</sub> ẍ<sub>c</sub> + D<sub>d</sub> ẋ<sub>c</sub> + K<sub>d</sub> x<sub>c</sub> = F<sub>ext</sub></div></div></div>
+    <div class="feature-copy">
+      <span class="eyebrow">Mode 2 · Whole-body compliance</span>
+      <h3>Push the arm, move the robot.</h3>
+      <p>The external wrench is <em>estimated from joint torque</em> by the momentum observer — no force sensor — and fed to the outer <strong>admittance</strong> loop. The base behaves as a virtual planar mass–spring–damper: push an arm past its comfortable workspace and the whole robot <strong>glides</strong> with you, then <strong>coasts to a stop</strong>. The exact same residual <code>r</code> runs on hardware off the motor torque feedback.</p>
+      <div class="spec"><span>Torque-estimated wrench</span><span>Base admittance</span><span>Coulomb + kinetic stop</span><span>Sensorless</span></div>
+    </div>
+  </div>
+  <p class="table-note fade-up" style="margin-top:14px; color:var(--ash-light); font-style:italic; opacity:0.9;">The two viewers are lightweight in-browser re-implementations that reflect the idea (kinematic IK on the rig), not the MuJoCo/cuRobo controller. To run the real one: <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" style="color:var(--rust);">github.com/robotmabel/MABEL</a> → <code>simulation/mabel_mujoco</code>.</p>
+</div></section>
+
+<!-- ─── INTERNALS ─── -->
+<section class="pad-y" id="internals"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Under the hood</span><h2 class="display-md title">Redundancy, <span class="italic accent">resolved.</span></h2></div>
+    <p class="lede">Fifty-one joints, one objective. Here's how the extra freedom gets used.</p></div>
+  <div class="points fade-up">
+    <div class="point"><div class="num">01</div><div><h5>Null-space posture</h5><p>Base, lift, torso, and arm joints solve jointly. The spare freedom maximizes manipulability and stays clear of joint limits — MABEL rarely paints itself into a corner.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Mobile base in the loop</h5><p>The holonomic base is part of the reach. Far target? cuRobo drives the body. Fine work? Hold still and let the wrist talk.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Bimanual coupling</h5><p>The ACM masks hand-to-hand collision pairs so the two hands can cooperate — carry a tray, open a lid — without the safety filter fighting itself.</p></div></div>
+    <div class="point"><div class="num">04</div><div><h5>Torque at the actuator</h5><p>Quasi-direct-drive motors close a high-rate current loop, so commanded torques become real ones — the foundation gravity comp and admittance stand on. See <a href="build.html#firmware" style="color:var(--rust);">firmware</a> for the bus and timing.</p></div></div>
+    <div class="point"><div class="num">05</div><div><h5>Perception in the safety loop</h5><p>The ZED&nbsp;Mini point cloud becomes an nvblox ESDF the middle loop checks every candidate against — the obstacle map and the motion plan live in the same GPU memory. See <a href="software.html" style="color:var(--rust);">software</a>.</p></div></div>
+    <div class="point"><div class="num">06</div><div><h5>Shared with everything</h5><p>The same cascade serves <a href="teleop.html" style="color:var(--rust);">teleop</a> and <a href="autonomy.html" style="color:var(--rust);">learned policies</a>. They supply intent; the cascade makes it feasible, safe, and smooth.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ─── REFERENCES ─── -->
+<section class="soft-sec pad-y" id="refs"><div class="wrap-narrow">
+  <div class="sec-head-center fade-up"><span class="eyebrow">References</span><h2 class="display-md">Standing on <span class="italic accent">real work.</span></h2></div>
+  <div class="points fade-up" style="margin-top:8px;">
+    <div class="point"><div class="num">[1]</div><div><h5>Operational-space control</h5><p>O. Khatib, “A Unified Approach for Motion and Force Control of Robot Manipulators: The Operational Space Formulation,” <em>IEEE J. Robotics &amp; Automation</em>, 1987.</p></div></div>
+    <div class="point"><div class="num">[2]</div><div><h5>cuRobo</h5><p>Sundaralingam et al., “cuRobo: Parallelized Collision-Free Motion Generation,” NVIDIA, 2023.</p></div></div>
+    <div class="point"><div class="num">[3]</div><div><h5>nvblox</h5><p>NVIDIA Isaac ROS, “nvblox: GPU-Accelerated 3D Scene Reconstruction and Obstacle Avoidance,” 2022.</p></div></div>
+    <div class="point"><div class="num">[4]</div><div><h5>Pinocchio</h5><p>J. Carpentier et al., “The Pinocchio C++ library — fast, flexible rigid-body dynamics and analytical derivatives,” <em>IEEE SII</em>, 2019.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ─── CTA ─── -->
+<section class="pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Intent in, coordinated whole-body motion out.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="teleop.html" class="btn btn-primary">← Teleop the robot</a>
+      <a href="autonomy.html" class="btn btn-ghost">Autonomy: learned policies →</a>
+      <a href="autonomy.html#navigation" class="btn btn-ghost">Navigation →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WBC (merged from wbc.html) ═══ -->
+<!-- ─── CORE ─── -->
+<section class="pad-y" id="wbc">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The controller</span>
+        <h2 class="display-md title">One program, <span class="italic accent">every joint.</span></h2>
+      </div>
+      <p class="lede">Each control step solves a quadratic program: hit the target, respect the limits, stay comfortable.</p>
+    </div>
+
+    <div class="feature fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph"><div class="ph-label">WBC · QP block diagram</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">QP formulation</span>
+        <h3>Solve, don't script.</h3>
+        <p>Track the commanded pose, obey joint, velocity, and self-collision limits, and regularize toward a natural posture — all as one quadratic program, every cycle. The base strafes, the lift rises, the torso leans, so the hand lands in its most dexterous range. Automatically.</p>
+        <div class="spec"><span>Task + posture costs</span><span>Hard limits</span><span>Self-collision aware</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── OPERATING MODES (interactive, command-driven) ─── -->
+<section class="pad-y" id="modes">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Operating modes · interactive</span>
+        <h2 class="display-md title">Three ways to <span class="italic accent">command it.</span></h2>
+      </div>
+      <p class="lede">Not compliance — control. No pushing, no external force: you set the command and the whole-body controller moves the robot. Toggle a mode and drive it live.</p>
+    </div>
+
+    <!-- live command viewer: nav / arm / whole body -->
+    <div class="wbc-block fade-up" data-wbc-viewer="operate">
+      <div class="viewer-3d wbc-stage">
+      <canvas></canvas>
+      <div class="ph viewer-loading"><div class="ph-label">Loading MABEL · pick a mode</div></div>
+      <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
+      </button>
+      <div class="viewer-hint"><span class="dot-live"></span> Toggle mode · drive the command</div>
+      </div><!-- /wbc-stage -->
+
+      <div class="wbc-ctl">
+        <div class="wbc-ctl-head">
+          <span class="wbc-ctl-title">Control mode</span>
+          <button class="wbc-reset" data-wbc-reset>Reset</button>
+        </div>
+        <div class="wbc-seg" data-wbc-segments>
+          <button class="on" data-mode="nav">1 · Nav</button>
+          <button data-mode="arm">2 · Arm</button>
+          <button data-mode="whole">3 · Whole&nbsp;body</button>
+        </div>
+
+        <!-- NAV: velocity / angular-velocity / lift sliders -->
+        <div class="wbc-row" data-wbc-group="nav">
+          <div class="wbc-row-top"><span class="lab">Forward v<sub>x</sub></span><span class="out" data-wbc-out="vx">0.00 m/s</span></div>
+          <input class="wbc-slider" type="range" data-wbc-slider="vx" data-def="0" min="-0.8" max="0.8" step="0.01" value="0" />
+        </div>
+        <div class="wbc-row" data-wbc-group="nav">
+          <div class="wbc-row-top"><span class="lab">Strafe v<sub>y</sub></span><span class="out" data-wbc-out="vy">0.00 m/s</span></div>
+          <input class="wbc-slider" type="range" data-wbc-slider="vy" data-def="0" min="-0.8" max="0.8" step="0.01" value="0" />
+        </div>
+        <div class="wbc-row" data-wbc-group="nav">
+          <div class="wbc-row-top"><span class="lab">Yaw rate ω</span><span class="out" data-wbc-out="w">0.0 rad/s</span></div>
+          <input class="wbc-slider" type="range" data-wbc-slider="w" data-def="0" min="-2" max="2" step="0.05" value="0" />
+        </div>
+        <div class="wbc-row" data-wbc-group="nav">
+          <div class="wbc-row-top"><span class="lab">Lift height</span><span class="out" data-wbc-out="lift">0 cm</span></div>
+          <input class="wbc-slider" type="range" data-wbc-slider="lift" data-def="0" min="0" max="0.635" step="0.005" value="0" />
+        </div>
+        <p class="wbc-note" data-wbc-group="nav">Swerve base, holonomic. Caps: 0.8&nbsp;m/s linear, 2.0&nbsp;rad/s yaw — the tip-over model trims them as the lift rises.</p>
+
+        <!-- ARM / WHOLE: per-hand toggle, then joystick + Z move that palm target -->
+        <div class="wbc-row" data-wbc-group="arm whole" style="border:none;padding-bottom:0;">
+          <div class="wbc-row-top"><span class="lab">Commanding hand</span></div>
+          <div class="wbc-seg" data-wbc-hand>
+            <button class="on" data-hand-side="l">Left palm</button>
+            <button data-hand-side="r">Right palm</button>
+          </div>
+        </div>
+        <div class="wbc-pad-wrap" data-wbc-group="arm whole">
+          <div class="wbc-pad" data-wbc-pad><span class="wbc-knob"></span></div>
+          <div class="wbc-pad-axes"><span>X&nbsp;<b data-wbc-out="padx">+0.00 m</b></span><span>Y&nbsp;<b data-wbc-out="pady">+0.00 m</b></span></div>
+        </div>
+        <div class="wbc-row" data-wbc-group="arm whole">
+          <div class="wbc-row-top"><span class="lab">Palm height Z</span><span class="out" data-wbc-out="armZ">+0 cm</span></div>
+          <input class="wbc-slider" type="range" data-wbc-slider="armZ" data-def="0" min="-0.3" max="0.4" step="0.005" value="0" />
+        </div>
+        <p class="wbc-note" data-wbc-group="arm">Pick a hand, then move the joystick — its <span class="green">green palm tracking point</span> follows and that arm tracks it by IK. Both palms are tracked bimanually; base and lift are held.</p>
+        <p class="wbc-note" data-wbc-group="whole">Same <span class="green">green palm targets</span>, but now the swerve base follows the hand centroid through the comfort box, and the lift &amp; torso are jointly engaged — lazier (50× / 2× weighted) — to keep both hands in reach.</p>
+      </div>
+    </div>
+    <p class="table-note fade-up" style="margin-top:14px;">Mirrors <code>teleop_keyboard.py</code> (TAB cycles the three modes) — but instead of holding arrow keys, you set the commands directly. <strong>Nav</strong> drives the swerve base + lift; <strong>Arm</strong> moves both palms in Cartesian space with the base &amp; lift frozen; <strong>Whole body</strong> adds the lazy base follower and engages the lift/torso so the hands stay in their dexterous range. The green points are the <code>left_palm</code> / <code>right_palm</code> targets the real <code>mabel/wbc.py</code> controller tracks.</p>
+    <p class="table-note fade-up" style="margin-top:8px; font-style:italic; opacity:0.85;">Note: this in-browser viewer is a lightweight <strong>re-implementation that reflects the idea</strong> of the controller (kinematic IK on the rig), not the actual MuJoCo whole-body controller. To run the real thing, see <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" style="color:var(--rust);">github.com/robotmabel/MABEL</a> → <code>simulation/mabel_mujoco</code>.</p>
+  </div>
+</section>
+
+<!-- ─── GRAVITY + COMPLIANCE (interactive) ─── -->
+<section class="dark-sec pad-y" id="compliance">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Feel · interactive</span>
+        <h2 class="display-md title" style="color:var(--bone);">Strong, but <span class="italic accent">soft.</span></h2>
+      </div>
+      <p class="lede">Model-based torque makes the arms weightless to push and gentle on contact. Grab a hand below and feel it — two modes, one controller.</p>
+    </div>
+
+    <!-- live drag-to-comply viewer -->
+    <div class="wbc-block fade-up" data-wbc-viewer="compliance">
+      <div class="viewer-3d wbc-stage">
+      <canvas></canvas>
+      <div class="ph dark viewer-loading"><div class="ph-label">Loading MABEL · grab a hand</div></div>
+      <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
+      </button>
+      <div class="viewer-hint"><span class="dot-live"></span> Grab a hand · drag · release</div>
+      </div><!-- /wbc-stage -->
+
+      <div class="wbc-ctl">
+        <div class="wbc-ctl-head">
+          <span class="wbc-ctl-title">Mode</span>
+          <button class="wbc-reset" data-wbc-reset>Reset</button>
+        </div>
+        <div class="wbc-seg" data-wbc-segments>
+          <button class="on" data-mode="gravity">Gravity&nbsp;comp</button>
+          <button data-mode="compliance">Compliance</button>
+        </div>
+        <p class="wbc-note" data-wbc-status>Gravity comp only — the arm floats and holds wherever you leave it; the base stays put.</p>
+        <p class="wbc-note">Grab a <b style="color:var(--rust);">rust palm handle</b> and drag — the gravity-comp arm is back-drivable and <strong>stays where you let go</strong> (no spring). In <strong>Compliance</strong>, push it past the comfort box and the whole <strong>base glides</strong> with you, then coasts to a stop. The arrow shows the drag wrench.</p>
+      </div>
+    </div>
+    <p class="table-note fade-up" style="margin-top:14px; color:var(--ash-light);">A browser stand-in for the MuJoCo demos: <code>gravity_compensation.py</code> (arms float) and <code>whole_body_armguide_torque.py</code> (the base admits the drag wrench). In sim, Ctrl-drag an arm body applies a real wrench; here, dragging the palm handle plays that role.</p>
+    <p class="table-note fade-up" style="margin-top:8px; font-style:italic; color:var(--ash-light); opacity:0.9;">Note: this viewer is a lightweight <strong>re-implementation that reflects the idea</strong> of the compliance controller, not the actual MuJoCo admittance controller under <code>simulation/</code>. To run the real one, see <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" style="color:var(--rust);">github.com/robotmabel/MABEL</a> → <code>simulation/mabel_mujoco</code> (<code>gravity_compensation.py</code>, <code>whole_body_armguide_torque.py</code>).</p>
+
+    <div class="feature fade-up" style="margin-top:8px;">
+      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">τ = g(q) — feedforward against gravity</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Mode 1 · Gravity compensation</span>
+        <h3>The arm floats.</h3>
+        <p>A full rigid-body model computes the gravity torque <em>g(q)</em> for every link and feeds it forward, so each joint exactly holds its own weight. The arms become weightless and back-drivable — guide them with a fingertip and they stay where you leave them, with no spring pulling back. The torso and lift run <em>lazy</em> (gravity-held, heavily damped); the base, neck, and hands stay locked. This is the backbone of kinesthetic teaching and safe shared workspaces.</p>
+        <div class="spec"><span>Inverse dynamics g(q)</span><span>Feedforward torque</span><span>Lazy torso/lift</span><span>Backdrivable</span></div>
+      </div>
+    </div>
+
+    <div class="feature flip fade-up">
+      <div class="feature-media media-frame r-43"><div class="ph dark"><div class="ph-label">m v̇ = f<sub>ext</sub> − b v — base admittance</div></div></div>
+      <div class="feature-copy">
+        <span class="eyebrow">Mode 2 · Whole-body compliance</span>
+        <h3>Push the arm, move the robot.</h3>
+        <p>Gravity comp keeps the arms back-drivable; the external wrench is then <em>estimated from joint torque</em> (a generalized-momentum observer maps <em>τ<sub>ext</sub></em> through <em>(J<sup>T</sup>)<sup>#</sup></em> to a Cartesian force — no force sensor) and fed to a <strong>base admittance</strong>. The base behaves as a virtual planar mass-damper, <em>m&nbsp;v̇ = f<sub>ext</sub> − b&nbsp;v</em>, with a Coulomb deadband and a kinetic stop: push an arm past its comfortable workspace and the whole robot <strong>glides</strong> along with you, then <strong>coasts to a stop</strong> when you let go — it neither springs back nor rolls forever. The exact same code runs on hardware off the motor torque feedback.</p>
+        <div class="spec"><span>Torque-estimated wrench</span><span>Base admittance m v̇=f−bv</span><span>Coulomb + kinetic stop</span><span>Sensorless</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DETAILS ─── -->
+<section class="pad-y">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Under the hood</span>
+        <h2 class="display-md title">Redundancy, <span class="italic accent">resolved.</span></h2>
+      </div>
+      <p class="lede">Fifty-one joints, one objective. Here's how the extra freedom gets used.</p>
+    </div>
+
+    <div class="points fade-up">
+      <div class="point"><div class="num">01</div><div>
+        <h5>Null-space posture</h5>
+        <p>Base, lift, torso, and arm joints solve jointly. The spare freedom maximizes manipulability and stays clear of joint limits — MABEL rarely paints itself into a corner.</p>
+      </div></div>
+      <div class="point"><div class="num">02</div><div>
+        <h5>Mobile base in the loop</h5>
+        <p>The holonomic base is part of the reach. Far target? Drive the body. Fine work? Hold still and let the wrist talk.</p>
+      </div></div>
+      <div class="point"><div class="num">03</div><div>
+        <h5>Bimanual coupling</h5>
+        <p>A relative-pose constraint locks the two hands together while the body moves freely — carry a tray, open a lid, never drop the grasp.</p>
+      </div></div>
+      <div class="point"><div class="num">04</div><div>
+        <h5>Torque at the actuator</h5>
+        <p>Quasi-direct-drive motors close a high-rate current loop, so commanded torques become real ones — the foundation gravity comp and impedance stand on. See <a href="software.html#ros" style="color:var(--rust);">ROS</a> for the bus and timing.</p>
+      </div></div>
+      <div class="point"><div class="num">05</div><div>
+        <h5>Collision-aware planning</h5>
+        <p>For arm and torso motions that need foresight, MoveIt2 plans collision-checked paths against the shared URDF; a small arbiter decides — per actuator group, per moment — whether the planner or the reactive controller holds authority.</p>
+      </div></div>
+      <div class="point"><div class="num">06</div><div>
+        <h5>One observation graph</h5>
+        <p>Head RGB-D, wrist cameras, joint encoders, LiDAR, and IMU are time-synchronized into a single ROS&nbsp;2 graph, so the controller, the planner, and any policy all read the same source of truth. See <a href="software.html#ros" style="color:var(--rust);">ROS</a>.</p>
+      </div></div>
+      <div class="point"><div class="num">07</div><div>
+        <h5>Shared with everything</h5>
+        <p>The same controller serves <a href="teleop.html" style="color:var(--rust);">teleop</a> and <a href="autonomy.html#learning" style="color:var(--rust);">learned policies</a>. They supply intent; the whole-body layer makes it feasible, safe, and smooth.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="soft-sec pad-y">
+  <div class="wrap-narrow" style="text-align:center;">
+    <h2 class="display-sm fade-up" style="margin-bottom:24px;">A 6-DOF wish, 51 joints of motion.</h2>
+    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="software.html#simulation" class="btn btn-ghost">← Simulation</a>
+      <a href="teleop.html" class="btn btn-primary">Next: Teleop →</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ FROM THE PAPER ═══ -->
+<section class="soft-sec pad-y" id="paper-figs">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">From the paper</span>
+        <h2 class="display-md title">Numbers, <span class="italic accent">not vibes.</span></h2>
+      </div>
+      <p class="lede">The controller evaluation — every row measured on the digital twin running the production control code.</p>
+    </div>
+    <div class="paper-grid fade-up">
+      <div>
+        <div class="paper-fig"><img src="assets/paper/09_tipover_envelope.jpg" alt="The lift-aware tip-over envelope: a speed pulse that tilts the bare platform 13.1° passes at 0.1° with the envelope on." loading="lazy" /></div>
+        <span class="fig-label paper-fig-cap"><b>Fig. 9</b> The lift-aware tip-over envelope: a speed pulse that tilts the bare platform 13.1° passes at 0.1° with the envelope on.</span>
+      </div>
+      <div>
+        <div class="paper-fig"><img src="assets/paper/08_motion_model_panel.jpg" alt="The motion model panel — support polygon, CoM travel with lift height, and the velocity trims they impose." loading="lazy" /></div>
+        <span class="fig-label paper-fig-cap"><b>Fig. 8</b> The motion model panel — support polygon, CoM travel with lift height, and the velocity trims they impose.</span>
+      </div>
+    </div>
+    <div class="fade-up" style="margin-top:clamp(32px,5vh,52px);">
+      <p class="caption-box" style="margin-bottom:22px;">Measured on the twin · production control code</p>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Property</th><th>Metric</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Gravity-comp hold</td><td>arm drift in 3 s</td><td class="hi">&lt; 0.1 rad</td></tr>
+            <tr><td>— uncompensated</td><td>arm sag in 3 s</td><td>&gt; 1 rad</td></tr>
+            <tr><td>Felt residual (±40% mass error)</td><td>joint torque</td><td>&lt; 0.06 N·m</td></tr>
+            <tr><td>Wrench estimate</td><td>30 N at the end-effector</td><td>≈ 4 N</td></tr>
+            <tr><td>Contact localization</td><td>force / point</td><td>0.5 N / 1.7 cm</td></tr>
+            <tr><td>Support margin (bare)</td><td>CoM to edge</td><td>9.4 cm</td></tr>
+            <tr><td>Static tip payload</td><td>lift 0 / 0.30 / 0.64 m</td><td>18 / 16 / 14 kg</td></tr>
+            <tr class="best"><td>Dynamic tilt, speed pulse</td><td>envelope off / on</td><td class="hi">13.1° / 0.1°</td></tr>
+            <tr><td>Self-collision, hand→chest</td><td>unguarded / guarded</td><td>−3.5 / +4.1 cm</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="#" target="_blank" rel="noopener">Discord ↗</a></div></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#navigation">Navigation</a><a href="autonomy.html">Autonomy</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="bom.html">Bill of materials</a><a href="hardware.html#build">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Connect</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Cheng et al · MIT License</span><span>Built with love · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/mabel.js"></script>
+<script>
+(function () {
+  var boot = document.getElementById('simBoot');
+  if (boot) boot.addEventListener('click', function () {
+    var stage = document.getElementById('simStage');
+    var f = document.createElement('iframe');
+    f.src = 'simulator.html?embed=1'; f.allow = 'fullscreen'; f.title = 'MABEL browser simulator';
+    stage.innerHTML = ''; stage.appendChild(f);
+  });
+})();
+</script>
+<script type="module" src="assets/wbc-viewer.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+</body>
+</html>

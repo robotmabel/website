@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MABEL — a friendly home robot">
+  <!-- warm orange tile: a personal robot in every home -->
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="#F0762E"/>
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#151820" stroke-width="2" opacity="0.9"/>
+
+  <!-- antennas -->
+  <g stroke="#FFF9F0" stroke-width="3.4" stroke-linecap="round">
+    <line x1="22" y1="21" x2="15" y2="8"/>
+    <line x1="42" y1="21" x2="49" y2="8"/>
+  </g>
+  <circle cx="15" cy="8" r="2.6" fill="#FFF9F0"/>
+  <circle cx="49" cy="8" r="2.6" fill="#FFF9F0"/>
+
+  <!-- head -->
+  <rect x="10" y="20" width="44" height="28" rx="13" fill="#FFF9F0" stroke="#151820" stroke-width="3"/>
+  <!-- the orange face rim from the real head -->
+  <rect x="14.5" y="24.5" width="35" height="19" rx="9" fill="none" stroke="#F0762E" stroke-width="2.4"/>
+
+  <!-- camera eyes -->
+  <circle cx="24.5" cy="32.5" r="4.6" fill="#151820"/>
+  <circle cx="39.5" cy="32.5" r="4.6" fill="#151820"/>
+  <circle cx="26.1" cy="30.9" r="1.6" fill="#FFF9F0"/>
+  <circle cx="41.1" cy="30.9" r="1.6" fill="#FFF9F0"/>
+
+  <!-- little smile -->
+  <path d="M28.5 39.5 q3.5 2.8 7 0" fill="none" stroke="#151820" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- neck stub -->
+  <rect x="28" y="48" width="8" height="7" rx="2.5" fill="#FFF9F0" stroke="#151820" stroke-width="2.4"/>
+</svg>
