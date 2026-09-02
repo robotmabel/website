@@ -3330,3 +3330,9 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   .data-table th, .data-table td { padding: 6px 4px !important; }
   .data-table td:first-child, .data-table th:first-child { max-width: 46%; }
 }
+/* the graph's buses carry real topic names, so they need to wrap and breathe */
+.rg-bus code { display: inline-block; margin: 2px 4px 2px 0; padding: 1px 5px;
+  border-radius: 3px; background: rgba(21,24,32,0.16); font-size: 10.5px; }
+.rg-bus { line-height: 1.9; }
+.rg-tile.gold { background: var(--yellow); }
+.rg-tile.green { background: #DDEBDF; }

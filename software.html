@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=d7eda0c7" />
+<link rel="stylesheet" href="assets/mabel.css?v=d8097325" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -80,29 +80,52 @@
     </div>
 
     <div class="ros-game fade-up">
-      <div class="rg-head"><span class="rg-title">MABEL_WS · LIVE GRAPH</span><span class="rg-coin">▶ P1: TELEOP &nbsp; P2: AUTONOMY</span></div>
+      <div class="rg-head"><span class="rg-title">MABEL_WS · THE ROS 2 GRAPH</span><span class="rg-coin">every topic below is real</span></div>
+
       <div class="rg-row">
         <div class="rg-tile blue"><b>teleop</b><span>Vision Pro · iPhone · web</span></div>
-        <div class="rg-tile blue"><b>autonomy</b><span>Nav2 · policies · WBC</span></div>
+        <div class="rg-tile blue"><b>Nav2</b><span>NavFn A* → MPPI</span></div>
+        <div class="rg-tile blue"><b>policy</b><span>ACT · DiT</span></div>
       </div>
-      <div class="rg-bus blue"><span class="rg-blink">▼</span> COMMAND TOPICS <code>/mabel_cmd /arms /hands /body</code></div>
+
+      <div class="rg-bus blue"><span class="rg-blink">▼</span> COMMANDS
+        <code>/mabel_cmd</code> <code>/nav/mabel_cmd</code> <code>/cmd_vel</code>
+        <code>/goal_pose</code> <code>/arms/command</code> <code>/body/command</code>
+        <code>/lift/command</code> <code>/left_hand/command</code> <code>/right_hand/command</code></div>
+
       <div class="rg-row rg-wrap">
-        <div class="rg-tile orange"><b>swerve_node</b><span>base + lift</span></div>
+        <div class="rg-tile orange"><b>swerve_node</b><span>base · 3 modules</span></div>
+        <div class="rg-tile orange"><b>lift_node</b><span>0.635 m column</span></div>
         <div class="rg-tile orange"><b>body_node</b><span>torso · neck</span></div>
-        <div class="rg-tile orange"><b>arms_node</b><span>14-DOF arms</span></div>
-        <div class="rg-tile orange"><b>orca_hands</b><span>2× 17-DOF</span></div>
-        <div class="rg-tile green"><b>head_stereo</b><span>ZED eyes</span></div>
+        <div class="rg-tile orange"><b>arms_node</b><span>2 × 7 DOF</span></div>
+        <div class="rg-tile orange"><b>orca_hands</b><span>2 × 17 DOF</span></div>
+        <div class="rg-tile green"><b>zed / front cam</b><span>stereo + depth</span></div>
         <div class="rg-tile green"><b>wrist_cams</b><span>L + R</span></div>
-        <div class="rg-tile green"><b>rplidar</b><span>2-D LiDAR</span></div>
-        <div class="rg-tile yellow"><b>mujoco_sim</b><span>use_sim:=true</span></div>
+        <div class="rg-tile green"><b>rplidar</b><span>720 pts · 12 m</span></div>
+        <div class="rg-tile gold"><b>mujoco_sim</b><span>use_sim:=true</span></div>
       </div>
-      <div class="rg-bus green"><span class="rg-blink">▲</span> STATE TOPICS <code>/joint_states /odom /images /scan</code></div>
-      <div class="rg-row">
-        <div class="rg-tile"><b>whole_body_control</b><span>IK · compliance</span></div>
-        <div class="rg-tile"><b>nav2 · slam</b><span>map · localize</span></div>
-        <div class="rg-tile"><b>learning</b><span>log · train</span></div>
+
+      <div class="rg-bus green"><span class="rg-blink">▲</span> STATE
+        <code>/joint_states</code> <code>/arms/joint_states</code> <code>/body/joint_states</code>
+        <code>/base/joint_states</code> <code>/lift/joint_states</code>
+        <code>/left_hand/joint_states</code> <code>/right_hand/joint_states</code>
+        <code>/odom</code> <code>/odom_laser</code> <code>/scan</code>
+        <code>/camera/front/color/image_raw</code> <code>/camera/zed/left/image_raw</code>
+        <code>/tf</code> <code>/clock</code></div>
+
+      <div class="rg-row rg-wrap">
+        <div class="rg-tile"><b>whole_body_control</b><span>IK · compliance · tip-safe</span></div>
+        <div class="rg-tile"><b>slam_toolbox</b><span>/map · map→odom</span></div>
+        <div class="rg-tile"><b>cuvslam + nvblox</b><span>/visual_slam/tracking/odometry</span></div>
+        <div class="rg-tile"><b>collector</b><span>episode_XXXX.h5</span></div>
       </div>
-    </div>
+
+      <div class="rg-bus" style="background:var(--panel); color:var(--ink);">
+        <span class="rg-blink">◆</span> MAPS &amp; PLANS
+        <code>/map</code> <code>/map_lidar</code> <code>/map_visual</code>
+        <code>/map_costmap</code> <code>/plan</code>
+        <code>/visual_slam/tracking/odometry</code> <code>/odom_ground_truth</code></div>
+    </div>>
   </div>
 </section>
 
