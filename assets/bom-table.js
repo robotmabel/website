@@ -141,6 +141,43 @@
     return 'generic';
   }
 
+  /* ── where to buy each line ───────────────────────────────────────────
+     Only 8 of the 49 lines carry an explicit URL, so the rest are resolved
+     from what the BOM actually records about them:
+       Taobao lines  → the authored Chinese search string in MABEL_BOM.taobao
+                       (matched by ref), which is how these parts were sourced
+       amazon lines  → an Amazon search on the part and its spec
+       custom parts  → no external seller: these are fabricated, so they point
+                       at the machining schedule instead
+     Every row is therefore clickable, and no link is invented. */
+  var TAOBAO = {};
+  (window.MABEL_BOM.taobao || []).forEach(function (t) {
+    String(t.refs || '').split(',').forEach(function (ref) {
+      ref = ref.trim();
+      if (ref) TAOBAO[ref] = t;
+    });
+  });
+
+  function buyLink(r) {
+    if (r.link) return { url: r.link, label: r.vendor || 'vendor', kind: 'direct' };
+    var v = (r.vendor || '').toLowerCase();
+    if (v.indexOf('taobao') >= 0) {
+      var t = TAOBAO[r.ref];
+      var q = t ? t.search : (r.item + ' ' + (r.spec || ''));
+      return { url: 'https://s.taobao.com/search?q=' + encodeURIComponent(q),
+               label: 'Taobao', kind: 'search' };
+    }
+    if (v.indexOf('amazon') >= 0) {
+      return { url: 'https://www.amazon.com/s?k=' +
+                    encodeURIComponent((r.item + ' ' + (r.spec || '')).slice(0, 90)),
+               label: 'amazon.com', kind: 'search' };
+    }
+    if (v.indexOf('custom') >= 0) {
+      return { url: 'assets/bom/machined.csv', label: 'Custom part', kind: 'local' };
+    }
+    return null;
+  }
+
   var usd = function (n) {
     return '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
   };
@@ -167,10 +204,17 @@
       '<div class="bt-pv-body"><b class="bt-pv-name"></b><span class="bt-pv-spec"></span>' +
       '<span class="bt-pv-price"></span></div></div>';
 
+  /* The preview is position:fixed, but a transformed ancestor (.fade-up
+     carries a translateY for the scroll reveal) becomes the containing block
+     for fixed positioning — which shifted the card a constant 136 px away
+     from the cursor. Re-parent it to <body> so it is always viewport-fixed. */
+  var pvEl = host.querySelector('.bt-preview');
+  document.body.appendChild(pvEl);
+
   var tbody = host.querySelector('tbody');
   var search = host.querySelector('.bt-search');
   var count = host.querySelector('.bt-count');
-  var pv = host.querySelector('.bt-preview');
+  var pv = pvEl;
   var pvArt = pv.querySelector('.bt-pv-art');
   var pvName = pv.querySelector('.bt-pv-name');
   var pvSpec = pv.querySelector('.bt-pv-spec');
@@ -187,17 +231,26 @@
               (r.section || '') + ' ' + (r.ref || '')).toLowerCase().indexOf(q) >= 0;
     });
     tbody.innerHTML = rows.map(function (r) {
-      var link = r.link
-        ? '<a href="' + r.link + '" target="_blank" rel="noopener">' + (r.vendor || 'link') + ' ↗</a>'
+      var b = buyLink(r);
+      var name = b
+        ? '<a href="' + b.url + '"' + (b.kind === 'local' ? '' :
+            ' target="_blank" rel="noopener"') + '>' + r.item + '</a>'
+        : r.item;
+      var vend = b
+        ? '<a href="' + b.url + '"' + (b.kind === 'local' ? '' :
+            ' target="_blank" rel="noopener"') + '>' + b.label +
+            (b.kind === 'local' ? '' : ' ↗') + '</a>'
         : (r.vendor || '—');
+      /* data-l labels drive the stacked card layout on phones, where a
+         7-column table cannot fit without horizontal scrolling */
       return '<tr data-ref="' + r.ref + '">' +
-        '<td class="bt-ref">' + r.ref + '</td>' +
-        '<td class="bt-item">' + r.item + '</td>' +
-        '<td class="bt-spec">' + (r.spec || '—') + '</td>' +
-        '<td class="num">' + r.qty + '</td>' +
-        '<td class="num">' + usd(r.unit_usd) + '</td>' +
-        '<td class="num bt-ext">' + usd(r.ext_usd) + '</td>' +
-        '<td class="bt-vendor">' + link + '</td></tr>';
+        '<td class="bt-ref" data-l="Ref">' + r.ref + '</td>' +
+        '<td class="bt-item" data-l="Part">' + name + '</td>' +
+        '<td class="bt-spec" data-l="Spec">' + (r.spec || '—') + '</td>' +
+        '<td class="num" data-l="Qty">' + r.qty + '</td>' +
+        '<td class="num" data-l="Unit">' + usd(r.unit_usd) + '</td>' +
+        '<td class="num bt-ext" data-l="Ext">' + usd(r.ext_usd) + '</td>' +
+        '<td class="bt-vendor" data-l="Vendor">' + vend + '</td></tr>';
     }).join('');
     var sum = rows.reduce(function (a, r) { return a + (r.ext_usd || 0); }, 0);
     count.innerHTML = '<b>' + rows.length + '</b> of ' + CORE.length + ' lines · ' +
@@ -210,6 +263,7 @@
   function showPreview(tr, ev) {
     var r = byRef[tr.dataset.ref];
     if (!r) return;
+    pvRow = tr;
     /* a real photo wins if one has been dropped in; otherwise draw the class */
     var img = new Image();
     var url = 'assets/bom/img/' + r.ref + '.jpg';
@@ -220,20 +274,52 @@
     img.src = url;
 
     pvName.textContent = r.item;
-    pvSpec.textContent = (r.spec || '') + (r.vendor ? ' · ' + r.vendor : '');
+    var b = buyLink(r);
+    pvSpec.textContent = (r.spec || '') + (r.vendor ? ' · ' + r.vendor : '') +
+      (b && b.kind === 'search' ? ' · click to search' :
+       b && b.kind === 'direct' ? ' · click to buy' : '');
     pvPrice.innerHTML = r.qty + ' × ' + usd(r.unit_usd) + ' = <b>' + usd(r.ext_usd) + '</b>';
     pv.hidden = false;
     movePreview(ev);
   }
 
+  /* Anchor the card to the ROW the pointer is on, not to the pointer alone:
+     with a tall card and the cursor low in the viewport the old flip pushed
+     it hundreds of pixels above the item it described. */
+  var pvRow = null;
   function movePreview(ev) {
     if (pv.hidden) return;
-    var pad = 16, w = pv.offsetWidth, h = pv.offsetHeight;
-    var x = ev.clientX + pad, y = ev.clientY + pad;
-    if (x + w > window.innerWidth - 8) x = ev.clientX - w - pad;
-    if (y + h > window.innerHeight - 8) y = ev.clientY - h - pad;
-    pv.style.left = Math.max(8, x) + 'px';
-    pv.style.top = Math.max(8, y) + 'px';
+    /* Use the CSS-declared box, not offsetHeight: the card is positioned in
+       the same tick its contents are written, so offsetHeight could still be
+       reporting a pre-layout value and the clamp then parked the card far
+       from the cursor. */
+    var pad = 14, w = pv.offsetWidth || 230, h = pv.offsetHeight || 218;
+    var x = (ev && ev.clientX != null ? ev.clientX : 0) + pad;
+    if (x + w > window.innerWidth - 8) x = (ev.clientX || 0) - w - pad;
+    x = Math.max(8, x);
+
+    /* vertically: sit beside the pointer, biased to the hovered row, and
+       clamp into the viewport. Anchoring to the row alone drifted away from
+       the cursor on long tables; anchoring to the cursor alone flipped the
+       card hundreds of pixels up when it ran out of room below. */
+    var cy = (ev && ev.clientY != null) ? ev.clientY : null;
+    if (pvRow) {
+      var b = pvRow.getBoundingClientRect();
+      cy = (cy == null) ? b.top + b.height / 2
+                        : Math.max(b.top - 4, Math.min(b.bottom + 4, cy));
+    }
+    var vh = window.innerHeight;
+    var y = (cy == null ? pad : cy - h / 2);
+    y = Math.min(Math.max(8, y), Math.max(8, vh - h - 8));
+    /* keep the cursor inside the card's vertical span wherever the geometry
+       allows, so the card always reads as attached to the row under it */
+    if (cy != null) {
+      if (cy < y) y = Math.max(8, cy - 14);
+      else if (cy > y + h) y = Math.min(vh - h - 8, cy - h + 14);
+    }
+
+    pv.style.left = Math.round(x) + 'px';
+    pv.style.top = Math.round(y) + 'px';
   }
 
   tbody.addEventListener('mouseover', function (e) {
@@ -241,7 +327,7 @@
     if (tr) showPreview(tr, e);
   });
   tbody.addEventListener('mousemove', movePreview);
-  tbody.addEventListener('mouseleave', function () { pv.hidden = true; });
+  tbody.addEventListener('mouseleave', function () { pv.hidden = true; pvRow = null; });
   /* keyboard parity: focusing a row shows the same card */
   tbody.addEventListener('focusin', function (e) {
     var tr = e.target.closest('tr[data-ref]');
@@ -249,7 +335,7 @@
     var b = tr.getBoundingClientRect();
     showPreview(tr, { clientX: b.right - 40, clientY: b.bottom });
   });
-  tbody.addEventListener('focusout', function () { pv.hidden = true; });
+  tbody.addEventListener('focusout', function () { pv.hidden = true; pvRow = null; });
 
   search.addEventListener('input', function () { filter.q = search.value; render(); });
   host.querySelector('.bt-filters').addEventListener('click', function (e) {

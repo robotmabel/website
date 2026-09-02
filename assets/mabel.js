@@ -359,14 +359,40 @@
         v.dataset.hiDone = '1';
         var url = URL.createObjectURL(blob);
         var t = v.currentTime, playing = !v.paused;
-        var restore = function () {
-          v.removeEventListener('loadeddata', restore);
-          try { v.currentTime = t; } catch (e) {}
-          if (playing) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+        /* Swap into a HIDDEN sibling and only reveal it once it is decoding at
+           the same timestamp. Assigning v.src directly blanked the element for
+           a frame or two, and anything drawn over the clip — a speech balloon,
+           a burst — flickered with it. */
+        var hi = v.cloneNode(false);
+        hi.removeAttribute('poster');
+        hi.className = v.className;
+        hi.style.cssText = v.getAttribute('style') || '';
+        hi.muted = true; hi.loop = v.loop; hi.playsInline = true;
+        hi.style.position = 'absolute'; hi.style.inset = '0';
+        hi.style.width = '100%'; hi.style.height = '100%';
+        hi.style.opacity = '0';
+        var parent = v.parentNode;
+        if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
+        var reveal = function () {
+          hi.removeEventListener('canplay', reveal);
+          try { hi.currentTime = t; } catch (e) {}
+          var p = playing ? hi.play() : null;
+          if (p && p.catch) p.catch(function () {});
+          requestAnimationFrame(function () {
+            hi.style.opacity = '1';
+            /* hand the original element's identity over, then drop it */
+            setTimeout(function () {
+              try { v.pause(); } catch (e) {}
+              v.remove();
+              hi.style.position = ''; hi.style.inset = '';
+              hi.style.opacity = '';
+            }, 60);
+          });
         };
-        v.addEventListener('loadeddata', restore);
-        v.src = url;
-        v.load();
+        hi.addEventListener('canplay', reveal);
+        hi.src = url;
+        parent.insertBefore(hi, v.nextSibling);
+        hi.load();
       })
       .catch(function () { v.dataset.hiDone = '1'; })
       .then(function () { hiBusy = false; pumpHi(); });

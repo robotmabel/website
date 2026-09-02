@@ -2806,18 +2806,65 @@ h1 > .sticker.sticker-hi, h2 > .sticker.sticker-hi, h3 > .sticker.sticker-hi {
   letter-spacing: 0.05em; color: var(--ash); }
 .bt-count b { color: var(--rust); }
 
-.bt-preview { position: fixed; z-index: 2500; width: 250px; pointer-events: none;
+.bt-preview { position: fixed; z-index: 2500; width: 230px; height: 218px;
+  pointer-events: none;
   border: 3px solid var(--ink); border-radius: 8px; background: var(--panel);
   box-shadow: 7px 7px 0 var(--ink); overflow: hidden; }
-.bt-pv-art { background: #F1E6C6; border-bottom: 2px solid var(--ink); }
-.bt-pv-art svg, .bt-pv-art img { display: block; width: 100%; height: auto; }
-.bt-pv-art img { aspect-ratio: 200/140; object-fit: cover; }
-.bt-pv-body { padding: 9px 11px 11px; }
+.bt-pv-art { background: #F1E6C6; border-bottom: 2px solid var(--ink);
+  height: 112px; overflow: hidden; }
+.bt-pv-art svg, .bt-pv-art img { display: block; width: 100%; height: 112px;
+  object-fit: cover; }
+.bt-pv-body { padding: 8px 11px 10px; height: 102px; overflow: hidden; }
 .bt-pv-name { display: block; font-family: var(--font-comic); font-size: 16px;
   letter-spacing: 0.03em; color: var(--ink); line-height: 1.15; }
-.bt-pv-spec { display: block; margin-top: 4px; font-family: var(--font-mono);
-  font-size: 10.5px; color: var(--ash); line-height: 1.45; }
-.bt-pv-price { display: block; margin-top: 7px; font-family: var(--font-mono);
+.bt-pv-spec { display: block; margin-top: 3px; font-family: var(--font-mono);
+  font-size: 10px; color: var(--ash); line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; }
+.bt-pv-price { display: block; margin-top: 5px; font-family: var(--font-mono);
   font-size: 11.5px; color: var(--ink-soft); }
 .bt-pv-price b { font-family: var(--font-display); font-size: 15px; color: var(--rust); }
 @media (max-width: 560px) { .bt-preview { display: none; } }
+
+/* ═══ Tables on phones: stack, never scroll sideways ═══
+   Measured with scripts/tablescroll.py at 390 px: the BOM summary needed
+   556 px and the 49-line table 494 px in a 350 px column. Both become one
+   card per row, with the column header carried by each cell's data-l. */
+@media (max-width: 620px) {
+  .bt-scroll, #bom .table-scroll { overflow-x: visible; }
+
+  .bt-table thead, #bomRows thead { display: none; }
+  .bt-table, .bt-table tbody, .bt-table tr, .bt-table td,
+  #bomRows, #bomRows tbody, #bomRows tr, #bomRows td { display: block; width: auto; }
+
+  .bt-table tr, #bomRows tr {
+    border: 2px solid var(--ink); border-radius: 6px; background: var(--bone);
+    margin: 0 0 8px; padding: 9px 11px; }
+  .bt-table td, #bomRows td {
+    border: none; padding: 2px 0; text-align: left !important;
+    display: grid; grid-template-columns: 78px 1fr; gap: 10px; align-items: baseline; }
+  .bt-table td::before, #bomRows td::before {
+    content: attr(data-l); font-family: var(--font-mono); font-size: 9.5px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ash); }
+  .bt-table td:not([data-l]), #bomRows td:not([data-l]) { display: block; }
+  /* the part name leads the card */
+  .bt-table td.bt-item { font-size: 14px; margin-bottom: 3px; }
+  .bt-table td.bt-item::before { color: var(--orange); }
+  .bt-ext { color: var(--rust); }
+  #bomRows tr.best { background: var(--yellow); }
+  .bt-table tbody tr:hover, #bomRows tbody tr:hover { background: var(--bone); }
+  .bt-bar { gap: 8px; }
+  .bt-filters button { font-size: 10px; padding: 5px 8px; }
+}
+.bt-item a { color: var(--ink); text-decoration: none;
+  border-bottom: 1.5px solid rgba(240,118,46,0.55); }
+.bt-item a:hover { color: var(--rust); border-bottom-color: var(--rust); }
+
+/* Balloons and bursts sit over playing video: give them their own layer so a
+   repaint underneath (a source swap, a decode hiccup) cannot flicker them. */
+.panel-speech, .wall-item .burst, .tele-clip .burst {
+  will-change: transform;
+  transform: translateZ(0) rotate(-2deg);
+  backface-visibility: hidden;
+}
+.panel-speech.tail-br { transform: translateZ(0) rotate(-2deg); }
