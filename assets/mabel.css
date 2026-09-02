@@ -2544,3 +2544,39 @@ body.pop-locked { overflow: hidden; }
   .pop-panel { box-shadow: 7px 7px 0 var(--orange), 0 0 0 3px var(--ink); }
   .pop-body { font-size: 14px; }
 }
+
+/* ═══ Buttons — ONE look everywhere ═══
+   Previously .btn-primary and .btn-ghost diverged (and diverged AGAIN inside
+   dark sections: gold fill vs transparent outline), so two links sitting side
+   by side read as different kinds of thing and nothing looked important.
+   Now every button is the same yellow comic plate and turns red on hover;
+   only a genuinely special call to action (.btn-special) breaks rank. */
+.btn, .btn-primary, .btn-ghost,
+.dark-sec .btn, .dark-sec .btn-primary, .dark-sec .btn-ghost,
+.page-hero .btn, .page-hero .btn-primary, .page-hero .btn-ghost {
+  background: var(--yellow);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn:hover, .btn-primary:hover, .btn-ghost:hover,
+.dark-sec .btn:hover, .dark-sec .btn-primary:hover, .dark-sec .btn-ghost:hover,
+.page-hero .btn:hover, .page-hero .btn-primary:hover, .page-hero .btn-ghost:hover {
+  background: var(--rust);
+  color: #FFF6E4;
+  border-color: var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  transform: translate(-2px, -2px) rotate(-0.6deg);
+}
+/* on ink grounds the shadow needs to read against the dark, not vanish */
+.dark-sec .btn, .page-hero .btn { box-shadow: 4px 4px 0 rgba(0,0,0,0.9); }
+.dark-sec .btn:hover, .page-hero .btn:hover { box-shadow: 6px 6px 0 rgba(0,0,0,0.9); }
+
+/* the one exception: the nav's control-centre CTA stays orange */
+.btn-special, .nav-cta {
+  background: var(--orange) !important; color: #FFF9F0 !important;
+  border-color: var(--ink) !important;
+}
+.btn-special:hover, .nav-cta:hover {
+  background: var(--rust) !important; color: #FFF9F0 !important;
+}
