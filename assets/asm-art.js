@@ -154,6 +154,15 @@
         '<circle cx="120" cy="92" r="5" fill="' + OR + '"/>' +
         arc(120, 92, 48, GRN) + word(206, 44, 'SPIN!', GRN, 16));
     },
+    /* one swerve module on the bench: motor, gearbox, wheel */
+    module: function () {
+      return svg(plate(80, 24, 80, 22) +
+        motor(120, 62, 22) +
+        '<rect x="96" y="84" width="48" height="16" rx="4" fill="' + DARK + '" stroke="' + INK + '" stroke-width="3"/>' +
+        '<circle cx="120" cy="118" r="24" fill="' + INK + '"/>' +
+        '<circle cx="120" cy="118" r="9" fill="' + STEEL + '" stroke="' + INK + '" stroke-width="2.5"/>' +
+        drop(180, 60, 26, GRN) + word(196, 132, 'x3', BLUE, 20));
+    },
     /* three swerve modules in the delta layout */
     swerve: function () {
       var m = function (x, y) {
@@ -263,7 +272,8 @@
     [/daisy|terminator|120 ?Ω|bus chain|chain the/i, 'daisy'],
     [/\bid\b|ids|address|one .* at a time/i, 'busid'],
     [/wheel|spin each|steer rotation/i, 'wheel'],
-    [/swerve module|delta layout|three modules/i, 'swerve'],
+    [/delta layout|at 120|three modules at/i, 'swerve'],
+    [/(build|assemble).{0,24}module|swerve module/i, 'module'],
     [/range[- ]test|full travel|both end stops|sweep|through its full/i, 'range'],
     [/lift|column|telescop|z-column/i, 'column'],
     /* NB: not a bare /hand/ — "turn the screw by hand" is an idiom, and it

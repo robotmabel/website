@@ -2926,80 +2926,64 @@ h1 > .sticker.sticker-hi, h2 > .sticker.sticker-hi, h3 > .sticker.sticker-hi {
   .eq-line i { display: block; margin: 2px 0 6px; }
 }
 
-/* ═══ Assembly modules as a comic page ═══
-   Each step is a panel, not a list row. Panel widths follow a fixed rhythm
-   (7-5 / 5-7 / 4-4-4) so the page has Kirby-ish variation while the reading
-   order stays a plain left-to-right, top-to-bottom Z — the eye is led, not
-   puzzled. The imperative becomes the narration caption across the top of
-   the panel; the aside becomes a balloon at the foot of it. */
-.asm-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, 300px);
+/* ═══ Assembly modules — an illustrated instruction grid ═══
+   Modelled on a technical-illustration reference sheet: uniform tiles, the
+   drawing dominant and consistent, a numbered caption underneath, and the
+   detail in small type below that. Uniform beats varied here — the reader is
+   following a procedure, and equal tiles make the sequence legible at a
+   glance. (An earlier Kirby-style span rhythm looked livelier but made the
+   drawings different sizes, which is exactly wrong for instructions.) */
+.asm-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(210px, 250px);
   gap: clamp(14px, 2vw, 22px); align-items: start; }
 @media (max-width: 900px) { .asm-body { grid-template-columns: 1fr; } }
 
 ol.asm-steps {
-  display: grid; grid-template-columns: repeat(12, 1fr);
-  gap: 12px; list-style: none; margin: 0; padding: 0; counter-reset: asmstep;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 14px; list-style: none; margin: 0; padding: 0; counter-reset: asmstep;
 }
 ol.asm-steps li {
-  counter-increment: asmstep; position: relative;
-  grid-column: span 6;                       /* default beat */
-  border: 2px solid var(--ink); border-radius: 6px;
-  background: var(--panel); box-shadow: 5px 5px 0 var(--ink);
-  padding: 30px 14px 14px; margin: 0;
-  font-size: 13.5px; line-height: 1.6; color: var(--ink-soft);
+  counter-increment: asmstep; position: relative; display: flex; flex-direction: column;
+  border: 2px solid var(--ink); border-radius: 6px; background: var(--panel);
+  box-shadow: 4px 4px 0 var(--ink); padding: 0; margin: 0; overflow: hidden;
   transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
-ol.asm-steps li:last-child { border-bottom: 2px solid var(--ink); }
-ol.asm-steps li:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--orange); }
+ol.asm-steps li:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--orange); }
 
-/* the panel rhythm — establishing shot, then beats */
-ol.asm-steps li:nth-child(7n+1) { grid-column: span 7; }
-ol.asm-steps li:nth-child(7n+2) { grid-column: span 5; }
-ol.asm-steps li:nth-child(7n+3) { grid-column: span 5; }
-ol.asm-steps li:nth-child(7n+4) { grid-column: span 7; }
-ol.asm-steps li:nth-child(7n+5),
-ol.asm-steps li:nth-child(7n+6),
-ol.asm-steps li:nth-child(7n)   { grid-column: span 4; }
-/* NOTE: no last-child override at 3n+1 — for a 7-step module that stole the
-   final 4-wide slot and left a third of the row empty. Every row already
-   sums to 12: 7+5 / 5+7 / 4+4+4. */
+/* the drawing leads and is the same size in every tile */
+.asm-art { margin: 0; border-bottom: 2px solid var(--ink); background: #F3E7C7; line-height: 0; }
+.asm-art svg { display: block; width: 100%; height: auto; aspect-ratio: 240 / 150; }
 
-/* the narration bar carries the panel number */
-ol.asm-steps li::before {
+/* caption: number + imperative, the way a plate is labelled */
+ol.asm-steps li > strong {
+  display: block; padding: 11px 12px 0 34px; position: relative;
+  font-family: var(--font-comic); font-weight: 400; font-size: 15.5px;
+  letter-spacing: 0.02em; line-height: 1.18; color: var(--ink);
+}
+ol.asm-steps li > strong::before {
   content: counter(asmstep, decimal-leading-zero);
-  position: absolute; top: 0; left: 0; right: 0; height: 20px;
-  display: flex; align-items: center; padding: 0 10px;
-  background: var(--ink); color: var(--yellow);
-  font-family: var(--font-comic); font-size: 11px; letter-spacing: 0.14em;
-  border-radius: 3px 3px 0 0;
+  position: absolute; left: 12px; top: 11px;
+  font-family: var(--font-comic); font-size: 15px; color: var(--rust);
 }
-ol.asm-steps li:nth-child(7n+1)::before { background: var(--rust); color: #FFF6E4; }
-ol.asm-steps li:nth-child(7n+4)::before { background: var(--blue); color: #FFF6E4; }
-ol.asm-steps li strong {
-  display: block; font-family: var(--font-comic); font-weight: 400;
-  font-size: 16px; letter-spacing: 0.02em; color: var(--ink);
-  line-height: 1.2; margin-bottom: 5px;
-}
-/* the aside becomes a small balloon at the foot of the panel */
+.asm-say { display: block; padding: 5px 12px 12px; font-size: 12.5px;
+  line-height: 1.55; color: var(--ink-soft); }
 ol.asm-steps li .tip {
-  display: block; margin-top: 10px; padding: 7px 10px;
-  border: 2px solid var(--ink); border-radius: 12px; background: #FFF9F0;
-  font-family: var(--font-mono); font-size: 10.5px; line-height: 1.5;
+  display: block; margin: auto 12px 12px; padding: 7px 10px;
+  border: 2px solid var(--ink); border-radius: 11px; background: #FFF9F0;
+  font-family: var(--font-mono); font-size: 10px; line-height: 1.5;
   color: var(--ash); position: relative;
 }
 ol.asm-steps li .tip::after {
-  content: ''; position: absolute; left: 18px; bottom: -9px;
-  border: 6px solid transparent; border-top: 10px solid var(--ink);
-  border-left-width: 2px;
+  content: ''; position: absolute; left: 16px; bottom: -9px;
+  border: 6px solid transparent; border-top: 10px solid var(--ink); border-left-width: 2px;
 }
-@media (max-width: 760px) {
-  ol.asm-steps { grid-template-columns: 1fr; gap: 10px; }
-  ol.asm-steps li,
-  ol.asm-steps li:nth-child(7n+1), ol.asm-steps li:nth-child(7n+2),
-  ol.asm-steps li:nth-child(7n+3), ol.asm-steps li:nth-child(7n+4),
-  ol.asm-steps li:nth-child(7n+5), ol.asm-steps li:nth-child(7n+6),
-  ol.asm-steps li:nth-child(7n),
-  ol.asm-steps li:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
+/* accent the tiles in a quiet four-beat so the grid is not monotone */
+ol.asm-steps li:nth-child(4n+2) { box-shadow: 4px 4px 0 var(--yellow); }
+ol.asm-steps li:nth-child(4n+3) { box-shadow: 4px 4px 0 var(--blue); }
+ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
+@media (max-width: 520px) {
+  ol.asm-steps { grid-template-columns: 1fr 1fr; gap: 10px; }
+  ol.asm-steps li > strong { font-size: 13.5px; padding-left: 30px; }
+  .asm-say { font-size: 11.5px; }
 }
 
 /* the spec plate reads as the page's data panel */
@@ -3059,49 +3043,12 @@ ol.asm-steps li .tip::after {
   .table-scroll { overflow-x: visible; }
 }
 
-/* A trailing panel fills the row it lands on rather than leaving a hole:
-   5 steps ends with a lone 4-wide panel and a gap beside it, 6 ends with a
-   4 after a 4. These give the page a clean bottom edge at any step count. */
-ol.asm-steps li:last-child:nth-child(7n+5) { grid-column: span 12; }
-ol.asm-steps li:last-child:nth-child(7n+6) { grid-column: span 8; }
-ol.asm-steps li:last-child:nth-child(7n+2) { grid-column: span 5; }
-ol.asm-steps li:last-child:nth-child(7n+3) { grid-column: span 12; }
 @media (max-width: 760px) {
   ol.asm-steps li:last-child:nth-child(7n+5),
   ol.asm-steps li:last-child:nth-child(7n+6),
   ol.asm-steps li:last-child:nth-child(7n+2),
-  ol.asm-steps li:last-child:nth-child(7n+3) { grid-column: 1 / -1; }
-}
+  }
 
-/* ═══ Panels are figure-first ═══
-   The drawing leads, the imperative is the lettering, the explanation is
-   secondary. Panels stretch to fill their row so the page has no gutters
-   of dead paper. */
-ol.asm-steps li.has-art { display: flex; flex-direction: column; padding: 30px 0 0; }
-.asm-art { margin: 0; border-bottom: 2px solid var(--ink); background: #F3E7C7;
-  line-height: 0; }
-.asm-art svg { display: block; width: 100%; height: auto; }
-ol.asm-steps li.has-art > strong { padding: 12px 14px 0; }
-ol.asm-steps li.has-art > .tip { margin: 10px 14px 14px; }
-ol.asm-steps li.has-art { padding-bottom: 0; }
-ol.asm-steps li.has-art > *:not(.asm-art):not(strong):not(.tip) { padding: 0 14px; }
-/* the loose text node after <strong> is wrapped by asm-art.js into .asm-say */
-.asm-say { display: block; padding: 4px 14px 14px; font-size: 13px;
-  line-height: 1.6; color: var(--ink-soft); }
-ol.asm-steps li.has-art .tip { margin-top: auto; }
-/* Every panel is figure-on-top. A side-by-side variant was tried for the
-   wide panels, but the drawing letterboxes inside a tall box and leaves dead
-   space — the width rhythm alone gives the page its variation. */
-
-
-/* ═══ Bursts: five shapes, not one ═══
-   Every burst on the page was the same 24-point star at the same size, which
-   read as a repeated stamp rather than lettering. These cycle shape, size,
-   rotation and colour, so no two neighbours match. */
-.burst.b-star::before {
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%,
-                     21% 91%, 32% 57%, 2% 35%, 39% 35%);
-}
 .burst.b-blast::before {
   clip-path: polygon(50% 0%, 58% 24%, 79% 9%, 76% 34%, 100% 33%, 82% 50%,
                      100% 67%, 76% 66%, 79% 91%, 58% 76%, 50% 100%, 42% 76%,
@@ -3179,3 +3126,68 @@ ol.asm-steps li.has-art .tip { margin-top: auto; }
 .tenet:nth-child(2) { box-shadow: 4px 4px 0 var(--yellow); }
 .tenet:nth-child(3) { box-shadow: 4px 4px 0 var(--blue); }
 .tenet:nth-child(4) { box-shadow: 4px 4px 0 var(--orange); }
+
+
+/* the lab and the equation plates sit centred in the column */
+.tl-wrap { max-width: 1120px; margin-left: auto; margin-right: auto; }
+.eq-card { max-width: 900px; margin-left: auto; margin-right: auto; }
+
+/* ═══ Film lightbox ═══ */
+.film-card.is-playable { cursor: pointer; position: relative; }
+.film-card.is-playable::after {
+  content: '▶'; position: absolute; top: 12px; left: 12px;
+  width: 34px; height: 34px; display: grid; place-items: center;
+  border: 2px solid var(--ink); border-radius: 50%; background: var(--yellow);
+  color: var(--ink); font-size: 13px; box-shadow: 2px 2px 0 var(--ink);
+  transition: transform 0.16s ease;
+}
+.film-card.is-playable:hover::after { transform: scale(1.12); }
+.film-card.is-playable:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+
+.film-lightbox { position: fixed; inset: 0; z-index: 3200; display: flex;
+  align-items: center; justify-content: center; padding: 4vh 20px;
+  background: rgba(21,24,32,0.9); }
+.film-lightbox[hidden] { display: none; }
+.film-stage { margin: 0; width: min(1100px, 100%); border: 3px solid var(--ink);
+  border-radius: 8px; overflow: hidden; background: #0B0E15;
+  box-shadow: 12px 12px 0 var(--orange); animation: popIn 0.34s cubic-bezier(0.22,1.4,0.36,1) both; }
+.film-stage video { display: block; width: 100%; max-height: 76vh; background: #000; }
+.film-stage figcaption { padding: 11px 15px 13px; font-family: var(--font-comic);
+  font-size: 17px; letter-spacing: 0.03em; color: var(--bone); background: var(--ink); }
+.film-close { position: absolute; top: 18px; right: 18px; width: 42px; height: 42px;
+  border: 3px solid var(--ink); border-radius: 50%; background: var(--yellow);
+  font-family: var(--font-comic); font-size: 19px; color: var(--ink); cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink); z-index: 2; }
+.film-close:hover { transform: rotate(90deg) scale(1.08); }
+
+
+/* ═══ Figure scale ═══
+   Inline SVG figures scale with their container, so on a wide screen the
+   type inside them grew far past the page's own type scale. Capping the
+   figure width keeps the lettering consistent with the rest of the site;
+   below that cap the SVG scales down and, because it carries a viewBox, the
+   whole chart always stays visible rather than clipping. */
+.panel-frame { max-width: 860px; margin-left: auto; margin-right: auto; }
+.panel-frame > svg { width: 100%; height: auto; display: block; }
+@media (max-width: 900px) { .panel-frame { max-width: 100%; } }
+.paper-fig { max-width: 820px; margin-left: auto; margin-right: auto; }
+.paper-fig svg, .paper-fig img { width: 100%; height: auto; display: block; }
+
+/* the mobile menu lists pages, not sections — the sub-links are gone from
+   the markup, and the former group headers are now the page links */
+.mob-top { display: block; font-family: var(--font-head); font-weight: 700;
+  font-size: 17px; color: var(--ink); text-decoration: none;
+  padding: 13px 0; border-bottom: 2px solid rgba(21,24,32,0.12); }
+.mob-top:last-of-type { border-bottom: none; }
+.mob-top:hover, .mob-top:focus-visible { color: var(--rust); }
+
+/* by module / by type — the same 49 lines, grouped two ways */
+.bom-toggle { display: inline-flex; gap: 0; margin-bottom: 16px;
+  border: 2px solid var(--ink); border-radius: 7px; overflow: hidden;
+  box-shadow: 3px 3px 0 var(--ink); }
+.bom-toggle button { font-family: var(--font-comic); font-size: 13px;
+  letter-spacing: 0.05em; padding: 8px 16px; border: none; cursor: pointer;
+  background: var(--bone); color: var(--ink); transition: background 0.18s ease; }
+.bom-toggle button + button { border-left: 2px solid var(--ink); }
+.bom-toggle button.on { background: var(--yellow); }
+.bom-toggle button:hover:not(.on) { background: #FFF3D0; }

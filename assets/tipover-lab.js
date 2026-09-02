@@ -177,49 +177,119 @@
     });
   }
 
+  /* ── the robot, as an 80s-arcade sprite ──────────────────────────────
+     Proportions come from the URDF, not from imagination: a 0.49 m base on
+     three swerve wheels (two visible from the side), a narrow cascaded lift
+     column, a boxy torso, and the head's two big camera eyes between a pair
+     of antennas. Drawn as chunky pixels so it reads as a game sprite while
+     still being recognisably MABEL. */
+  var PAL = {
+    W: '#EFE8D8',   // printed shell
+    S: '#C9C2B0',   // structural grey
+    D: '#151820',   // ink
+    C: '#8E8778',   // column
+    O: '#F0762E',   // accent
+    L: '#23577E',   // lens
+    K: '#0B0E15'    // tyre
+  };
+  var HEAD = [
+    '..D..........D..',
+    '..D..........D..',
+    '..O..........O..',
+    '...DDDDDDDDDD...',
+    '..DWWWWWWWWWWD..',
+    '.DWWLLWWWWLLWWD.',
+    '.DWLLLWWWWLLLWD.',
+    '.DWWLLWWWWLLWWD.',
+    '..DWWWWWWWWWWD..',
+    '...DDDDDDDDDD...'
+  ];
+  var TORSO = [
+    '....DDDDDD....',
+    '..DDWWWWWWDD..',
+    '.DWWWWWWWWWWD.',
+    'DWWWWWWWWWWWWD',
+    'DWWWWWWWWWWWWD',
+    'DWWWWWWWWWWWWD',
+    'DWWWWWWWWWWWWD',
+    '.DWWWWWWWWWWD.',
+    '..DDDDDDDDDD..'
+  ];
+  var BASE = [
+    '..DDDDDDDDDDDDDDDD..',
+    '.DSSSSSSSSSSSSSSSSD.',
+    'DSSSSSSSSSSSSSSSSSSD',
+    'DSSSSSSSSSSSSSSSSSSD',
+    'DSSSSSSSSSSSSSSSSSSD',
+    '.DDDDDDDDDDDDDDDDDD.',
+    '.KKK..........KKK...',
+    'KKKKK........KKKKK..',
+    'KKOKK........KKOKK..',
+    'KKKKK........KKKKK..',
+    '.KKK..........KKK...'
+  ];
+
+  function sprite(map, cx, baseY, s) {
+    var w = map[0].length;
+    for (var r = 0; r < map.length; r++) {
+      var row = map[r];
+      for (var c = 0; c < row.length; c++) {
+        var ch = row[c];
+        if (ch === '.') continue;
+        ctx.fillStyle = PAL[ch] || PAL.D;
+        ctx.fillRect(Math.round(cx - (w / 2) * s + c * s),
+                     Math.round(baseY - (map.length - r) * s), s + 0.6, s + 0.6);
+      }
+    }
+  }
+
   function drawRobot(cx, ground, tilt, lift) {
+    var s = Math.max(3, Math.round(Math.min(cv.clientWidth, cv.clientHeight) / 60));
     var col = tilt * Math.PI / 180;
     ctx.save();
     ctx.translate(cx, ground);
-    ctx.rotate(col);                       // pitch about the front wheel contact
-    ctx.lineWidth = 3; ctx.strokeStyle = '#151820'; ctx.lineJoin = 'round';
+    ctx.rotate(col);                       /* pitch about the wheel contact */
+    ctx.imageSmoothingEnabled = false;
 
-    var liftPx = 40 + lift * 150;
-    /* chassis */
-    ctx.fillStyle = '#C9C2B0';
-    ctx.beginPath(); ctx.roundRect(-46, -46, 92, 42, 8); ctx.fill(); ctx.stroke();
-    /* wheels */
-    ctx.fillStyle = '#151820';
-    [-30, 30].forEach(function (wx) {
-      ctx.beginPath(); ctx.arc(wx, -4, 11, 0, 6.284); ctx.fill();
-      ctx.fillStyle = '#F0762E'; ctx.beginPath(); ctx.arc(wx, -4, 4, 0, 6.284); ctx.fill();
-      ctx.fillStyle = '#151820';
+    var baseTop = -BASE.length * s;
+    sprite(BASE, 0, 0, s);
+
+    /* the cascaded column: taller with the lift command */
+    var colPx = Math.round((10 + lift * 150) / s) * s;
+    ctx.fillStyle = PAL.D;
+    ctx.fillRect(Math.round(-2.5 * s), baseTop - colPx, 5 * s, colPx);
+    ctx.fillStyle = PAL.C;
+    ctx.fillRect(Math.round(-1.5 * s), baseTop - colPx + s, 3 * s, colPx - s);
+    for (var y = baseTop - colPx + 3 * s; y < baseTop - s; y += 4 * s) {
+      ctx.fillStyle = PAL.D;
+      ctx.fillRect(Math.round(-1.5 * s), Math.round(y), 3 * s, s);
+    }
+
+    var torsoBase = baseTop - colPx;
+    sprite(TORSO, 0, torsoBase, s);
+    var headBase = torsoBase - TORSO.length * s - s;
+
+    /* arms hang from the shoulders and swing with the pitch */
+    ctx.fillStyle = PAL.D;
+    var sh = torsoBase - (TORSO.length - 2) * s;
+    [-1, 1].forEach(function (side) {
+      var ax = side * 7 * s, sway = Math.round(tilt * 0.25 / s) * s;
+      ctx.fillRect(Math.round(ax - s), Math.round(sh), 2 * s, 4 * s);
+      ctx.fillRect(Math.round(ax - s + sway), Math.round(sh + 4 * s), 2 * s, 4 * s);
+      ctx.fillStyle = PAL.W;
+      ctx.fillRect(Math.round(ax - s + sway), Math.round(sh + 8 * s), 2 * s, 2 * s);
+      ctx.fillStyle = PAL.D;
     });
-    /* lift column */
-    ctx.fillStyle = '#8E8778';
-    ctx.beginPath(); ctx.roundRect(-9, -46 - liftPx, 18, liftPx, 3); ctx.fill(); ctx.stroke();
-    /* torso + head */
-    ctx.fillStyle = '#E4DCC8';
-    ctx.beginPath(); ctx.roundRect(-24, -46 - liftPx - 46, 48, 48, 9); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#FDF6E2';
-    ctx.beginPath(); ctx.roundRect(-21, -46 - liftPx - 76, 42, 28, 12); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#151820';
-    ctx.beginPath(); ctx.arc(-8, -46 - liftPx - 62, 5, 0, 6.284); ctx.fill();
-    ctx.beginPath(); ctx.arc(8, -46 - liftPx - 62, 5, 0, 6.284); ctx.fill();
-    /* the arm, swinging with the tilt */
-    ctx.strokeStyle = '#151820'; ctx.lineWidth = 7; ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(18, -46 - liftPx - 34);
-    ctx.lineTo(40 + tilt * 0.9, -46 - liftPx - 12);
-    ctx.stroke();
 
-    /* the CoM and its lever — the thing the model is actually about */
+    sprite(HEAD, 0, headBase, s);
+
+    /* the CoM and its lever — what the model is actually about */
     var comY = -(comHeight(lift) * 150);
     ctx.fillStyle = '#C6301A';
-    ctx.beginPath(); ctx.arc(-6, comY, 7, 0, 6.284); ctx.fill();
-    ctx.strokeStyle = 'rgba(198,48,26,0.55)'; ctx.lineWidth = 2;
-    ctx.setLineDash([5, 4]);
-    ctx.beginPath(); ctx.moveTo(-6, comY); ctx.lineTo(-6, 0); ctx.stroke();
+    ctx.fillRect(Math.round(-s), Math.round(comY - s), 2 * s, 2 * s);
+    ctx.strokeStyle = 'rgba(198,48,26,0.5)'; ctx.lineWidth = 2;
+    ctx.setLineDash([s, s]);
+    ctx.beginPath(); ctx.moveTo(0, comY); ctx.lineTo(0, 0); ctx.stroke();
     ctx.setLineDash([]);
     ctx.restore();
   }
@@ -285,7 +355,10 @@
     }
     drawRobot(cx, ground, S.tilt, S.lift);
 
-    /* readouts */
+    /* readouts — vm is local to step(), so recompute it for the display
+       (referencing it here threw a ReferenceError that killed the rAF loop
+       after the very first frame, which is why nothing ever moved) */
+    var vm = vMax(S.lift);
     elV.textContent = S.v.toFixed(2);
     elTilt.textContent = S.tilt.toFixed(1);
     var trimmed = S.safe && S.cmd > vm;

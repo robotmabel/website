@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=ab4f4c0c" />
+<link rel="stylesheet" href="assets/mabel.css?v=f6dafc0c" />
 <link rel="stylesheet" href="assets/teleop-app.css?v=20260630-balldrag" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
@@ -51,7 +51,7 @@
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><span class="mob-grp">Build</span><a class="sub" href="build.html">Guide</a><a class="sub" href="build.html#assembly">Assembly</a><a class="sub" href="software.html#firmware">Firmware</a><a class="sub" href="build.html#bom">Bill of materials</a><span class="mob-grp">Hardware</span><a class="sub" href="hardware.html">Overview</a><a class="sub" href="anatomy.html">Anatomy explorer</a><a class="sub" href="hardware.html#hw-hands">Hands</a><a class="sub" href="hardware.html#hw-arms">Arms</a><a class="sub" href="hardware.html#hw-base">Base</a><a class="sub" href="hardware.html#hw-electronics">Electronics</a><span class="mob-grp">Software</span><a class="sub" href="software.html">Overview</a><a class="sub" href="software.html#ros">ROS 2</a><a class="sub" href="software.html#simulation">Simulation</a><a class="sub" href="software.html#server">Server &amp; Bridge</a><a class="sub" href="software.html#controller">Controller</a><a class="sub" href="software.html#wbc">Whole-Body Control</a><span class="mob-grp">Teleop</span><a class="sub" href="teleop.html">Overview</a><a class="sub" href="software.html#retargeting">Retargeting</a><a class="sub" href="teleop.html#vp-app">Vision Pro app</a><a class="sub" href="teleop.html#ios-app">iPhone app</a><span class="mob-grp">Autonomy</span><a class="sub" href="autonomy.html">Overview</a><a class="sub" href="autonomy.html#data">Data</a><a class="sub" href="autonomy.html#navigation">Navigation</a><a class="sub" href="autonomy.html#learning">Learning</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><a class="mob-top" href="build.html">Build</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
     <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
 </nav>
 
@@ -282,7 +282,7 @@
     <div class="card studio-card fade-up">
       <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · open demo</span>
       <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">The full studio: <span class="italic accent">Control Studio.</span></h2>
-      <p class="lede" style="margin:0 0 26px; max-width:62ch;">The console above is the <strong>simplified</strong> one — the basics, so anyone can try the controller and feel each control mode. The <strong>Control Center</strong> is the feature-rich studio the robot hosts for real operating sessions: an rviz-class 3D viewer (live rig inside its own SLAM reconstruction, 2D map, LiDAR, camera frusta), drive + manipulate teleop with a draggable IK target ball, per-finger dexterous-hand control, a 59-DOF telemetry band with temperature grading, a pose-setpoint timeline, and a live monitor of every client connected to the server you are driving through.</p>
+      <p class="lede" style="margin:0 0 26px; max-width:62ch;">The console above is the simple one. The <strong>Control Studio</strong> is the full cockpit the robot serves for real sessions — an rviz-class 3-D viewer inside its own SLAM map, drive and manipulate teleop, per-finger hand control, and 59-DOF telemetry.</p>
       <div class="studio-actions">
           <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:0;">Open the Control Studio ↗</a>
         </div>
@@ -382,7 +382,94 @@
         <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 920 292" role="img" aria-label="Glass-to-glass video latency: 49 ms on host, 82 on LAN, 362 over the public relay" style="width:100%;height:auto;display:block;"><text x="30" y="34" font-family="Bangers, cursive" font-size="21" fill="#F0762E" letter-spacing="1">GLASS TO GLASS</text><text x="30" y="92" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#151820">HOST</text><rect x="196" y="66" width="93" height="38" rx="5" fill="#2E7D4F" stroke="#151820" stroke-width="3"/><text x="293" y="92" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">49 ms</text><text x="30" y="156" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#151820">LAN</text><rect x="196" y="130" width="156" height="38" rx="5" fill="#23577E" stroke="#151820" stroke-width="3"/><text x="356" y="156" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">82 ms</text><text x="30" y="220" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#151820">PUBLIC RELAY</text><rect x="196" y="194" width="688" height="38" rx="5" fill="#F0762E" stroke="#151820" stroke-width="3"/><text x="888" y="220" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">362 ms</text><line x1="196" y1="60" x2="196" y2="252" stroke="#151820" stroke-width="3.5"/><text x="30" y="276" font-family="'Space Mono', monospace" font-size="12" fill="#6D6551">camera photon → headset pixel, measured end to end</text></svg></div>
 </div>
       <div>
-        <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 880 320" role="img" aria-label="Head and wrist poses feed an analytic solve that recovers the torso frame — gaze only looks, intent drives" style="width:100%;height:auto;display:block;"><rect x="30" y="30" width="150" height="44" rx="8" fill="#FDF6E2" stroke="#151820" stroke-width="3"/><text x="105.0" y="58" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#151820">HEAD pose</text><rect x="30" y="96" width="150" height="44" rx="8" fill="#FDF6E2" stroke="#151820" stroke-width="3"/><text x="105.0" y="124" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#151820">L WRIST pose</text><rect x="30" y="162" width="150" height="44" rx="8" fill="#FDF6E2" stroke="#151820" stroke-width="3"/><text x="105.0" y="190" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#151820">R WRIST pose</text><path d="M184 52 q60 0 96 118" fill="none" stroke="#F2C94C" stroke-width="3.5"/><path d="M184 118 q60 0 96 52" fill="none" stroke="#F2C94C" stroke-width="3.5"/><path d="M184 184 q60 0 96 -14" fill="none" stroke="#F2C94C" stroke-width="3.5"/><rect x="286" y="128" width="190" height="86" rx="10" fill="#F0762E" stroke="#151820" stroke-width="4"/><text x="381" y="164" text-anchor="middle" font-family="Bangers, cursive" font-size="22" fill="#FFF9F0" letter-spacing="1">ANALYTIC</text><text x="381" y="192" text-anchor="middle" font-family="'Space Mono', monospace" font-size="12" fill="#FFF9F0">no trackers · no ML</text><path d="M480 171 h56" stroke="#F2C94C" stroke-width="4"/><path d="M536 171 l-13 -7 v14 z" fill="#F2C94C"/><rect x="544" y="149" width="168" height="44" rx="8" fill="#F2C94C" stroke="#151820" stroke-width="3"/><text x="628.0" y="177" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#151820">TORSO frame</text><path d="M628 198 q-40 60 -120 64" fill="none" stroke="#9AD8B2" stroke-width="3.5"/><path d="M628 198 q40 60 120 64" fill="none" stroke="#A8CBE4" stroke-width="3.5"/><rect x="410" y="252" width="190" height="44" rx="8" fill="#FDF6E2" stroke="#151820" stroke-width="3"/><text x="505.0" y="280" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#2E7D4F">gaze → just looks</text><rect x="660" y="252" width="190" height="44" rx="8" fill="#FDF6E2" stroke="#151820" stroke-width="3"/><text x="755.0" y="280" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#23577E">intent → drives</text></svg></div>
+        <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 900 430" role="img" aria-label="A consumer headset gives three SE(3) streams; a closed-form Procrustes fit recovers the operator torso frame, and a chi gate splits gaze from base intent" style="width:100%;height:auto;display:block;">
+<defs>
+  <marker id="rtA" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+    <path d="M0 0 L9 4.5 L0 9 z" fill="#151820"/></marker>
+  <marker id="rtG" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+    <path d="M0 0 L9 4.5 L0 9 z" fill="#2E7D4F"/></marker>
+  <marker id="rtB" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
+    <path d="M0 0 L9 4.5 L0 9 z" fill="#23577E"/></marker>
+</defs>
+
+<text x="26" y="26" font-family="Bangers, cursive" font-size="15" fill="#F0762E" letter-spacing="1">1 · WHAT A CONSUMER HEADSET ACTUALLY GIVES YOU</text>
+
+<g font-family="'Space Mono', monospace" font-size="12" fill="#151820">
+  <g><rect x="26" y="42" width="176" height="46" rx="7" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
+     <text x="40" y="62">head pose</text>
+     <text x="40" y="78" font-size="10" fill="#6D6551">SE(3) · ARKit · 60 Hz</text></g>
+  <g><rect x="26" y="96" width="176" height="46" rx="7" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
+     <text x="40" y="116">left wrist</text>
+     <text x="40" y="132" font-size="10" fill="#6D6551">SE(3) · 27 hand joints</text></g>
+  <g><rect x="26" y="150" width="176" height="46" rx="7" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
+     <text x="40" y="170">right wrist</text>
+     <text x="40" y="186" font-size="10" fill="#6D6551">SE(3) · 27 hand joints</text></g>
+</g>
+<g stroke="#D9A13F" stroke-width="2.5" fill="none" marker-end="url(#rtA)">
+  <path d="M202 65 C246 65 250 108 288 116"/>
+  <path d="M202 119 H288"/>
+  <path d="M202 173 C246 173 250 130 288 122"/>
+</g>
+<text x="212" y="214" font-family="'Space Mono', monospace" font-size="10" fill="#C6301A">torso frame is UNOBSERVED — not merely undersampled</text>
+
+<text x="292" y="26" font-family="Bangers, cursive" font-size="15" fill="#F0762E" letter-spacing="1">2 · RECOVER THE TORSO FRAME, IN CLOSED FORM</text>
+<rect x="292" y="42" width="268" height="150" rx="9" fill="#F0762E" stroke="#151820" stroke-width="3"/>
+<text x="426" y="66" font-family="Bangers, cursive" font-size="17" fill="#FFF9F0" text-anchor="middle" letter-spacing="1">WEIGHTED PROCRUSTES FIT</text>
+<text x="426" y="92" font-family="'Iowan Old Style', Palatino, Georgia, serif" font-style="italic" font-size="15" fill="#FFF9F0" text-anchor="middle">T̂ = argmin Σᵢ wᵢ ‖ p_d,i − T · p_h,i ‖²</text>
+<text x="426" y="115" font-family="'Space Mono', monospace" font-size="10.5" fill="#3A1E10" text-anchor="middle">over T ∈ SE(3) · anchors i = head, L wrist, R wrist</text>
+<g font-family="'Space Mono', monospace" font-size="10" fill="#FFF9F0">
+  <text x="426" y="140" text-anchor="middle">no waist tracker · no mode switch · no learned prior</text>
+  <text x="426" y="158" text-anchor="middle">runs server-side, same for every headset</text>
+  <text x="426" y="178" text-anchor="middle" fill="#3A1E10">one solve per frame — no search, no iteration</text>
+</g>
+
+<text x="592" y="26" font-family="Bangers, cursive" font-size="15" fill="#F0762E" letter-spacing="1">3 · SPLIT LOOKING FROM DRIVING</text>
+<rect x="592" y="42" width="282" height="60" rx="8" fill="#F2C94C" stroke="#151820" stroke-width="3"/>
+<text x="733" y="66" font-family="Bangers, cursive" font-size="16" fill="#151820" text-anchor="middle" letter-spacing="1">TORSO FRAME ψ_β</text>
+<text x="733" y="88" font-family="'Space Mono', monospace" font-size="10" fill="#3A2B08" text-anchor="middle">the operator&#39;s body heading, recovered</text>
+<path d="M560 117 H592" stroke="#151820" stroke-width="2.5" marker-end="url(#rtA)"/>
+
+<text x="592" y="126" font-family="'Iowan Old Style', Palatino, Georgia, serif" font-style="italic" font-size="14" fill="#151820">Δψ_b = (1 − χ)·Δψ_rig + χ·γ(Δψ_h, ψ_β)·ψ_β</text>
+<text x="592" y="144" font-family="'Space Mono', monospace" font-size="10" fill="#6D6551">χ ∈ [0,1] — the arm-sweep / body-rotation ambiguity</text>
+
+<path d="M660 152 C660 176 630 178 620 196" stroke="#2E7D4F" stroke-width="2.5" fill="none" marker-end="url(#rtG)"/>
+<path d="M812 152 C812 176 840 178 848 196" stroke="#23577E" stroke-width="2.5" fill="none" marker-end="url(#rtB)"/>
+<g font-family="'Space Mono', monospace" font-size="11">
+  <rect x="536" y="200" width="168" height="52" rx="7" fill="#FDF6E2" stroke="#2E7D4F" stroke-width="2.5"/>
+  <text x="620" y="220" fill="#2E7D4F" text-anchor="middle">χ → 0 · GAZE</text>
+  <text x="620" y="238" font-size="9.5" fill="#6D6551" text-anchor="middle">head alone → neck only</text>
+  <rect x="762" y="200" width="168" height="52" rx="7" fill="#FDF6E2" stroke="#23577E" stroke-width="2.5"/>
+  <text x="846" y="220" fill="#23577E" text-anchor="middle">χ → 1 · INTENT</text>
+  <text x="846" y="238" font-size="9.5" fill="#6D6551" text-anchor="middle">head + wrists → base yaw</text>
+</g>
+
+<line x1="26" y1="276" x2="874" y2="276" stroke="#151820" stroke-width="2"/>
+<text x="26" y="300" font-family="Bangers, cursive" font-size="15" fill="#C6301A" letter-spacing="1">MEASURED — 60 TRIALS</text>
+
+<g font-family="'Space Mono', monospace" font-size="11" fill="#151820">
+  <rect x="26" y="312" width="196" height="58" rx="7" fill="#E9F2EA" stroke="#2E7D4F" stroke-width="2.5"/>
+  <text x="124" y="336" font-family="Limelight, serif" font-size="21" fill="#2E7D4F" text-anchor="middle">2.3°</text>
+  <text x="124" y="356" font-size="10" fill="#3B5B45" text-anchor="middle">RMS on commanded torso yaw</text>
+
+  <rect x="234" y="312" width="196" height="58" rx="7" fill="#E9F2EA" stroke="#2E7D4F" stroke-width="2.5"/>
+  <text x="332" y="336" font-family="Limelight, serif" font-size="21" fill="#2E7D4F" text-anchor="middle">0.0%</text>
+  <text x="332" y="356" font-size="10" fill="#3B5B45" text-anchor="middle">false base motion</text>
+
+  <rect x="442" y="312" width="138" height="58" rx="7" fill="#FBE9E4" stroke="#C6301A" stroke-width="2.5"/>
+  <text x="511" y="336" font-family="Limelight, serif" font-size="19" fill="#C6301A" text-anchor="middle">43.3°</text>
+  <text x="511" y="356" font-size="9.5" fill="#7A2A18" text-anchor="middle">head-only baseline</text>
+
+  <rect x="590" y="312" width="138" height="58" rx="7" fill="#FBE9E4" stroke="#C6301A" stroke-width="2.5"/>
+  <text x="659" y="336" font-family="Limelight, serif" font-size="19" fill="#C6301A" text-anchor="middle">60.1°</text>
+  <text x="659" y="356" font-size="9.5" fill="#7A2A18" text-anchor="middle">chord fit, hands together</text>
+
+  <rect x="738" y="312" width="136" height="58" rx="7" fill="#FBE9E4" stroke="#C6301A" stroke-width="2.5"/>
+  <text x="806" y="336" font-family="Limelight, serif" font-size="19" fill="#C6301A" text-anchor="middle">44.8°</text>
+  <text x="806" y="356" font-size="9.5" fill="#7A2A18" text-anchor="middle">twist fit, coupled motion</text>
+</g>
+<text x="26" y="392" font-family="'Space Mono', monospace" font-size="10" fill="#6D6551">Baselines confuse neck rotation with body rotation; the analytic fit does not, because it never has to guess which one you meant.</text>
+<text x="26" y="410" font-family="'Space Mono', monospace" font-size="10" fill="#6D6551">Same three streams a Vision Pro already publishes — nothing extra is worn, and the identical path serves iPhone and the browser client.</text>
+</svg></div>
 </div>
     </div>
     <div class="callout fade-up" style="margin-top:clamp(28px,4vh,44px);">
@@ -408,7 +495,7 @@
   </div>
 </footer>
 
-<script src="assets/reach-globe.js?v=67073710"></script>
+<script src="assets/reach-globe.js?v=ccf35b70"></script>
 <script src="assets/burst-variety.js?v=700266a7"></script>
 <script src="assets/mabel.js?v=5dc38e96"></script>
 <script type="module" src="assets/teleop-app.js?v=20260630-balldrag"></script>

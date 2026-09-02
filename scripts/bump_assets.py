@@ -16,7 +16,7 @@ TRACKED = ["assets/mabel.css", "assets/mabel.js",
            "assets/comic-pop.js", "assets/tipover-lab.js",
            "assets/bom-table.js", "assets/bom-pie.js", "assets/reach-globe.js",
            "assets/wbc-viewer.js", "assets/robot-viewer.js", "assets/hero-rig.js",
-           "assets/anatomy.js", "assets/explode-viewer.js", "assets/asm-art.js", "assets/burst-variety.js", "assets/rail-loop.js"]
+           "assets/anatomy.js", "assets/explode-viewer.js", "assets/asm-art.js", "assets/burst-variety.js", "assets/rail-loop.js", "assets/film-player.js"]
 
 def h(path):
     p = os.path.join(ROOT, path)

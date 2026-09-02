@@ -113,6 +113,12 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
   window.addEventListener('resize', resize);
+  /* The stage grows after fonts and layout settle, and a one-shot resize left
+     the canvas at its old size — so the globe drew centred on a box that no
+     longer existed and sat up in the corner. */
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(resize).observe(host.querySelector('.rg-stage'));
+  }
 
   /* orthographic projection of a lat/lon onto the visible hemisphere */
   function project(lat, lon, spin, cx, cy, R) {
@@ -312,7 +318,9 @@
   cv.addEventListener('pointermove', function (e) {
     if (!S.drag) return;
     S.spin = S.drag.spin + (e.clientX - S.drag.x) * 0.42;
-    S.tilt = Math.max(-70, Math.min(70, S.drag.tilt - (e.clientY - S.drag.y) * 0.3));
+    /* drag down → look down on the globe (tilt follows the pointer, it was
+       inverted before) */
+    S.tilt = Math.max(-70, Math.min(70, S.drag.tilt + (e.clientY - S.drag.y) * 0.3));
     S.target = S.spin;
   });
   function endDrag() {
