@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="assets/mabel.css" />
 <script>document.documentElement.classList.add('js');</script>
 </head>
-<body>
+<body class="sec-page">
 
 <div id="progress"></div>
 
@@ -39,7 +39,6 @@
     <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
 </nav>
 
-<!-- ─── PAGE HERO ─── -->
 <section class="page-hero">
   <div class="page-hero-inner">
     <div class="crumbs"><a href="index.html">Overview</a> / Connect</div>
@@ -55,105 +54,25 @@
   </div>
 </section>
 
-<!-- ─── FEATURED ─── -->
-<section class="pad-y">
+<section class="pad-y" id="essentials">
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">Start here</span>
-        <h2 class="display-md title">The <span class="italic accent">essentials.</span><img src="assets/stickers/liberty.svg" alt="" class="sticker" aria-hidden="true" style="width:92px; vertical-align:middle; margin-left:12px; transform:rotate(-6deg);" loading="lazy" /></h2>
+        <span class="eyebrow">Everything, one place</span>
+        <h2 class="display-md title">The <span class="italic accent">essentials.</span><img src="assets/stickers/liberty.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2>
       </div>
-      <p class="lede">Four links that cover most of what you came for. The full directory is just below.</p>
+      <p class="lede">Every link worth having — the code, the manual, the parts, the paper, and all four live studios.</p>
     </div>
-
     <div class="res-grid">
-      <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" class="res-card fade-up">
-        <div class="res-tag">Code</div>
-        <h3>GitHub</h3>
-        <p>The monorepo — ROS 2 stack, whole-body control, learning, firmware, simulation, CAD meshes. MIT licensed.</p>
-        <div class="res-arrow">Open repo ↗</div>
-      </a>
-      <a href="docs/" class="res-card fade-up d1">
-        <div class="res-tag">Build</div>
-        <h3>Replication wiki</h3>
-        <p>The technical manual — BOM, assembly, wiring, firmware, software, bring-up, in build order.</p>
-        <div class="res-arrow">Open wiki →</div>
-      </a>
-      <a href="build.html#bom" class="res-card fade-up d2">
-        <div class="res-tag">Parts</div>
-        <h3>Bill of materials</h3>
-        <p>The interactive BOM — 49-line core, three build tiers, live totals, CSVs and printable PDFs.</p>
-        <div class="res-arrow">Open BOM →</div>
-      </a>
-      <a href="index.html#paper" class="res-card fade-up">
-        <div class="res-tag">Paper</div>
-        <h3>Read the paper</h3>
-        <p>The full technical report — methods, experiments, and results.</p>
-        <div class="res-arrow">Read paper →</div>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ─── DIRECTORY ─── -->
-<section class="soft-sec pad-y">
-  <div class="wrap">
-    <div class="sec-head-center fade-up">
-      <span class="eyebrow">Directory</span>
-      <h2 class="display-md">Everything, organized.</h2>
-    </div>
-
-    <div class="links-grid">
-      <!-- WATCH -->
-      <div class="link-col fade-up">
-        <h3>Watch</h3>
-        <p class="col-sub">See MABEL move.</p>
-        <a class="link-row" href="index.html#wild"><span><span class="lr-title">In the wild</span><span class="lr-meta">Real-world clips · teleop &amp; autonomy</span></span><span class="lr-arrow">→</span></a>
-        <a class="link-row" href="software.html#simulation"><span><span class="lr-title">Simulation captures</span><span class="lr-meta">Swerve · hands · lift · sensors</span></span><span class="lr-arrow">→</span></a>
-        <a class="link-row" href="index.html#play"><span><span class="lr-title">Demo reel</span><span class="lr-meta">On the home page</span></span><span class="lr-arrow">→</span></a>
-      </div>
-
-      <!-- CODE & APPS -->
-      <div class="link-col fade-up d1">
-        <h3>Code &amp; apps</h3>
-        <p class="col-sub">Clone, flash, run.</p>
-        <a class="link-row" href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener"><span><span class="lr-title">GitHub — main repo</span><span class="lr-meta">ROS 2 · WBC · learning · MIT</span></span><span class="lr-arrow">↗</span></a>
-        <a class="link-row" href="https://github.com/robotmabel/MABEL/tree/main/firmware" target="_blank" rel="noopener"><span><span class="lr-title">Firmware</span><span class="lr-meta">Swerve · arms · lift · ORCA hands</span></span><span class="lr-arrow">↗</span></a>
-        <a class="link-row" href="https://github.com/robotmabel/MABEL/tree/main/ios_apps" target="_blank" rel="noopener"><span><span class="lr-title">iPhone app</span><span class="lr-meta">Teleop client · source</span></span><span class="lr-arrow">↗</span></a>
-        <a class="link-row" href="https://github.com/robotmabel/MABEL/tree/main/vision_os_apps" target="_blank" rel="noopener"><span><span class="lr-title">Vision Pro app</span><span class="lr-meta">Whole-body teleop · source</span></span><span class="lr-arrow">↗</span></a>
-        <a class="link-row" href="simulator.html"><span><span class="lr-title">Browser simulator</span><span class="lr-meta">Drive the twin — no install</span></span><span class="lr-arrow">→</span></a>
-      </div>
-
-      <!-- BUILD -->
-      <div class="link-col fade-up">
-        <h3>Build</h3>
-        <p class="col-sub">From filament to robot.</p>
-        <a class="link-row" href="docs/"><span><span class="lr-title">Replication wiki</span><span class="lr-meta">BOM → assembly → firmware → bring-up</span></span><span class="lr-arrow">→</span></a>
-        <a class="link-row" href="build.html#bom"><span><span class="lr-title">Bill of materials</span><span class="lr-meta">Configurator · 3 tiers · CSV + PDFs</span></span><span class="lr-arrow">→</span></a>
-        <a class="link-row" href="https://github.com/robotmabel/MABEL/tree/main/simulation/mabel_mujoco/assets/meshes" target="_blank" rel="noopener"><span><span class="lr-title">CAD — part meshes</span><span class="lr-meta">STL / OBJ per module · the model is the CAD</span></span><span class="lr-arrow">↗</span></a>
-        <a class="link-row" href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener"><span><span class="lr-title">Build guide PDF</span><span class="lr-meta">Illustrated assembly · 15 pages</span></span><span class="lr-arrow">↓</span></a>
-        <a class="link-row" href="assets/bom/MABEL_Wiring_Guide.pdf" target="_blank" rel="noopener"><span><span class="lr-title">Wiring guide PDF</span><span class="lr-meta">Harness · buses · pinouts</span></span><span class="lr-arrow">↓</span></a>
-      </div>
-
-      <!-- DISCUSS (anonymous-safe) -->
-      <div class="link-col fade-up d1">
-        <h3>Discuss</h3>
-        <p class="col-sub">Questions &amp; builds.</p>
-        <a class="link-row" href="https://github.com/robotmabel/MABEL/issues" target="_blank" rel="noopener"><span><span class="lr-title">GitHub Issues</span><span class="lr-meta">Bugs · build problems</span></span><span class="lr-arrow">↗</span></a>
-        <a class="link-row" href="https://github.com/robotmabel/MABEL/discussions" target="_blank" rel="noopener"><span><span class="lr-title">GitHub Discussions</span><span class="lr-meta">Show your build · ask anything</span></span><span class="lr-arrow">↗</span></a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── CTA ─── -->
-<section class="pad-y">
-  <div class="wrap-narrow" style="text-align:center;">
-    <h2 class="display-sm fade-up" style="margin-bottom:24px;">Build one. Show your build.</h2>
-    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" class="btn btn-primary">GitHub ↗</a>
-      <a href="docs/" class="btn btn-ghost">Replication wiki →</a>
-      <a href="index.html#paper" class="btn btn-ghost">Read the paper →</a>
+      <a class="res-card fade-up" href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener"><div class="res-tag">Code</div><h3>GitHub</h3><p>The monorepo — ROS 2 stack, whole-body control, learning, firmware, simulation, CAD meshes. MIT licensed.</p><div class="res-arrow">Open repo ↗</div></a>
+      <a class="res-card fade-up" href="https://app.notion.com/p/3932403b2611812bafeaf63a6afdb42d" target="_blank" rel="noopener"><div class="res-tag">Build</div><h3>Replication wiki</h3><p>The technical manual — BOM, assembly, wiring, firmware, software, bring-up, in build order.</p><div class="res-arrow">Open wiki ↗</div></a>
+      <a class="res-card fade-up" href="build.html#bom"><div class="res-tag">Parts</div><h3>Bill of materials</h3><p>The interactive BOM — 49-line core, three build tiers, live totals, CSVs and printable PDFs.</p><div class="res-arrow">Open BOM →</div></a>
+      <a class="res-card fade-up" href="index.html#paper"><div class="res-tag">Paper</div><h3>Read the paper</h3><p>The full technical report — methods, experiments, and results.</p><div class="res-arrow">Read paper →</div></a>
+      <a class="res-card fade-up" href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener"><div class="res-tag">Drive it</div><h3>Control Studio</h3><p>The simulation cockpit in your browser — 3-D viewer, teleop, telemetry. No install.</p><div class="res-arrow">Open studio ↗</div></a>
+      <a class="res-card fade-up" href="simulator.html"><div class="res-tag">Try it</div><h3>Browser simulator</h3><p>The operator console on an in-browser twin — works on a phone, nothing to set up.</p><div class="res-arrow">Open simulator →</div></a>
+      <a class="res-card fade-up" href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener"><div class="res-tag">Data</div><h3>Data Curation GUI</h3><p>Final-Cut-style curation for imitation-learning episodes → clean LeRobot datasets.</p><div class="res-arrow">Open curation ↗</div></a>
+      <a class="res-card fade-up" href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener"><div class="res-tag">Train</div><h3>Training GUI</h3><p>Explore ACT / Diffusion / π₀ graphs, then queue a real training job on the GPU.</p><div class="res-arrow">Open trainer ↗</div></a>
+      <a class="res-card fade-up" href="https://github.com/robotmabel/MABEL/tree/main/web_gui/setup_studio" target="_blank" rel="noopener"><div class="res-tag">Setup</div><h3>Setup GUI</h3><p>The bring-up assistant — actuator IDs, buses, calibration. Runs on your machine.</p><div class="res-arrow">Get it ↗</div></a>
     </div>
   </div>
 </section>
