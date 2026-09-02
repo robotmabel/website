@@ -509,7 +509,14 @@ class WbcViewer {
       this.greenDot[s] = g;
     }
 
+    /* grabOff  = the raw pull the pointer asks for
+       grabSmooth = what the arm is actually given, bounded to a reachable
+       ball and rate-limited. Feeding the raw pull straight to the IK let the
+       target teleport, and the arm thrashed trying to chase it. */
     this.grabOff = { l: new THREE.Vector3(), r: new THREE.Vector3() };
+    this.grabSmooth = { l: new THREE.Vector3(), r: new THREE.Vector3() };
+    this.GRAB_MAX = this.maxd * 0.26;      // how far a hand may be pulled
+    this.GRAB_RATE = 9.0;                  // 1/s, first-order follow
     this._wireOperateUI();
     this._wireStiffnessUI();
     this._wireGrabOperate();
@@ -527,7 +534,6 @@ class WbcViewer {
     const dom = this.renderer.domElement;
     let side = null;
     dom.addEventListener('pointerdown', (ev) => {
-      if (this.opMode === 'nav') return;         // no palm targets in nav
       const r = dom.getBoundingClientRect();
       const ndc = new THREE.Vector2(
         ((ev.clientX - r.left) / r.width) * 2 - 1,
@@ -572,10 +578,14 @@ class WbcViewer {
   _stepGrab(dt) {
     if (!this.grabOff) return;
     const held = this._grabSide ? this._grabSide() : null;
-    const a = 1 - Math.exp(-(this.SPRING || 9) * dt);
+    const back = 1 - Math.exp(-(this.SPRING || 9) * dt);
+    const follow = 1 - Math.exp(-(this.GRAB_RATE || 9) * dt);
     for (const s of ['l', 'r']) {
-      if (s === held) continue;
-      if (this.stiff) this.grabOff[s].multiplyScalar(1 - a);
+      /* stiff mode returns the commanded offset to zero on release */
+      if (this.stiff && s !== held) this.grabOff[s].multiplyScalar(1 - back);
+      /* the arm always follows its target through a first-order lag, which is
+         what makes a fast drag look compliant instead of frantic */
+      this.grabSmooth[s].lerp(this.grabOff[s], follow);
     }
   }
 
@@ -681,6 +691,16 @@ class WbcViewer {
         sl.value = sl.dataset.def || 0; sl.dispatchEvent(new Event('input'));
       });
       this.pad.x = this.pad.y = 0;
+      /* the green palm handles are part of the state the reader changed, so
+         Reset must return them home too */
+      if (this.grabOff) {
+        for (const s of ['l', 'r']) {
+          this.grabOff[s].set(0, 0, 0);
+          this.grabSmooth[s].set(0, 0, 0);
+          this.gTarget[s].copy(this.gHome[s]);
+          if (this.greenDot[s]) this.greenDot[s].position.copy(this.gHome[s]);
+        }
+      }
       const knob = panel.querySelector('.wbc-knob');
       if (knob) { knob.style.left = '50%'; knob.style.top = '50%'; }
       panel.querySelectorAll('[data-wbc-out="padx"],[data-wbc-out="pady"]').forEach((o) => o.textContent = '+0.00 m');
@@ -696,9 +716,11 @@ class WbcViewer {
       const groups = el.dataset.wbcGroup.split(' ');
       el.style.display = groups.includes(this.opMode) ? '' : 'none';
     });
-    const showGreen = (this.opMode !== 'nav');
-    this.greenDot.l.visible = showGreen;
-    this.greenDot.r.visible = showGreen;
+    /* The green palm targets are the grab handle for the stiff/soft demo, so
+       they stay visible in every mode — including nav, where the reader is
+       most likely to try pushing the robot around. */
+    this.greenDot.l.visible = true;
+    this.greenDot.r.visible = true;
   }
 
   _stepOperate(dt) {
@@ -725,7 +747,12 @@ class WbcViewer {
       this._setLift(this.liftCmd);
       // keep arms in their held rest pose
       this._relax('l', 0.08); this._relax('r', 0.08);
-      this.gTarget.l.copy(this.gHome.l); this.gTarget.r.copy(this.gHome.r);
+      /* honour a drag offset here too, otherwise nav mode would snap the
+         palm target home every frame and the handle could not be moved */
+      this.gTarget.l.copy(this.gHome.l).add(this.grabSmooth.l);
+      this.gTarget.r.copy(this.gHome.r).add(this.grabSmooth.r);
+      this.greenDot.l.position.copy(this.gTarget.l);
+      this.greenDot.r.position.copy(this.gTarget.r);
       return;
     }
 
@@ -740,7 +767,7 @@ class WbcViewer {
     const reach = this.maxd * 0.4;
     for (const s of ['l', 'r']) {
       const o = this.armOff[s];
-      this.gTarget[s].copy(this.gHome[s]).add(this.grabOff[s])
+      this.gTarget[s].copy(this.gHome[s]).add(this.grabSmooth[s])
         .addScaledVector(flat, o.y * reach)      // joystick up = away from camera
         .addScaledVector(right, o.x * reach)
         .add(new THREE.Vector3(0, o.z, 0));

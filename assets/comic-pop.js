@@ -169,6 +169,69 @@
         '<text x="210" y="180" font-family="Bangers, cursive" font-size="18" fill="' + RUST +
         '" text-anchor="middle" letter-spacing="1">AS BUILT — NO MACHINE SHOP</text>');
     },
+    /* a printer laying down a part */
+    printer: function () {
+      return frame(
+        '<rect x="42" y="26" width="336" height="140" rx="8" fill="none" stroke="' + INK + '" stroke-width="5"/>' +
+        '<rect x="60" y="40" width="300" height="10" rx="4" fill="' + INK + '"/>' +
+        '<rect x="176" y="50" width="66" height="34" rx="5" fill="#D9D2C0" stroke="' + INK + '" stroke-width="4"/>' +
+        '<path d="M209 84 L209 108" stroke="' + ORANGE + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<rect x="150" y="108" width="118" height="34" rx="4" fill="' + ORANGE + '" stroke="' + INK + '" stroke-width="4"/>' +
+        '<path d="M158 118h102M158 128h102" stroke="' + INK + '" stroke-width="2" opacity="0.5"/>' +
+        '<rect x="60" y="142" width="300" height="10" rx="4" fill="' + INK + '"/>' +
+        '<circle cx="96" cy="96" r="26" fill="none" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="96" cy="96" r="8" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="3"/>' +
+        '<circle cx="324" cy="96" r="26" fill="none" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="324" cy="96" r="8" fill="' + BLUE + '" stroke="' + INK + '" stroke-width="3"/>');
+    },
+    /* the bench: drivers, iron, meter */
+    tools: function () {
+      return frame(
+        '<rect x="0" y="0" width="420" height="190" fill="url(#ht)" opacity="0.14"/>' +
+        /* hex driver */
+        '<rect x="46" y="40" width="16" height="86" rx="6" fill="' + ORANGE + '" stroke="' + INK + '" stroke-width="4"/>' +
+        '<rect x="50" y="122" width="8" height="30" fill="#B9B2A0" stroke="' + INK + '" stroke-width="3"/>' +
+        /* soldering iron */
+        '<rect x="104" y="46" width="18" height="70" rx="6" fill="' + PANEL + '" stroke="' + INK + '" stroke-width="4"/>' +
+        '<path d="M113 116 L113 150" stroke="' + INK + '" stroke-width="5"/>' +
+        '<circle cx="113" cy="154" r="7" fill="' + RUST + '"/>' +
+        /* multimeter */
+        '<rect x="168" y="52" width="94" height="104" rx="9" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
+        '<rect x="182" y="66" width="66" height="30" rx="3" fill="' + PANEL + '" stroke="' + INK + '" stroke-width="3"/>' +
+        '<circle cx="215" cy="122" r="18" fill="' + PANEL + '" stroke="' + INK + '" stroke-width="4"/>' +
+        '<path d="M215 122 L215 110" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+        /* bench supply */
+        '<rect x="286" y="60" width="94" height="88" rx="8" fill="' + INK + '"/>' +
+        '<rect x="298" y="72" width="70" height="28" rx="3" fill="' + GREEN + '"/>' +
+        '<circle cx="312" cy="126" r="8" fill="' + ORANGE + '"/><circle cx="342" cy="126" r="8" fill="' + PANEL + '"/>');
+    },
+    /* laptop + jetson */
+    computers: function () {
+      return frame(
+        '<path d="M78 130 L96 58 H214 L196 130 Z" fill="' + PANEL + '" stroke="' + INK + '" stroke-width="5" stroke-linejoin="round"/>' +
+        '<path d="M104 66 H206 L192 122 H90 Z" fill="' + BLUE + '"/>' +
+        '<rect x="62" y="130" width="150" height="12" rx="5" fill="#D9D2C0" stroke="' + INK + '" stroke-width="4"/>' +
+        '<rect x="252" y="74" width="112" height="66" rx="8" fill="' + INK + '"/>' +
+        '<rect x="266" y="88" width="84" height="30" rx="3" fill="' + GREEN + '"/>' +
+        '<path d="M252 96h-16M252 110h-16M364 96h16M364 110h16" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+        '<text x="308" y="160" font-family="Space Mono, monospace" font-size="12" fill="' + INK +
+        '" text-anchor="middle">JETSON</text>' +
+        '<text x="137" y="160" font-family="Space Mono, monospace" font-size="12" fill="' + INK +
+        '" text-anchor="middle">YOUR LAPTOP</text>');
+    },
+    /* hands + terminal: the skills you need */
+    skills: function () {
+      return frame(
+        '<rect x="40" y="36" width="164" height="118" rx="8" fill="' + INK + '"/>' +
+        '<path d="M58 66 l18 14 -18 14M86 94h34" stroke="' + GREEN + '" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+        '<rect x="58" y="112" width="120" height="6" rx="3" fill="' + GREEN + '" opacity="0.6"/>' +
+        '<g transform="translate(300,96)">' +
+        '<rect x="-34" y="-6" width="68" height="40" rx="10" fill="#D9D2C0" stroke="' + INK + '" stroke-width="4"/>' +
+        '<rect x="-26" y="-48" width="12" height="46" rx="6" fill="' + PANEL + '" stroke="' + INK + '" stroke-width="4"/>' +
+        '<rect x="-8" y="-56" width="12" height="54" rx="6" fill="' + PANEL + '" stroke="' + INK + '" stroke-width="4"/>' +
+        '<rect x="10" y="-50" width="12" height="48" rx="6" fill="' + PANEL + '" stroke="' + INK + '" stroke-width="4"/>' +
+        '<rect x="-48" y="4" width="18" height="12" rx="6" fill="' + PANEL + '" stroke="' + INK + '" stroke-width="4"/></g>');
+    },
     /* generic: MABEL says hi */
     hello: function () {
       return frame(

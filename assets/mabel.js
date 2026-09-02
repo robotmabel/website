@@ -371,8 +371,18 @@
         hi.style.position = 'absolute'; hi.style.inset = '0';
         hi.style.width = '100%'; hi.style.height = '100%';
         hi.style.opacity = '0';
+        /* Wrap the clip in its own positioned box first. Absolutely
+           positioning the incoming copy against the <figure> made it cover
+           the caption underneath — and if canplay never fired (an off-screen
+           clip stays paused) the caption stayed hidden for good. */
         var parent = v.parentNode;
-        if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
+        if (!parent.classList || !parent.classList.contains('vid-swap')) {
+          var wrap = document.createElement('span');
+          wrap.className = 'vid-swap';
+          parent.insertBefore(wrap, v);
+          wrap.appendChild(v);
+          parent = wrap;
+        }
         var reveal = function () {
           hi.removeEventListener('canplay', reveal);
           try { hi.currentTime = t; } catch (e) {}

@@ -287,36 +287,26 @@
      with a tall card and the cursor low in the viewport the old flip pushed
      it hundreds of pixels above the item it described. */
   var pvRow = null;
+  /* The card sits at the TOP-RIGHT of the cursor, always — bottom-left
+     corner just above and right of the pointer. It only moves if that would
+     put it off screen: it drops below the cursor when there is no room above,
+     and flips to the left when there is no room right. Nothing else shifts
+     it, so it never drifts to a corner of the page. */
   function movePreview(ev) {
     if (pv.hidden) return;
-    /* Use the CSS-declared box, not offsetHeight: the card is positioned in
-       the same tick its contents are written, so offsetHeight could still be
-       reporting a pre-layout value and the clamp then parked the card far
-       from the cursor. */
-    var pad = 14, w = pv.offsetWidth || 230, h = pv.offsetHeight || 218;
-    var x = (ev && ev.clientX != null ? ev.clientX : 0) + pad;
-    if (x + w > window.innerWidth - 8) x = (ev.clientX || 0) - w - pad;
-    x = Math.max(8, x);
+    var GAP = 14;
+    var w = pv.offsetWidth || 230, h = pv.offsetHeight || 218;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var cx = (ev && ev.clientX != null) ? ev.clientX : vw / 2;
+    var cy = (ev && ev.clientY != null) ? ev.clientY : vh / 2;
 
-    /* vertically: sit beside the pointer, biased to the hovered row, and
-       clamp into the viewport. Anchoring to the row alone drifted away from
-       the cursor on long tables; anchoring to the cursor alone flipped the
-       card hundreds of pixels up when it ran out of room below. */
-    var cy = (ev && ev.clientY != null) ? ev.clientY : null;
-    if (pvRow) {
-      var b = pvRow.getBoundingClientRect();
-      cy = (cy == null) ? b.top + b.height / 2
-                        : Math.max(b.top - 4, Math.min(b.bottom + 4, cy));
-    }
-    var vh = window.innerHeight;
-    var y = (cy == null ? pad : cy - h / 2);
-    y = Math.min(Math.max(8, y), Math.max(8, vh - h - 8));
-    /* keep the cursor inside the card's vertical span wherever the geometry
-       allows, so the card always reads as attached to the row under it */
-    if (cy != null) {
-      if (cy < y) y = Math.max(8, cy - 14);
-      else if (cy > y + h) y = Math.min(vh - h - 8, cy - h + 14);
-    }
+    var x = cx + GAP;                       // to the right of the pointer
+    if (x + w > vw - 8) x = cx - w - GAP;   // no room right → go left
+    x = Math.max(8, Math.min(x, vw - w - 8));
+
+    var y = cy - h - GAP;                   // above the pointer
+    if (y < 8) y = cy + GAP;                // no room above → go below
+    y = Math.max(8, Math.min(y, vh - h - 8));
 
     pv.style.left = Math.round(x) + 'px';
     pv.style.top = Math.round(y) + 'px';

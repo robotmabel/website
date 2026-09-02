@@ -2876,3 +2876,180 @@ h1 > .sticker.sticker-hi, h2 > .sticker.sticker-hi, h3 > .sticker.sticker-hi {
   -webkit-text-stroke-width: 2px;
   z-index: 95;
 }
+/* the clip-upgrade wrapper: keeps the incoming copy over the video only,
+   never over the caption beneath it */
+.vid-swap { position: relative; display: block; line-height: 0; }
+.vid-swap > video { display: block; width: 100%; }
+
+/* ═══ Equations — academic setting on a comic plate ═══
+   One centred display line per result, constraints beneath it, set in a
+   proper math face (italic serif for symbols) rather than monospace ASCII. */
+.eq-card .eq { display: block; padding: 20px 22px 6px; text-align: center; }
+.eq-main {
+  display: block; overflow-x: auto; overflow-y: hidden; white-space: nowrap;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia,
+               'Times New Roman', serif;
+  font-style: italic; font-size: clamp(15px, 1.5vw, 21px); line-height: 1.7;
+  color: #F4EAD2; letter-spacing: 0.005em;
+  padding-bottom: 4px;
+}
+.eq-main b { color: var(--orange); font-weight: 700; font-style: italic; }
+.eq-main sub, .eq-main sup { font-size: 0.66em; font-style: normal; letter-spacing: 0; }
+.eq-sub { display: block; margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid rgba(217,161,63,0.28); }
+.eq-line {
+  display: block; overflow-x: auto; white-space: nowrap;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-style: italic; font-size: clamp(12.5px, 1.15vw, 15.5px); line-height: 2;
+  color: #CFC6AE;
+}
+.eq-line b { color: var(--yellow); font-weight: 700; }
+.eq-line.hot { color: #F4EAD2; }
+.eq-line i {
+  display: inline-block; margin-left: 14px; font-style: normal;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #8FC7A8; vertical-align: 2px;
+}
+.eq-line sub, .eq-line sup { font-size: 0.7em; font-style: normal; }
+/* the plate itself: deeper, with a brass rule under the title */
+.eq-card { background: linear-gradient(180deg, #151A24 0%, #10131B 100%) !important;
+  border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
+.dark-sec .eq-card { box-shadow: 6px 6px 0 rgba(0,0,0,0.75); border-color: rgba(217,161,63,0.5); }
+.eq-card .eq-gloss { text-align: left; padding: 4px 22px 18px;
+  font-family: var(--font-sans); font-size: 12.5px; line-height: 1.65; }
+@media (max-width: 620px) {
+  .eq-card .eq { padding: 15px 14px 4px; }
+  .eq-line i { display: block; margin: 2px 0 6px; }
+}
+
+/* ═══ Assembly modules as a comic page ═══
+   Each step is a panel, not a list row. Panel widths follow a fixed rhythm
+   (7-5 / 5-7 / 4-4-4) so the page has Kirby-ish variation while the reading
+   order stays a plain left-to-right, top-to-bottom Z — the eye is led, not
+   puzzled. The imperative becomes the narration caption across the top of
+   the panel; the aside becomes a balloon at the foot of it. */
+.asm-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, 300px);
+  gap: clamp(14px, 2vw, 22px); align-items: start; }
+@media (max-width: 900px) { .asm-body { grid-template-columns: 1fr; } }
+
+ol.asm-steps {
+  display: grid; grid-template-columns: repeat(12, 1fr);
+  gap: 12px; list-style: none; margin: 0; padding: 0; counter-reset: asmstep;
+}
+ol.asm-steps li {
+  counter-increment: asmstep; position: relative;
+  grid-column: span 6;                       /* default beat */
+  border: 2px solid var(--ink); border-radius: 6px;
+  background: var(--panel); box-shadow: 5px 5px 0 var(--ink);
+  padding: 30px 14px 14px; margin: 0;
+  font-size: 13.5px; line-height: 1.6; color: var(--ink-soft);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+ol.asm-steps li:last-child { border-bottom: 2px solid var(--ink); }
+ol.asm-steps li:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--orange); }
+
+/* the panel rhythm — establishing shot, then beats */
+ol.asm-steps li:nth-child(7n+1) { grid-column: span 7; }
+ol.asm-steps li:nth-child(7n+2) { grid-column: span 5; }
+ol.asm-steps li:nth-child(7n+3) { grid-column: span 5; }
+ol.asm-steps li:nth-child(7n+4) { grid-column: span 7; }
+ol.asm-steps li:nth-child(7n+5),
+ol.asm-steps li:nth-child(7n+6),
+ol.asm-steps li:nth-child(7n)   { grid-column: span 4; }
+/* a lone trailing panel takes the full width rather than leaving a hole */
+ol.asm-steps li:last-child:nth-child(3n+1) { grid-column: span 12; }
+
+/* the narration bar carries the panel number */
+ol.asm-steps li::before {
+  content: counter(asmstep, decimal-leading-zero);
+  position: absolute; top: 0; left: 0; right: 0; height: 20px;
+  display: flex; align-items: center; padding: 0 10px;
+  background: var(--ink); color: var(--yellow);
+  font-family: var(--font-comic); font-size: 11px; letter-spacing: 0.14em;
+  border-radius: 3px 3px 0 0;
+}
+ol.asm-steps li:nth-child(7n+1)::before { background: var(--rust); color: #FFF6E4; }
+ol.asm-steps li:nth-child(7n+4)::before { background: var(--blue); color: #FFF6E4; }
+ol.asm-steps li strong {
+  display: block; font-family: var(--font-comic); font-weight: 400;
+  font-size: 16px; letter-spacing: 0.02em; color: var(--ink);
+  line-height: 1.2; margin-bottom: 5px;
+}
+/* the aside becomes a small balloon at the foot of the panel */
+ol.asm-steps li .tip {
+  display: block; margin-top: 10px; padding: 7px 10px;
+  border: 2px solid var(--ink); border-radius: 12px; background: #FFF9F0;
+  font-family: var(--font-mono); font-size: 10.5px; line-height: 1.5;
+  color: var(--ash); position: relative;
+}
+ol.asm-steps li .tip::after {
+  content: ''; position: absolute; left: 18px; bottom: -9px;
+  border: 6px solid transparent; border-top: 10px solid var(--ink);
+  border-left-width: 2px;
+}
+@media (max-width: 760px) {
+  ol.asm-steps { grid-template-columns: 1fr; gap: 10px; }
+  ol.asm-steps li,
+  ol.asm-steps li:nth-child(7n+1), ol.asm-steps li:nth-child(7n+2),
+  ol.asm-steps li:nth-child(7n+3), ol.asm-steps li:nth-child(7n+4),
+  ol.asm-steps li:nth-child(7n+5), ol.asm-steps li:nth-child(7n+6),
+  ol.asm-steps li:nth-child(7n),
+  ol.asm-steps li:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
+}
+
+/* the spec plate reads as the page's data panel */
+.asm-side { border: 2px solid var(--ink); border-radius: 6px; background: var(--ink);
+  box-shadow: 5px 5px 0 var(--gold); padding: 14px 15px 16px; }
+.asm-side h6 { font-family: var(--font-comic); font-size: 13px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--yellow); margin: 0 0 10px; }
+.asm-side dl { margin: 0; display: grid; grid-template-columns: 1fr; gap: 8px; }
+.asm-side dt { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.11em;
+  text-transform: uppercase; color: var(--ash-light); }
+.asm-side dd { margin: 2px 0 0; font-size: 13px; color: var(--bone); line-height: 1.4; }
+.asm-side a { color: var(--yellow); }
+
+/* Stacked-table cells must be allowed to shrink: a grid track defaults to
+   min-content, so a wide cell kept the "stacked" table 556 px wide inside a
+   350 px column and it still scrolled sideways. */
+@media (max-width: 620px) {
+  .bt-table, #bomRows { width: 100% !important; max-width: 100% !important; table-layout: fixed; }
+  .bt-table tr, #bomRows tr { width: auto !important; max-width: 100% !important; }
+  .bt-table td, #bomRows td {
+    grid-template-columns: 74px minmax(0, 1fr) !important;
+    width: auto !important; max-width: 100% !important;
+    overflow-wrap: anywhere; word-break: break-word;
+  }
+  .bt-table td::before, #bomRows td::before { min-width: 0; }
+  #bom .table-scroll, .bt-scroll { max-width: 100%; }
+}
+
+/* The BOM summary is only three short columns — on a phone it does not need
+   stacking at all, just a fixed layout that cannot exceed its container.
+   (Stacking it left a grid cell sized by the old table layout, so it kept
+   overflowing; a fixed 3-column table fits 350 px with room to spare.) */
+@media (max-width: 620px) {
+  #bomRows, #bomRows thead, #bomRows tbody, #bomRows tr, #bomRows td, #bomRows th {
+    display: revert;
+  }
+  #bomRows { display: table !important; width: 100% !important; max-width: 100% !important;
+    table-layout: fixed; font-size: 11.5px; }
+  #bomRows thead { display: table-header-group !important; }
+  #bomRows tr { display: table-row !important; }
+  #bomRows th, #bomRows td { display: table-cell !important; padding: 6px 5px !important;
+    overflow-wrap: anywhere; }
+  #bomRows td::before, #bomRows th::before { content: none !important; }
+  #bomRows th:nth-child(1), #bomRows td:nth-child(1) { width: 54%; }
+  #bomRows th:nth-child(2), #bomRows td:nth-child(2) { width: 18%; }
+  #bomRows th:nth-child(3), #bomRows td:nth-child(3) { width: 28%; }
+  #bomRows .bom-dot { width: 7px; height: 7px; margin-right: 5px; }
+}
+
+/* `.table-scroll .data-table { min-width: 560px }` is what actually forced
+   the BOM summary to 556 px inside a 350 px column — the stacking rules were
+   applying fine, the table just had a floor. Below 620 px there is no floor. */
+@media (max-width: 620px) {
+  .table-scroll .data-table,
+  .table-scroll.tight .data-table,
+  .table-scroll.fit .data-table { min-width: 0 !important; width: 100% !important; }
+  .table-scroll { overflow-x: visible; }
+}
