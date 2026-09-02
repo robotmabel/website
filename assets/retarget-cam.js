@@ -30,6 +30,12 @@ document.querySelectorAll('#retargetCam, [data-retarget-cam]').forEach(boot);
 const MP_VER = '0.10.14';
 const MP_BUNDLE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}`;
 const POSE_TASK = `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`;
+const HAND_TASK = `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`;
+
+/* Inference is throttled to this, independently of the render loop — the
+   Control Studio does the same. Running the models inside every animation
+   frame is what pinned this demo at about 1 fps. */
+const INFER_HZ = 24;
 
 /* MediaPipe pose landmark indices we use */
 const L = { nose: 0, lShoulder: 11, rShoulder: 12, lElbow: 13, rElbow: 14,
@@ -100,7 +106,7 @@ function boot(HOST) {
   let rig = null, chains = { l: [], r: [] }, ee = { l: null, r: null },
       home = { l: new THREE.Vector3(), r: new THREE.Vector3() },
       target = { l: new THREE.Vector3(), r: new THREE.Vector3() },
-      dot = {}, ready = false;
+      dot = {}, head3 = null, ready = false;
 
   const loader = new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);      // the rig is meshopt-compressed
@@ -137,6 +143,7 @@ function boot(HOST) {
                                            emissiveIntensity: 0.5 }));
         scene.add(m); dot[s] = m;
       });
+      head3 = rig.getObjectByName('head') || rig.getObjectByName('neck_2') || null;
       ready = true;
       window.__rcReady = { joints: chains.l.length + chains.r.length, ee: !!(ee.l && ee.r) };
     });
@@ -188,7 +195,9 @@ function boot(HOST) {
   if ('ResizeObserver' in window) new ResizeObserver(resize).observe(HOST);
 
   /* ── pose → robot ─────────────────────────────────────────────────── */
-  let landmarker = null, running = false, lastT = 0, fps = 0;
+  let landmarker = null, hands = null, running = false, lastT = 0, fps = 0;
+  let lastInfer = 0, lastPose = null, lastHands = null, lastPx = null;
+  let sfxUntil = 0, sfxWord = '', gesture = '';
   let psi = 0, chi = 0, psi0 = null;
 
   async function start() {
@@ -206,6 +215,12 @@ function boot(HOST) {
         baseOptions: { modelAssetPath: POSE_TASK, delegate: 'GPU' },
         runningMode: 'VIDEO', numPoses: 1
       });
+      try {
+        hands = await vision.HandLandmarker.createFromOptions(files, {
+          baseOptions: { modelAssetPath: HAND_TASK, delegate: 'GPU' },
+          runningMode: 'VIDEO', numHands: 2
+        });
+      } catch (e) { hands = null; }        // pose alone still drives the arms
     } catch (e) {
       fail('The pose model failed to start on this device.');
       return;
@@ -255,37 +270,111 @@ function boot(HOST) {
     for (var s of ['l', 'r']) if (ee[s]) target[s].copy(home[s]);
   }
 
-  function drawSkeleton(lm, w, h) {
+  /* Comic-book overlay: everything gets a heavy ink outline first, the colour
+     laid over it, and the joints drawn as inked dots — the same treatment as
+     the rest of the site rather than hairline debug lines. */
+  function inked(draw, color, w) {
+    octx.lineCap = 'round'; octx.lineJoin = 'round';
+    octx.strokeStyle = '#151820'; octx.lineWidth = w + 6; draw();
+    octx.strokeStyle = color; octx.lineWidth = w; draw();
+  }
+
+  function drawSkeleton(lm, handSets, t) {
     octx.clearRect(0, 0, overlay.width, overlay.height);
     if (!lm) return;
-    const P = (i) => [(1 - lm[i].x) * overlay.width, lm[i].y * overlay.height];
+    const W = overlay.width, H = overlay.height;
+    const P = (i) => [(1 - lm[i].x) * W, lm[i].y * H];
+
+    /* torso + arms */
     const bones = [[11, 13], [13, 15], [12, 14], [14, 16], [11, 12], [11, 23], [12, 24], [23, 24]];
-    octx.strokeStyle = '#F0762E'; octx.lineWidth = 4; octx.lineCap = 'round';
-    bones.forEach(([a, b]) => {
-      if (!lm[a] || !lm[b]) return;
-      const [x0, y0] = P(a), [x1, y1] = P(b);
-      octx.beginPath(); octx.moveTo(x0, y0); octx.lineTo(x1, y1); octx.stroke();
-    });
+    inked(() => {
+      octx.beginPath();
+      bones.forEach(([a, b]) => {
+        if (!lm[a] || !lm[b]) return;
+        const [x0, y0] = P(a), [x1, y1] = P(b);
+        octx.moveTo(x0, y0); octx.lineTo(x1, y1);
+      });
+      octx.stroke();
+    }, '#F0762E', 9);
+
+    /* the head, and where it is looking */
+    if (lm[L.nose] && lm[7] && lm[8]) {
+      const [nx, ny] = P(L.nose);
+      const [lx] = P(7), [rx] = P(8);
+      const r = Math.max(16, Math.abs(rx - lx) * 0.7);
+      octx.beginPath(); octx.arc(nx, ny, r, 0, 6.283);
+      octx.fillStyle = 'rgba(253,246,226,0.9)'; octx.fill();
+      octx.strokeStyle = '#151820'; octx.lineWidth = 5; octx.stroke();
+      const gaze = ((lx + rx) / 2 - nx) / Math.max(1, r);
+      inked(() => {
+        octx.beginPath();
+        octx.moveTo(nx, ny);
+        octx.lineTo(nx - gaze * r * 2.6, ny + r * 0.5);
+        octx.stroke();
+      }, '#2E7D4F', 6);
+    }
+
+    /* the hands, when the hand model has them */
+    if (handSets && handSets.length) {
+      const HB = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],
+                  [10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],
+                  [18,19],[19,20],[5,9],[9,13],[13,17]];
+      handSets.forEach((hand) => {
+        inked(() => {
+          octx.beginPath();
+          HB.forEach(([a, b]) => {
+            if (!hand[a] || !hand[b]) return;
+            octx.moveTo((1 - hand[a].x) * W, hand[a].y * H);
+            octx.lineTo((1 - hand[b].x) * W, hand[b].y * H);
+          });
+          octx.stroke();
+        }, '#F2C94C', 5);
+      });
+    }
+
+    /* inked joints — the wrists in green, because they drive the robot */
     [11, 12, 13, 14, 15, 16].forEach((i) => {
       if (!lm[i]) return;
       const [x, y] = P(i);
-      octx.beginPath(); octx.arc(x, y, 6, 0, 6.283);
+      octx.beginPath(); octx.arc(x, y, 8, 0, 6.283);
       octx.fillStyle = (i === 15 || i === 16) ? '#2E7D4F' : '#FDF6E2';
-      octx.fill(); octx.strokeStyle = '#151820'; octx.lineWidth = 2.5; octx.stroke();
-      octx.strokeStyle = '#F0762E'; octx.lineWidth = 4;
+      octx.fill(); octx.strokeStyle = '#151820'; octx.lineWidth = 4; octx.stroke();
     });
+
+    /* the reaction */
+    if (t < sfxUntil && sfxWord) {
+      const k = 1 - (sfxUntil - t) / 1200;
+      octx.save();
+      octx.translate(W * 0.5, H * 0.2 - k * 18);
+      octx.rotate(-0.12);
+      octx.font = '700 ' + Math.round(H * 0.14) + 'px Bangers, Impact, sans-serif';
+      octx.textAlign = 'center';
+      octx.lineWidth = 10; octx.strokeStyle = '#151820';
+      octx.strokeText(sfxWord, 0, 0);
+      octx.fillStyle = '#F2C94C'; octx.fillText(sfxWord, 0, 0);
+      octx.restore();
+    }
   }
 
   function step(t) {
     requestAnimationFrame(step);
-    if (ready) {
-      if (running && landmarker && video.readyState >= 2) {
+    if (running && landmarker && video.readyState >= 2 &&
+        t - lastInfer >= 1000 / INFER_HZ) {
+      lastInfer = t;
+      try {
         const res = landmarker.detectForVideo(video, t);
-        const world = res.worldLandmarks && res.worldLandmarks[0];
-        const px = res.landmarks && res.landmarks[0];
-        drawSkeleton(px, video.videoWidth, video.videoHeight);
-        if (world) mapPose(world);
-      }
+        lastPose = (res.worldLandmarks && res.worldLandmarks[0]) || null;
+        lastPx = (res.landmarks && res.landmarks[0]) || null;
+        if (hands) {
+          const hr = hands.detectForVideo(video, t);
+          lastHands = (hr && hr.landmarks) || null;
+        }
+      } catch (e) { /* a dropped frame is not worth killing the loop over */ }
+      if (lastPose) mapPose(lastPose);
+      if (lastPx) readGesture(lastPx, t);
+      drawSkeleton(lastPx, lastHands, t);
+    }
+    if (ready) {
       ['l', 'r'].forEach((s) => {
         if (!ee[s]) return;
         ik(s, target[s], 0.45, 2);
@@ -296,7 +385,23 @@ function boot(HOST) {
     if (lastT) fps = fps * 0.9 + (1000 / Math.max(1, t - lastT)) * 0.1;
     lastT = t;
     elFps.textContent = fps ? fps.toFixed(0) : '—';
-    requestAnimationFrame;
+  }
+
+  /* ── what your body is doing, in comic terms ──────────────────────────
+     Read off the pixel landmarks, which are already normalised to the frame,
+     so the tests are resolution-independent. */
+  function readGesture(p, t) {
+    const N = L, up = (w, s) => p[w] && p[s] && p[w].y < p[s].y - 0.06;
+    const lUp = up(N.lWrist, N.lShoulder), rUp = up(N.rWrist, N.rShoulder);
+    const span = (p[N.lWrist] && p[N.rWrist])
+      ? Math.abs(p[N.lWrist].x - p[N.rWrist].x) : 0;
+    const together = span > 0 && span < 0.10;
+    let g = '';
+    if (lUp && rUp) g = span > 0.45 ? 'TA-DA!' : 'HANDS UP!';
+    else if (lUp || rUp) g = 'WAVE~~';
+    else if (together) g = 'CLAP!';
+    if (g && g !== gesture) { sfxWord = g; sfxUntil = t + 1200; }
+    gesture = g;
   }
 
   function mapPose(w) {
@@ -326,6 +431,16 @@ function boot(HOST) {
     elChi.textContent = chi.toFixed(2);
     elMode.textContent = chi > 0.5 ? 'intent → base would turn' : 'gaze → neck only';
     elMode.className = 'rc-mode ' + (chi > 0.5 ? 'drive' : 'look');
+
+    /* the neck follows your head: yaw from the ear/nose offset, pitch from
+       how far the nose sits below the shoulder line */
+    const nose = w[L.nose], ls2 = w[L.lShoulder], rs2 = w[L.rShoulder];
+    if (nose && head3 && ls2 && rs2) {
+      const mid = { x: (ls2.x + rs2.x) / 2, y: (ls2.y + rs2.y) / 2, z: (ls2.z + rs2.z) / 2 };
+      const yaw = Math.max(-0.8, Math.min(0.8, -(nose.x - mid.x) * k * 3.2));
+      const pitch = Math.max(-0.5, Math.min(0.5, (nose.y - mid.y) * k * 2.4 + 0.15));
+      head3.rotation.set(pitch * 0.6, yaw, 0);
+    }
 
     /* mirror image: your right hand drives the robot's right hand as you see it */
     ['l', 'r'].forEach((s) => {
