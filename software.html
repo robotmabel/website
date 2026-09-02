@@ -404,14 +404,67 @@
 
     <!-- the twin, moving: four captures straight from the MuJoCo stack -->
     <div class="fade-up" style="margin-top:44px; display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
-      <div class="strip-panel"><video src="assets/sim/swerve.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Holonomic swerve — the 3-module base translating and spinning at once</span></div>
+      <div class="strip-panel"><video src="assets/sim/swerve.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Holonomic swerve — translating and spinning at once (studio nav clips)</span></div>
       <div class="strip-panel"><video src="assets/sim/hands.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">ORCA hands — 17 tendon DOF each, per-finger retargeting</span></div>
       <div class="strip-panel"><video src="assets/sim/lift.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Lift — 0.635 m of travel, tip-over envelope tightening as it rises</span></div>
-      <div class="strip-panel"><video src="assets/sim/sensors.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Sensors — head stereo, wrist cams and lidar rendered in-sim</span></div>
+      <div class="strip-panel"><video src="assets/sim/wave.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Wave Hello — a Control Studio animation clip played on the twin</span></div>
     </div>
     <div class="fade-up" style="margin-top:16px;">
-      <figure class="paper-fig" style="margin:0;"><img src="assets/paper/06_sim_architecture.jpg" alt="Simulation architecture: one canonical MJCF driving the twin and the real robot through the same gateway" style="width:100%; display:block;" loading="lazy"/></figure>
-      <span class="fig-label paper-fig-cap"><b>Architecture</b> One canonical model, one gateway — the twin and the real robot behind the same wire contract.</span>
+      <div class="paper-fig" style="background:var(--panel); padding: clamp(16px,3vw,34px);"><svg viewBox="0 0 880 700" role="img" aria-label="One canonical MJCF model generates every derived artifact; one RobotCommand contract flows through the controller into either the MuJoCo plant or the hardware bridge, selected by a single launch flag; state streams back to every client" style="width:100%;height:auto;display:block;">
+<defs><marker id="simArr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#151820"/></marker></defs>
+<!-- ── (a) canonical model ── -->
+<text x="30" y="38" font-family="Bangers, cursive" font-size="24" fill="#F0762E" letter-spacing="1.5">1 · THE CANONICAL MODEL</text>
+<rect x="36" y="62" width="230" height="72" rx="14" fill="rgba(21,24,32,0.85)"/>
+<rect x="30" y="56" width="230" height="72" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="4"/>
+<text x="145" y="88" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">mabel_full.xml</text>
+<text x="145" y="112" text-anchor="middle" font-family="Jost, sans-serif" font-size="14" fill="#6D6551">MuJoCo MJCF — one source of truth</text>
+<path d="M262 92 H320" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
+<g font-family="'Space Mono', monospace" font-size="13.5" fill="#151820">
+  <rect x="336" y="48" width="180" height="30" rx="9" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/><text x="426" y="68" text-anchor="middle">URDF + TF</text>
+  <rect x="336" y="84" width="180" height="30" rx="9" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/><text x="426" y="104" text-anchor="middle">meshes + GLB</text>
+  <rect x="336" y="120" width="180" height="30" rx="9" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/><text x="426" y="140" text-anchor="middle">balance params</text>
+</g>
+<text x="560" y="100" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">67 q · 59 actuators</text>
+<text x="560" y="120" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">9 cameras · 370 sensors</text>
+<!-- ── (b) one contract ── -->
+<text x="30" y="204" font-family="Bangers, cursive" font-size="24" fill="#F0762E" letter-spacing="1.5">2 · ONE COMMAND CONTRACT — EITHER PLANT</text>
+<g font-family="'Space Mono', monospace" font-size="12.5" fill="#151820">
+  <rect x="150" y="224" width="112" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="206" y="243" text-anchor="middle">VISION PRO</text>
+  <rect x="272" y="224" width="94" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="319" y="243" text-anchor="middle">IPHONE</text>
+  <rect x="376" y="224" width="70" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="411" y="243" text-anchor="middle">WEB</text>
+  <rect x="456" y="224" width="94" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="503" y="243" text-anchor="middle">POLICY</text>
+  <rect x="560" y="224" width="70" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="595" y="243" text-anchor="middle">NAV2</text>
+</g>
+<path d="M390 258 V282" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
+<rect x="216" y="294" width="360" height="64" rx="14" fill="rgba(21,24,32,0.85)"/>
+<rect x="210" y="288" width="360" height="64" rx="14" fill="#D9A13F" stroke="#151820" stroke-width="4"/>
+<text x="390" y="316" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">RobotCommand</text>
+<text x="390" y="338" text-anchor="middle" font-family="Jost, sans-serif" font-size="14" fill="#3F3524">base · body · hands</text>
+<path d="M390 358 V382" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
+<rect x="216" y="394" width="360" height="64" rx="14" fill="rgba(21,24,32,0.85)"/>
+<rect x="210" y="388" width="360" height="64" rx="14" fill="#F0762E" stroke="#151820" stroke-width="4"/>
+<text x="390" y="416" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#FFF9F0">controller</text>
+<text x="390" y="438" text-anchor="middle" font-family="Jost, sans-serif" font-size="14" fill="#FFF3E2">retarget · WBC · impedance · safe_base_step</text>
+<path d="M390 458 V482" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
+<rect x="90" y="492" width="600" height="96" rx="16" fill="none" stroke="#151820" stroke-width="3" stroke-dasharray="10 8"/>
+<rect x="122" y="516" width="240" height="52" rx="12" fill="#DDE9DC" stroke="#151820" stroke-width="3.5"/>
+<text x="242" y="538" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#151820">MuJoCo plant</text>
+<text x="242" y="558" text-anchor="middle" font-family="Jost, sans-serif" font-size="13" fill="#2E7D4F">the twin — 500 Hz</text>
+<text x="390" y="548" text-anchor="middle" font-family="Bangers, cursive" font-size="19" fill="#C6301A">OR</text>
+<rect x="418" y="516" width="240" height="52" rx="12" fill="#FFFDF0" stroke="#151820" stroke-width="3.5"/>
+<text x="538" y="538" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#151820">hardware bridge</text>
+<text x="538" y="558" text-anchor="middle" font-family="Jost, sans-serif" font-size="13" fill="#6D6551">the real robot</text>
+<g transform="rotate(-6 700 500)">
+  <rect x="622" y="480" width="156" height="40" rx="10" fill="#F0762E" stroke="#151820" stroke-width="3.5"/>
+  <text x="700" y="506" text-anchor="middle" font-family="Bangers, cursive" font-size="16" fill="#FFF9F0" letter-spacing="1">ONE LAUNCH FLAG</text>
+</g>
+<!-- state back -->
+<path d="M690 620 H120" stroke="#23577E" stroke-width="3.5" marker-end="url(#simArr2)"/>
+<defs><marker id="simArr2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#23577E"/></marker></defs>
+<text x="390" y="644" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#23577E">joint state · TF · RGB-D · LiDAR · diagnostics — back to every client</text>
+<text x="390" y="684" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">35 scenes · 19 static · 16 with moving actors</text>
+</svg></div>
+      <span class="fig-label paper-fig-cap"><b>Architecture</b> One canonical model, one command contract — the twin and the real robot behind the same wire, chosen by a single launch flag.</span>
     </div>
   </div>
 </section>
