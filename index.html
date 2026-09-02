@@ -124,8 +124,7 @@
           <img src="assets/wild/hero-photo.jpg" alt="MABEL v1.0, as built — white shells, twin ORCA hands, swerve base" loading="eager" style="display:block;width:100%;height:auto;" />
           <p class="caption-box" style="position:absolute; left:14px; bottom:14px; margin:0; font-size:11px; padding:6px 10px;">v1.0 · as built · no renders</p>
         </div>
-        <span class="fig-label paper-fig-cap"><b>The real one</b> This exact robot is the one in every clip below.</span>
-      </div>
+</div>
     </div>
 
     <div class="divider" style="margin:clamp(48px,7vh,80px) 0;"></div>
@@ -181,10 +180,6 @@
         </div>
       </div>
     </div>
-    <p class="table-note fade-up" style="margin-top:14px;">Prefer a whole tab?
-      <a href="simulator.html" style="color:var(--rust);">Open the simulator full-screen</a> ·
-      how it works: <a href="teleop.html" style="color:var(--rust);">teleop docs</a>.
-      When a live bridge is reachable, the same console drives the hosted MuJoCo sim — or the real robot.</p>
   </div>
 </section>
 
@@ -292,7 +287,6 @@
         </div>
       </div>
     </div>
-    <p class="table-note fade-up" style="margin-top:14px;"><strong>Figure 1.</strong> The MABEL stack — click any block to dive into that subsystem. Commands flow down (intent → joint targets); joint state, odometry, and vision flow up; the digital twin shares the URDF and ROS&nbsp;2 interfaces.</p>
     <div class="points fade-up" style="margin-top:38px;">
       <div class="point"><div class="num">01</div><div>
         <h5>One source of geometry</h5>
@@ -341,13 +335,13 @@
           <button data-module="base"><b>Swerve base</b><span>3 modules</span></button>
         </div>
         <div class="anat-copy">
-          <div data-copy="all"><p>The whole platform, assembled. Click a module to x-ray the rest away — the robot keeps living while you look.</p></div>
-          <div data-copy="hands" hidden><p>Tendon-driven anthropomorphic hands — 16 finger DOF plus an actuated wrist each. Pinch, grasp, type.</p></div>
-          <div data-copy="arms" hidden><p>Backdriveable 7-DOF arms, gravity-compensated — soft to push, stiff on task.</p></div>
-          <div data-copy="head" hidden><p>Pan / tilt / roll neck carrying the stereo RGB-D head — gaze that looks where the task is.</p></div>
-          <div data-copy="torso" hidden><p>The torso leans the upper body into the workspace and doubles the reach with the lift.</p></div>
-          <div data-copy="lift" hidden><p>A 0.635 m column: floor pickups to overhead shelves on the same footprint.</p></div>
-          <div data-copy="base" hidden><p>Three independently steered swerve modules — true holonomic motion, LiDAR underneath.</p></div>
+          <div data-copy="all"></div>
+          <div data-copy="hands" hidden></div>
+          <div data-copy="arms" hidden></div>
+          <div data-copy="head" hidden></div>
+          <div data-copy="torso" hidden></div>
+          <div data-copy="lift" hidden></div>
+          <div data-copy="base" hidden></div>
         </div>
       </aside>
       <div class="anat-stage anat-free" id="anat3d">
@@ -385,32 +379,26 @@
         <span class="burst sm pin" aria-hidden="true">Sync!</span>
         <span class="panel-speech" style="top:10%; left:4%; z-index:3;">Do as I do!</span>
         <div class="demo-media"><div class="media-frame r-169" style="background:#0B0E15;"><video muted loop playsinline preload="none" poster="assets/wild/d-overview.jpg" data-lo="assets/wild/d-overview-lo.mp4" data-lazyvid="assets/wild/d-overview.mp4" style="object-fit:contain;" aria-label="Vision Pro mirror mode in the studio"></video></div></div>
-        <p class="demo-caption">Apple Vision Pro — the native app in mirror mode: head, hands, and gaze</p>
       </div>
       <div id="t-vp2" class="tab-panel">
         <span class="burst sm pin" aria-hidden="true">Whirr!</span>
         <div class="demo-media"><div class="media-frame r-169" style="background:#0B0E15;"><video muted loop playsinline preload="none" poster="assets/wild/d-vp2.jpg" data-lo="assets/wild/d-vp2-lo.mp4" data-lazyvid="assets/wild/d-vp2.mp4" style="object-fit:contain;" aria-label="Vision Pro session in the workshop"></video></div></div>
-        <p class="demo-caption">Mirror mode in the shop — same app, messier desk</p>
       </div>
       <div id="t-spider" class="tab-panel">
         <span class="burst sm pin" aria-hidden="true">Thwip!</span>
         <div class="demo-media"><div class="media-frame r-169" style="background:#0B0E15;"><video muted loop playsinline preload="none" poster="assets/wild/d-spider.jpg" data-lo="assets/wild/d-spider-lo.mp4" data-lazyvid="assets/wild/d-spider.mp4" style="object-fit:contain;" aria-label="Spider-pose teleoperation session"></video></div></div>
-        <p class="demo-caption">Spidey session — whole-body poses through the Vision Pro</p>
       </div>
       <div id="t-vp3" class="tab-panel">
         <span class="burst sm pin" aria-hidden="true">Sync!</span>
         <div class="demo-media"><div class="media-frame r-169" style="background:#0B0E15;"><video muted loop playsinline preload="none" poster="assets/wild/d-vp3.jpg" data-lo="assets/wild/d-vp3-lo.mp4" data-lazyvid="assets/wild/d-vp3.mp4" style="object-fit:contain;" aria-label="Full-mirror Vision Pro session"></video></div></div>
-        <p class="demo-caption">Full mirror — arms out, robot follows beat for beat</p>
       </div>
       <div id="t-pico" class="tab-panel">
         <span class="burst sm pin" aria-hidden="true">Grab!</span>
         <div class="demo-media"><div class="media-frame r-169" style="background:#0B0E15;"><video muted loop playsinline preload="none" poster="assets/wild/d-pico.jpg" data-lo="assets/wild/d-pico-lo.mp4" data-lazyvid="assets/wild/d-pico.mp4" style="object-fit:contain;" aria-label="PICO headset teleoperation with tracked controllers"></video></div></div>
-        <p class="demo-caption">PICO headset — controller teleop on the same wire protocol</p>
       </div>
       <div id="t-ios" class="tab-panel">
         <span class="burst sm pin" aria-hidden="true">Onward!</span>
         <div class="demo-media"><div class="media-frame r-169" style="background:#0B0E15;"><video muted loop playsinline preload="none" poster="assets/wild/d-long.jpg" data-lo="assets/wild/d-long-lo.mp4" data-lazyvid="assets/wild/d-long.mp4" style="object-fit:contain;" aria-label="A long-horizon building traverse driven from the iPhone app"></video></div></div>
-        <p class="demo-caption">iPhone — a long-horizon building traverse, driven from the app (60 s cut)</p>
       </div>
     </div>
   </div>
@@ -514,8 +502,6 @@
           </tbody>
         </table>
       </div>
-      <p class="table-note">Hand DOF per hand (a parallel jaw = 1). Costs are list/estimate in USD;
-        some comparator values are manufacturer-stated or third-party.</p>
     </div>
 
     <div class="fade-up" style="margin-top:clamp(36px,6vh,60px);">
@@ -532,8 +518,7 @@
           <line x1="190" y1="352" x2="926" y2="352" stroke="#151820" stroke-width="2.5"/><line x1="190" y1="352" x2="190" y2="360" stroke="#151820" stroke-width="2.5"/><text x="190" y="394" text-anchor="middle" font-family="'Space Mono', monospace" font-size="14" font-weight="700" fill="#151820">0</text><line x1="510" y1="352" x2="510" y2="360" stroke="#151820" stroke-width="2.5"/><text x="510" y="394" text-anchor="middle" font-family="'Space Mono', monospace" font-size="14" font-weight="700" fill="#151820">1</text><line x1="830" y1="352" x2="830" y2="360" stroke="#151820" stroke-width="2.5"/><text x="830" y="394" text-anchor="middle" font-family="'Space Mono', monospace" font-size="14" font-weight="700" fill="#151820">2</text><text x="510" y="418" text-anchor="middle" font-family="'Space Mono', monospace" font-size="12" fill="#6D6551">FINGERTIP HEIGHT · METRES</text>
         </svg>
       </div>
-      <span class="fig-label paper-fig-cap"><b>Reach</b> The 0.635 m lift sweeps the arm envelope into a 0.00–2.23 m fingertip band — clearing a human's overhead reach without giving up the floor. Hatched = can't reach.</span>
-    </div>
+</div>
 
     <div class="poster-wrap fade-up" style="margin-top:clamp(40px,6vh,64px);">
       <div>
@@ -575,12 +560,11 @@
       <div class="card fade-up">
         <div class="card-num">01 · OPERATE</div>
         <h4>Control Studio</h4>
-        <p>The robot serves its own cockpit: an rviz-class 3D viewer (live rig inside its SLAM map), drive + manipulate teleop with an IK target ball, dexterous-hand control, 59-DOF telemetry with temperature grading, and a live monitor of every connected client.</p>
+        <p>The simulated robot serves its own cockpit: an rviz-class 3D viewer (live rig inside its SLAM map), drive + manipulate teleop with an IK target ball, dexterous-hand control, 59-DOF telemetry with temperature grading, and a live monitor of every connected client.</p>
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;">
-          <a href="https://control.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:0;">Real Robot ↗</a>
-          <a href="https://control-sim.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-ghost" style="margin-top:0;">Simulation ↗</a>
+          <a href="https://control-sim.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-ghost" style="margin-top:0;">Open the Control Studio ↗</a>
         </div>
-        <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Real: passkey-gated · Sim: open demo</div>
+        <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Open demo · no install</div>
       </div>
       <div class="card fade-up d1">
         <div class="card-num">02 · CURATE</div>

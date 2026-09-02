@@ -2325,3 +2325,43 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   background: var(--bone) !important; box-shadow: inset 0 0 0 2px var(--panel); }
 .wbc-knob { border-radius: 7px !important; background: var(--orange) !important;
   border: 2.5px solid var(--ink) !important; box-shadow: 2px 2px 0 rgba(21,24,32,0.7) !important; }
+
+/* stickers inside a bare section heading (no .sec-head wrapper) pin to the
+   section's top-right instead of landing on the copy */
+section { position: relative; }
+section > .wrap > h2 > .sticker, section > .wrap > h2 + .sticker {
+  position: absolute !important; top: 12px; right: var(--gutter);
+  width: 76px !important; margin: 0 !important; vertical-align: baseline !important;
+}
+@media (max-width: 700px) {
+  section > .wrap > h2 > .sticker { width: 54px !important; top: 6px; }
+}
+
+/* ─── "What you need" prep cards, comic edition ───────────────────── */
+.asm-prep { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; counter-reset: prep; }
+@media (max-width: 900px) { .asm-prep { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .asm-prep { grid-template-columns: 1fr; } }
+.asm-prep > div {
+  counter-increment: prep; position: relative;
+  background: var(--panel); border: var(--line-w) solid var(--ink);
+  border-radius: 12px; padding: 18px 16px 16px;
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.asm-prep > div::before {
+  content: "0" counter(prep); display: block;
+  font-family: var(--font-comic); font-size: 26px; line-height: 1; margin-bottom: 6px;
+}
+.asm-prep > div:nth-child(1) { transform: rotate(-0.7deg); box-shadow: 6px 6px 0 var(--orange); }
+.asm-prep > div:nth-child(2) { transform: rotate(0.5deg);  box-shadow: 6px 6px 0 var(--yellow); }
+.asm-prep > div:nth-child(3) { transform: rotate(-0.4deg); box-shadow: 6px 6px 0 var(--blue); }
+.asm-prep > div:nth-child(4) { transform: rotate(0.6deg);  box-shadow: 6px 6px 0 var(--rust); }
+.asm-prep > div:nth-child(1)::before { color: var(--orange); }
+.asm-prep > div:nth-child(2)::before { color: var(--gold-deep); }
+.asm-prep > div:nth-child(3)::before { color: var(--blue); }
+.asm-prep > div:nth-child(4)::before { color: var(--rust); }
+.asm-prep > div:hover { transform: rotate(0deg) translate(-2px,-2px); }
+.asm-prep h6 {
+  font-family: var(--font-comic); font-weight: 400; font-size: 17px;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin-bottom: 8px;
+}
+.asm-prep p { font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }

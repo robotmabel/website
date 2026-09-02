@@ -246,8 +246,6 @@ if (new URLSearchParams(location.search).has('embed')) document.documentElement.
       <button class="ta-sbtn ta-fs" id="taFs" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></button>
     </div>
   </div>
-
-  <p class="table-note" style="margin-top:14px;">One bridge, three clients: this console, the iPhone app, and the Vision&nbsp;Pro app all speak the same <code>teleop_frame</code> / <code>joint_command</code> / <code>control_mode</code> / <code>external_force</code> protocol to <code>server/sim_teleop_bridge.py</code>, and mirror the same <code>robot_state</code>. Start it with <code>server/start_teleop.sh</code> — the page links up by itself, cycling three paths every 5&nbsp;s, exactly like the apps: <strong>Wi-Fi</strong> (<strong>auto-discovered</strong> — leave the field blank and it races the bridge on this machine, the host it was served from, and your last-used LAN IP, the browser analog of the Vision&nbsp;Pro app's Bonjour scan) → <strong>VPN</strong> (its Tailscale IP / <code>ts.net</code> name) → <strong>Relay</strong> (the <a href="software.html#relay">secure internet relay</a> — a token-gated <code>wss://&lt;host&gt;/teleop?key=…</code> on a public VPS the robot dials out to, so you can drive from anywhere with no VPN app and nothing exposed inbound). Cameras follow the winning path — MJPEG on port&nbsp;8080 over Wi-Fi, or the same token-gated HTTPS edge over the relay.</p>
 </section>
 </div>
 

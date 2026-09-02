@@ -20,7 +20,7 @@
 <style>
   .bom-grid { display: grid; grid-template-columns: minmax(0, 420px) 1fr; gap: clamp(24px, 4vw, 56px); align-items: start; }
   @media (max-width: 880px) { .bom-grid { grid-template-columns: 1fr; } }
-  .bom-pie-wrap { position: relative; }
+  .bom-pie-wrap { position: relative; width: min(300px, 78%); margin: 0 auto; }
   #bomPie svg { width: 100%; height: auto; display: block; }
   .bom-centre { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; }
   #bomPieVal { font-family: var(--font-display); font-size: clamp(26px, 3vw, 38px); color: var(--rust); line-height: 1; }
@@ -124,7 +124,6 @@
         <div class="jp-list" id="jpList"></div>
       </div>
     </div>
-    <p class="table-note fade-up" style="margin-top:14px;">Switch group — Hands · Arms · Body (lift, torso, neck) · Base — then drag a slider to drive that joint. Ranges read live from <code>mabel_full.urdf</code> (60 actuated joints).</p>
   </div>
 </section>
 
