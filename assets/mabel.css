@@ -2371,3 +2371,63 @@ section > .wrap > h2 > .sticker, section > .wrap > h2 + .sticker {
 .paper-fig svg, .paper-fig img { max-height: 420px; width: 100%; height: auto; object-fit: contain; }
 .paper-grid .paper-fig { max-width: none; }
 .bg-fig img { max-height: 340px; width: 100%; object-fit: contain; }
+
+/* ═══ Card variations — the comic page never repeats one panel shape ═══
+   Four looks cycle through every card grid: (1) narration bar across the
+   top like a caption box, (2) art-deco stepped corner, (3) halftone
+   sunburst ground, (4) a night panel. All keep the ink line + hard
+   shadow, so the page reads as one book with varied panels. */
+
+/* 1 · NARRATION BAR — the yellow "MEANWHILE…" strip */
+.card-grid > *:nth-child(4n+1), .res-grid > *:nth-child(4n+1) { position: relative; overflow: hidden; }
+.card-grid > *:nth-child(4n+1)::before, .res-grid > *:nth-child(4n+1)::before {
+  content: ''; position: absolute; inset: 0 0 auto 0; height: 8px;
+  background: var(--yellow); border-bottom: 2px solid var(--ink);
+}
+.card-grid > *:nth-child(4n+1), .res-grid > *:nth-child(4n+1) { padding-top: 26px; }
+
+/* 2 · DECO CORNER ORNAMENT — stepped brass bars in the top-right */
+.card-grid > *:nth-child(4n+2), .res-grid > *:nth-child(4n+2) { position: relative; }
+.card-grid > *:nth-child(4n+2)::after, .res-grid > *:nth-child(4n+2)::after {
+  content: ''; position: absolute; top: 12px; right: 12px;
+  width: 30px; height: 16px; pointer-events: none;
+  background:
+    linear-gradient(var(--orange), var(--orange)) 100% 0   / 30px 3px no-repeat,
+    linear-gradient(var(--orange), var(--orange)) 100% 6px / 21px 3px no-repeat,
+    linear-gradient(var(--orange), var(--orange)) 100% 12px/ 12px 3px no-repeat;
+}
+
+/* 3 · SUNBURST GROUND — radiating deco rays behind the copy */
+.card-grid > *:nth-child(4n+3), .res-grid > *:nth-child(4n+3) { position: relative; overflow: hidden; }
+.card-grid > *:nth-child(4n+3)::after, .res-grid > *:nth-child(4n+3)::after {
+  content: ''; position: absolute; inset: -40% -10% auto -10%; height: 150%;
+  background: repeating-conic-gradient(from 200deg at 88% 6%,
+    rgba(240,118,46,0.16) 0deg 4deg, transparent 4deg 11deg);
+  pointer-events: none; z-index: 0;
+}
+.card-grid > *:nth-child(4n+3) > *, .res-grid > *:nth-child(4n+3) > * { position: relative; z-index: 1; }
+
+/* 4 · NIGHT PANEL — the Gotham inversion, brass rules */
+.card-grid > *:nth-child(4n), .res-grid > *:nth-child(4n) {
+  background: var(--ink) !important; border-color: var(--ink);
+  box-shadow: 6px 6px 0 var(--gold);
+}
+.card-grid > *:nth-child(4n) h3, .card-grid > *:nth-child(4n) h4,
+.res-grid > *:nth-child(4n) h3, .res-grid > *:nth-child(4n) h4 { color: var(--bone); }
+.card-grid > *:nth-child(4n) p, .res-grid > *:nth-child(4n) p { color: var(--ash-light); }
+.card-grid > *:nth-child(4n) .card-num, .res-grid > *:nth-child(4n) .res-tag { color: var(--gold); }
+.card-grid > *:nth-child(4n) .res-arrow, .res-grid > *:nth-child(4n) .res-arrow { color: var(--yellow); }
+.card-grid > *:nth-child(4n):hover, .res-grid > *:nth-child(4n):hover { box-shadow: 8px 8px 0 var(--gold); }
+
+/* dark sections invert the inversion so the night card still stands out */
+.dark-sec .card-grid > *:nth-child(4n) {
+  background: var(--panel) !important; box-shadow: 6px 6px 0 var(--orange);
+}
+.dark-sec .card-grid > *:nth-child(4n) h4 { color: var(--ink); }
+.dark-sec .card-grid > *:nth-child(4n) p { color: var(--ink-soft); }
+.dark-sec .card-grid > *:nth-child(4n) .card-num { color: var(--rust); }
+
+/* drop cap for the first paragraph of a lede block — old-comic opener */
+.sec-head .lede::first-letter { font-family: var(--font-display); font-size: 2.2em;
+  line-height: 0.8; float: left; margin: 4px 8px 0 0; color: var(--orange); }
+.dark-sec .sec-head .lede::first-letter { color: var(--gold); }
