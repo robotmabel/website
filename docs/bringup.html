@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#151820"/>
+<title>Bring-up &amp; calibration — MABEL replication docs</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css"/>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1><span class="n">06</span>Bring-up &amp; calibration</h1>
+  <p class="lead">
+    Mechanically complete is not commissioned. The robot comes up <b>limp</b>,
+    one bus at a time, is read before it is written, and earns torque one module
+    at a time. Then five calibration routines turn a pile of motors into a robot
+    that matches its digital twin.
+  </p>
+
+  <h2>First power-on</h2>
+  <div class="stop">
+    Every actuator torque-disabled. No exceptions, on any bus. Use a
+    current-limited supply for the first energization of each bus. This is the
+    launcher's default behavior — launching never energizes anything — but
+    verify it, don't trust it.
+  </div>
+  <ol class="steps">
+    <li><b>Power on limp</b> and start the stack:
+      <pre><code>./server/real_run.sh</code></pre>
+      Watch the preflight: it reports which Teensys answer, which hand adapters
+      are on USB, which cameras enumerate.</li>
+    <li><b>Enumerate each bus separately</b> and confirm the count matches what
+      you built: <b>6</b> on the base CAN, <b>torso + neck yaw</b> on the body
+      CAN, <b>7 per arm</b>, <b>17 per hand</b>, <b>2</b> neck servos on TTL.</li>
+    <li><b>Read state before writing any.</b> Every joint reports a plausible
+      position with the robot standing still — in the cockpit's joints panel, or:
+      <pre><code>source mabel_ws/scripts/mabel_env.sh
+ros2 topic echo /arms/joint_states --once
+ros2 topic echo /left_hand/joint_states --once
+ros2 topic echo /body/joint_states --once</code></pre></li>
+    <li><b>Home the lift empty-handed</b> — before the first loaded cycle,
+      confirm both end stops and the closed loop with nothing mounted
+      (<a href="assembly.html#lift">why this matters</a>).</li>
+    <li><b>Enable torque one module at a time,</b> lowest first, with the robot
+      supported — base, then lift, then torso, then arms, then hands. Torque
+      enables come from a client (studio, app, or cockpit), never automatically.</li>
+  </ol>
+
+  <h2>The status watchdog</h2>
+  <p>
+    The launcher prints a per-bus liveness line every 10 s (also parsed into the
+    cockpit's status panel): <code>odom · arms · neck-dxl · neck-damiao · torso ·
+    lift · handL/R · wristL/R · scan · audio · map · mesh</code>. A tick means
+    <em>live data from a physical device</em>, not merely an advertised topic —
+    the honest signal during bring-up. Hot-plugged devices reconnect within ~2 s
+    without a relaunch.
+  </p>
+
+  <h2>Calibration — five routines</h2>
+  <table>
+    <tr><th>Routine</th><th>What it fixes</th><th>How</th></tr>
+    <tr><td>Swerve steer offsets</td><td>each module's steer zero</td><td>align wheels, capture offsets (setup studio / calibration tools)</td></tr>
+    <tr><td>Arm zeros + system-ID</td><td>joint zeros at the shared reference pose; torque-fit dynamics residuals</td><td><code>calibration/</code> arm sysid routine</td></tr>
+    <tr><td>Motor friction / inertia</td><td>per-motor feed-forward quality</td><td>calibration GUI (sine sweeps, fits)</td></tr>
+    <tr><td>ORCA hand end-stops</td><td>per-joint range after tendon tensioning</td><td><code>orca_core</code> calibrate routine per hand; stored in the shared calibration store</td></tr>
+    <tr><td>Whole-body CoM check</td><td>the tip-over model matches YOUR build</td><td>see below — do not skip</td></tr>
+  </table>
+
+  <h3>The CoM check</h3>
+<pre><code>python3 controller/experiments/wbc_stability.py     <span class="c"># E4 reports fixed-vs-true CoM error</span></code></pre>
+  <div class="warn">
+    Run this after <b>any</b> mass change — a different battery, an added sensor,
+    heavier covers. If E4 shows &gt;1 cm of CoM bias, update the constants in
+    <code>controller/mabel/motion_model/tip_over.py</code> to the values the
+    script prints. This model is what keeps a 62 kg robot with a 2.23 m reach
+    from tipping; it must describe <em>your</em> robot, not the reference one.
+  </div>
+
+  <h2>Commissioning checklist</h2>
+  <ul class="check">
+    <li>Bus counts match the build on every chain (6 / 2 / 7+7 / 17+17 / 2)</li>
+    <li>All joints read plausible positions while limp</li>
+    <li>Lift homed empty; both end stops confirmed in software</li>
+    <li>Arms back-drive with torque off; hold pose with torque on, supported</li>
+    <li>Steer offsets captured; robot drives straight when commanded straight</li>
+    <li>Hand end-stops calibrated after final tendon tension</li>
+    <li>E4 CoM error &lt; 1 cm; tip-over constants match your build</li>
+    <li>E-stop verified from every client you intend to operate with</li>
+  </ul>
+  <p class="dim">Commissioned. Continue to <a href="operate.html">07 · Operate</a>.</p>
+</main>
+</div>
+<script src="docs.js"></script>
+</body>
+</html>

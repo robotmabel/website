@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#151820"/>
+<title>Firmware — MABEL replication docs</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css"/>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1><span class="n">04</span>Firmware</h1>
+  <p class="lead">
+    Five subsystems, each its own folder under <code>firmware/</code> — flash or
+    swap a board without touching the rest. No vendor tools required: the REV
+    SPARK CAN stack is reverse-engineered natively, and every setup task a vendor
+    GUI would do ships as a script. The per-folder master table is
+    <code>firmware/CLAUDE.md</code>.
+  </p>
+
+  <h2>Overview</h2>
+  <table>
+    <tr><th>Subsystem</th><th>Path</th><th>Board</th><th>Flash</th></tr>
+    <tr><td>Swerve base</td><td><code>firmware/swerve_drive/</code></td><td>Teensy 4.1</td><td>PlatformIO</td></tr>
+    <tr><td>Arms link</td><td><code>firmware/openarm/</code></td><td>Teensy 4.1</td><td>PlatformIO</td></tr>
+    <tr><td>Lift</td><td><code>firmware/lift/</code></td><td>RP2040 Pico</td><td>MicroPython (<code>mpremote</code>)</td></tr>
+    <tr><td>ORCA hands</td><td><code>firmware/orca_hand/</code></td><td>none — host-driven</td><td>no flash; servos close their own loops</td></tr>
+    <tr><td>Neck</td><td>host-driven</td><td>none</td><td>Dynamixel pair over the U2D2, yaw on CAN</td></tr>
+  </table>
+
+  <h2>Base Teensy — swerve drive</h2>
+<pre><code>cd firmware/swerve_drive
+pio run -e teensy41 -t upload</code></pre>
+  <ul>
+    <li>Speaks <b>UDP :8888</b> to the host over native Ethernet, and drives the
+      six SPARK controllers on REV's CAN protocol at 1 Mbit.</li>
+    <li>The SPARK protocol was reverse-engineered end to end — the full writeup
+      (29-bit extended IDs, frame layout) is
+      <code>firmware/swerve_drive/rev_can_protocol.md</code>. You never need
+      REV's Windows-only Hardware Client.</li>
+    <li>Static address <code>192.168.124.10</code> — see the
+      <a href="electronics.html">network plan</a>.</li>
+  </ul>
+
+  <h2>Arms Teensy — CAN gateway</h2>
+<pre><code>cd firmware/openarm
+pio run -e mabel_main -t upload       <span class="c"># main arms firmware</span>
+pio run -e mabel_armlink -t upload    <span class="c"># ArmLink UDP↔MIT-CAN Ethernet gateway</span></code></pre>
+  <ul>
+    <li>Runs both arm CAN buses (DaMiao MIT mode, 1 Mbit, 500 Hz) behind one
+      Ethernet link. The ArmLink wire contract is
+      <code>firmware/openarm/include/armlink_protocol.h</code> +
+      <code>hardware_bridge/docs/ARMLINK.md</code>.</li>
+    <li><b>Setup tools ship as PlatformIO envs</b> — no DaMiao assistant needed:
+      <code>tool_can_scanner</code>, <code>tool_change_motor_id</code>,
+      <code>tool_set_zero_pos</code>, <code>tool_clear_faults</code>,
+      <code>tool_read_limits</code>, <code>tool_switch_mode</code>,
+      <code>tool_teleop_cli</code>, <code>tool_sine_sweep</code>. Use
+      <code>tool_change_motor_id</code> for the one-motor-at-a-time ID
+      assignment during <a href="assembly.html#arms">arm assembly</a>.</li>
+  </ul>
+  <div class="note">
+    The reference robot in these docs ran a pre-release arms build
+    (<code>openarm-dual</code>, at <code>192.168.124.11</code>) that predates the
+    in-repo ArmLink gateway (<code>192.168.125.10</code>, host lane set by
+    <code>hardware_bridge/install/setup_arms_lane.sh</code>). For a new build,
+    flash the in-repo envs above and use the <code>192.168.125.x</code> lane; the
+    software resolves either through its port-agnostic Teensy discovery.
+  </div>
+
+  <h2>Lift Pico — MicroPython</h2>
+<pre><code>pip install mpremote
+firmware/lift/tools/deploy.sh         <span class="c"># copies the module set + main.py to the Pico</span></code></pre>
+  <ul>
+    <li>Cascaded position + velocity loop on the Pico (BTS7960 + quadrature
+      encoder), simple line protocol over USB serial @115200.</li>
+    <li>Host-side API + console: <code>firmware/lift/host/</code>; the only
+      firmware folder with its own README — read it.</li>
+  </ul>
+  <div class="warn">
+    <code>deploy.sh</code> resolves the Pico by USB identity
+    (<code>usb-MicroPython*</code>). Never use <code>mpremote connect auto</code>:
+    the first serial port on the robot's hub is the base Teensy.
+  </div>
+
+  <h2>Hands — servo setup, no flash</h2>
+<pre><code>python firmware/orca_hand/feetech/setup/precheck.py   <span class="c"># pings servo IDs 1..17 on a chain</span></code></pre>
+  <ul>
+    <li>All logic is host-side Python; the Feetech servos close their own
+      position loops. The wire is standard STS/SCS packets with one SYNC_WRITE
+      per control tick for all 17 motors.</li>
+    <li>ID assignment and per-servo setup replace the Feetech debugger — tools in
+      <code>firmware/orca_hand/feetech/</code>. Assign IDs <b>before</b>
+      stringing tendons (<a href="assembly.html#hands">02 · Hands</a>).</li>
+    <li>Deep dives: <code>firmware/orca_hand/docs/orca_firmware.pdf</code> and
+      <code>orcahand_api.pdf</code> (built from the <code>.tex</code> alongside).</li>
+  </ul>
+
+  <h2>CAN bring-up helpers</h2>
+<pre><code>firmware/can_up.sh        <span class="c"># SocketCAN up — handles gs_usb and slcan adapters</span>
+firmware/can_scan.sh      <span class="c"># who's on the bus</span>
+firmware/can_down.sh</code></pre>
+  <p class="dim">
+    macOS has no SocketCAN; the tools fall back to a gs_usb-over-libusb backend,
+    so bench setup works from a Mac too.
+  </p>
+
+  <h2>Firmware completion check</h2>
+  <ul class="check">
+    <li>Base Teensy answers ping at its address and echoes the UDP protocol</li>
+    <li><code>tool_can_scanner</code> sees IDs 1–7 on each arm bus</li>
+    <li>Lift Pico answers on USB serial; encoder counts move when the screw is turned by hand</li>
+    <li><code>precheck.py</code> reports 17/17 on each hand chain</li>
+    <li>Neck: both Dynamixels respond on the U2D2; yaw motor answers on CAN</li>
+  </ul>
+</main>
+</div>
+<script src="docs.js"></script>
+</body>
+</html>

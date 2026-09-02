@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#151820"/>
+<title>Bill of materials — MABEL replication docs</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css"/>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1><span class="n">01</span>Bill of materials</h1>
+  <p class="lead">
+    One core parts list every build shares, plus six perception/compute choices
+    that set your tier. Prices are live-quoted (last refresh: 31&nbsp;July&nbsp;2026)
+    and maintained as CSVs in the repo — the PDFs and the site's interactive BOM
+    are generated from the same data.
+  </p>
+
+  <h2>Downloads</h2>
+  <div class="files">
+    <a href="../assets/bom/mabel_bom.pdf">mabel_bom.pdf<small>full bill of materials, per-vendor</small></a>
+    <a href="../assets/bom/MABEL_Build_Guide.pdf">MABEL_Build_Guide.pdf<small>illustrated mechanical assembly</small></a>
+    <a href="../assets/bom/MABEL_Wiring_Guide.pdf">MABEL_Wiring_Guide.pdf<small>harness, buses, pinouts</small></a>
+    <a href="../assets/bom/core.csv">core.csv<small>the shared core list (49 lines)</small></a>
+    <a href="../assets/bom/choices.csv">choices.csv<small>perception + compute options</small></a>
+    <a href="../assets/bom/machined.csv">machined.csv<small>laser-cut / bent sheet parts</small></a>
+    <a href="../assets/bom/taobao.csv">taobao.csv<small>CNY-quoted lines (DaMiao et al.)</small></a>
+  </div>
+
+  <h2>Core BOM — $8,058.29, every build</h2>
+  <p>49 lines, identical across tiers. By section:</p>
+  <table>
+    <tr><th>Section</th><th class="num">USD</th><th class="num">Share</th><th>Headline parts</th></tr>
+    <tr><td>Arms (both)</td><td class="num">2,622.24</td><td class="num">32.5%</td><td>14 × DaMiao QDD (2 × J8009P, 2 × J4340, 3 × J4310 per arm)</td></tr>
+    <tr><td>Mobile base</td><td class="num">2,272.11</td><td class="num">28.2%</td><td>3 × REV swerve module (NEO + NEO 550), 6 × SPARK, sheet chassis</td></tr>
+    <tr><td>Hands (both)</td><td class="num">1,194.61</td><td class="num">14.8%</td><td>32 × Feetech HLS3915 + 2 × HLS3930, ORCA hand hardware</td></tr>
+    <tr><td>Body / torso</td><td class="num">889.06</td><td class="num">11.0%</td><td>DM-J10422P torso (400 N·m), FlexiSpot E7 Pro lift column</td></tr>
+    <tr><td>Electronics, power &amp; cabling</td><td class="num">499.83</td><td class="num">6.2%</td><td>Custom PCBs, battery pack ×2, Teensy 4.1 ×2, Pico, U2D2, audio</td></tr>
+    <tr><td>Neck / head</td><td class="num">235.30</td><td class="num">2.9%</td><td>DaMiao yaw + 2 × Dynamixel XC330-T181</td></tr>
+    <tr><td>Structural hardware</td><td class="num">184.21</td><td class="num">2.3%</td><td>Rail, fasteners, bearings</td></tr>
+    <tr><td>3D printed material</td><td class="num">160.93</td><td class="num">2.0%</td><td>Filament for every printed part</td></tr>
+    <tr class="total"><td>Core total</td><td class="num">8,058.29</td><td class="num">100%</td><td>as-quoted 31 Jul 2026</td></tr>
+  </table>
+
+  <h2>The six choices — pick a tier</h2>
+  <p>
+    Only perception and compute differ between tiers. The mechanism is identical,
+    so every choice upgrades later without touching the structure.
+  </p>
+  <table>
+    <tr><th>Choice</th><th>Essential</th><th>Recommended</th><th>Maximum</th></tr>
+    <tr><td>Onboard compute</td><td>Jetson Orin Nano Super ($399)</td><td>Jetson Orin NX 16 GB ($1,249)</td><td>Jetson AGX Thor ($5,499)</td></tr>
+    <tr><td>Wrist cameras ×2</td><td>AR0144 global-shutter 720p60</td><td>AR0144 global-shutter 1200p90</td><td>RealSense D405 (metric depth)</td></tr>
+    <tr><td>Head camera</td><td colspan="2">1200p stereo global-shutter pair, 112° HFOV</td><td>Stereolabs ZED Mini (VIO + depth engine)</td></tr>
+    <tr><td>Base depth camera</td><td colspan="2">omit — 2D lidar covers navigation</td><td>RealSense D435i</td></tr>
+    <tr><td>2D lidar</td><td>youyeetoo FHL-LD19</td><td>Slamtec RPLIDAR C1</td><td>Slamtec RPLIDAR A2M12</td></tr>
+    <tr class="total"><td>Build total</td><td class="num">$8,722</td><td class="num">$9,670</td><td class="num">$15,129</td></tr>
+  </table>
+  <div class="note">
+    The reference robot in these docs is the <b>Maximum</b> build (Jetson Thor,
+    D405 wrists, ZED Mini head, D435i base, A2M12). Where a step is
+    sensor-specific it is flagged; everything else is tier-independent.
+  </div>
+
+  <h2>Ordering notes</h2>
+  <ul>
+    <li><b>REV swerve modules</b> — the catalog module price excludes motors and
+      SPARK controllers; order NEO, NEO 550 and controllers explicitly
+      (the core CSV prices the as-paid lump per module).</li>
+    <li><b>DaMiao actuators</b> — quoted in CNY via Taobao (<code>taobao.csv</code>);
+      allow for freight and exchange drift. The FOCGM43 line in some vendor
+      sheets is the J4340.</li>
+    <li><b>Lift column</b> — a complete FlexiSpot E7 Pro standing desk is bought;
+      only the column and frame are used (0–0.635 m stroke).</li>
+    <li><b>Sheet parts</b> — <code>machined.csv</code> lists the laser-cut/bent
+      pieces with operations (bends, dimple forms, taps); any local or online
+      fab service can make them from the drawings.</li>
+    <li><b>Jetson pricing moves</b> — Thor jumped $3,499 → $5,499 in July 2026;
+      the BOM tracks an as-quoted and an at-today total for exactly this reason.</li>
+  </ul>
+
+  <h2>Part geometry — the CAD is the simulation model</h2>
+  <p>
+    MABEL's single source of truth is the MuJoCo model, and its mesh set
+    <em>is</em> the robot's part geometry — every structural part, printed or
+    machined, ships as STL/OBJ per module:
+  </p>
+  <table>
+    <tr><th>Path</th><th>Contents</th></tr>
+    <tr><td><code>simulation/mabel_mujoco/assets/meshes/</code></td>
+        <td>per-module part meshes — <code>base/</code> (chassis),
+            <code>swerve_drive/</code>, <code>lift/</code>, <code>body/</code>,
+            <code>arms/</code>, <code>hands/</code> (the full ORCA part set),
+            <code>head/</code></td></tr>
+    <tr><td><code>mabel_ws/src/mabel_description/meshes/</code></td>
+        <td>the same geometry as consumed by the ROS URDF</td></tr>
+    <tr><td><code>mechanical/arm_housing/exports/</code></td>
+        <td>16 print-ready arm-housing STLs (left/right × four segments ×
+            two halves), generated parametrically from the model</td></tr>
+  </table>
+  <p>
+    Every printed part fits a desktop printer; budget ≈ $161 of filament (core
+    BOM line, Bambu PLA: white for covers/mounts, black for the high-wear ORCA
+    hand structure). Sheet parts are itemized with operations in
+    <code>machined.csv</code>. Print as you assemble — the per-module lists in
+    <a href="assembly.html">02 · Assembly</a> follow the build order.
+  </p>
+</main>
+</div>
+<script src="docs.js"></script>
+</body>
+</html>

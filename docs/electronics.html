@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#151820"/>
+<title>Electronics &amp; wiring — MABEL replication docs</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css"/>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1><span class="n">03</span>Electronics &amp; wiring</h1>
+  <p class="lead">
+    Two custom PCBs tie every actuator onto one local network: CAN for the motor
+    buses, TTL serial for the hands and neck, Ethernet and USB&nbsp;3 for the
+    bandwidth. One battery powers everything — nothing trails behind the robot.
+    Pinouts and harness drawings:
+    <a href="../assets/bom/MABEL_Wiring_Guide.pdf">MABEL_Wiring_Guide.pdf</a>.
+  </p>
+
+  <h2>Bus map</h2>
+  <table>
+    <tr><th>Bus</th><th>Physical</th><th>Devices</th><th>Owner MCU / link</th></tr>
+    <tr><td>Base CAN</td><td>CAN, 120 Ω both ends</td><td>6 × SPARK (IDs 1–6)</td><td>Base Teensy 4.1 → Ethernet</td></tr>
+    <tr><td>Arm left</td><td>CAN <code>can0</code></td><td>7 × DaMiao (IDs 1–7)</td><td rowspan="2">Arms Teensy → Ethernet</td></tr>
+    <tr><td>Arm right</td><td>CAN <code>can1</code></td><td>7 × DaMiao (IDs 1–7)</td></tr>
+    <tr><td>Body CAN</td><td>CAN</td><td>Torso DM-J10422P + neck yaw DaMiao</td><td>USB-CAN dongles on the Jetson</td></tr>
+    <tr><td>Hand left</td><td>1 MHz half-duplex TTL</td><td>17 × Feetech (16 finger + wrist)</td><td>USB serial adapter (CH340)</td></tr>
+    <tr><td>Hand right</td><td>1 MHz half-duplex TTL</td><td>17 × Feetech</td><td>USB serial adapter (CH340)</td></tr>
+    <tr><td>Neck TTL</td><td>1 Mbaud half-duplex TTL</td><td>2 × Dynamixel XC330-T181 (roll, pitch)</td><td>U2D2 on the Jetson</td></tr>
+    <tr><td>Lift</td><td>USB serial</td><td>BTS7960 + encoder</td><td>RP2040 Pico</td></tr>
+  </table>
+  <div class="warn">
+    The two hand adapters are identical CH340s — the USB <em>serial number</em> is
+    the only stable discriminator. Record each adapter's serial
+    (<code>ls -l /dev/serial/by-id/</code>) and register it left/right in
+    <code>hardware_bridge/config.py</code>; the software then binds sides
+    correctly no matter which port they land on.
+  </div>
+
+  <h2>Install order</h2>
+  <ol class="steps">
+    <li><b>Land both custom PCBs</b> — the base board in the chassis, the body
+      board on its printed mount. Fab files ship with the CAD.</li>
+    <li><b>Fan power out from the single pack.</b> The bus is 24 V with a
+      24→12 V buck for the low rails, distributed through a blade-fuse box —
+      fuse per the wiring guide. A 6-port 2.5 GbE switch is the onboard
+      network spine.</li>
+    <li><b>Bring up the CAN buses</b> — base (6 SPARK), body (torso + neck yaw),
+      and the two arm buses. Terminate every chain at both ends.</li>
+    <li><b>Bring up the serial buses</b> — one TTL chain per hand, the neck pair
+      through the U2D2, the lift Pico over USB.</li>
+    <li><b>Connect the sensing</b> — head stereo camera (USB 3), wrist cameras,
+      2D lidar, and (Maximum tier) the base depth camera.</li>
+    <li><b>Wire Ethernet</b> — base Teensy and arms Teensy to the Jetson
+      (directly or through the Ethernet expansion board — see network plan).</li>
+  </ol>
+  <div class="note">
+    Keep the wrist cameras pinned by hub port on one <b>powered</b> USB 3 hub.
+    Identical UVC cameras enumerate in arrival order; a fixed hub port is what
+    makes left stay left across reboots.
+  </div>
+
+  <h2>Network plan</h2>
+  <p>The robot's internal network is a flat <code>192.168.124.0/24</code>:</p>
+  <table>
+    <tr><th>Node</th><th>Address</th><th>Notes</th></tr>
+    <tr><td>Jetson (host)</td><td class="num">192.168.124.2</td><td>assigned on whichever wired port answers</td></tr>
+    <tr><td>Base Teensy</td><td class="num">192.168.124.10</td><td>swerve + lift relay</td></tr>
+    <tr><td>Arms Teensy</td><td class="num">192.168.124.11</td><td>both arm CAN buses</td></tr>
+  </table>
+  <p>
+    The Teensys are <b>port-agnostic</b>: each may plug into the Jetson's direct
+    NIC, a QSFP breakout lane, or the Ethernet expansion board (a small switch
+    that puts several devices behind one port). The bring-up script discovers
+    which port a Teensy actually answers on (ARP probe) and pins a host route to
+    it at runtime — you do not hand-configure interfaces. A 100M link speed means
+    a Teensy is plugged straight in; 10G means it is behind the expansion board.
+  </p>
+
+  <h2>Service ports (host)</h2>
+  <p>Every client — browser, iPhone, Vision Pro — speaks to these; identical for
+  the simulator and the real robot:</p>
+  <table>
+    <tr><th class="num">Port</th><th>Service</th></tr>
+    <tr><td class="num">9090</td><td>teleop WebSocket — the one wire contract (control + state + map)</td></tr>
+    <tr><td class="num">8080</td><td>camera video (MJPEG per camera, + <code>/cameras.json</code> roster, + web console)</td></tr>
+    <tr><td class="num">9091 / 9092</td><td>UDP-JPEG / H.264 low-latency video</td></tr>
+    <tr><td class="num">9600</td><td>telemetry plane — joints/control/status/lidar JSON (read-only)</td></tr>
+    <tr><td class="num">9601–9605</td><td>pointclouds per camera + SLAM mesh/pose/grid (read-only)</td></tr>
+    <tr><td class="num">9610</td><td>audio duplex (robot mic up / operator voice down)</td></tr>
+    <tr><td class="num">9620–9623</td><td>dedicated per-camera video tees</td></tr>
+    <tr><td class="num">8094</td><td>Control Center web studio</td></tr>
+  </table>
+
+  <h2>Audio</h2>
+  <p>
+    A USB sound card (VID:PID <code>0c76:1203</code>) drives an 8 Ω / 5 W speaker
+    pair and the microphone. It is identified by USB identity, not port — replug
+    it anywhere and it reconnects. (Its serial number is hard-coded by the vendor,
+    which is why identity is VID:PID here, unlike the hands.)
+  </p>
+
+  <h2>Wiring completion check</h2>
+  <ul class="check">
+    <li>Every CAN chain measures ~60 Ω across H/L (two 120 Ω terminators in parallel)</li>
+    <li>Both hand chains and the neck pair answer a servo scan on the bench</li>
+    <li>Both Teensys answer ping at their addresses from the Jetson</li>
+    <li>All cameras enumerate (<code>lsusb</code>) on the powered hub, wrist ports noted</li>
+    <li>One battery, no wall tether; current-limited supply on hand for first power-on</li>
+  </ul>
+</main>
+</div>
+<script src="docs.js"></script>
+</body>
+</html>

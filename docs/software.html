@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#151820"/>
+<title>Software install — MABEL replication docs</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css"/>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1><span class="n">05</span>Software install</h1>
+  <p class="lead">
+    Two installs: the <b>laptop</b> (simulation twin + every desktop tool — no
+    ROS needed) and the <b>robot</b> (ROS 2 workspace + the hardware layer on the
+    Jetson). Do the laptop first: everything through
+    <a href="operate.html">07 · Operate</a> works against the simulator before
+    any hardware exists.
+  </p>
+
+  <h2>Laptop — the simulation twin</h2>
+<pre><code>git clone https://github.com/robotmabel/MABEL.git &amp;&amp; cd MABEL
+python3 -m pip install -r server/requirements.txt   <span class="c"># mujoco≥3.0, websockets, aiohttp, opencv, osqp…</span>
+cd server &amp;&amp; ./run.sh                                <span class="c"># full stack: physics + cameras + web studio :8097</span></code></pre>
+  <p>
+    That is the whole laptop install. <code>run.sh</code> starts the MuJoCo
+    physics owner, the camera renderer, the teleop gateway, and the Sim Control
+    Center studio; the terminal becomes the cockpit. Point any client at your
+    laptop's IP exactly as you later will at the robot.
+  </p>
+
+  <h2>Robot — Ubuntu 24.04 on the Jetson</h2>
+  <p>
+    The ROS 2 side is <b>RoboStack Jazzy in conda</b> — no apt ROS for the
+    workspace. One script does the whole bring-up from a fresh clone:
+  </p>
+<pre><code>cd mabel_ws
+./dev_up.sh          <span class="c"># installs Miniforge if needed, creates the `mabel` env from</span>
+                     <span class="c"># environment.yml (RoboStack Jazzy + Nav2 + slam-toolbox +</span>
+                     <span class="c"># camera SDKs), colcon-builds the workspace, opens tmux panes</span></code></pre>
+  <p>Then, in every shell that talks ROS:</p>
+<pre><code>source mabel_ws/scripts/mabel_env.sh   <span class="c"># activates `mabel`, overlays install/, pins DDS</span></code></pre>
+  <ul>
+    <li>The env pins the DDS trio — CycloneDDS, <code>ROS_DOMAIN_ID=0</code>,
+      LOCALHOST discovery — and scrubs any apt ROS from the environment. Every
+      process on the robot must agree on these three or the graph splits.</li>
+    <li>Camera SDK Python APIs (<code>pyrealsense2</code>, <code>pyzed</code>)
+      install into the same env; the ZED one comes from the locally-installed
+      ZED SDK, not PyPI.</li>
+  </ul>
+
+  <h3>GPU SLAM — the one apt exception</h3>
+  <p>
+    Isaac ROS (cuVSLAM + nvblox) ships only as apt binaries under
+    <code>/opt/ros/jazzy</code>. The launcher runs those nodes through
+    <code>mabel_ws/scripts/slam_env.sh</code>, which swaps to the apt stack while
+    keeping the same DDS settings — both stacks share one graph. Install the
+    Isaac ROS apt packages per NVIDIA's instructions; skip this entirely with
+    <code>real_run.sh --no-slam</code> (2D slam-toolbox still works from conda).
+  </p>
+
+  <h2>The hardware layer</h2>
+<pre><code>pip install -e hardware_bridge          <span class="c"># the `mabel-hw` package (numpy, pyserial, PyYAML)</span>
+hardware_bridge/install/install.sh      <span class="c"># systemd unit + udev rules (audio, CAN dongle, wrist cams)</span></code></pre>
+  <ul>
+    <li><code>hardware_bridge</code> is the <b>single owner of every device</b> —
+      Teensys, hand serials, cameras, lidar, audio. ROS nodes are thin DDS
+      clients of it; nothing else may open a device.</li>
+    <li><code>install.sh</code> installs <code>mabel-hardware-bridge.service</code>
+      (auto-start, <code>Restart=always</code>) and the udev rules that make
+      hot-plug identity work.</li>
+    <li>Register your two hand adapters' USB serials in
+      <code>hardware_bridge/mabel_hw/config.py</code>
+      (find them: <code>ls -l /dev/serial/by-id/</code>).</li>
+  </ul>
+
+  <h2>Auto-start</h2>
+  <p>Two services make the robot come up by itself on power:</p>
+  <table>
+    <tr><th>Unit</th><th>Runs</th><th>Installed by</th></tr>
+    <tr><td><code>mabel-hardware-bridge</code></td><td>the HAL (<code>run_bridge.sh</code>)</td><td><code>hardware_bridge/install/install.sh</code></td></tr>
+    <tr><td><code>mabel-bringup</code></td><td><code>server/real_run.sh</code> headless — SLAM, Nav2, app server</td><td>a unit pointing at the script (same pattern as above)</td></tr>
+  </table>
+  <p class="dim">
+    A manual <code>real_run.sh</code> takes over cleanly from the services and
+    hands back when it exits — you never have to stop them by hand.
+    Optional remote access (rathole relay + Caddy on a VPS) is configured under
+    <code>server/relay/</code>.
+  </p>
+
+  <h2>Verify before hardware</h2>
+  <ul class="check">
+    <li>Laptop: <code>./run.sh</code> boots to the cockpit; a phone/browser on the same Wi-Fi sees video and drives the sim base</li>
+    <li>Jetson: <code>ros2 topic list</code> works inside <code>mabel_env.sh</code></li>
+    <li>Jetson: the bridge service is <code>active (running)</code> with no hardware attached — every subsystem idles, nothing crashes</li>
+    <li>Both hand adapter serials + wrist camera hub ports recorded in the config</li>
+  </ul>
+</main>
+</div>
+<script src="docs.js"></script>
+</body>
+</html>

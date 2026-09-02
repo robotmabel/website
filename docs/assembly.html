@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#151820"/>
+<title>Mechanical assembly — MABEL replication docs</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css"/>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1><span class="n">02</span>Mechanical assembly</h1>
+  <p class="lead">
+    Six modules, built bottom-up: base → lift → body → arms → hands → head.
+    Build each module completely and check it before the next stacks on — every
+    module has a hand-motion check that costs a minute and saves a teardown.
+    The illustrated companion is
+    <a href="../assets/bom/MABEL_Build_Guide.pdf">MABEL_Build_Guide.pdf</a>;
+    part geometry (STL/OBJ per module) comes from the simulation model —
+    see <a href="bom.html">01 · BOM, “Part geometry”</a>.
+  </p>
+  <div class="warn">
+    Nothing in this chapter is energized. Motors are mounted, buses are routed,
+    IDs are assigned on the bench — but torque stays off until
+    <a href="bringup.html">06 · Bring-up</a>.
+  </div>
+
+  <h2 id="base">Base — 3-module delta swerve</h2>
+  <div class="chips"><span>3 × REV swerve</span><span>NEO + NEO 550 each</span><span>6 × SPARK on CAN</span><span>120 Ω both ends</span><span>Teensy 4.1</span></div>
+  <ol class="steps">
+    <li><b>Build all three swerve modules first,</b> identically and completely,
+      before any touches the chassis. Each pairs a NEO (drive) with a NEO 550 (steer).</li>
+    <li><b>Mount them in the delta layout</b> — three modules at 120°. Keep every
+      bolt pattern square to the chassis plate: a twisted module reads as a
+      permanent heading drift later.</li>
+    <li><b>Fit the wheels (38.1 mm)</b> and turn each module through a full steer
+      rotation by hand. Nothing binds; no cable tugs.</li>
+    <li><b>Daisy-chain the CAN bus</b> across all six SPARK controllers with a
+      120 Ω terminator at each end.</li>
+    <li><b>Assign CAN IDs 1–6</b>, powering one controller at a time so two devices
+      can never answer to the same ID.</li>
+    <li><b>Seat the compute bay</b> — the base Teensy 4.1 and the base PCB
+      (<a href="electronics.html">03 · Electronics</a>).</li>
+  </ol>
+
+  <h2 id="lift">Lift — 0.635 m Z-column</h2>
+  <div class="chips"><span>cascaded stages</span><span>brushed DC + leadscrew</span><span>BTS7960 H-bridge</span><span>RP2040 Pico</span><span>quadrature encoder</span></div>
+  <ol class="steps">
+    <li><b>Assemble the telescoping stages dry</b> — no motor, no leadscrew. The
+      column must slide through full travel by hand with no stiction at any height.</li>
+    <li><b>Fit the leadscrew and actuator,</b> then turn the screw by hand end to
+      end before anything is energized.</li>
+    <li><b>Mount the quadrature encoder</b> and wire the BTS7960 H-bridge to the
+      RP2040 Pico.</li>
+    <li><b>Bolt the column to the base.</b> It carries every module above it —
+      tighten the base flange in a cross pattern.</li>
+  </ol>
+  <div class="stop">
+    Home the lift <b>empty</b>, at bring-up, before the body is mounted: close the
+    position/velocity loop with nothing on the column and confirm both end stops.
+    Homing a loaded column against an unproven end stop bends leadscrews.
+  </div>
+
+  <h2 id="body">Body — torso joint + frame</h2>
+  <div class="chips"><span>DaMiao DM-J10422P</span><span>400 N·m</span><span>body CAN</span><span>custom PCB</span><span>U2D2 TTL bridge</span></div>
+  <ol class="steps">
+    <li><b>Mount the torso actuator to the lift carriage.</b> It is the strongest
+      joint on the robot — its torque stays disabled for this whole stage.</li>
+    <li><b>Bolt the torso output shaft</b> to the actuator's output flange;
+      everything above the torso hangs off this joint.</li>
+    <li><b>Fit the PCB mount and land the body PCB</b> (power + bus routing), then
+      the U2D2 (USB ↔ half-duplex TTL, for the neck servos).</li>
+    <li><b>Fit the neck mounting plate and both arm mounting plates</b> (the second
+      is the mirror of the first).</li>
+    <li><b>Leave the housing covers off</b> until the arms' buses are routed
+      (§ arms) — the front cover closes last.</li>
+  </ol>
+
+  <h2 id="arms">Arms — 2 × 7-DoF OpenArm-derived</h2>
+  <div class="chips"><span>per arm: 2 × DM-J8009P</span><span>2 × DM-J4340</span><span>3 × DM-J4310</span><span>left = can0</span><span>right = can1</span></div>
+  <ol class="steps">
+    <li><b>Build each arm link by link, shoulder out</b> — shoulder pair (J8009P),
+      shoulder-roll + elbow (J4340), wrist triplet (J4310).</li>
+    <li><b>Assign IDs 1–7 before each motor enters the chain,</b> one motor powered
+      at a time. A wrong ID buried mid-arm means dismantling the arm to reach it.</li>
+    <li><b>Keep the arms on separate CAN buses</b> — left on <code>can0</code>,
+      right on <code>can1</code>. Never merge them onto one chain.</li>
+    <li><b>Bolt each arm to its body mounting plate</b> and route the bus down
+      through the shoulder before the housing covers go on.</li>
+    <li><b>Set each joint's zero at a known pose</b> — the same pose on both arms.</li>
+    <li><b>Check back-drivability:</b> with torque off, every joint moves under
+      hand pressure. A joint that fights you is a mechanical problem, not a
+      software one.</li>
+  </ol>
+
+  <h2 id="hands">Hands — 2 × ORCA, 17 DoF each</h2>
+  <div class="chips"><span>16 × Feetech HLS3915 + 1 × HLS3930 each</span><span>one 1 MHz TTL chain per hand</span><span>tendon-routed</span></div>
+  <ol class="steps">
+    <li><b>Print and assemble the ORCA hand frames</b> — the hand design is fully
+      released; build to the
+      <a href="https://www.orcahand.com">ORCA documentation</a>.</li>
+    <li><b>Assign every servo ID before stringing.</b> Once tendons are routed,
+      reaching a servo means unstringing the finger.</li>
+    <li><b>Route and string the tendons</b> — abduction, MCP and PIP per finger,
+      five fingers per hand.</li>
+    <li><b>Tension every tendon until no slack remains, then check again after the
+      first few cycles.</b></li>
+    <li><b>Chain all 17 servos</b> (16 finger + wrist) on the hand's single 1 MHz
+      TTL bus.</li>
+    <li><b>Mount each hand to its wrist flange</b> and route the serial run back
+      along the forearm.</li>
+  </ol>
+  <div class="warn">
+    Tendon slack read as calibration error is the single most common hand build
+    failure. Tension <em>before</em> you calibrate, not after.
+  </div>
+
+  <h2 id="head">Head — 3-DoF neck + stereo eyes</h2>
+  <div class="chips"><span>yaw: DaMiao on body CAN</span><span>roll+pitch: 2 × XC330-T181</span><span>TTL 1 Mbaud via U2D2</span><span>stereo head camera</span></div>
+  <ol class="steps">
+    <li><b>Mount the neck yaw actuator</b> to the neck plate fitted in the body stage.</li>
+    <li><b>Bolt the printed neck output shaft</b> to the yaw output.</li>
+    <li><b>Set the two Dynamixel IDs on the bench,</b> then fit them into the
+      output shaft — this pair drives roll and pitch.</li>
+    <li><b>Fit the camera mount, the stereo head camera (USB 3), and the front
+      flash light.</b></li>
+    <li><b>Screw the two Wi-Fi antennas in through the back cover;</b> the front
+      head cover closes last.</li>
+  </ol>
+
+  <h2>Mechanical completion check</h2>
+  <ul class="check">
+    <li>Base: each module steers a full turn by hand, no binding, no cable tug</li>
+    <li>Lift: full travel by hand, no stiction, both hard stops located</li>
+    <li>Torso: output shaft torqued; nothing above it moves relative to the flange</li>
+    <li>Arms: every joint back-drives; zeros set at the shared reference pose</li>
+    <li>Hands: no tendon slack after cycling; every servo answers on its chain</li>
+    <li>Neck: yaw/roll/pitch move freely by hand through their ranges</li>
+  </ul>
+  <p class="dim">Mechanically complete is not commissioned — continue to
+  <a href="electronics.html">03 · Electronics &amp; wiring</a>.</p>
+</main>
+</div>
+<script src="docs.js"></script>
+</body>
+</html>

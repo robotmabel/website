@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#151820"/>
+<title>Troubleshooting — MABEL replication docs</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css"/>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1><span class="n">09</span>Troubleshooting</h1>
+  <p class="lead">
+    Every entry here was hit on the reference robot. Symptom → cause → fix.
+    Logs live under <code>/tmp/mabel_*.log</code> on whichever machine runs the
+    stack; the cockpit tails the important ones live.
+  </p>
+
+  <h2>Connectivity</h2>
+  <table>
+    <tr><th>Symptom</th><th>Cause → fix</th></tr>
+    <tr><td>Headset gets video but says <em>disconnected</em> (Mac sim)</td>
+        <td>macOS firewall blocks incoming :9090 for Python. Allow it:
+            <code>System Settings ▸ Firewall ▸ Options ▸ allow python3</code>.
+            The launcher detects and prints the exact command.</td></tr>
+    <tr><td><em>Port in use</em> at launch</td>
+        <td>a previous run's listener survived —
+            <code>lsof -ti :9090 :8080 | xargs kill -9</code> (the launcher
+            normally reaps these itself).</td></tr>
+    <tr><td>Robot pingable but every app "connects to nothing"</td>
+        <td>the bring-up wedged before opening its ports — check
+            <code>/tmp/mabel_bridge.log</code> and restart
+            <code>real_run.sh</code>.</td></tr>
+    <tr><td>LAN dead but Tailscale fine (Jetson)</td>
+        <td>Wi-Fi NIC power save. Disable powersave on the wlan interface
+            (NetworkManager <code>wifi.powersave 2</code>).</td></tr>
+    <tr><td>App shows a <em>Sim</em> badge on the real robot</td>
+        <td>the server identity contains "sim" — make sure the real launcher set
+            <code>MABEL_DISPATCH_TARGET=real:ros</code> (it does by default).</td></tr>
+  </table>
+
+  <h2>Base &amp; Teensys</h2>
+  <table>
+    <tr><th>Symptom</th><th>Cause → fix</th></tr>
+    <tr><td>Base Teensy unreachable</td>
+        <td>the launcher probes every carrier-up wired port (ARP) and pins a
+            route automatically. If it still fails:
+            <code>ethtool &lt;port&gt;</code> — "Link detected: no" means cable
+            or Teensy power; then
+            <code>ping 192.168.124.10</code> per-port. 100M link = Teensy direct;
+            10G = it's behind the Ethernet expansion board.</td></tr>
+    <tr><td>Teensy reachable yesterday, gone today after re-plugging ports</td>
+        <td>a stale pinned /32 route on the old port blackholes the IP — the
+            launcher now strips these itself; manually:
+            <code>nmcli device modify &lt;old-port&gt; -ipv4.routes …</code>.</td></tr>
+    <tr><td>Permanent heading drift when driving straight</td>
+        <td>steer zero offsets not captured, or a swerve module mounted
+            twisted — recalibrate; if one module is mechanically rotated,
+            re-square it (<a href="assembly.html#base">02 · Base</a>).</td></tr>
+  </table>
+
+  <h2>Arms &amp; hands</h2>
+  <table>
+    <tr><th>Symptom</th><th>Cause → fix</th></tr>
+    <tr><td>Arms limp after connecting</td>
+        <td><b>by design.</b> Arms stay limp until an operator enables torque
+            from a client. Not a fault.</td></tr>
+    <tr><td>Left and right hands swapped</td>
+        <td>the two CH340 adapters are identical — register each adapter's USB
+            serial to its side in <code>hardware_bridge/mabel_hw/config.py</code>;
+            never rely on port order.</td></tr>
+    <tr><td>One whole hand dead</td>
+        <td>all 17 servos share one TTL chain — a single bad connector drops the
+            hand. Scan the chain (<code>precheck.py</code>) and check the first
+            unreachable ID's connector.</td></tr>
+    <tr><td>Fingers miss their targets after a rebuild</td>
+        <td>tendon slack read as calibration error. Re-tension, <em>then</em>
+            re-run the hand end-stop calibration — in that order.</td></tr>
+    <tr><td>Hands render contorted in a viewer while real fingers are fine</td>
+        <td>the wire streams absolute joint positions; clients must render
+            <code>qpos − ref</code> for the 14 ORCA joints with nonzero
+            reference. Fix the client, never the stream.</td></tr>
+  </table>
+
+  <h2>Cameras &amp; sensing</h2>
+  <table>
+    <tr><th>Symptom</th><th>Cause → fix</th></tr>
+    <tr><td>RealSense on USB but no <code>/dev/video*</code>, SDK sees 0 devices (Jetson)</td>
+        <td>librealsense's RSUSB udev rule unbinds uvcvideo. Permanent fix:
+            <code>sudo mv /etc/udev/rules.d/99-realsense-rsusb-unbind.rules{,.disabled}
+            &amp;&amp; sudo udevadm control --reload &amp;&amp; sudo udevadm trigger</code>.
+            The watchdog also self-heals each plug.</td></tr>
+    <tr><td>Wrist cameras swap sides across reboots</td>
+        <td>identical UVC devices enumerate by arrival — pin them by hub port on
+            the powered hub (udev rules in <code>hardware_bridge/install/</code>).</td></tr>
+    <tr><td>Cameras dark in the sim</td>
+        <td>an empty scene — pass a real scene:
+            <code>./run.sh -s path/to/scene.xml</code>.</td></tr>
+  </table>
+
+  <h2>Performance</h2>
+  <table>
+    <tr><th>Symptom</th><th>Cause → fix</th></tr>
+    <tr><td>Joints laggy / control loop slow while video streams</td>
+        <td>camera encode threads starving the control loop — the launcher
+            already pins cameras to utility QoS; don't run extra viewers on the
+            robot host, and prefer LAN over relay for video.</td></tr>
+    <tr><td>Teleop feels 100+ ms behind</td>
+        <td>check transport first (cockpit's status row shows each client's
+            route). Relay adds an internet round trip; LAN/Tailscale-direct is
+            the low-latency path.</td></tr>
+    <tr><td>Sim robot won't move under hand teleop</td>
+        <td>both hands must be tracked, then anchor the clutch (<kbd>Enter</kbd>
+            in the cockpit / recenter in the headset). Watch
+            <code>palm err L/R → 0</code> in the log.</td></tr>
+  </table>
+
+  <h2>When stuck</h2>
+  <ul>
+    <li>Logs: <code>/tmp/mabel_real_hw.log</code>, <code>/tmp/mabel_bridge.log</code>,
+      <code>/tmp/mabel_hw_bridge.log</code>, <code>/tmp/mabel_real_slam.log</code> —
+      the launcher prints which log belongs to which subsystem at start.</li>
+    <li>Per-bus liveness: the watchdog line (every 10 s) tells you exactly which
+      device stopped answering.</li>
+    <li>Open an issue at
+      <a href="https://github.com/robotmabel/MABEL/issues">robotmabel/MABEL</a>
+      with the relevant log tail and your build tier.</li>
+  </ul>
+</main>
+</div>
+<script src="docs.js"></script>
+</body>
+</html>

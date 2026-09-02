@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#151820"/>
+<title>Operating the robot — MABEL replication docs</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css"/>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1><span class="n">07</span>Operating the robot</h1>
+  <p class="lead">
+    One server, one wire contract, every client. The same launcher pattern runs
+    the simulator on a laptop and the real robot on the Jetson; iOS, Vision Pro,
+    and the browser connect identically to either — they cannot tell which is live.
+  </p>
+
+  <h2>Launch — simulator (laptop)</h2>
+<pre><code>cd server &amp;&amp; ./run.sh              <span class="c"># full sim stack + web studio on :8097</span>
+./run.sh --test                    <span class="c"># open-field sandbox scene + native viewer</span>
+./run.sh --no-tui                  <span class="c"># plain scrolling output instead of the cockpit</span></code></pre>
+  <p>
+    In an interactive terminal the launcher becomes a retro <b>cockpit TUI</b>:
+    live joints with deviation tracks, the robot rendered from the actual model,
+    camera and lidar panels, log tails. It is also a teleop client:
+  </p>
+  <table>
+    <tr><th>Key</th><th>Action</th></tr>
+    <tr><td><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd></td><td>drive the base (hold to move; release stops)</td></tr>
+    <tr><td><kbd>a</kbd> / <kbd>d</kbd></td><td>rotate left / right</td></tr>
+    <tr><td><kbd>w</kbd> / <kbd>s</kbd></td><td>lift up / down</td></tr>
+    <tr><td><kbd>Enter</kbd> / <kbd>r</kbd></td><td>re-anchor the teleop clutch / reset the sim</td></tr>
+    <tr><td><kbd>l</kbd> / <kbd>h</kbd> / <kbd>q</kbd></td><td>log panel / help / quit everything</td></tr>
+  </table>
+
+  <h2>Launch — real robot (Jetson)</h2>
+<pre><code>./server/real_run.sh               <span class="c"># HAL + SLAM + Nav2 + app server (+ cockpit TUI)</span>
+./server/real_run.sh --no-slam     <span class="c"># motors + cameras only</span>
+./server/real_run.sh --only-hands  <span class="c"># bench a single subsystem (also --only-base, --only-cameras)</span>
+./server/real_run.sh -h            <span class="c"># every flag</span></code></pre>
+  <ul>
+    <li>The robot <b>auto-starts</b> this at boot via systemd. A manual run takes
+      over cleanly (the service instance stands by until you exit).</li>
+    <li>A module with no hardware plugged in stays idle — it never crashes the
+      bring-up. The status watchdog prints per-bus liveness every 10 s.</li>
+    <li>Ctrl-C (or <kbd>q</kbd> in the cockpit) stops everything and returns the
+      robot to the auto-started stack.</li>
+  </ul>
+
+  <h2>Clients</h2>
+  <table>
+    <tr><th>Client</th><th>How</th></tr>
+    <tr><td>Browser console</td><td><code>http://&lt;host&gt;:8080/console</code> — video + keyboard drive, zero install</td></tr>
+    <tr><td>Control studios</td><td>real: <code>http://&lt;host&gt;:8094</code> · sim: <code>:8097</code> — full control GUI, visualizer, monitor</td></tr>
+    <tr><td>iPhone app</td><td>auto-discovers the robot on the same Wi-Fi (Bonjour), or add the host IP</td></tr>
+    <tr><td>Vision Pro</td><td>whole-body teleop: your hands drive the arms/hands, stereo video in immersive space</td></tr>
+    <tr><td>Remote</td><td>a relay tunnel (rathole + Caddy on any VPS) exposes the same contract over the internet; LAN/Tailscale is always the low-latency path</td></tr>
+  </table>
+  <div class="note">
+    Whole-body teleop flow: put both hands in view until tracking is solid, then
+    anchor the clutch (headset recenter, or <kbd>Enter</kbd> in the cockpit).
+    The arms stay <b>limp until you explicitly enable torque</b> from a client —
+    launching never energizes anything.
+  </div>
+
+  <h2 id="safety">The safety model</h2>
+  <p>Every safeguard below is real and lives in the code:</p>
+  <table>
+    <tr><th>Layer</th><th>Behavior</th></tr>
+    <tr><td>E-stop</td><td>any client sends <code>estop</code> → the bridge zeros all commands and latches stopped; a hardware e-stop de-energizes actuators independently of the host</td></tr>
+    <tr><td>Deadman</td><td>no fresh command in 0.3 s → drive zeros; lost Teensy heartbeat → controllers disable in ~150 ms</td></tr>
+    <tr><td>Tip-over</td><td>a ZMP model bounds base speed/accel from the measured CoM — the envelope tightens as the lift rises</td></tr>
+    <tr><td>Self-collision</td><td>a CBF-QP keeps the arms out of each other and the body</td></tr>
+    <tr><td>Arbitration</td><td>a single-driver lock: two operators can't fight; discrete commands outrank streams</td></tr>
+    <tr><td>Tracking loss</td><td>lost hand tracking holds pose — it never extrapolates</td></tr>
+    <tr><td>One gate</td><td>every base twist from every client passes <code>safe_base_step()</code> in <code>controller/</code>; no code path bypasses it</td></tr>
+  </table>
+  <div class="stop">
+    Before any energized session: know where your hardware e-stop is, confirm the
+    software e-stop from the client you are using, and keep the first sessions in
+    an open area at reduced speed caps.
+  </div>
+</main>
+</div>
+<script src="docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#151820"/>
+<title>Data &amp; learning — MABEL replication docs</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css"/>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1><span class="n">08</span>Data &amp; learning</h1>
+  <p class="lead">
+    The path from teleop to autonomy: record episodes while you operate, curate
+    them, train with LeRobot, deploy back onto the robot. Every stage has a
+    browser studio; all of them run on the laptop.
+  </p>
+
+  <h2>Recording</h2>
+  <ul>
+    <li><b>Episodes</b> — any client (or the studio) sends the <code>record</code>
+      wire message; the gateway captures synchronized camera frames + joint
+      states per episode, organized by task name.</li>
+    <li><b>Raw logs</b> — <code>data_collect</code> records rosbag/MCAP on the
+      robot for anything the episode format doesn't carry.</li>
+    <li>Recording state is visible in every client and in the cockpit's status
+      row (<code>● REC</code>).</li>
+  </ul>
+
+  <h2>The studios</h2>
+  <table>
+    <tr><th class="num">Port</th><th>Studio</th><th>Purpose</th></tr>
+    <tr><td class="num">8093</td><td>Data Curation</td><td>browse/score episodes, drift checks, filter bad takes, export LeRobot datasets</td></tr>
+    <tr><td class="num">8092</td><td>Data Studio</td><td>HDF5 episode editor — trim, splice, inspect frame by frame</td></tr>
+    <tr><td class="num">8095</td><td>Trainer</td><td>LeRobot training GUI — ACT, diffusion (DiT), pi0; run/queue/compare jobs</td></tr>
+    <tr><td class="num">8096</td><td>Community queue</td><td>public training queue with owner approval (optional, VPS-hosted)</td></tr>
+  </table>
+
+  <h2>Typical loop</h2>
+  <ol class="steps">
+    <li><b>Collect</b> 30–100 episodes of one task via Vision Pro or iOS teleop,
+      consistent staging, task-named.</li>
+    <li><b>Curate</b> in the Data Curation studio — drop failed takes, check
+      distribution drift, export a LeRobot dataset.</li>
+    <li><b>Train</b> in the Trainer studio (ACT is the fastest baseline; DiT and
+      pi0 configs ship alongside). GPU strongly recommended.</li>
+    <li><b>Deploy</b> — select the policy from a client; the runner streams
+      actions through the same wire contract and safety gates as teleop. The
+      e-stop and tip-over model apply to policies exactly as to humans.</li>
+  </ol>
+
+  <h2>Simulation & RL</h2>
+  <p>
+    The same MJCF drives RL environments (a vendored <code>mjlab</code> setup
+    with lift/bimanual/whole-body tasks under <code>learning/</code>) and the
+    Genesis/MuJoCo/Unity twins — policies can be shaped in sim against the same
+    wire contract before they ever touch hardware.
+  </p>
+  <div class="note">
+    Every deployment path — scripted, learned, or teleop — goes through the same
+    single gate (<code>safe_base_step</code>, the tip-over model, self-collision
+    QP). There is no "policy mode" that bypasses safety.
+  </div>
+</main>
+</div>
+<script src="docs.js"></script>
+</body>
+</html>
