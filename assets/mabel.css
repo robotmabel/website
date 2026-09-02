@@ -3336,3 +3336,35 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .rg-bus { line-height: 1.9; }
 .rg-tile.gold { background: var(--yellow); }
 .rg-tile.green { background: #DDEBDF; }
+
+/* ═══ Scene gallery ═══ */
+.scene-bar { display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.scene-count { font-family: var(--font-comic); font-size: 15px; letter-spacing: 0.05em;
+  color: var(--rust); }
+.scene-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.scene-filters button { font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: 0.05em; padding: 6px 11px; border: 2px solid var(--ink);
+  border-radius: 5px; background: var(--bone); color: var(--ink); cursor: pointer; }
+.scene-filters button.on { background: var(--yellow); }
+.scene-filters button i { font-style: normal; color: var(--ash); margin-left: 5px; }
+.scene-filters button.on i { color: var(--ink-soft); }
+
+.scene-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px; }
+@media (max-width: 560px) { .scene-grid { grid-template-columns: 1fr 1fr; gap: 9px; } }
+.scene-cell { margin: 0; border: 2px solid var(--ink); border-radius: 6px;
+  overflow: hidden; background: var(--ink); box-shadow: 4px 4px 0 var(--ink);
+  transition: transform 0.16s ease, box-shadow 0.16s ease; }
+.scene-cell[hidden] { display: none; }
+.scene-cell:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--orange); }
+.scene-cell video { width: 100%; display: block; aspect-ratio: 4 / 3;
+  object-fit: cover; background: #0E1016; }
+.scene-cell figcaption { padding: 8px 10px 10px; }
+.scene-cell b { display: block; font-family: var(--font-comic); font-size: 15px;
+  letter-spacing: 0.03em; color: var(--bone); line-height: 1.15; }
+.scene-cell span { display: block; margin-top: 2px; font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 0.11em; text-transform: uppercase; color: var(--orange); }
+.scene-grid > *:nth-child(4n+2) { box-shadow: 4px 4px 0 var(--yellow); }
+.scene-grid > *:nth-child(4n+3) { box-shadow: 4px 4px 0 var(--blue); }
+.scene-grid > *:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
