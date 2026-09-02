@@ -250,5 +250,21 @@ if (new URLSearchParams(location.search).has('embed')) document.documentElement.
 </div>
 
 <script type="module" src="assets/teleop-app.js?v=20260630-balldrag"></script>
+<script>
+/* Keep the in-viewport controls clear of the floating dock. The dock wraps to
+   a second row on narrow screens, so its height is measured rather than
+   assumed — a fixed offset buried Go/Clear and the view buttons underneath it. */
+(function () {
+  var dock = document.querySelector('.ta-dock');
+  if (!dock) return;
+  function sync() {
+    document.documentElement.style.setProperty(
+      '--ta-dock-h', Math.round(dock.getBoundingClientRect().height) + 'px');
+  }
+  sync();
+  if ('ResizeObserver' in window) new ResizeObserver(sync).observe(dock);
+  window.addEventListener('resize', sync);
+})();
+</script>
 </body>
 </html>

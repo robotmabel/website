@@ -221,7 +221,11 @@
 .ta-room.on { border-color: rgba(233,166,121,.5); color: #efeae3; }
 .ta-room .sub { font: 400 10px 'Space Mono', monospace; letter-spacing: .06em; color: #6d6660; }
 .ta-navhud {
-  position: absolute; left: 50%; bottom: 92px; transform: translateX(-50%); z-index: 6;
+  /* clear the fixed dock: its height is measured at runtime into
+     --ta-dock-h, because the dock grows a second row on narrow screens
+     and a hard-coded offset left these controls buried underneath it. */
+  position: absolute; left: 50%; bottom: calc(var(--ta-dock-h, 112px) + 30px);
+  transform: translateX(-50%); z-index: 6;
   display: flex; gap: 8px; align-items: center;
   padding: 8px 10px; border-radius: 18px;
   background: rgba(18,16,15,.72); border: 1px solid rgba(255,255,255,.09);
@@ -560,7 +564,8 @@ html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
 
 /* ════ Viewport buttons (re-center / fit / follow) — liquid glass ════ */
 .ta-viewbtns {
-  position: absolute; left: 50%; bottom: 150px; transform: translateX(-50%); z-index: 6;
+  position: absolute; left: 50%; bottom: calc(var(--ta-dock-h, 112px) + 86px);
+  transform: translateX(-50%); z-index: 6;
   display: flex; gap: 6px;
 }
 .ta-vbtn {
