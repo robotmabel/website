@@ -44,11 +44,14 @@
     return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
   }
 
-  var S = { idx: 0, spin: 0, target: 0, t0: performance.now() };
+  var S = { idx: 0, spin: 0, target: 0, t0: performance.now(),
+            tilt: 12,            // degrees, camera latitude
+            auto: true,          // idle rotation
+            drag: null };        // {x, y, spin, tilt} while the pointer is down
 
   host.innerHTML =
     '<div class="rg-stage"><canvas class="rg-canvas"></canvas>' +
-      '<span class="rg-fx" aria-hidden="true"></span></div>' +
+      '<span class="rg-fx" aria-hidden="true"></span>' + '<span class="rg-hint">Drag to spin</span></div>' +
     '<div class="rg-panel">' +
       '<span class="rg-eyebrow">Operator</span>' +
       '<div class="rg-cities"></div>' +
@@ -69,7 +72,9 @@
     b.addEventListener('click', function () {
       S.idx = i;
       elCities.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      S.auto = false;
       S.target = -c.lon;
+      setTimeout(function () { if (!S.drag) S.auto = true; }, 4000);
       update();
       elFx.textContent = 'PING!'; elFx.className = 'rg-fx show';
       setTimeout(function () { elFx.className = 'rg-fx'; }, 900);
@@ -111,11 +116,14 @@
 
   /* orthographic projection of a lat/lon onto the visible hemisphere */
   function project(lat, lon, spin, cx, cy, R) {
-    var p = toRad(lat), l = toRad(lon + spin);
+    var p = toRad(lat), l = toRad(lon + spin), t = toRad(S.tilt);
     var x = Math.cos(p) * Math.sin(l);
     var y = Math.sin(p);
     var z = Math.cos(p) * Math.cos(l);
-    return { x: cx + x * R, y: cy - y * R, z: z };
+    /* tilt the camera about the equator so the reader can look over the pole */
+    var y2 = y * Math.cos(t) - z * Math.sin(t);
+    var z2 = y * Math.sin(t) + z * Math.cos(t);
+    return { x: cx + x * R, y: cy - y2 * R, z: z2 };
   }
 
 
@@ -225,8 +233,15 @@
   function frame(t) {
     var dt = Math.min((t - last) / 1000, 0.05); last = t;
     var W = cv.clientWidth, H = cv.clientHeight;
-    var cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.40;
-    S.spin += (S.target - S.spin) * Math.min(1, dt * 2.6);
+    var cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.465;
+    if (S.drag) {
+      /* the reader is turning it */
+    } else if (Math.abs(S.target - S.spin) > 0.4) {
+      S.spin += (S.target - S.spin) * Math.min(1, dt * 2.6);   // fly to a city
+    } else if (S.auto) {
+      S.spin += 5.5 * dt;                                      // idle rotation
+      S.target = S.spin;
+    }
 
     ctx.clearRect(0, 0, W, H);
     /* the globe */
@@ -285,6 +300,31 @@
     var c = CITIES.filter(function (x) { return x.name === name; })[0];
     return c ? budget(c) : null;
   };
+
+  /* ── drag to rotate ─────────────────────────────────────────────────── */
+  cv.style.cursor = 'grab';
+  cv.addEventListener('pointerdown', function (e) {
+    S.drag = { x: e.clientX, y: e.clientY, spin: S.spin, tilt: S.tilt };
+    S.auto = false;
+    cv.setPointerCapture(e.pointerId);
+    cv.style.cursor = 'grabbing';
+  });
+  cv.addEventListener('pointermove', function (e) {
+    if (!S.drag) return;
+    S.spin = S.drag.spin + (e.clientX - S.drag.x) * 0.42;
+    S.tilt = Math.max(-70, Math.min(70, S.drag.tilt - (e.clientY - S.drag.y) * 0.3));
+    S.target = S.spin;
+  });
+  function endDrag() {
+    if (!S.drag) return;
+    S.drag = null;
+    cv.style.cursor = 'grab';
+    /* resume the idle rotation after a beat, so the globe never looks dead */
+    setTimeout(function () { if (!S.drag) S.auto = true; }, 2500);
+  }
+  cv.addEventListener('pointerup', endDrag);
+  cv.addEventListener('pointercancel', endDrag);
+  cv.addEventListener('pointerleave', endDrag);
 
   resize(); update();
   requestAnimationFrame(function (t) { last = t; S.t0 = t; frame(t); });

@@ -2742,7 +2742,11 @@ h1 > .sticker.sticker-hi, h2 > .sticker.sticker-hi, h3 > .sticker.sticker-hi {
 .rg-wrap > #reachGlobe > * { min-width: 0; }
 .rg-stage { position: relative; border: 3px solid var(--ink); border-radius: 8px;
   overflow: hidden; background: var(--bone); box-shadow: 6px 6px 0 var(--ink);
-  aspect-ratio: 16 / 11; }
+  aspect-ratio: 5 / 4; min-height: 380px; touch-action: none; }
+.rg-hint { position: absolute; left: 10px; bottom: 10px; font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ash);
+  background: rgba(253,246,226,0.85); border: 2px solid var(--ink); border-radius: 4px;
+  padding: 4px 8px; pointer-events: none; }
 .rg-canvas { display: block; width: 100%; height: 100%; }
 .rg-fx { position: absolute; top: 8%; left: 50%; transform: translateX(-50%) scale(0.3);
   font-family: var(--font-comic); font-size: clamp(30px, 5vw, 54px); color: var(--yellow);
@@ -2956,8 +2960,9 @@ ol.asm-steps li:nth-child(7n+4) { grid-column: span 7; }
 ol.asm-steps li:nth-child(7n+5),
 ol.asm-steps li:nth-child(7n+6),
 ol.asm-steps li:nth-child(7n)   { grid-column: span 4; }
-/* a lone trailing panel takes the full width rather than leaving a hole */
-ol.asm-steps li:last-child:nth-child(3n+1) { grid-column: span 12; }
+/* NOTE: no last-child override at 3n+1 — for a 7-step module that stole the
+   final 4-wide slot and left a third of the row empty. Every row already
+   sums to 12: 7+5 / 5+7 / 4+4+4. */
 
 /* the narration bar carries the panel number */
 ol.asm-steps li::before {
@@ -3067,3 +3072,110 @@ ol.asm-steps li:last-child:nth-child(7n+3) { grid-column: span 12; }
   ol.asm-steps li:last-child:nth-child(7n+2),
   ol.asm-steps li:last-child:nth-child(7n+3) { grid-column: 1 / -1; }
 }
+
+/* ═══ Panels are figure-first ═══
+   The drawing leads, the imperative is the lettering, the explanation is
+   secondary. Panels stretch to fill their row so the page has no gutters
+   of dead paper. */
+ol.asm-steps li.has-art { display: flex; flex-direction: column; padding: 30px 0 0; }
+.asm-art { margin: 0; border-bottom: 2px solid var(--ink); background: #F3E7C7;
+  line-height: 0; }
+.asm-art svg { display: block; width: 100%; height: auto; }
+ol.asm-steps li.has-art > strong { padding: 12px 14px 0; }
+ol.asm-steps li.has-art > .tip { margin: 10px 14px 14px; }
+ol.asm-steps li.has-art { padding-bottom: 0; }
+ol.asm-steps li.has-art > *:not(.asm-art):not(strong):not(.tip) { padding: 0 14px; }
+/* the loose text node after <strong> is wrapped by asm-art.js into .asm-say */
+.asm-say { display: block; padding: 4px 14px 14px; font-size: 13px;
+  line-height: 1.6; color: var(--ink-soft); }
+ol.asm-steps li.has-art .tip { margin-top: auto; }
+/* Every panel is figure-on-top. A side-by-side variant was tried for the
+   wide panels, but the drawing letterboxes inside a tall box and leaves dead
+   space — the width rhythm alone gives the page its variation. */
+
+
+/* ═══ Bursts: five shapes, not one ═══
+   Every burst on the page was the same 24-point star at the same size, which
+   read as a repeated stamp rather than lettering. These cycle shape, size,
+   rotation and colour, so no two neighbours match. */
+.burst.b-star::before {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%,
+                     21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+.burst.b-blast::before {
+  clip-path: polygon(50% 0%, 58% 24%, 79% 9%, 76% 34%, 100% 33%, 82% 50%,
+                     100% 67%, 76% 66%, 79% 91%, 58% 76%, 50% 100%, 42% 76%,
+                     21% 91%, 24% 66%, 0% 67%, 18% 50%, 0% 33%, 24% 34%, 21% 9%, 42% 24%);
+}
+.burst.b-blob::before {
+  clip-path: polygon(50% 2%, 66% 10%, 80% 4%, 86% 20%, 99% 32%, 90% 47%,
+                     98% 63%, 84% 72%, 82% 90%, 65% 86%, 50% 98%, 35% 87%,
+                     18% 92%, 16% 74%, 2% 63%, 11% 47%, 1% 31%, 15% 21%, 20% 5%, 35% 11%);
+}
+.burst.b-zag::before {
+  clip-path: polygon(50% 0%, 63% 18%, 84% 6%, 80% 30%, 100% 26%, 88% 46%,
+                     100% 62%, 80% 66%, 88% 88%, 64% 80%, 50% 100%, 36% 80%,
+                     12% 88%, 20% 66%, 0% 62%, 12% 46%, 0% 26%, 20% 30%, 16% 6%, 37% 18%);
+}
+.burst.b-flag::before {
+  clip-path: polygon(6% 16%, 94% 6%, 88% 40%, 99% 52%, 86% 66%, 92% 92%,
+                     50% 80%, 10% 94%, 16% 62%, 2% 48%, 14% 34%);
+}
+/* rhythm: shape, size, tilt and voice all rotate together */
+.burst:nth-of-type(5n+1) { transform: rotate(-9deg); }
+.burst:nth-of-type(5n+2) { transform: rotate(7deg) scale(0.88); }
+.burst:nth-of-type(5n+3) { transform: rotate(-4deg) scale(1.1); }
+.burst:nth-of-type(5n+4) { transform: rotate(11deg) scale(0.82); }
+.burst:nth-of-type(5n)   { transform: rotate(-13deg) scale(1.02); }
+.burst.v-yellow { color: var(--ink); }
+.burst.v-yellow::before { background: var(--yellow); }
+.burst.v-orange::before { background: var(--orange); }
+.burst.v-blue { color: #FFF6E4; }
+.burst.v-blue::before { background: var(--blue); }
+.burst.v-green { color: #FFF6E4; }
+.burst.v-green::before { background: var(--green); }
+/* lettering varies too — weight, tracking, skew */
+.burst.f-tight { letter-spacing: -0.01em; font-size: 0.92em; }
+.burst.f-wide { letter-spacing: 0.14em; font-size: 0.84em; }
+.burst.f-tall { transform-origin: center; font-size: 1.14em; }
+.burst.f-slant span, .burst.f-slant { font-style: italic; }
+
+
+/* ═══ The wild rail scrolls forever ═══
+   It was a drag-only strip that just stopped at the last card. Now the track
+   creeps along on its own and wraps seamlessly (the JS clones the run once,
+   so translating by exactly half the track is invisible). Dragging still
+   works and pauses the drift; hover pauses it too. */
+.marquee-track.auto { animation: railDrift var(--rail-dur, 90s) linear infinite; }
+.marquee-track.auto:hover, .marquee-track.auto.paused { animation-play-state: paused; }
+@keyframes railDrift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marquee-track.auto { animation: none; } }
+
+/* one line of links instead of three big studio cards */
+.more-line { text-align: center; margin: clamp(20px,3vh,32px) auto 0; max-width: 900px;
+  font-family: var(--font-head); font-size: clamp(15px, 1.7vw, 20px); line-height: 2.1;
+  color: var(--ash-light); }
+.more-line > span { font-family: var(--font-comic); color: var(--yellow);
+  letter-spacing: 0.06em; margin-right: 10px; }
+.more-line a { color: var(--bone); text-decoration: none;
+  border-bottom: 2px solid var(--orange); padding-bottom: 1px; white-space: nowrap; }
+.more-line a:hover { color: var(--yellow); border-bottom-color: var(--yellow); }
+.more-line i { color: var(--ash); font-style: normal; margin: 0 10px; }
+/* the paper block sits centred rather than in a half-empty two-column wrap */
+.paper-centre { max-width: 760px; margin-left: auto; margin-right: auto; text-align: left; }
+.paper-centre .eyebrow, .paper-centre h3 { text-align: left; }
+
+/* the four tenets: a compact 2×2 instead of a full-width stack */
+.tenets { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .tenets { grid-template-columns: 1fr; } }
+.tenet { position: relative; border: 2px solid var(--ink); border-radius: 6px;
+  background: var(--panel); box-shadow: 4px 4px 0 var(--ink);
+  padding: 13px 15px 14px 44px; }
+.tenet b { position: absolute; left: 13px; top: 13px; font-family: var(--font-comic);
+  font-size: 15px; color: var(--rust); letter-spacing: 0.06em; }
+.tenet h5 { font-family: var(--font-comic); font-weight: 400; font-size: 16px;
+  letter-spacing: 0.02em; color: var(--ink); margin: 0 0 4px; line-height: 1.15; }
+.tenet p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); }
+.tenet:nth-child(2) { box-shadow: 4px 4px 0 var(--yellow); }
+.tenet:nth-child(3) { box-shadow: 4px 4px 0 var(--blue); }
+.tenet:nth-child(4) { box-shadow: 4px 4px 0 var(--orange); }

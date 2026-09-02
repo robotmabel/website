@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=d72c810f" />
+<link rel="stylesheet" href="assets/mabel.css?v=ab4f4c0c" />
 <script>document.documentElement.classList.add('js');</script>
 <script>
 /* start the rig download during parse — desktop fine-pointer only */
@@ -341,24 +341,20 @@ is already a training demonstration — no separate recording rig.</p></template
         </div>
       </div>
     </div>
-    <div class="points fade-up" style="margin-top:38px;">
-      <div class="point"><div class="num">01</div><div>
-        <h5>One source of geometry</h5>
-        <p>A single URDF generates the MJCF for <a href="software.html#simulation" style="color:var(--rust);">simulation</a>, the on-robot kinematics, and the web's articulated viewer — sim and hardware can't silently diverge.</p>
-      </div></div>
-      <div class="point"><div class="num">02</div><div>
-        <h5>One graph, two worlds</h5>
-        <p>Every firmware bus surfaces in <a href="software.html" style="color:var(--rust);">ROS&nbsp;2</a> behind standard topics; the same graph drives the real robot or the twin — <code>use_sim:=true</code> is the only difference.</p>
-      </div></div>
-      <div class="point"><div class="num">03</div><div>
-        <h5>Base to fingertips, one solve</h5>
-        <p>The <a href="software.html#controller" style="color:var(--rust);">whole-body controller</a> resolves base, lift, torso, and arms against one task — a 6-DOF wish becomes coordinated motion across 56 joints.</p>
-      </div></div>
-      <div class="point"><div class="num">04</div><div>
-        <h5>Teleop is the data engine</h5>
-        <p>Every <a href="teleop.html" style="color:var(--rust);">teleoperated</a> session is logged as a labeled trajectory that trains the <a href="autonomy.html" style="color:var(--rust);">policies</a> — the same interfaces that drive the robot also feed the learning loop.</p>
-      </div></div>
-    </div>
+    <div class="tenets fade-up" style="margin-top:32px;">
+      <div class="tenet"><b>01</b><h5>One source of geometry</h5>
+        <p>A single URDF generates the MJCF for <a href="software.html#simulation">simulation</a>, the
+        on-robot kinematics and the web viewer — sim and hardware can’t silently diverge.</p></div>
+      <div class="tenet"><b>02</b><h5>One graph, two worlds</h5>
+        <p>Every firmware bus surfaces in <a href="software.html#ros">ROS 2</a> behind standard topics;
+        <code>use_sim:=true</code> is the only difference between the robot and the twin.</p></div>
+      <div class="tenet"><b>03</b><h5>Base to fingertips, one solve</h5>
+        <p>The <a href="software.html#controller">whole-body controller</a> resolves base, lift, torso
+        and arms against one task — a 6-DOF wish becomes motion across 56 joints.</p></div>
+      <div class="tenet"><b>04</b><h5>Teleop is the data engine</h5>
+        <p>Every <a href="teleop.html">teleoperated</a> session is logged as a labelled trajectory that
+        trains the <a href="autonomy.html#learning">policies</a>.</p></div>
+    </div>>
   </div>
 </section>
 
@@ -514,7 +510,7 @@ is already a training demonstration — no separate recording rig.</p></template
     <div class="adv-burst" aria-hidden="true"><div class="ab-in"><span class="ab-mabel">MABEL</span><span class="ab-sub">ADVENTURES IN NEW YORK CITY</span></div></div>
     <span class="ambient" style="top:24px; left:6%; transform:rotate(-6deg);" aria-hidden="true">honk honk</span>
     <span class="ambient" style="top:52px; right:8%; transform:rotate(5deg);" aria-hidden="true">beep beep!</span>
-    <div class="marquee-hint" aria-hidden="true">‹ drag to explore ›</div>
+    <div class="marquee-hint" aria-hidden="true">‹ drifting · drag to explore ›</div>
     <div class="marquee-track ltr">
       <div class="wild-card"><span class="panel-note">High above the East River…</span><video muted loop playsinline preload="none" poster="assets/wild/m-bridge.jpg" data-lo="assets/wild/c-bridge-lo.mp4" data-lazyvid="assets/wild/c-bridge.mp4" aria-label="MABEL crossing the Brooklyn Bridge"></video><div class="wild-card-top">01</div><div class="wild-card-meta"><h5>Brooklyn Bridge</h5><div class="coord">40.7061° N<br/>73.9969° W</div></div></div>
       <div class="wild-card"><span class="panel-note yellow">Moments later, in Times Square…</span><video muted loop playsinline preload="none" poster="assets/wild/m-timessq.jpg" data-lo="assets/wild/c-timessq-lo.mp4" data-lazyvid="assets/wild/c-timessq.mp4" aria-label="MABEL in Times Square"></video><div class="wild-card-top">02</div><div class="wild-card-meta"><h5>Times Square</h5><div class="coord">40.7580° N<br/>73.9855° W</div></div></div>
@@ -575,9 +571,7 @@ is already a training demonstration — no separate recording rig.</p></template
       </div>
 </div>
 
-    <div class="poster-wrap fade-up" style="margin-top:clamp(40px,6vh,64px);">
-      <div>
-      </div>
+    <div class="paper-centre fade-up" style="margin-top:clamp(40px,6vh,64px);">
       <div>
         <span class="eyebrow" style="display:block; margin-bottom:14px;">The paper</span>
         <h3 style="font-family:var(--font-head); font-weight:800; font-size:clamp(20px,2vw,27px); letter-spacing:-0.02em; margin-bottom:12px;">System paper · under review</h3>
@@ -606,35 +600,24 @@ is already a training demonstration — no separate recording rig.</p></template
 <!-- ─── STUDIOS ─── -->
 <section class="dark-sec pad-y studios" id="studios">
   <div class="wrap">
-    <div class="sec-head fade-up"><div>
-      <span class="eyebrow">The studios</span>
-      <h2 class="display-md title" style="color:var(--bone);">One robot, <span class="italic accent">three studios.</span><img src="assets/stickers/broadway.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-6deg);" loading="lazy" /></h2></div>
-      <p class="lede">Everything MABEL does runs through a browser studio: fly it live, curate what it recorded, then train the policy that flies it next.</p>
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">More to try</span>
+      <h2 class="display-md title" style="color:var(--bone);">There’s a lot <span class="italic accent">more.</span><img src="assets/stickers/broadway.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2>
+      <p class="lede" style="color:var(--ash-light); max-width:640px; margin:0 auto;">The apps, all four
+      browser studios, the full parts list, the films and every document live on one page.</p>
     </div>
-    <div class="card-grid">
-      <div class="card fade-up">
-        <div class="card-num">01 · OPERATE</div>
-        <h4>Control Studio</h4>
-        <p>The simulated robot serves its own cockpit: an rviz-class 3D viewer (live rig inside its SLAM map), drive + manipulate teleop with an IK target ball, dexterous-hand control, 59-DOF telemetry with temperature grading, and a live monitor of every connected client.</p>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;">
-          <a href="https://control-sim.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-ghost" style="margin-top:0;">Open the Control Studio ↗</a>
-        </div>
-        <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Open demo · no install</div>
-      </div>
-      <div class="card fade-up d1">
-        <div class="card-num">02 · CURATE</div>
-        <h4>Data Studio</h4>
-        <p>Final-Cut-style curation for imitation-learning data: auto-flag dropped frames, sync drift, and dead motors; grade every episode; align, blade, and trim non-destructively; export a clean LeRobot dataset with the 3D viewer and seven synced cameras for review.</p>
-        <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Studio ↗</a>
-        <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Live demo</div>
-      </div>
-      <div class="card fade-up d2">
-        <div class="card-num">03 · TRAIN</div>
-        <h4>Policy Studio</h4>
-        <p>Explore the exact training graphs — ACT, Diffusion Transformer, π₀ / π₀.₅ — down to individual attention blocks, then queue a real training job on MABEL's GPU from a curated dataset. Results and learning curves are published back to the site.</p>
-        <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Policy Studio ↗</a>
-        <div class="studio-tag" style="margin-top:14px;"><span class="studio-dot"></span>Live demo</div>
-      </div>
+    <p class="more-line fade-up">
+      <span>Check out:</span>
+      <a href="connect.html">the iOS &amp; Vision Pro apps</a><i>·</i>
+      <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener">the Control Studio</a><i>·</i>
+      <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Data Studio</a><i>·</i>
+      <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Policy Studio</a><i>·</i>
+      <a href="connect.html#films">the films</a><i>·</i>
+      <a href="build.html#bom">the parts list</a><i>·</i>
+      <a href="docs/">the build docs</a>
+    </p>
+    <div class="fade-up" style="text-align:center; margin-top:26px;">
+      <a href="connect.html" class="btn">Every link, one page →</a>
     </div>
   </div>
 </section>
@@ -682,6 +665,8 @@ is already a training demonstration — no separate recording rig.</p></template
   </div>
 </footer>
 
+<script src="assets/burst-variety.js?v=700266a7"></script>
+<script src="assets/rail-loop.js?v=546ee8f7"></script>
 <script src="assets/mabel.js?v=5dc38e96"></script>
 <script src="assets/comic-pop.js?v=36ad9059"></script>
 <script>
