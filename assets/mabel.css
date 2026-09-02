@@ -3053,3 +3053,17 @@ ol.asm-steps li .tip::after {
   .table-scroll.fit .data-table { min-width: 0 !important; width: 100% !important; }
   .table-scroll { overflow-x: visible; }
 }
+
+/* A trailing panel fills the row it lands on rather than leaving a hole:
+   5 steps ends with a lone 4-wide panel and a gap beside it, 6 ends with a
+   4 after a 4. These give the page a clean bottom edge at any step count. */
+ol.asm-steps li:last-child:nth-child(7n+5) { grid-column: span 12; }
+ol.asm-steps li:last-child:nth-child(7n+6) { grid-column: span 8; }
+ol.asm-steps li:last-child:nth-child(7n+2) { grid-column: span 5; }
+ol.asm-steps li:last-child:nth-child(7n+3) { grid-column: span 12; }
+@media (max-width: 760px) {
+  ol.asm-steps li:last-child:nth-child(7n+5),
+  ol.asm-steps li:last-child:nth-child(7n+6),
+  ol.asm-steps li:last-child:nth-child(7n+2),
+  ol.asm-steps li:last-child:nth-child(7n+3) { grid-column: 1 / -1; }
+}
