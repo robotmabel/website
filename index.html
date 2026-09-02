@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=f4e33418" />
+<link rel="stylesheet" href="assets/mabel.css?v=d7eda0c7" />
 <script>document.documentElement.classList.add('js');</script>
 <script>
 /* start the rig download during parse — desktop fine-pointer only */
@@ -58,7 +58,7 @@
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">The stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#data">Data</a><a href="autonomy.html#navigation">Navigation</a><a href="autonomy.html#learning">Learning</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#data">Data</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html#learning">Learning</a></div></div>
     <a href="connect.html">Links</a>
     <a href="index.html#paper" class="ext">Paper ↗</a>
     <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
@@ -237,6 +237,20 @@ is already a training demonstration — no separate recording rig.</p></template
   </div>
 </section>
 
+<!-- ─── BE THE OPERATOR · webcam retargeting ─── -->
+<section class="pad-y" id="webcam"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div>
+      <span class="eyebrow">Try it · runs on your machine</span>
+      <h2 class="display-md title">Be the <span class="italic accent">operator.</span><img src="assets/stickers/broadway.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2>
+    </div>
+    <p class="lede">Turn the camera on and MABEL's arms follow yours — the same retargeting
+      the headset uses, working out which way your body faces from your head and wrists
+      alone. Nothing is uploaded; the model runs on your machine.</p>
+  </div>
+  <div data-retarget-cam></div>
+</div></section>
+
 <!-- ─── THE SYSTEM · stats + clickable architecture ─── -->
 <section class="soft-sec pad-y" id="architecture">
   <div class="wrap">
@@ -269,7 +283,7 @@ is already a training demonstration — no separate recording rig.</p></template
           <a href="teleop.html#ios-app" data-tip="iPhone / iPad cockpit: drive, body pose, maps, and policy dispatch.">iPhone app</a>
           <a href="simulator.html" data-tip="Zero-install browser console — the one embedded above. Same wire protocol.">Browser console</a>
           <a href="autonomy.html" data-tip="Trained policies dispatched onto the same command path as a human operator.">Learned policies</a>
-          <a href="autonomy.html#navigation" data-tip="Click-on-the-map navigation goals over the live SLAM map.">Nav goals</a>
+          <a href="autonomy.html#mapping" data-tip="Click-on-the-map navigation goals over the live SLAM map.">Nav goals</a>
         </div>
       </div>
       <div class="arch-flow"><span class="dn">▼ commands</span><span class="up">state ▲</span></div>
@@ -278,7 +292,7 @@ is already a training demonstration — no separate recording rig.</p></template
         <div class="arch-name">Onboard intelligence · Jetson Thor</div>
         <div class="arch-chips">
           <a href="software.html#wbc" data-tip="One quadratic program renders EVERY reference — teleop, collaborator, or policy — with self-collision avoidance and a lift-aware tip-over model.">Whole-body control · QP</a>
-          <a href="autonomy.html#navigation" data-tip="Nav2 + SLAM on the base LiDAR — mapping, localization, and planning for a holonomic footprint.">Nav2 + SLAM</a>
+          <a href="autonomy.html#mapping" data-tip="Nav2 + SLAM on the base LiDAR — mapping, localization, and planning for a holonomic footprint.">Nav2 + SLAM</a>
           <a href="autonomy.html" data-tip="The policy runtime replays learned skills through the same safety gate as teleop.">Policy runtime</a>
           <a href="software.html" data-tip="Head RGB-D, wrist cameras, LiDAR — fused onboard.">Perception</a>
         </div>
@@ -724,5 +738,6 @@ is already a training demonstration — no separate recording rig.</p></template
 <!-- Control Studio links: the REAL studio is passkey-gated SERVER-side (basic
      auth at control.<domain>) — no client-side gate needed. The SIM twin is an
      open demo whose planes can only reach the token-gated simulation relay. -->
+<script type="module" src="assets/retarget-cam.js"></script>
 </body>
 </html>

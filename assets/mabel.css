@@ -3324,3 +3324,9 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .rg-wrap { max-width: 1000px; margin-left: auto; margin-right: auto; }
 .rg-wrap > #reachGlobe { grid-template-columns: minmax(0, 1fr) minmax(230px, 300px); }
 @media (max-width: 900px) { .rg-wrap > #reachGlobe { grid-template-columns: 1fr; } }
+/* four-column tables need a touch more room on a phone */
+@media (max-width: 620px) {
+  .data-table { font-size: 11px; }
+  .data-table th, .data-table td { padding: 6px 4px !important; }
+  .data-table td:first-child, .data-table th:first-child { max-width: 46%; }
+}

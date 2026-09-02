@@ -21,8 +21,9 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
-const HOST = document.getElementById('retargetCam');
-if (HOST) boot();
+/* Mount on every [data-retarget-cam] (and the original #retargetCam), so the
+   demo can appear on more than one page section. */
+document.querySelectorAll('#retargetCam, [data-retarget-cam]').forEach(boot);
 
 /* MediaPipe is fetched at click time, not on page load — nobody pays for it
    unless they actually start the camera. */
@@ -36,7 +37,7 @@ const L = { nose: 0, lShoulder: 11, rShoulder: 12, lElbow: 13, rElbow: 14,
 
 const SHOULDER_W = 0.38;      // metres, the robot's own shoulder separation
 
-function boot() {
+function boot(HOST) {
   HOST.innerHTML = `
     <div class="rc-grid">
       <div class="rc-rig">

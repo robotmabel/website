@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=f4e33418" />
+<link rel="stylesheet" href="assets/mabel.css?v=d7eda0c7" />
 <style>
   /* Data Curation live-tool CTA */
   .studio-card { padding: clamp(28px, 4vw, 48px); }
@@ -109,7 +109,7 @@
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">The stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
-    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#data">Data</a><a href="autonomy.html#navigation">Navigation</a><a href="autonomy.html#learning">Learning</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#data">Data</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html#learning">Learning</a></div></div>
     <a href="connect.html">Links</a>
     <a href="index.html#paper" class="ext">Paper ↗</a>
     <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
@@ -123,7 +123,7 @@
 
 <aside class="sidenav" aria-label="Autonomy section navigation">
   <div class="sidenav-title">Autonomy</div>
-  <a href="#studio">Data Studio</a><a href="#learning">Policies</a><a href="#data">Data pipeline</a><a href="#navigation">Navigation</a><a href="#learning">Learning</a>
+  <a href="#localization">Localization</a><a href="#mapping">Mapping</a><a href="#data">Collection</a><a href="#curation">Curation</a><a href="#learning">Training</a><a href="#deployment">Deployment</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
@@ -226,190 +226,275 @@
   <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
     <a href="teleop.html" class="btn btn-primary">Teleop · the data source →</a>
     <a href="software.html#controller" class="btn btn-ghost">Controller · deploy target →</a>
-    <a href="autonomy.html#navigation" class="btn btn-ghost">Navigation →</a>
+    <a href="autonomy.html#mapping" class="btn btn-ghost">Navigation →</a>
   </div>
 </div></section>
 
 
 <!-- ═══ DATA (merged from data.html) ═══ -->
 <!-- FIGURE -->
-<section class="pad-y" id="data"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">The data engine</span><h2 class="display-md title">Teleop in, <span class="italic accent">labels out.</span></h2></div>
-    <p class="lede">The operator drives MABEL through the <em>same</em> <code>TeleopController</code> the live viewer and the AVP bridge use. Cut an episode with a keypress; a background thread writes it to disk while you keep working.</p></div>
-  <div class="ros-game fade-up">
-      <div class="rg-head"><span class="rg-title">THE DATA ENGINE</span><span class="rg-coin">▶ every session is a dataset</span></div>
-      <div class="rg-row">
-        <div class="rg-tile blue"><b>01 · TELEOP</b><span>drive · sim or real</span></div>
-        <div class="rg-tile orange"><b>02 · RECORD</b><span>15 Hz · HDF5 thread</span></div>
-        <div class="rg-tile green"><b>03 · EPISODE</b><span>7 cams + 59 joints</span></div>
-        <div class="rg-tile yellow"><b>04 · TRAIN</b><span>ACT · CVAE · Diffusion</span></div>
-      </div>
-      <div class="rg-bus green"><span class="rg-blink">▶</span> SAME KEYS SIM ↔ REAL <code>policies deploy with no remapping</code></div>
-    </div>
-</div></section>
+<!-- ═══ 1 · LOCALIZATION ═══ -->
+<section class="soft-sec pad-y" id="localization"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 1</span>
+      <h2 class="display-md title">Where am <span class="italic accent">I?</span><img src="assets/stickers/subwayentrance.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede">Three ways to answer, measured against MuJoCo ground truth in the same
+      room. Wheels alone drift badly the moment a wheel slips; vision fixes it; the filter
+      keeps both.</p>
+  </div>
 
-<!-- HOW IT RECORDS -->
-<section class="soft-sec pad-y"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">How it records</span><h2 class="display-md title">One logger, <span class="italic accent">sim or real.</span></h2></div>
-    <p class="lede">A <code>StateProvider</code> turns whatever the platform exposes into a uniform per-frame dict; the recorder never knows whether it&rsquo;s talking to MuJoCo or to hardware.</p></div>
-  <div class="points fade-up">
-    <div class="point"><div class="num">01</div><div><h5>Shared controller</h5><p>You collect through the <code>TeleopController</code> that already drives the sim and the <a href="software.html#server">bridge</a> — so the demonstrations are generated by the exact control path a policy will later replace.</p></div></div>
-    <div class="point"><div class="num">02</div><div><h5>Uniform schema</h5><p><code>SimStateProvider</code> and <code>RealStateProvider</code> emit the same obs/action keys. Same field names in sim and on the robot is what lets a policy deploy <a href="autonomy.html#learning">across sim→real</a> with no I/O remapping.</p></div></div>
-    <div class="point"><div class="num">03</div><div><h5>Non-blocking writes</h5><p><code>EpisodeRecorder</code> accumulates frames and saves HDF5 on a background thread — one file per episode. Numbering auto-resumes, so you can stop and restart a session without overwriting.</p></div></div>
-    <div class="point"><div class="num">04</div><div><h5>Honest about the bottleneck</h5><p>Rendering seven cameras is the limit: ~15 Hz with a GPU offscreen context, ~2 Hz on a CPU-only laptop. The inspector reports the rate you actually achieved — drop cameras or resolution to hold the target.</p></div></div>
+  <div class="table-scroll tight fade-up">
+    <table class="data-table">
+      <thead><tr><th style="text-align:left;">Estimator</th><th>Position error</th><th>Heading</th><th>Path length vs truth</th></tr></thead>
+      <tbody>
+        <tr><td data-l="Estimator">Wheel odometry only</td><td data-l="Position error">0.67 m</td><td data-l="Heading">12.8°</td><td data-l="Path" class="hi">3.0× — slip reads as distance</td></tr>
+        <tr><td data-l="Estimator">Visual (cuVSLAM)</td><td data-l="Position error">0.21 m</td><td data-l="Heading">3.4°</td><td data-l="Path">1.10×</td></tr>
+        <tr class="best"><td data-l="Estimator">Fused EKF</td><td data-l="Position error" class="hi">0.21 m</td><td data-l="Heading" class="hi">3.4°</td><td data-l="Path" class="hi">1.08×</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card-grid fade-up" style="margin-top:clamp(24px,3vh,36px);">
+    <div class="card"><div class="card-num">01 · WHEELS</div><h4>Swerve forward kinematics</h4>
+      <p>Three steered modules over-determine the body twist, so <code>swerve_odometry</code>
+      least-squares them into one <code>(v<sub>x</sub>, v<sub>y</sub>, ω)</code> from
+      <code>/joint_states</code> alone. Honest but slip-blind.</p></div>
+    <div class="card"><div class="card-num">02 · LiDAR</div><h4>Keyframe ICP</h4>
+      <p><code>laser_odometry</code> matches each scan to a keyframe rather than to the last
+      scan, so error does not compound frame to frame. 720 points at 13 Hz costs 2–4 ms.</p></div>
+    <div class="card"><div class="card-num">03 · VISION</div><h4>cuVSLAM VIO</h4>
+      <p>Stereo plus IMU on the GPU. Absolute pose, no drift with distance — the estimate the
+      filter trusts.</p></div>
+    <div class="card"><div class="card-num">04 · FUSION</div><h4>The EKF, and its caveat</h4>
+      <p>Takes velocity from the wheels and <em>pose</em> from vision, at 30 Hz in 2-D. It is
+      tuned and benchmarked, but its launch file pins simulated time and no bring-up script
+      starts it — <strong>built, not yet deployed</strong>.</p></div>
+  </div>
+
+  <div class="callout fade-up" style="margin-top:clamp(24px,3vh,36px);">
+    <p><strong>The base itself is identified, not assumed.</strong> A system-ID sweep puts the
+    real motion at <strong>0.989 × commanded</strong> — 1.1% slip, identical on every axis,
+    decoupled, linear down to 0.05 m/s, with a first-order velocity ramp of τ = 0.13 s.
+    Modelling that ramp cut held-out error from 4.0% to <strong>2.2% of distance travelled</strong>
+    (4.7 cm over 2.16 m). It also reframes the wheel odometry's 3× over-read: the robot was
+    stuck, not mis-modelled.</p>
   </div>
 </div></section>
 
-<!-- EPISODE SCHEMA -->
-<section class="pad-y"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">What&rsquo;s in an episode</span><h2 class="display-md title">Everything the body <span class="italic accent">knows.</span></h2></div>
-    <p class="lede">One HDF5 file per episode, axis&nbsp;0 = frame. The actuator names, camera list, and units travel with the data in the file attrs (<code>schema_json</code>) and <code>dataset_meta.json</code>.</p></div>
-  <div class="feature fade-up">
-    <div class="feature-copy">
-      <table class="tt">
-        <thead><tr><th>Field</th><th>Shape</th><th>What</th></tr></thead>
-        <tbody>
-          <tr><td>obs/cam/&lt;name&gt;/rgb</td><td>JPEG</td><td>7 cams: 2 wrist, ZED L/R, 3 body</td></tr>
-          <tr><td>obs/cam/&lt;name&gt;/depth</td><td>uint16</td><td>millimetres, on a subset</td></tr>
-          <tr><td>obs/lidar</td><td>[360]</td><td>planar ranges, 1° resolution</td></tr>
-          <tr><td>obs/joint_pos·vel·torque</td><td>[59]</td><td>aligned to the actuator list</td></tr>
-          <tr><td>obs/qpos · qvel</td><td>[81]·[78]</td><td>full state (sim ground truth)</td></tr>
-          <tr><td>obs/pose/{chassis,head,palms}</td><td>[7]</td><td>world position + quaternion</td></tr>
-          <tr><td>obs/base_twist</td><td>[3]</td><td>measured (vx, vy, wz)</td></tr>
-          <tr><td>action/ctrl</td><td>[59]</td><td><span class="pub">the label</span> — target for every actuator</td></tr>
-          <tr><td>teleop/* · time/*</td><td>—</td><td>palm targets, grasp, mode; sim &amp; wall clock</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="feature-copy">
-      <span class="eyebrow">the action label</span>
-      <h3>One vector to imitate.</h3>
-      <p><code>action/ctrl</code> is a single <strong>59-D target-position command</strong> for every actuator at once — arm, wrist, and finger joints, the neck, the lift, the torso, plus the base&rsquo;s steer angles and drive velocities. That is the quantity a policy learns to predict. Observations describe the world; this one array <em>is</em> the supervision.</p>
-      <div class="bib" style="margin-top:18px;">
-        <button class="bib-copy" onclick="copyCode(this)">Copy</button>
-        <pre>episode_0007.h5
-├─ obs/
-│   ├─ cam/{l_wrist,r_wrist,zed_left,…}/rgb
-│   ├─ lidar [360]
-│   └─ joint_pos|vel|torque [59]
-├─ action/ctrl [59]      # ← the target-joint label
-└─ attrs: schema_json, task, fps</pre>
+<!-- ═══ 2 · MAPPING ═══ -->
+<section class="pad-y" id="mapping"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 2</span>
+      <h2 class="display-md title">Two ways to build a <span class="italic accent">map.</span><img src="assets/stickers/watertower.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede">A GPU visual stack and a CPU LiDAR stack, both publishing the same
+      <code>map → odom</code>. Never run both — and on the real robot you do not have to
+      choose, because the bring-up decides for you.</p>
+  </div>
+
+  <div class="paper-grid fade-up">
+    <div>
+      <h5 style="font-family:var(--font-comic); font-size:19px; letter-spacing:0.03em; margin:0 0 10px;">cuVSLAM + nvblox · the GPU path</h5>
+      <p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">Two rectified stereo
+      streams and an IMU into cuVSLAM; nvblox turns depth into a TSDF mesh and slices a 2-D
+      occupancy layer out of it. Everything loads as composable nodes into one container so
+      frames move by zero-copy.</p>
+      <div class="table-scroll tight" style="margin-top:12px;">
+        <table class="data-table">
+          <tbody>
+            <tr><td data-l="Setting">Voxel size</td><td data-l="Value" style="text-align:right;">0.05 m navigating · 0.01 m manipulating</td></tr>
+            <tr><td data-l="Setting">Integration range</td><td data-l="Value" style="text-align:right;">4 m nav · 1.5 m manip</td></tr>
+            <tr><td data-l="Setting">ESDF slice</td><td data-l="Value" style="text-align:right;">0.02–0.40 m band, cut at 0.13 m</td></tr>
+            <tr><td data-l="Setting">Colour integration</td><td data-l="Value" style="text-align:right;">5 Hz nav · 15 Hz manip</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
-  </div>
-</div></section>
-
-<!-- OPERATOR KEYS -->
-<section class="dark-sec pad-y"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">Cut on the fly</span><h2 class="display-md title" style="color:var(--bone);">Episodes, <span class="italic accent">by keypress.</span></h2></div>
-    <p class="lede">Global hot-keys (the viewer needn&rsquo;t be focused) let one operator drive and segment at once — keep the good takes, discard the bad ones, never break flow.</p></div>
-  <div class="feature fade-up">
-    <div class="feature-copy">
-      <table class="tt">
-        <thead><tr><th>Key</th><th>Action</th></tr></thead>
-        <tbody>
-          <tr><td>SPACE</td><td>start a new episode / stop &amp; <strong>save</strong></td></tr>
-          <tr><td>X</td><td>discard the in-progress episode</td></tr>
-          <tr><td>C</td><td>recalibrate the teleop clutch at your pose</td></tr>
-          <tr><td>M</td><td>toggle manipulation ↔ navigation</td></tr>
-          <tr><td>B</td><td>toggle lazy base-follow</td></tr>
-          <tr><td>R</td><td>reset to home + re-randomize the object</td></tr>
-          <tr><td>Q · ESC</td><td>quit (auto-discards an unsaved take)</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="feature-copy">
-      <span class="eyebrow">inspect · visualize · merge</span>
-      <h3>A small toolbox around the files.</h3>
-      <p><code>inspect_episode.py</code> prints the schema, shapes, and timing — or tile-replays every camera stream. <code>visualize_dataset.py</code> regenerates vector-PDF diagnostics. <code>merge_dataset.py</code> pools several collection folders into one, renumbering episodes so sessions compose cleanly.</p>
-      <div class="bib" style="margin-top:18px;">
-        <button class="bib-copy" onclick="copyCode(this)">Copy</button>
-        <pre>python collect_sim.py --name pick_cube_v1 --task "pick the blue cube"
-python inspect_episode.py datasets/pick_cube_v1/episode_0000.h5 --play
-python merge_dataset.py --out datasets/all datasets/pick_cube_v1 datasets/pick_cube_v2</pre>
+    <div>
+      <h5 style="font-family:var(--font-comic); font-size:19px; letter-spacing:0.03em; margin:0 0 10px;">slam_toolbox · the CPU path</h5>
+      <p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">One asynchronous
+      lifecycle node on <code>/scan</code>, Ceres behind it, publishing <code>map → odom</code>
+      at 50 Hz. Loop closure is on: it searches 3 m and needs a chain of ten scans before it
+      will believe a match.</p>
+      <div class="table-scroll tight" style="margin-top:12px;">
+        <table class="data-table">
+          <tbody>
+            <tr><td data-l="Setting">Resolution</td><td data-l="Value" style="text-align:right;">0.05 m</td></tr>
+            <tr><td data-l="Setting">Laser range used</td><td data-l="Value" style="text-align:right;">0.45 – 12 m</td></tr>
+            <tr><td data-l="Setting">New node every</td><td data-l="Value" style="text-align:right;">0.2 m or 0.2 rad</td></tr>
+            <tr><td data-l="Setting">Map update</td><td data-l="Value" style="text-align:right;">every 0.5 s</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
+
+  <div class="callout fade-up" style="margin-top:clamp(26px,3.5vh,40px);">
+    <p><strong>We recommend the LiDAR path, and the robot already picks it.</strong> Bring-up
+    listens for a <code>/scan</code> for 15 seconds. If one appears, slam_toolbox takes over the
+    2-D map and <code>map → odom</code> — <strong>cuVSLAM is switched off entirely</strong> and
+    nvblox is demoted to 3-D mesh only, for the apps to draw. The reason is compute, not
+    accuracy: LiDAR SLAM is CPU-only, while the visual stack wants the same GPU your policy
+    does. nvblox cost scales with the cube of voxel size, so 5 cm is roughly 4× cheaper than
+    3 cm, and running the cameras at 15 fps instead of 30 roughly halves the load with no
+    practical accuracy cost.</p>
+  </div>
+
+  <p class="fade-up" style="margin-top:14px; font-family:var(--font-mono); font-size:11.5px; color:var(--ash);">
+    A saved room is four files: a 2-D <code>.pgm</code>+<code>.yaml</code> for Nav2, a
+    <code>.ply</code> mesh for the apps, and a <code>.nvblx</code> for relocalisation.
+    Frontier exploration can drive the whole survey and save at the end.</p>
 </div></section>
 
-<!-- SIM TO REAL + CTA -->
-<section class="pad-y"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">Sim → real</span><h2 class="display-md title">Collect in sim. <span class="italic accent">Deploy on hardware.</span></h2></div>
-    <p class="lede">Because sim and real share the identical keys and the identical control path, a dataset gathered in MuJoCo and one gathered on the robot are the same shape — and a policy trained on either speaks the same <code>action/ctrl</code> the robot already executes. The <a href="autonomy.html#learning">learning</a> stack picks up from here.</p></div>
-  <div class="fade-up" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
-    <a href="autonomy.html#learning" class="btn btn-primary">Learning →</a>
-    <a href="teleop.html" class="btn btn-ghost">Teleop →</a>
-    <a href="software.html#simulation" class="btn btn-ghost">Simulation →</a>
-    <a href="software.html#ros" class="btn btn-ghost">The topic bus →</a>
+<!-- ═══ 3 · DATA COLLECTION ═══ -->
+<section class="soft-sec pad-y" id="data"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 3</span>
+      <h2 class="display-md title">Every session is a <span class="italic accent">demonstration.</span><img src="assets/stickers/bodega.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede">Teleoperate and you are recording. One shared 15 Hz clock indexes seven
+      cameras, 59 joints, LiDAR and the operator's own targets into one episode file.</p>
+  </div>
+
+  <div class="tenets fade-up">
+    <div class="tenet"><b>WHAT</b><h5>One file per episode</h5>
+      <p>HDF5, frame-indexed: JPEG colour, 16-bit depth in millimetres, a 360-point scan,
+      joint position / velocity / torque, and the operator's palm targets and grasp.</p></div>
+    <div class="tenet"><b>LABEL</b><h5>Absolute joint targets</h5>
+      <p><code>action/ctrl</code> is the command sent to all 59 actuators — absolute, not a
+      delta. That is what a policy learns to produce.</p></div>
+    <div class="tenet"><b>SIZE</b><h5>≈38 MB per minute</h5>
+      <p>Against roughly 1.5 GB per minute per camera for a raw bag. Images are about 96% of
+      it, which is why the format matters.</p></div>
+    <div class="tenet"><b>RAW</b><h5>Bags are still there</h5>
+      <p>An opt-in rosbag recorder captures 52 topics byte-for-byte for debugging. The
+      curation studio does not read them.</p></div>
+  </div>
+
+  <div class="callout fade-up" style="margin-top:clamp(24px,3vh,36px);">
+    <p><strong>Where this is honest about itself.</strong> The simulation collector is complete.
+    On hardware, the working recorder is a standalone ROS node driven by the app's own
+    "start collecting" button — it was verified end to end in July 2026, but with synthetic
+    actions on a static robot, and the curation engine correctly scored that data as frozen.
+    The tidier <code>collect_real.py</code> harness is still a stub with TODO hooks. Most
+    collected data today is simulated.</p>
   </div>
 </div></section>
 
-<!-- ═══ NAVIGATION · coming soon (merged) ═══ -->
-<!-- ─── WHAT'S COMING ─── -->
-<section class="pad-y" id="navigation">
-  <div class="wrap-narrow">
-    <div class="fade-up" style="margin-bottom:clamp(28px,4vh,44px);">
-      <span class="eyebrow" style="display:block; margin-bottom:16px;">Navigation</span>
-      <h2 class="display-md title">What this page <span class="italic accent">will hold.</span><img src="assets/stickers/centralpark.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-6deg);" loading="lazy" /></h2>
-    </div>
-    <div class="soon-list fade-up">
-      <div class="soon-item"><div class="st">01 · Map</div><div><h5>Building the map</h5><p>How the base LiDAR and the RGB-D head are fused into a metric map of a real floor, and what each sensor contributes to it.</p></div></div>
-      <div class="soon-item"><div class="st">02 · Localize</div><div><h5>Staying located</h5><p>Correcting the drift the swerve wheels accumulate, and what the pose error actually measures over a full lap of a building.</p></div></div>
-      <div class="soon-item"><div class="st">03 · Plan</div><div><h5>Planning for a holonomic base</h5><p>A swerve base can strafe, so its footprint and its costmaps do not behave like a differential drive's. The configuration and the reasoning behind it.</p></div></div>
-      <div class="soon-item"><div class="st">04 · Run</div><div><h5>On the real floor</h5><p>Measured runs — not a simulated corridor. Timings, failures and the cases that still need a human, reported honestly.</p></div></div>
-    </div>
+<!-- ═══ 4 · DATA CURATION ═══ -->
+<section class="pad-y" id="curation"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 4</span>
+      <h2 class="display-md title">Cut it like <span class="italic accent">film.</span><img src="assets/stickers/tile.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede">A non-linear editor for demonstrations. Blade, ripple-delete, merge and
+      reorder on a timeline — and the source files are never touched.</p>
   </div>
-</section>
 
-<!-- ─── MEANWHILE ─── -->
-<section class="soft-sec pad-y">
-  <div class="wrap-narrow" style="text-align:center;">
-    <h2 class="display-sm fade-up" style="margin-bottom:16px;">While navigation lands.</h2>
-    <p class="lede fade-up" style="margin:0 auto 26px; max-width:52ch;">The base that does the driving, the controller that gates every twist, and the twin the planner is proved in first are all documented today.</p>
-    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <a href="hardware.html#hw-base" class="btn btn-primary">The base →</a>
-      <a href="software.html#controller" class="btn btn-ghost">Controller →</a>
-      <a href="software.html#simulation" class="btn btn-ghost">Simulation →</a>
-    </div>
+  <div class="card-grid fade-up">
+    <div class="card"><div class="card-num">EDL</div><h4>Nothing is destroyed</h4>
+      <p>A project is an ordered list of <em>(episode, start, end)</em> segments. Saving
+      materialises a <strong>new</strong> episode file, slicing every stream including the JPEG
+      blobs and rebasing time to stay monotonic. Roughly 1.4 s for a typical cut.</p></div>
+    <div class="card"><div class="card-num">QC</div><h4>It finds what you would miss</h4>
+      <p>Because everything shares one clock there is nothing to re-sync — so the engine hunts
+      the failures that matter instead: control lag between action and observation
+      (cross-correlated, correctable and gated at export), timing gaps against the episode's own
+      cadence, frozen joints, zero torque, NaNs and black cameras.</p></div>
+    <div class="card"><div class="card-num">OUT</div><h4>LeRobot v2.1</h4>
+      <p>Exports <code>observation.state</code> from measured joint positions,
+      <code>action</code> from the commanded targets, and one MP4 per camera — the layout the
+      trainer reads. A headless <code>curate_export</code> does the same from a shell and
+      writes a per-episode quality report beside it.</p></div>
   </div>
-</section>
 
-<!-- ═══ LEARNING · coming soon (merged) ═══ -->
-<!-- ─── WHAT'S COMING ─── -->
-<section class="pad-y" id="learning">
-  <div class="wrap-narrow">
-    <div class="fade-up" style="margin-bottom:clamp(28px,4vh,44px);">
-      <span class="eyebrow" style="display:block; margin-bottom:16px;">Learning</span>
-      <h2 class="display-md title">What this page <span class="italic accent">will hold.</span><img src="assets/stickers/taco.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(7deg);" loading="lazy" /></h2>
-    </div>
-    <div class="soon-list fade-up">
-      <div class="soon-item"><div class="st">01 · Data</div><div><h5>From session to dataset</h5><p>How a driven episode becomes training data — what is recorded, how it is segmented, and what gets thrown away.</p></div></div>
-      <div class="soon-item"><div class="st">02 · Train</div><div><h5>The training recipe</h5><p>Model families, the loss, and the harness that makes a run reproducible: fixed seeds, bundled statistics, auto-resume.</p></div></div>
-      <div class="soon-item"><div class="st">03 · Evaluate</div><div><h5>Numbers, not anecdotes</h5><p>Held-out evaluation and ablations under one harness, so each design choice is backed by a measurement. Published when they are real.</p></div></div>
-      <div class="soon-item"><div class="st">04 · Deploy</div><div><h5>Onboard, no laptop</h5><p>Running a checkpoint on the Jetson and handing its actions to the whole-body controller — and where that still breaks.</p></div></div>
-    </div>
+  <div class="fade-up" style="text-align:center; margin-top:clamp(24px,3vh,36px);">
+    <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn">Open the Data Studio ↗</a>
   </div>
-</section>
+</div></section>
 
-<!-- ─── MEANWHILE ─── -->
-<section class="soft-sec pad-y">
-  <div class="wrap-narrow" style="text-align:center;">
-    <h2 class="display-sm fade-up" style="margin-bottom:16px;">Already running today.</h2>
-    <p class="lede fade-up" style="margin:0 auto 26px; max-width:52ch;">The data engine that records the episodes and the curation studio that cleans them are running today, and the policy interface is documented.</p>
-    <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <a href="autonomy.html#data" class="btn btn-primary">The data engine →</a>
-      <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-ghost">Data Studio ↗</a>
-      <a href="teleop.html" class="btn btn-ghost">Teleop →</a>
+<!-- ═══ 5 · TRAINING ═══ -->
+<section class="soft-sec pad-y" id="learning"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 5</span>
+      <h2 class="display-md title">Four policies, one <span class="italic accent">trainer.</span><img src="assets/stickers/empirestate.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede">Pick an architecture, pick which cameras and joints it sees, and queue a
+      run. The scope is a real slice of the dataset, not a mask applied in the loop.</p>
+  </div>
+
+  <div class="table-scroll fade-up">
+    <table class="data-table">
+      <thead><tr><th style="text-align:left;">Architecture</th><th>Decoder</th><th>Chunk</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td data-l="Architecture"><strong>ACT</strong> — action chunking transformer</td><td data-l="Decoder">transformer + CVAE</td><td data-l="Chunk">100</td><td data-l="Status" class="hi">trains, resumes, evaluates</td></tr>
+        <tr><td data-l="Architecture"><strong>DiT</strong> — diffusion transformer</td><td data-l="Decoder">diffusion, 10 steps</td><td data-l="Chunk">16</td><td data-l="Status" class="hi">trains, resumes, evaluates</td></tr>
+        <tr><td data-l="Architecture"><strong>π₀</strong> — vision-language-action</td><td data-l="Decoder">flow matching</td><td data-l="Chunk">50</td><td data-l="Status">launches; needs a gated licence</td></tr>
+        <tr><td data-l="Architecture"><strong>π₀.₅</strong> — VLA with co-training</td><td data-l="Decoder">flow matching</td><td data-l="Chunk">50</td><td data-l="Status">launches; needs a gated licence</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tenets fade-up" style="margin-top:clamp(24px,3vh,36px);">
+    <div class="tenet"><b>SCOPE</b><h5>Choose the body</h5>
+      <p>Whole body, upper body, one arm, both hands, the base — the selection builds a real
+      sliced dataset and a scatter map back onto all 59 actuators.</p></div>
+    <div class="tenet"><b>TRUTH</b><h5>The filesystem is the database</h5>
+      <p>Every run is a directory with its manifest, config, log, metrics and checkpoints. A
+      run survives a database wipe; the registry rebuilds by scanning.</p></div>
+    <div class="tenet"><b>PROOF</b><h5>Measured, on hardware</h5>
+      <p>ACT (52 M parameters) and the diffusion policy (296 M) both train on the Jetson.
+      On real curated data ACT went from L1 0.464 to 0.135 train, 0.572 to 0.136 validation.</p></div>
+    <div class="tenet"><b>YOURS</b><h5>Queue one yourself</h5>
+      <p>The community queue takes an architecture, a dataset and hyperparameters, clamps them
+      to published ranges, and waits for approval before anything touches the GPU.</p></div>
+  </div>
+
+  <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:clamp(24px,3vh,36px);">
+    <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn">Open the Training Studio ↗</a>
+    <a href="#contribute" class="btn">Queue a run →</a>
+  </div>
+</div></section>
+
+<!-- ═══ 6 · DEPLOYMENT AND EVALUATION ═══ -->
+<section class="pad-y" id="deployment"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 6</span>
+      <h2 class="display-md title">Run it, then <span class="italic accent">judge it.</span><img src="assets/stickers/manhole.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede">A checkpoint goes back into the same loop it learned from: proprioception
+      and camera renders in, 59 actuator targets out, at 15 Hz over 500 Hz physics.</p>
+  </div>
+
+  <div class="paper-grid fade-up">
+    <div>
+      <h5 style="font-family:var(--font-comic); font-size:19px; letter-spacing:0.03em; margin:0 0 10px;">Closed loop, in the twin</h5>
+      <p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">Deployment loads the
+      checkpoint through the standard policy path, reads joint positions straight out of MuJoCo,
+      renders each selected camera, and scatters the policy's action onto the full 59-DOF command
+      — joints outside the scope simply hold. Every frame streams back to the viewer.</p>
+    </div>
+    <div>
+      <h5 style="font-family:var(--font-comic); font-size:19px; letter-spacing:0.03em; margin:0 0 10px;">Offline, against held-out episodes</h5>
+      <p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">The evaluation harness
+      replays unseen episodes frame by frame and reports L1 and MSE per joint and overall,
+      persisted beside the run. A self-test measured open-loop L1 of 0.183 and a closed-loop
+      deployment that moved the robot.</p>
     </div>
   </div>
-</section>
+
+  <div class="callout fade-up" style="margin-top:clamp(24px,3vh,36px);">
+    <p><strong>What does not exist yet, stated plainly.</strong> Policies do not run on the
+    physical robot. The wire protocol can <em>select</em> one and echo it in robot state, but the
+    runner that would execute it is a documented seam, not code — every long-horizon skill in the
+    control centre is declared "coming soon, no deployable checkpoint yet". And there is no
+    task-success-rate harness for imitation policies: the metric today is open-loop action error,
+    not "did it make the coffee". Navigation is the exception, with measured pose error and map
+    accuracy.</p>
+  </div>
+</div></section>
 
 <footer>
   <div class="wrap">
     <div class="foot-grid">
       <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="connect.html">Community</a></div></div>
-      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#navigation">Navigation</a><a href="autonomy.html">Autonomy</a></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a></div>
       <div class="foot-col"><h6>Build</h6><a href="build.html#bom">Bill of materials</a><a href="build.html">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
