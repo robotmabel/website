@@ -36,6 +36,61 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
   /* the angle at which the CoM passes over the front edge */
   function tipAngle(z) { return Math.atan2(LEVER_FWD, comHeight(z)) * 180 / Math.PI; }
 
+  /* ── the measured table ───────────────────────────────────────────────
+     assets/tipover_table.json is produced by
+     controller/experiments/exp_tipover_web.py using the paper's own E2
+     harness. Each run is an accel pulse at one (speed, lift) with the
+     envelope on or off, sampled at 50 Hz. We bilinearly interpolate the
+     nearest four runs over (speed, lift) and play the result back, so the
+     tilt on screen is measured rather than modelled here. */
+  var TABLE = null;
+  fetch('assets/tipover_table.json')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) { TABLE = j; note(); })
+    .catch(function () { /* fall back to the local integrator */ });
+
+  function nearest(list, v) {
+    var lo = list[0], hi = list[list.length - 1];
+    for (var i = 0; i < list.length - 1; i++) {
+      if (v >= list[i] && v <= list[i + 1]) { lo = list[i]; hi = list[i + 1]; break; }
+    }
+    if (v <= list[0]) { lo = hi = list[0]; }
+    if (v >= list[list.length - 1]) { lo = hi = list[list.length - 1]; }
+    var f = (hi === lo) ? 0 : (v - lo) / (hi - lo);
+    return [lo, hi, f];
+  }
+
+  function sampleAt(safe, speed, lift, t) {
+    if (!TABLE) return null;
+    var tag = safe ? 'on' : 'off';
+    var S = nearest(TABLE.speeds, speed), L = nearest(TABLE.lifts, lift);
+    var idx = Math.round((t + 0.25) / TABLE.dt);
+    function grab(sp, lf) {
+      var r = TABLE.runs[tag + '|' + sp + '|' + lf];
+      if (!r || !r.s.length) return null;
+      return r.s[Math.max(0, Math.min(r.s.length - 1, idx))];
+    }
+    var a = grab(S[0], L[0]), b = grab(S[1], L[0]),
+        c = grab(S[0], L[1]), d = grab(S[1], L[1]);
+    if (!a) return null;
+    b = b || a; c = c || a; d = d || b;
+    var mix = function (p, q, f) { return p + (q - p) * f; };
+    var v0 = mix(a[1], b[1], S[2]), v1 = mix(c[1], d[1], S[2]);
+    var p0 = mix(a[2], b[2], S[2]), p1 = mix(c[2], d[2], S[2]);
+    var x0 = mix(a[3], b[3], S[2]), x1 = mix(c[3], d[3], S[2]);
+    return { v: Math.abs(mix(v0, v1, L[2])),
+             tilt: mix(p0, p1, L[2]),
+             travel: mix(x0, x1, L[2]) };
+  }
+
+  function peakFor(safe, speed, lift) {
+    if (!TABLE) return null;
+    var tag = safe ? 'on' : 'off';
+    var S = nearest(TABLE.speeds, speed), L = nearest(TABLE.lifts, lift);
+    var r = TABLE.runs[tag + '|' + S[0] + '|' + L[0]];
+    return r ? r.peak_tilt : null;
+  }
+
   /* ── state ────────────────────────────────────────────────────────── */
   var S = {
     cmd: 0.6,        // commanded speed (m/s)
@@ -47,7 +102,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
     x: 0,            // world scroll
     braking: false,
     tipped: false,
-    fx: null, fxT: 0
+    fx: null, fxT: 0, play: null
   };
 
   host.innerHTML =
@@ -97,13 +152,16 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
   function note() {
     var vm = vMax(S.lift), am = aMax(S.lift);
+    var pk = peakFor(S.safe, S.cmd, S.lift);
+    var measured = (pk == null) ? '' :
+      ' Measured on this exact run: peak tilt <b>' + pk.toFixed(2) + '°</b>.';
     elNote.innerHTML = S.safe
       ? 'At this lift the envelope allows <b>' + vm.toFixed(2) + ' m/s</b> and brakes at ' +
         '<b>' + am.toFixed(2) + ' m/s²</b> — a stop takes ' + STOP_TIME_FWD.toFixed(2) + ' s. ' +
-        'Raise the lift: the CoM climbs to ' + comHeight(S.lift).toFixed(2) + ' m and both shrink.'
+        'Raise the lift: the CoM climbs to ' + comHeight(S.lift).toFixed(2) + ' m and both shrink.' + measured
       : 'Envelope off. Nothing trims the command and the brakes are unlimited — ' +
         'past <b>' + tipAngle(S.lift).toFixed(1) + '°</b> of pitch the CoM leaves the front edge ' +
-        'and it goes over.';
+        'and it goes over.' + measured;
   }
 
   sCmd.addEventListener('input', function () {
@@ -120,17 +178,22 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
     S.safe = !S.safe;
     bTog.classList.toggle('on', S.safe);
     bTog.innerHTML = 'Motion model: <b>' + (S.safe ? 'ON' : 'OFF') + '</b>';
-    S.tipped = false; S.tilt = 0; S.tiltRate = 0;
+    S.tipped = false; S.tilt = 0; S.tiltRate = 0; S.play = null;
     note();
   });
+  /* Replay the measured pulse for the current settings. */
+  function playPulse() {
+    if (!TABLE) { S.cmd = 0; sCmd.value = 0; elCmd.textContent = '0.00 m/s'; return; }
+    S.play = { t0: performance.now(), speed: S.cmd, lift: S.lift, safe: S.safe };
+    popFx(S.safe ? 'SKRRT!' : 'WHOA!', S.safe ? '' : 'bad');
+  }
+
   bStop.addEventListener('click', function () {
     /* A sustained stop, not a 1.2 s pulse: the command itself goes to zero so
        the deceleration is applied for the whole stop and the resulting lean is
        actually observable (a brief pulse released before the body finished
        leaning, which made the envelope-off case look survivable). */
-    S.cmd = 0; sCmd.value = 0; elCmd.textContent = '0.00 m/s';
-    S.braking = false;
-    popFx(S.safe ? 'SKRRT!' : 'WHOA!', S.safe ? '' : 'bad');
+    playPulse();
   });
 
   bReset.addEventListener('click', function () {
@@ -321,8 +384,19 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
   function frame(t) {
     var dt = Math.min((t - last) / 1000, 0.05); last = t;
     var W = cv.clientWidth, H = cv.clientHeight, ground = H - 46;
-    step(S, dt);
-    if (S.justTipped) { S.justTipped = false; popFx('WHOOMP!', 'bad'); }
+    if (S.play) {
+      var el = (t - S.play.t0) / 1000;
+      var smp = sampleAt(S.play.safe, S.play.speed, S.play.lift, el);
+      if (smp && el < 2.6) {
+        S.v = smp.v; S.tilt = smp.tilt; S.x += smp.v * dt;
+      } else {
+        S.play = null; S.v = 0; S.cmd = 0;
+        sCmd.value = 0; elCmd.textContent = '0.00 m/s';
+      }
+    } else {
+      step(S, dt);
+      if (S.justTipped) { S.justTipped = false; popFx('WHOOMP!', 'bad'); }
+    }
 
     /* ── paint ───────────────────────────────────────────────────── */
     ctx.clearRect(0, 0, W, H);
