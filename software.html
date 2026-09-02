@@ -375,13 +375,65 @@
 </section>
 
 <section class="pad-y soft-sec" id="calibration"><div class="wrap">
-  <h2 class="display-md title">Calibration.</h2>
-  <div class="bg-two">
+  <div class="sec-head fade-up">
     <div>
-      <p class="lede">Five routines turn a pile of motors into a robot that matches its twin: swerve steer offsets, arm system-ID, motor friction/inertia, ORCA hand end-stops, and the whole-body CoM check.</p>
-      <div class="callout"><p><strong>Don't skip the CoM check</strong> after any mass change: <code>wbc_stability.py --only 4</code>. If E4 shows &gt;1 cm bias, update the tip-over constants in <code>config.py</code>. This is what keeps MABEL from tipping.</p></div>
+      <span class="eyebrow">Setup Studio</span>
+      <h2 class="display-md title">Make the numbers <span class="italic accent">true.</span></h2>
     </div>
-    <figure class="bg-fig"><img src="assets/build-guide/calibration.png" alt="Arm system identification results"/><figcaption>Arm system-ID · torque-fit residuals</figcaption></figure>
+    <p class="lede">Bring-up runs in a browser: a per-module <strong>status · control · calibration</strong>
+      studio that walks the robot module by module — Arm, Base, Neck, Lift, Hand&nbsp;L, Hand&nbsp;R —
+      and writes what it measures into one file the whole robot reads.</p>
+  </div>
+
+  <div class="ros-game fade-up">
+    <div class="rg-head"><span class="rg-title">SETUP STUDIO · :8082</span><span class="rg-coin">▶ module by module, in order</span></div>
+    <div class="rg-row">
+      <div class="rg-tile orange"><b>ARM</b><span>bus + zero + limits</span></div>
+      <div class="rg-tile orange"><b>BASE</b><span>steer offsets</span></div>
+      <div class="rg-tile blue"><b>NECK</b><span>serial, direct bus</span></div>
+      <div class="rg-tile blue"><b>LIFT</b><span>stall-seek travel</span></div>
+      <div class="rg-tile green"><b>HAND · L</b><span>17 DOF end-stops</span></div>
+      <div class="rg-tile green"><b>HAND · R</b><span>17 DOF end-stops</span></div>
+    </div>
+    <div class="rg-bus green"><span class="rg-blink">▼</span> WRITES <code>hardware_bridge/calibration_data/mabel.json</code></div>
+    <div class="rg-row">
+      <div class="rg-tile yellow"><b>calib server</b><span>Zenoh queryable</span></div>
+      <div class="rg-tile"><b>mabel/calib/&lt;path&gt;</b><span>any node, at startup</span></div>
+    </div>
+  </div>
+
+  <div class="paper-grid fade-up" style="margin-top:clamp(24px,4vh,40px);">
+    <div>
+      <h3 style="font-family:var(--font-head); font-weight:700; font-size:clamp(18px,1.7vw,23px); letter-spacing:-0.02em; margin-bottom:10px;">Every joint gets its own zero and its own stops</h3>
+      <p class="body">Each module opens on a <strong>Control</strong> tab (enable torque, jog the joint)
+        and a <strong>Calibration</strong> tab. The lift is the clearest example: <em>⟳ Auto-calibrate</em>
+        — an armed two-click confirm, because the column moves — fires the Pico's own
+        <strong>floor→ceiling stall-seek</strong>, and the studio records the measured travel window
+        (<code>min_pos</code> / <code>max_pos</code> / <code>span</code>) under the
+        <code>lift/pico</code> slice. The height slider only appears once that window exists, so you
+        can't drive a column whose limits nobody has measured.</p>
+    </div>
+    <div>
+      <h3 style="font-family:var(--font-head); font-weight:700; font-size:clamp(18px,1.7vw,23px); letter-spacing:-0.02em; margin-bottom:10px;">Files as truth, served over the wire</h3>
+      <p class="body">Nothing is hard-coded in a node. Calibration lands in a
+        <strong>human-readable JSON</strong> file — diffable, reviewable, shareable — and a thin
+        service answers Zenoh queries against it, so a node asks
+        <code>mabel/calib/arm/openarm-dual</code> at startup and gets either one value or the whole
+        slice. Three families share the tree: <strong>calibration</strong> (written here),
+        <strong>network identity</strong> (human-set), and <strong>nominal physical</strong> (seeded
+        from the MuJoCo model) — the as-deployed counterpart to the as-designed model.</p>
+    </div>
+  </div>
+
+  <div class="callout fade-up" style="margin-top:clamp(20px,3vh,32px);">
+    <p><strong>Don't skip the CoM check</strong> after any mass change:
+      <code>wbc_stability.py --only 4</code>. If E4 shows &gt;1&nbsp;cm bias, update the tip-over
+      constants — that measurement is what keeps MABEL from tipping.</p>
+  </div>
+
+  <div class="fade-up" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:clamp(20px,3vh,30px);">
+    <a href="https://github.com/robotmabel/MABEL/tree/main/web_gui/setup_studio" target="_blank" rel="noopener" class="btn btn-primary">Setup GUI ↗</a>
+    <a href="build.html" class="btn btn-ghost">Assembly guide →</a>
   </div>
 </div></section>
 

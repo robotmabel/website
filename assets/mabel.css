@@ -2365,3 +2365,9 @@ section > .wrap > h2 > .sticker, section > .wrap > h2 + .sticker {
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin-bottom: 8px;
 }
 .asm-prep p { font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }
+
+/* ─── Figures: one consistent, compact size across the site ───────── */
+.paper-fig { max-width: 780px; margin-inline: auto; }
+.paper-fig svg, .paper-fig img { max-height: 420px; width: 100%; height: auto; object-fit: contain; }
+.paper-grid .paper-fig { max-width: none; }
+.bg-fig img { max-height: 340px; width: 100%; object-fit: contain; }
