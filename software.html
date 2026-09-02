@@ -134,6 +134,17 @@
         <span class="wbc-ctl-title">Control mode</span>
         <button class="wbc-reset" data-wbc-reset>Reset</button>
       </div>
+      <div class="wbc-row" style="border:none; padding-bottom:0;">
+        <div class="wbc-row-top"><span class="lab">Joint stiffness</span>
+          <span class="out" data-wbc-out="stiffness">Soft</span></div>
+        <div class="wbc-seg" data-wbc-stiff>
+          <button class="on" data-stiff="soft">Soft · gravity comp</button>
+          <button data-stiff="stiff">Stiff · impedance</button>
+        </div>
+        <p class="wbc-note" style="margin-top:8px;">Grab a green palm and pull.
+          <b>Soft</b>: the arm is back-drivable — it goes exactly where you put it and
+          stays there. <b>Stiff</b>: it resists, and snaps back when you let go.</p>
+      </div>
       <div class="wbc-seg" data-wbc-segments>
         <button class="on" data-mode="nav">1 · Nav</button>
         <button data-mode="arm">2 · Arm</button>

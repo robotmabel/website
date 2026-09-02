@@ -57,6 +57,16 @@ class WbcViewer {
   constructor(box) {
     this.box = box;                               // wrapper (holds stage + panel)
     this.kind = box.dataset.wbcViewer;            // 'compliance' | 'operate'
+    /* Joint stiffness. 'soft' = gravity compensation only: the arm is fully
+       back-drivable, follows your hand 1:1 and stays wherever you let go.
+       'stiff' = impedance control about the commanded pose: it resists the
+       pull (you only move it a fraction of the way) and springs back when
+       you release. Same law the real arms run — only K changes. */
+    this.stiff = false;
+    this.K_STIFF = 0.22;                   // fraction of the pull that lands
+    this.SPRING = 9.0;                     // rad/s return when stiff
+    this.hold = { l: new THREE.Vector3(), r: new THREE.Vector3() };
+
     // the 3D stage is where the canvas lives; on phones the control panel drops
     // below it instead of overlaying, so size/fullscreen track the stage, not box
     this.stage = box.querySelector('.wbc-stage') || box;
@@ -296,7 +306,25 @@ class WbcViewer {
     this._wireGrab();
   }
 
+  _wireStiffnessUI() {
+    const seg = this.box.querySelector('[data-wbc-stiff]');
+    if (!seg) return;
+    seg.addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      this.stiff = b.dataset.stiff === 'stiff';
+      const out = this.box.querySelector('[data-wbc-out="stiffness"]');
+      if (out) out.textContent = this.stiff ? 'Stiff' : 'Soft';
+      seg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+      /* entering stiff mode adopts wherever the arms are as the hold pose */
+      for (const s of ['l', 'r']) this.hold[s].copy(this.targets[s]);
+      this._setStatus(this.stiff
+        ? 'Stiff — impedance control about the commanded pose. Drag a hand: it resists, and springs back the moment you let go.'
+        : 'Soft — gravity compensation only. The arm is back-drivable: drag a hand anywhere and it stays exactly where you leave it.');
+    });
+  }
+
   _wireComplianceUI() {
+    this._wireStiffnessUI();
     const seg = this.box.querySelector('[data-wbc-segments]');
     if (seg) seg.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
@@ -334,6 +362,7 @@ class WbcViewer {
       if (!hits.length) return;
       const s = hits[0].object.userData.side;
       this.drag = s;
+      if (this.stiff) this.hold[s].copy(this.targets[s]);
       this.active[s] = true;
       this.controls.enabled = false;
       this._wake();
@@ -345,7 +374,13 @@ class WbcViewer {
       if (!this.drag) return;
       const s = this.drag;
       const pt = this._planePoint(ev, this.targets[s]);
-      if (pt) this.targets[s].copy(pt);
+      if (!pt) return;
+      if (this.stiff) {
+        /* only a fraction of the pull lands — the joint servo fights it */
+        this.targets[s].copy(this.hold[s]).lerp(pt, this.K_STIFF);
+      } else {
+        this.targets[s].copy(pt);          // back-drivable: follows exactly
+      }
     };
     const up = () => {
       if (!this.drag) return;
@@ -365,6 +400,15 @@ class WbcViewer {
     // Compliance mode adds the base admittance: the drag wrench glides the whole
     // robot (virtual mass-damper) and it coasts to a stop on release.
     if (this.mode === 'compliance') this._baseAdmittance(dt);
+    /* Stiff mode pulls each palm back to its commanded pose once released —
+       soft mode has no such term, which is the whole visible difference. */
+    if (this.stiff) {
+      const a = 1 - Math.exp(-this.SPRING * dt);
+      for (const s of ['l', 'r']) {
+        if (this.drag === s) continue;
+        this.targets[s].lerp(this.hold[s], a);
+      }
+    }
     // Both arms track their (gravity-comp) palm targets, then glue handles on.
     for (const s of ['l', 'r']) {
       if (!this.eeNode[s]) continue;
@@ -465,8 +509,74 @@ class WbcViewer {
       this.greenDot[s] = g;
     }
 
+    this.grabOff = { l: new THREE.Vector3(), r: new THREE.Vector3() };
     this._wireOperateUI();
+    this._wireStiffnessUI();
+    this._wireGrabOperate();
     this._applyOpMode();
+  }
+
+  /* Drag a green palm dot. Two laws, one difference:
+       soft  — gravity compensation: the pull lands 1:1 and the offset STAYS
+               when you release (the arm is back-drivable).
+       stiff — impedance about the commanded pose: only K_STIFF of the pull
+               lands, and the offset decays back to zero on release.
+     Everything else (IK, base, lift) is untouched, so the toggle isolates
+     exactly the thing it claims to show. */
+  _wireGrabOperate() {
+    const dom = this.renderer.domElement;
+    let side = null;
+    dom.addEventListener('pointerdown', (ev) => {
+      if (this.opMode === 'nav') return;         // no palm targets in nav
+      const r = dom.getBoundingClientRect();
+      const ndc = new THREE.Vector2(
+        ((ev.clientX - r.left) / r.width) * 2 - 1,
+        -((ev.clientY - r.top) / r.height) * 2 + 1,
+      );
+      const ray = new THREE.Raycaster();
+      ray.setFromCamera(ndc, this.camera);
+      const hits = ray.intersectObjects(Object.values(this.greenDot), true);
+      if (!hits.length) return;
+      side = hits[0].object.userData.side
+        || (hits[0].object === this.greenDot.l || hits[0].object.parent === this.greenDot.l ? 'l' : 'r');
+      this.hand = side;
+      this._emphasizeHand();
+      this.controls.enabled = false;
+      this.stage.classList.add('grabbing');
+      this._wake();
+      ev.stopPropagation();
+    }, true);
+
+    const move = (ev) => {
+      if (!side) return;
+      const pt = this._planePoint(ev, this.gTarget[side]);
+      if (!pt) return;
+      const pull = pt.clone().sub(this.gTarget[side]).add(this.grabOff[side]);
+      this.grabOff[side].copy(this.stiff ? pull.multiplyScalar(this.K_STIFF) : pull);
+    };
+    const up = () => {
+      if (!side) return;
+      side = null;
+      this.controls.enabled = true;
+      this.stage.classList.remove('grabbing');
+      this._sleep();
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+    this._grabSide = () => side;
+  }
+
+  /* the grab offset is added to the commanded palm target; in stiff mode it
+     decays away, which is what "the joints hold their positions" looks like */
+  _stepGrab(dt) {
+    if (!this.grabOff) return;
+    const held = this._grabSide ? this._grabSide() : null;
+    const a = 1 - Math.exp(-(this.SPRING || 9) * dt);
+    for (const s of ['l', 'r']) {
+      if (s === held) continue;
+      if (this.stiff) this.grabOff[s].multiplyScalar(1 - a);
+    }
   }
 
   // dim the inactive hand's marker so it's clear which one the joystick drives
@@ -592,6 +702,7 @@ class WbcViewer {
   }
 
   _stepOperate(dt) {
+    this._stepGrab(dt);
     if (this.opMode === 'nav') {
       // integrate the swerve base pose in the world ground plane
       this.baseYaw += this.nav.w * dt;
@@ -629,7 +740,7 @@ class WbcViewer {
     const reach = this.maxd * 0.4;
     for (const s of ['l', 'r']) {
       const o = this.armOff[s];
-      this.gTarget[s].copy(this.gHome[s])
+      this.gTarget[s].copy(this.gHome[s]).add(this.grabOff[s])
         .addScaledVector(flat, o.y * reach)      // joystick up = away from camera
         .addScaledVector(right, o.x * reach)
         .add(new THREE.Vector3(0, o.z, 0));
@@ -732,4 +843,9 @@ class WbcViewer {
   }
 }
 
-document.querySelectorAll('[data-wbc-viewer]').forEach((box) => new WbcViewer(box));
+document.querySelectorAll('[data-wbc-viewer]').forEach((box) => {
+  const v = new WbcViewer(box);
+  /* test hook: scripts/stifftest.py steps the compliance law directly,
+     because headless Chrome throttles requestAnimationFrame. */
+  window.__wbc = v;
+});
