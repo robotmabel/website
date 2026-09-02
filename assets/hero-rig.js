@@ -695,14 +695,27 @@ function init() {
   function popSfx(name) {
     const cfg = ACT_SFX[name];
     if (!cfg || !box.parentElement) return;
+    const mini = box.classList.contains('mini');
     const el = document.createElement('span');
-    el.className = 'sfx pop' + (cfg[1] ? ' ' + cfg[1] : '');
+    el.className = 'sfx pop' + (cfg[1] ? ' ' + cfg[1] : '') + (mini ? ' mini' : '');
     el.textContent = cfg[0];
     const r = box.getBoundingClientRect();
-    const pr = box.parentElement.getBoundingClientRect();
-    el.style.left = (r.left - pr.left + r.width * (0.52 + Math.random() * 0.2)) + 'px';
-    el.style.top = (r.top - pr.top + r.height * (0.14 + Math.random() * 0.12)) + 'px';
-    box.parentElement.appendChild(el);
+    if (mini) {
+      /* Docked in the corner the rig is position:fixed, so the hero it came
+         from has scrolled away: an absolutely-positioned pop would land far
+         off-screen. Pin it to the viewport beside the little robot instead,
+         and let the CSS scale the type down to match it. */
+      el.style.position = 'fixed';
+      el.style.right = Math.round(window.innerWidth - r.right + r.width * 0.42) + 'px';
+      el.style.top = Math.round(r.top - 14) + 'px';
+      el.style.left = 'auto';
+      document.body.appendChild(el);
+    } else {
+      const pr = box.parentElement.getBoundingClientRect();
+      el.style.left = (r.left - pr.left + r.width * (0.52 + Math.random() * 0.2)) + 'px';
+      el.style.top = (r.top - pr.top + r.height * (0.14 + Math.random() * 0.12)) + 'px';
+      box.parentElement.appendChild(el);
+    }
     setTimeout(() => el.remove(), 1500);
   }
   function startAct(name) {
@@ -740,11 +753,27 @@ function init() {
   }
   addEventListener('click', (e) => {
     const mod = moduleAt(e);
-    if (!mod) return;
-    const list = PLAYLISTS[mod];
-    if (!list) return;
-    playIx[mod] = ((playIx[mod] ?? -1) + 1) % list.length;
-    startAct(list[playIx[mod]]);
+    if (mod) {
+      const list = PLAYLISTS[mod];
+      if (!list) return;
+      playIx[mod] = ((playIx[mod] ?? -1) + 1) % list.length;
+      startAct(list[playIx[mod]]);
+      return;
+    }
+    /* On the docked mobile robot the modules are only a few pixels across, so
+       a tap that misses one would do nothing at all. Any tap inside the little
+       robot's box plays the next whole-body act instead. */
+    if (!box.classList.contains('mini')) return;
+    const r = box.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right ||
+        e.clientY < r.top || e.clientY > r.bottom) return;
+    /* cycle the whole repertoire, not one module's, so repeated taps on the
+       little robot keep surprising you */
+    const list = Object.keys(PLAYLISTS).reduce(
+      (a, k) => a.concat(PLAYLISTS[k]), []);
+    if (!list.length) return;
+    playIx.__mini = ((playIx.__mini ?? -1) + 1) % list.length;
+    startAct(list[playIx.__mini]);
   });
 
   let yaw = 0, pitch = 0;

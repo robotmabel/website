@@ -2868,3 +2868,11 @@ h1 > .sticker.sticker-hi, h2 > .sticker.sticker-hi, h3 > .sticker.sticker-hi {
   backface-visibility: hidden;
 }
 .panel-speech.tail-br { transform: translateZ(0) rotate(-2deg); }
+
+/* the docked mobile robot is small — its comic lettering scales with it */
+.sfx.mini {
+  font-size: clamp(15px, 5vw, 26px) !important;
+  text-shadow: 2px 2px 0 var(--ink);
+  -webkit-text-stroke-width: 2px;
+  z-index: 95;
+}
