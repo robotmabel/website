@@ -70,6 +70,7 @@
       '<div class="tl-row tl-btns">' +
         '<button class="tl-toggle on" type="button">Motion model: <b>ON</b></button>' +
         '<button class="tl-stop" type="button">Slam the brakes</button>' +
+        '<button class="tl-reset" type="button">Reset</button>' +
       '</div>' +
       '<p class="tl-note"></p>' +
     '</div>';
@@ -86,7 +87,8 @@
       sCmd = host.querySelector('.tl-slider'),
       sLift = host.querySelector('.tl-liftslider'),
       bTog = host.querySelector('.tl-toggle'),
-      bStop = host.querySelector('.tl-stop');
+      bStop = host.querySelector('.tl-stop'),
+      bReset = host.querySelector('.tl-reset');
 
   function note() {
     var vm = vMax(S.lift), am = aMax(S.lift);
@@ -126,6 +128,17 @@
     popFx(S.safe ? 'SKRRT!' : 'WHOA!', S.safe ? '' : 'bad');
   });
 
+  bReset.addEventListener('click', function () {
+    /* Once it has gone over there is no way back from the controls alone —
+       every slider just re-commands a robot lying on its side. */
+    S.v = 0; S.tilt = 0; S.tiltRate = 0; S.tipped = false; S.braking = false;
+    S.cmd = 0.6; sCmd.value = 0.6; elCmd.textContent = '0.60 m/s';
+    S.lift = 0.30; sLift.value = 0.30; elLift.textContent = '0.30 m';
+    S.x = 0;
+    note();
+    popFx('RESET!', '');
+  });
+
   function popFx(word, cls) { S.fx = word; S.fxT = 1; elFx.className = 'tl-fx show ' + (cls || ''); elFx.textContent = word; }
 
   /* ── the city that scrolls past ───────────────────────────────────── */
@@ -152,7 +165,11 @@
   function drawCity(W, H, ground) {
     /* two parallax bands of art-deco setback towers */
     [[0.35, '#2A2E3A', 0.55], [1.0, '#151820', 1]].forEach(function (band, bi) {
-      var off = (S.x * band[0] * 120) % 3000;
+      /* Parallax is a straight linear function of distance travelled, and
+         S.x integrates the real speed — so the city sweeps past at exactly
+         v·PPM px/s on the near band, and proportionally slower on the far
+         one. Faster robot, faster background, with nothing fudged. */
+      var off = (S.x * band[0] * PPM) % 3000;
       ctx.fillStyle = band[1];
       SKY.forEach(function (b) {
         var bx = b.x - off;
@@ -177,120 +194,111 @@
     });
   }
 
-  /* ── the robot, as an 80s-arcade sprite ──────────────────────────────
-     Proportions come from the URDF, not from imagination: a 0.49 m base on
-     three swerve wheels (two visible from the side), a narrow cascaded lift
-     column, a boxy torso, and the head's two big camera eyes between a pair
-     of antennas. Drawn as chunky pixels so it reads as a game sprite while
-     still being recognisably MABEL. */
-  var PAL = {
-    W: '#EFE8D8',   // printed shell
-    S: '#C9C2B0',   // structural grey
-    D: '#151820',   // ink
-    C: '#8E8778',   // column
-    O: '#F0762E',   // accent
-    L: '#23577E',   // lens
-    K: '#0B0E15'    // tyre
+  /* ── the robot, drawn as a side elevation from the real dimensions ────
+     Everything here is metres from the URDF, scaled by PPM, so the picture
+     and the physics agree: a 0.49 m footprint, 0.635 m of lift travel, and a
+     centre of mass at 0.369 + 0.451·z. It faces RIGHT — the direction it is
+     driving — so the tilt you see under braking is a pitch onto the leading
+     wheel, which is the edge the tip-over model is about. */
+  var PPM = 150;                    // pixels per metre, shared with the CoM marker
+  var COL = {
+    shell: '#EFE8D8', shellDark: '#D6CEBB', steel: '#B9B2A0', dark: '#8E8778',
+    ink: '#151820', accent: '#F0762E', lens: '#23577E', tyre: '#12151C'
   };
-  var HEAD = [
-    '..D..........D..',
-    '..D..........D..',
-    '..O..........O..',
-    '...DDDDDDDDDD...',
-    '..DWWWWWWWWWWD..',
-    '.DWWLLWWWWLLWWD.',
-    '.DWLLLWWWWLLLWD.',
-    '.DWWLLWWWWLLWWD.',
-    '..DWWWWWWWWWWD..',
-    '...DDDDDDDDDD...'
-  ];
-  var TORSO = [
-    '....DDDDDD....',
-    '..DDWWWWWWDD..',
-    '.DWWWWWWWWWWD.',
-    'DWWWWWWWWWWWWD',
-    'DWWWWWWWWWWWWD',
-    'DWWWWWWWWWWWWD',
-    'DWWWWWWWWWWWWD',
-    '.DWWWWWWWWWWD.',
-    '..DDDDDDDDDD..'
-  ];
-  var BASE = [
-    '..DDDDDDDDDDDDDDDD..',
-    '.DSSSSSSSSSSSSSSSSD.',
-    'DSSSSSSSSSSSSSSSSSSD',
-    'DSSSSSSSSSSSSSSSSSSD',
-    'DSSSSSSSSSSSSSSSSSSD',
-    '.DDDDDDDDDDDDDDDDDD.',
-    '.KKK..........KKK...',
-    'KKKKK........KKKKK..',
-    'KKOKK........KKOKK..',
-    'KKKKK........KKKKK..',
-    '.KKK..........KKK...'
-  ];
 
-  function sprite(map, cx, baseY, s) {
-    var w = map[0].length;
-    for (var r = 0; r < map.length; r++) {
-      var row = map[r];
-      for (var c = 0; c < row.length; c++) {
-        var ch = row[c];
-        if (ch === '.') continue;
-        ctx.fillStyle = PAL[ch] || PAL.D;
-        ctx.fillRect(Math.round(cx - (w / 2) * s + c * s),
-                     Math.round(baseY - (map.length - r) * s), s + 0.6, s + 0.6);
-      }
-    }
+  function box(x, y, w, h, fill, r) {
+    ctx.beginPath();
+    if (r && ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
+    ctx.fillStyle = fill; ctx.fill();
+    ctx.lineWidth = 2.5; ctx.strokeStyle = COL.ink; ctx.stroke();
   }
 
   function drawRobot(cx, ground, tilt, lift) {
-    var s = Math.max(3, Math.round(Math.min(cv.clientWidth, cv.clientHeight) / 60));
-    var col = tilt * Math.PI / 180;
+    var m = PPM;
     ctx.save();
     ctx.translate(cx, ground);
-    ctx.rotate(col);                       /* pitch about the wheel contact */
-    ctx.imageSmoothingEnabled = false;
+    /* pitch about the contact patch of the leading (right-hand) wheel */
+    ctx.translate(0.18 * m, 0);
+    ctx.rotate(tilt * Math.PI / 180);
+    ctx.translate(-0.18 * m, 0);
 
-    var baseTop = -BASE.length * s;
-    sprite(BASE, 0, 0, s);
-
-    /* the cascaded column: taller with the lift command */
-    var colPx = Math.round((10 + lift * 150) / s) * s;
-    ctx.fillStyle = PAL.D;
-    ctx.fillRect(Math.round(-2.5 * s), baseTop - colPx, 5 * s, colPx);
-    ctx.fillStyle = PAL.C;
-    ctx.fillRect(Math.round(-1.5 * s), baseTop - colPx + s, 3 * s, colPx - s);
-    for (var y = baseTop - colPx + 3 * s; y < baseTop - s; y += 4 * s) {
-      ctx.fillStyle = PAL.D;
-      ctx.fillRect(Math.round(-1.5 * s), Math.round(y), 3 * s, s);
-    }
-
-    var torsoBase = baseTop - colPx;
-    sprite(TORSO, 0, torsoBase, s);
-    var headBase = torsoBase - TORSO.length * s - s;
-
-    /* arms hang from the shoulders and swing with the pitch */
-    ctx.fillStyle = PAL.D;
-    var sh = torsoBase - (TORSO.length - 2) * s;
-    [-1, 1].forEach(function (side) {
-      var ax = side * 7 * s, sway = Math.round(tilt * 0.25 / s) * s;
-      ctx.fillRect(Math.round(ax - s), Math.round(sh), 2 * s, 4 * s);
-      ctx.fillRect(Math.round(ax - s + sway), Math.round(sh + 4 * s), 2 * s, 4 * s);
-      ctx.fillStyle = PAL.W;
-      ctx.fillRect(Math.round(ax - s + sway), Math.round(sh + 8 * s), 2 * s, 2 * s);
-      ctx.fillStyle = PAL.D;
+    /* wheels — 0.10 m diameter, at the front and back of the 0.49 m base */
+    [-0.17, 0.17].forEach(function (wx) {
+      ctx.beginPath(); ctx.arc(wx * m, -0.05 * m, 0.05 * m, 0, 6.284);
+      ctx.fillStyle = COL.tyre; ctx.fill();
+      ctx.lineWidth = 2.5; ctx.strokeStyle = COL.ink; ctx.stroke();
+      ctx.beginPath(); ctx.arc(wx * m, -0.05 * m, 0.018 * m, 0, 6.284);
+      ctx.fillStyle = COL.accent; ctx.fill();
     });
 
-    sprite(HEAD, 0, headBase, s);
+    /* chassis: 0.49 m long, 0.19 m tall, sitting on the swerve modules */
+    box(-0.245 * m, -0.29 * m, 0.49 * m, 0.19 * m, COL.steel, 5);
+    box(-0.20 * m, -0.275 * m, 0.40 * m, 0.05 * m, COL.shellDark, 3);
+    /* the LiDAR puck, front-mounted */
+    box(0.13 * m, -0.335 * m, 0.07 * m, 0.045 * m, COL.dark, 3);
 
-    /* the CoM and its lever — what the model is actually about */
-    var comY = -(comHeight(lift) * 150);
-    ctx.fillStyle = '#C6301A';
-    ctx.fillRect(Math.round(-s), Math.round(comY - s), 2 * s, 2 * s);
-    ctx.strokeStyle = 'rgba(198,48,26,0.5)'; ctx.lineWidth = 2;
-    ctx.setLineDash([s, s]);
+    /* cascaded lift column — the stages telescope as `lift` rises */
+    var colH = (0.34 + lift) * m;
+    var top = -0.29 * m - colH;
+    box(-0.045 * m, top, 0.09 * m, colH, COL.dark, 3);
+    box(-0.032 * m, top + 0.02 * m, 0.064 * m, colH * 0.55, COL.steel, 3);
+    for (var st = 1; st <= 2; st++) {
+      var y = top + colH * (0.30 * st);
+      ctx.beginPath(); ctx.moveTo(-0.045 * m, y); ctx.lineTo(0.045 * m, y);
+      ctx.lineWidth = 2; ctx.strokeStyle = COL.ink; ctx.stroke();
+    }
+
+    /* torso — 0.30 m tall, the arms hang off its shoulder line */
+    var torsoH = 0.30 * m, torsoTop = top - torsoH;
+    box(-0.11 * m, torsoTop, 0.24 * m, torsoH, COL.shell, 6);
+    box(-0.02 * m, torsoTop + 0.05 * m, 0.13 * m, 0.10 * m, COL.shellDark, 3);
+
+    /* one arm, seen from the side; it swings a little with the pitch */
+    var sh = torsoTop + 0.05 * m, sway = tilt * 0.0016 * m;
+    ctx.lineWidth = 0.055 * m; ctx.lineCap = 'round'; ctx.strokeStyle = COL.ink;
+    ctx.beginPath();
+    ctx.moveTo(0.02 * m, sh);
+    ctx.lineTo(0.05 * m + sway, sh + 0.14 * m);
+    ctx.lineTo(0.02 * m + sway * 1.6, sh + 0.28 * m);
+    ctx.stroke();
+    ctx.lineWidth = 0.032 * m; ctx.strokeStyle = COL.shell;
+    ctx.beginPath();
+    ctx.moveTo(0.02 * m, sh);
+    ctx.lineTo(0.05 * m + sway, sh + 0.14 * m);
+    ctx.lineTo(0.02 * m + sway * 1.6, sh + 0.28 * m);
+    ctx.stroke();
+
+    /* neck and head, facing right */
+    var neck = torsoTop - 0.05 * m;
+    box(-0.02 * m, neck, 0.04 * m, 0.05 * m, COL.dark, 2);
+    var headH = 0.13 * m, headTop = neck - headH;
+    box(-0.075 * m, headTop, 0.17 * m, headH, COL.shell, 6);
+    /* the stereo camera housing on the front face */
+    box(0.055 * m, headTop + 0.028 * m, 0.055 * m, 0.06 * m, COL.ink, 3);
+    ctx.beginPath();
+    ctx.arc(0.088 * m, headTop + 0.058 * m, 0.018 * m, 0, 6.284);
+    ctx.fillStyle = COL.lens; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = COL.ink; ctx.stroke();
+    /* the two antennas */
+    [-0.045, 0.02].forEach(function (ax, i) {
+      ctx.beginPath();
+      ctx.moveTo(ax * m, headTop);
+      ctx.lineTo((ax + (i ? 0.03 : -0.02)) * m, headTop - 0.11 * m);
+      ctx.lineWidth = 3; ctx.strokeStyle = COL.ink; ctx.stroke();
+      ctx.beginPath();
+      ctx.arc((ax + (i ? 0.03 : -0.02)) * m, headTop - 0.11 * m, 3.5, 0, 6.284);
+      ctx.fillStyle = COL.accent; ctx.fill();
+    });
+
+    /* centre of mass and its lever to the leading wheel */
+    var comY = -comHeight(lift) * m;
+    ctx.setLineDash([5, 4]); ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(198,48,26,0.55)';
     ctx.beginPath(); ctx.moveTo(0, comY); ctx.lineTo(0, 0); ctx.stroke();
     ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(0, comY, 6, 0, 6.284);
+    ctx.fillStyle = '#C6301A'; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = COL.ink; ctx.stroke();
     ctx.restore();
   }
 
@@ -340,7 +348,7 @@
     /* road + speed dashes that stream past at the real speed */
     ctx.fillStyle = '#151820'; ctx.fillRect(0, ground, W, H - ground);
     ctx.fillStyle = '#F2C94C';
-    var dashOff = (S.x * 120) % 60;
+    var dashOff = (S.x * PPM) % 60;   // road dashes: same scale as the robot
     for (var dx = -dashOff; dx < W; dx += 60) ctx.fillRect(dx, ground + 20, 32, 4);
 
     /* motion streaks behind the robot, length ∝ speed */

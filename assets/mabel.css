@@ -3275,3 +3275,14 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .arch-tip { border: 2px solid var(--ink) !important; border-radius: 5px !important;
   background: var(--panel) !important; font-family: var(--font-mono) !important;
   box-shadow: 3px 3px 0 var(--ink) !important; }
+.tl-reset { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 9px 12px; border: 2px solid var(--ink);
+  border-radius: 8px; cursor: pointer; box-shadow: 3px 3px 0 var(--ink);
+  background: var(--bone); color: var(--ink); transition: transform 0.14s ease; }
+.tl-reset:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--ink); }
+
+/* the three interactive blocks sit centred in their column */
+.tl-wrap, .rc-grid, .eq-card { margin-left: auto; margin-right: auto; }
+.tl-wrap { max-width: 1120px; }
+.eq-card { max-width: 900px; }
+#retargetCam { max-width: 1120px; margin-left: auto; margin-right: auto; }

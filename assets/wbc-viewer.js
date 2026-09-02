@@ -745,14 +745,20 @@ class WbcViewer {
       this._applyBase();
       this.liftCmd = this.nav.lift;           // keep the shared lift command in sync
       this._setLift(this.liftCmd);
-      // keep arms in their held rest pose
-      this._relax('l', 0.08); this._relax('r', 0.08);
-      /* honour a drag offset here too, otherwise nav mode would snap the
-         palm target home every frame and the handle could not be moved */
-      this.gTarget.l.copy(this.gHome.l).add(this.grabSmooth.l);
-      this.gTarget.r.copy(this.gHome.r).add(this.grabSmooth.r);
-      this.greenDot.l.position.copy(this.gTarget.l);
-      this.greenDot.r.position.copy(this.gTarget.r);
+      /* The palm targets are live in nav mode too, so a hand that has been
+         dragged must actually be TRACKED. Relaxing unconditionally is what
+         left the arms hanging while the green balls floated away on their
+         own — the handle moved and nothing followed it. */
+      for (const s of ['l', 'r']) {
+        this.gTarget[s].copy(this.gHome[s]).add(this.grabSmooth[s]);
+        this.greenDot[s].position.copy(this.gTarget[s]);
+        if (this.grabSmooth[s].lengthSq() > 1e-6) {
+          this.active[s] = true;
+          this._ik(s, this.gTarget[s], 0.5, 3);
+        } else {
+          this._relax(s, 0.08);        // undisturbed arms ride in the rest pose
+        }
+      }
       return;
     }
 
