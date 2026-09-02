@@ -383,15 +383,140 @@
   <span class="bg-secnum">13</span>
   <h2 class="display-md title">Troubleshooting &amp; <span class="italic accent">FAQ.</span></h2>
   <div class="bg-cardgrid">
-    <div class="card"><h4>Do I need hardware to start?</h4><p>No. The full stack — teleop, control, learning — runs against the MuJoCo twin on a laptop.</p></div>
-    <div class="card"><h4>A motor won't respond</h4><p>Check the bus is up (<code>./can_scan.sh</code>), 1 Mbit, and 120 Ω terminated both ends.</p></div>
-    <div class="card"><h4>Wrist cameras swapped or slow</h4><p>They're identical — pinned by hub port. Keep both on one powered USB-3 hub at 640×480.</p></div>
-    <div class="card"><h4>App shows a different robot</h4><p>You edited the MJCF without regenerating the derived models. Re-run the §8 pipeline, in order.</p></div>
+    <button class="card faq-card" data-faq="faq-sim"><h4>Do I need hardware to start?</h4><p>No. The full stack — teleop, control, learning — runs against the MuJoCo twin on a laptop.</p><span class="faq-more">tap for more ↗</span></button>
+    <button class="card faq-card" data-faq="faq-motor"><h4>A motor won't respond</h4><p>Check the bus is up (<code>./can_scan.sh</code>), 1 Mbit, and 120 Ω terminated both ends.</p><span class="faq-more">tap for more ↗</span></button>
+    <button class="card faq-card" data-faq="faq-cams"><h4>Wrist cameras swapped or slow</h4><p>They're identical — pinned by hub port. Keep both on one powered USB-3 hub at 640×480.</p><span class="faq-more">tap for more ↗</span></button>
+    <button class="card faq-card" data-faq="faq-model"><h4>App shows a different robot</h4><p>You edited the MJCF without regenerating the derived models. Re-run the §8 pipeline, in order.</p><span class="faq-more">tap for more ↗</span></button>
   </div>
   <div style="text-align:center; margin-top:40px;">
     <a href="https://app.notion.com/p/3932403b2611812bafeaf63a6afdb42d" target="_blank" rel="noopener" class="btn btn-primary">Open the full interactive wiki ↗</a>
   </div>
 </div></section>
+
+<!-- ─── FAQ pop-ups: comic panels ─── -->
+<div class="faq-overlay" id="faq-overlay" hidden>
+  <div class="faq-pop" role="dialog" aria-modal="true" aria-labelledby="faq-pop-title">
+    <button class="faq-x" id="faq-x" aria-label="Close">✕</button>
+    <span class="faq-bang" aria-hidden="true">FIX!</span>
+    <h3 id="faq-pop-title"></h3>
+    <div class="faq-fig"><img id="faq-pop-img" src="" alt=""/></div>
+    <div class="faq-body" id="faq-pop-body"></div>
+  </div>
+</div>
+<template id="faq-sim">
+  <h_>Do I need hardware to start?</h_>
+  <img_ src="assets/paper/06_sim_architecture.jpg" alt="One canonical model drives the simulated twin and the real robot through the same gateway"></img_>
+  <div_>
+    <p><b>No — and you shouldn't start with it.</b> The entire stack runs against the
+    MuJoCo twin on a laptop: <code>cd server && ./run.sh</code> boots physics, cameras,
+    the teleop gateway and a browser control studio. Phones, headsets and browsers
+    connect to the twin <em>exactly</em> as they later connect to the robot — same
+    ports, same wire contract, and the clients can't tell which is live.</p>
+    <p>Prove every motion in the twin first, then order parts. The golden rule of the
+    whole build. <a href="docs/software.html">Replication wiki · 05 Software →</a></p>
+  </div_>
+</template>
+<template id="faq-motor">
+  <h_>A motor won't respond</h_>
+  <img_ src="assets/bom/pages/mabel-wiring-guide-02.webp" alt="Wiring guide page: the CAN and serial bus layout"></img_>
+  <div_>
+    <p>Work the bus, not the motor:</p>
+    <p>① Bus up? <code>./can_up.sh</code> then <code>./can_scan.sh</code> — 1 Mbit everywhere.<br/>
+    ② Termination: ~60 Ω measured across CAN-H/L (two 120 Ω ends in parallel).<br/>
+    ③ ID clash: assign IDs one device powered at a time — expect 6 on the base,
+    7 per arm, 17 per hand chain.<br/>
+    ④ First unreachable ID in a chain = check <em>that</em> connector; everything
+    downstream vanishes with it.</p>
+    <p><a href="docs/troubleshoot.html">Replication wiki · 09 Troubleshooting →</a></p>
+  </div_>
+</template>
+<template id="faq-cams">
+  <h_>Wrist cameras swapped or slow</h_>
+  <img_ src="assets/paper/07_glass_to_glass.jpg" alt="Glass-to-glass video latency budget across the camera pipeline"></img_>
+  <div_>
+    <p>The two wrist boards are <b>identical</b>, so USB enumerates them in arrival
+    order — left becomes right after a reboot. Pin each camera by its <em>hub
+    port</em> (udev rules ship in <code>hardware_bridge/install/</code>) and keep
+    both on one <b>powered</b> USB-3 hub.</p>
+    <p>Slow or stuttering? Drop to 640×480 — teleop wants latency, not pixels; the
+    measured glass-to-glass budget is dominated by encode, not resolution.</p>
+    <p><a href="docs/troubleshoot.html">Replication wiki · 09 Troubleshooting →</a></p>
+  </div_>
+</template>
+<template id="faq-model">
+  <h_>App shows a different robot</h_>
+  <img_ src="assets/paper/04_modularity.jpg" alt="The modular robot: every artifact derives from one canonical model"></img_>
+  <div_>
+    <p>The MJCF (<code>mabel_full.xml</code>) is the <b>single source of truth</b> —
+    the URDF, the web GLB, the phone/headset rigs and the tip-over constants are all
+    <em>generated from it</em>. Edit the model and skip the regeneration, and every
+    viewer silently keeps showing the old body.</p>
+    <p>Re-run the §8 pipeline <b>in order</b> (MJCF → URDF → GLB → rigs → mirror),
+    then re-check the CoM constants. Never hand-edit a derived file.</p>
+    <p><a href="docs/bom.html">Replication wiki · part geometry →</a></p>
+  </div_>
+</template>
+<style>
+  .faq-card { position:relative; text-align:left; font:inherit; cursor:pointer; width:100%;
+    transition: transform .22s var(--ease-out), box-shadow .22s var(--ease-out); }
+  .faq-card:hover { transform: translate(-3px,-3px) rotate(-0.6deg); box-shadow: 7px 7px 0 rgba(21,24,32,0.9); }
+  .faq-card .faq-more { display:inline-block; margin-top:10px; font-family: var(--font-comic);
+    font-size:12px; letter-spacing:.08em; text-transform:uppercase; color: var(--orange); }
+  .faq-overlay[hidden] { display:none; }
+  .faq-overlay { position:fixed; inset:0; z-index:300; display:flex; align-items:center; justify-content:center;
+    padding:22px; background: rgba(21,24,32,0.55);
+    background-image: radial-gradient(rgba(21,24,32,0.5) 1.4px, transparent 1.6px); background-size: 9px 9px; }
+  .faq-pop { position:relative; max-width:640px; width:100%; max-height:88vh; overflow-y:auto;
+    background: var(--panel, #F8F1DC); border: 4px solid var(--ink); border-radius:18px;
+    box-shadow: 12px 12px 0 rgba(0,0,0,0.82); padding: 26px 28px 24px;
+    animation: faqPop .42s cubic-bezier(.2,1.6,.35,1) both; }
+  .faq-pop h3 { font-family: var(--font-display); font-size: clamp(24px,3.4vw,34px); margin:0 40px 14px 0; line-height:1.08; }
+  .faq-fig { border: 3px solid var(--ink); border-radius: 10px; overflow:hidden; margin-bottom:16px;
+    box-shadow: 5px 5px 0 rgba(21,24,32,0.85); background:#fff; }
+  .faq-fig img { width:100%; display:block; }
+  .faq-fig:empty, .faq-fig img[src=""] { display:none; }
+  .faq-body p { margin: 0 0 12px; line-height: 1.55; }
+  .faq-body a { color: var(--rust); font-weight: 700; }
+  .faq-x { position:absolute; top:12px; right:12px; width:38px; height:38px; border-radius:10px;
+    border: 3px solid var(--ink); background: var(--gold); font-size:16px; font-weight:900; cursor:pointer;
+    box-shadow: 3px 3px 0 rgba(21,24,32,0.9); transition: transform .15s var(--ease-out); }
+  .faq-x:hover { transform: translate(-1px,-1px) rotate(-4deg); }
+  .faq-bang { position:absolute; top:-16px; left:-14px; font-family: var(--font-comic);
+    background: var(--orange); color:#FFF9F0; border:3px solid var(--ink); border-radius: 50% 40% 55% 45%;
+    padding: 10px 13px; font-size: 15px; letter-spacing:.06em; transform: rotate(-8deg);
+    box-shadow: 4px 4px 0 rgba(21,24,32,0.9); animation: faqBang .5s .12s cubic-bezier(.2,1.8,.4,1) both; }
+  @keyframes faqPop  { from { transform: scale(.45) rotate(-5deg); opacity:0; } to { transform: scale(1) rotate(0); opacity:1; } }
+  @keyframes faqBang { from { transform: scale(0) rotate(-40deg); } to { transform: scale(1) rotate(-8deg); } }
+  @media (prefers-reduced-motion: reduce) { .faq-pop, .faq-bang { animation: none; } }
+</style>
+<script>
+(function () {
+  var overlay = document.getElementById('faq-overlay');
+  var title = document.getElementById('faq-pop-title');
+  var img = document.getElementById('faq-pop-img');
+  var body = document.getElementById('faq-pop-body');
+  var bangs = ['FIX!', 'POW!', 'AHA!', 'ZAP!'];
+  function open(id, i) {
+    var t = document.getElementById(id);
+    if (!t) return;
+    var frag = t.content;
+    title.textContent = frag.querySelector('h_').textContent;
+    var f = frag.querySelector('img_');
+    img.src = f.getAttribute('src'); img.alt = f.getAttribute('alt') || '';
+    body.innerHTML = frag.querySelector('div_').innerHTML;
+    overlay.querySelector('.faq-bang').textContent = bangs[i % bangs.length];
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function close() { overlay.hidden = true; document.body.style.overflow = ''; }
+  document.querySelectorAll('.faq-card').forEach(function (c, i) {
+    c.addEventListener('click', function () { open(c.dataset.faq, i); });
+  });
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+  document.getElementById('faq-x').addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !overlay.hidden) close(); });
+})();
+</script>
 
 
 <!-- ═══ ASSEMBLY (merged from assembly.html) ═══ -->

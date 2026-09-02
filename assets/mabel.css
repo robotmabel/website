@@ -167,6 +167,7 @@ section { position: relative; }
 .nav-logo {
   font-family: var(--font-display); font-size: 21px; letter-spacing: 0.04em;
   color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 9px;
+  margin-right: clamp(10px, 2vw, 22px);   /* keep the wordmark clear of the first nav item */
 }
 /* the marquee bulb */
 .nav-logo .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--orange); border: 1.5px solid var(--ink); display: inline-block; animation: pulse 2.4s ease-in-out infinite; box-shadow: 0 0 0 3px rgba(198,48,26,0.18); }
@@ -1782,6 +1783,18 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
 @media (max-width: 880px) { .paper-grid { grid-template-columns: 1fr; } }
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .table-scroll .data-table { min-width: 640px; }
+/* .fit — the whole table always visible, no horizontal scroll at any width:
+   the cells compress instead (used by the platform survey). */
+.table-scroll.fit { overflow: visible; }
+.table-scroll.fit .data-table { min-width: 0; width: 100%; }
+@media (max-width: 1100px) {
+  .table-scroll.fit .data-table th { font-size: 11px; padding: 10px 8px; }
+  .table-scroll.fit .data-table td { font-size: 13px; padding: 10px 8px; }
+}
+@media (max-width: 760px) {
+  .table-scroll.fit .data-table th { font-size: 9px;  padding: 8px 4px; letter-spacing: 0.02em; }
+  .table-scroll.fit .data-table td { font-size: 11px; padding: 8px 4px; }
+}
 .data-table td .ok { color: var(--green); font-weight: 700; }
 .data-table td .no { color: var(--ash); }
 .poster-wrap { display: grid; grid-template-columns: minmax(0, 380px) 1fr; gap: clamp(20px, 3vw, 40px); align-items: start; }
