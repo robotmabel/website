@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=fb6d56d1" />
+<link rel="stylesheet" href="assets/mabel.css?v=877cd5d0" />
 <style>
   /* Data Curation live-tool CTA */
   .studio-card { padding: clamp(28px, 4vw, 48px); }
@@ -26,18 +26,7 @@
   @media (prefers-reduced-motion: reduce) { .studio-dot { animation: none; } }
 
   /* ── interactive architecture viewer ── */
-  .av-shell { border: 1px solid rgba(21,24,32,0.12); border-radius: 18px; background: #FDF6E2; overflow: hidden;
-    box-shadow: var(--glass-sh); }
-  .av-tabs { display: flex; gap: 6px; padding: 12px 12px 0; flex-wrap: wrap; }
-  .av-tab { font-family: var(--font-mono); font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 10px 10px 0 0;
-    background: transparent; border: 1px solid transparent; color: var(--ash); cursor: pointer; transition: all .18s var(--ease-out); }
-  .av-tab:hover { color: var(--ink); background: rgba(21,24,32,0.04); }
-  .av-tab.on { color: var(--rust); background: #fff; border-color: rgba(21,24,32,0.12); border-bottom-color: #fff; font-weight: 600; }
-  .av-desc { font-family: var(--font-mono); font-size: 11.5px; color: var(--ash); padding: 10px 16px; border-top: 1px solid rgba(21,24,32,0.08);
-    border-bottom: 1px solid rgba(21,24,32,0.08); background: #fff; }
   .av-desc strong { color: var(--ink-soft); } .av-decode { color: var(--rust); } .av-paper { color: var(--ash-light); }
-  .av-stage { position: relative; height: clamp(440px, 62vh, 660px); background:
-    radial-gradient(120% 120% at 50% 0%, #FFFFFF 0%, #F4F1E9 100%); }
   #archCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
   #archCanvas:active { cursor: grabbing; }
   .arch-legend { position: absolute; top: 10px; left: 12px; display: flex; gap: 10px; flex-wrap: wrap; z-index: 3; pointer-events: none; max-width: 60%; }
@@ -56,7 +45,6 @@
   .arch-tip { position: absolute; display: none; pointer-events: none; z-index: 6; background: rgba(20,18,16,0.95); color: var(--bone);
     border: 1px solid rgba(244,234,210,0.16); border-radius: 8px; padding: 7px 10px; font-size: 12px; line-height: 1.45; max-width: 240px; box-shadow: 0 10px 28px -12px rgba(0,0,0,0.5); }
   .arch-tip i { color: var(--ash-light); font-size: 10px; font-style: normal; }
-  .av-hint { position: absolute; bottom: 10px; left: 14px; font-family: var(--font-mono); font-size: 10px; color: var(--ash-light); pointer-events: none; z-index: 3; }
   .av-fail { padding: 60px; text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--ash); }
 
   /* ── contribute form (on the dark section card) ── */

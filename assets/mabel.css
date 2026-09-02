@@ -3237,3 +3237,41 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .dark-sec .rc-note { color: var(--ash-light); }
 .rc-note a { color: var(--rust); }
 .dark-sec .rc-note a { color: var(--yellow); }
+
+/* ═══ Architecture explorer — same book as everything else ═══
+   It shipped with hairline borders, 18 px radii and white tabs, which read as
+   a different product bolted onto the page. Ink lines, a hard shadow, comic
+   tabs on a paper ground. */
+.av-shell { border: 3px solid var(--ink); border-radius: 8px; background: var(--panel);
+  overflow: hidden; box-shadow: 6px 6px 0 var(--ink); }
+.dark-sec .av-shell { box-shadow: 6px 6px 0 rgba(0,0,0,0.75); border-color: var(--gold); }
+
+.av-tabs { display: flex; gap: 0; padding: 0; flex-wrap: wrap;
+  background: var(--ink); border-bottom: 3px solid var(--ink); }
+.av-tab { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.06em;
+  padding: 10px 18px; border: none; border-right: 2px solid rgba(253,246,226,0.18);
+  background: transparent; color: var(--ash-light); cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease; }
+.av-tab:hover { color: var(--bone); background: rgba(253,246,226,0.08); }
+.av-tab.on { background: var(--yellow); color: var(--ink); }
+
+.av-desc { font-family: var(--font-mono); font-size: 11.5px; line-height: 1.6;
+  color: var(--ash); padding: 11px 16px; background: var(--bone);
+  border-bottom: 2px solid var(--ink); }
+.av-desc strong { color: var(--ink); }
+.av-decode { color: var(--rust); }
+.av-paper { color: var(--ash); }
+
+.av-stage { position: relative; height: clamp(420px, 58vh, 620px);
+  background: var(--panel); }
+.av-hint { position: absolute; bottom: 10px; left: 12px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--ash);
+  background: rgba(253,246,226,0.9); border: 2px solid var(--ink);
+  border-radius: 4px; padding: 4px 8px; pointer-events: none; }
+.arch-toolbar button, .arch-legend { font-family: var(--font-mono) !important; }
+.arch-legend { border: 2px solid var(--ink) !important; border-radius: 5px !important;
+  background: var(--bone) !important; }
+.arch-tip { border: 2px solid var(--ink) !important; border-radius: 5px !important;
+  background: var(--panel) !important; font-family: var(--font-mono) !important;
+  box-shadow: 3px 3px 0 var(--ink) !important; }
