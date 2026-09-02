@@ -2742,7 +2742,9 @@ h1 > .sticker.sticker-hi, h2 > .sticker.sticker-hi, h3 > .sticker.sticker-hi {
 .rg-wrap > #reachGlobe > * { min-width: 0; }
 .rg-stage { position: relative; border: 3px solid var(--ink); border-radius: 8px;
   overflow: hidden; background: var(--bone); box-shadow: 6px 6px 0 var(--ink);
-  aspect-ratio: 5 / 4; min-height: 380px; touch-action: none; }
+  /* A fixed height, not an aspect ratio: at a wide viewport 5/4 of a 760 px
+     column is a 600 px-tall globe that pushes the panel off the fold. */
+  height: clamp(300px, 42vh, 420px); touch-action: none; }
 .rg-hint { position: absolute; left: 10px; bottom: 10px; font-family: var(--font-mono);
   font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ash);
   background: rgba(253,246,226,0.85); border: 2px solid var(--ink); border-radius: 4px;
@@ -3192,41 +3194,67 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .bom-toggle button.on { background: var(--yellow); }
 .bom-toggle button:hover:not(.on) { background: #FFF3D0; }
 
-/* ═══ Webcam retargeting demo ═══ */
-.rc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-@media (max-width: 820px) { .rc-grid { grid-template-columns: 1fr; } }
-.rc-cam, .rc-rig { position: relative; border: 3px solid var(--ink); border-radius: 8px;
+/* ═══ Webcam retargeting demo ═══
+   The robot is the subject and takes the room; the controls and the camera
+   feed stack beside it, the way the compliance viewer is laid out. */
+.rc-grid { display: grid; grid-template-columns: 1fr minmax(240px, 320px); gap: 14px;
+  align-items: start; }
+@media (max-width: 860px) { .rc-grid { grid-template-columns: 1fr; } }
+.rc-grid > * { min-width: 0; }
+
+.rc-rig { position: relative; border: 3px solid var(--ink); border-radius: 8px;
+  overflow: hidden; background: var(--bone); box-shadow: 6px 6px 0 var(--ink);
+  aspect-ratio: 4 / 3; }
+.dark-sec .rc-rig { box-shadow: 6px 6px 0 rgba(0,0,0,0.8); border-color: var(--gold);
+  background: #171A24; }
+.rc-3d { width: 100%; height: 100%; display: block; }
+
+.rc-side { display: flex; flex-direction: column; gap: 12px; }
+.rc-panel { border: 3px solid var(--ink); border-radius: 8px; background: var(--panel);
+  box-shadow: 6px 6px 0 var(--ink); padding: 14px; }
+.dark-sec .rc-panel { box-shadow: 6px 6px 0 rgba(0,0,0,0.8); }
+.rc-panel-head { display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 10px; }
+.rc-panel-title { font-family: var(--font-comic); font-size: 15px; letter-spacing: 0.05em;
+  color: var(--ink); }
+.rc-state { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em;
+  color: var(--ash); text-align: right; max-width: 60%; }
+.rc-state.bad { color: var(--rust); }
+
+.rc-seg { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink);
+  border-radius: 7px; overflow: hidden; box-shadow: 3px 3px 0 var(--ink); }
+.rc-btn { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.05em;
+  padding: 9px 10px; border: none; cursor: pointer; background: var(--bone);
+  color: var(--ink); transition: background 0.18s ease; }
+.rc-btn + .rc-btn { border-left: 2px solid var(--ink); }
+.rc-btn.on { background: var(--yellow); }
+.rc-btn:hover:not(.on) { background: #FFF3D0; }
+.rc-priv { margin: 10px 0 0; font-size: 11px; line-height: 1.55; color: var(--ash); }
+
+.rc-hud { display: flex; flex-direction: column; gap: 5px; margin-top: 11px; }
+.rc-hud span { display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.05em; color: var(--ash);
+  border-top: 1px solid rgba(21,24,32,0.14); padding-top: 5px; }
+.rc-hud b { font-family: var(--font-display); font-size: 14px; color: var(--rust); }
+
+.rc-cam { position: relative; border: 3px solid var(--ink); border-radius: 8px;
   overflow: hidden; background: #0B0E15; box-shadow: 6px 6px 0 var(--ink);
   aspect-ratio: 4 / 3; }
-.dark-sec .rc-cam, .dark-sec .rc-rig { box-shadow: 6px 6px 0 rgba(0,0,0,0.8);
-  border-color: var(--gold); }
+.dark-sec .rc-cam { box-shadow: 6px 6px 0 rgba(0,0,0,0.8); border-color: var(--gold); }
 .rc-video { width: 100%; height: 100%; object-fit: cover; display: block;
   transform: scaleX(-1); background: #0B0E15; }
 .rc-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.rc-3d { width: 100%; height: 100%; display: block; background: var(--bone); }
-.dark-sec .rc-3d { background: #171A24; }
+.rc-idle { position: absolute; inset: 0; display: grid; place-items: center;
+  background: repeating-linear-gradient(45deg,#1B1F2B 0 14px,#171A24 14px 28px); }
+.rc-idle[hidden] { display: none; }
+.rc-idle-word { font-family: var(--font-comic); font-size: clamp(15px, 2.4vw, 22px);
+  color: var(--yellow); -webkit-text-stroke: 2px var(--ink); letter-spacing: 0.05em; }
 
-.rc-badge { position: absolute; top: 10px; left: 10px; font-family: var(--font-comic);
-  font-size: 13px; letter-spacing: 0.1em; padding: 4px 10px; color: var(--ink);
+.rc-badge { position: absolute; top: 9px; left: 9px; font-family: var(--font-comic);
+  font-size: 12px; letter-spacing: 0.1em; padding: 3px 9px; color: var(--ink);
   background: var(--yellow); border: 2px solid var(--ink); border-radius: 4px; }
 .rc-badge.alt { background: var(--orange); color: #FFF9F0; }
-
-.rc-idle { position: absolute; inset: 0; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 12px; text-align: center;
-  padding: 22px; background: repeating-linear-gradient(45deg,#1B1F2B 0 14px,#171A24 14px 28px); }
-.rc-idle[hidden] { display: none; }
-.rc-idle-word { font-family: var(--font-comic); font-size: clamp(22px, 3.4vw, 34px);
-  color: var(--yellow); -webkit-text-stroke: 2px var(--ink); letter-spacing: 0.05em; }
-.rc-idle p { margin: 0; max-width: 340px; font-size: 12px; line-height: 1.6;
-  color: var(--ash-light); }
-
-.rc-hud { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column;
-  gap: 5px; align-items: flex-end; }
-.rc-hud span { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.05em;
-  color: var(--ash); background: rgba(21,24,32,0.9); border: 2px solid var(--ink);
-  border-radius: 4px; padding: 3px 7px; }
-.rc-hud b { color: var(--yellow); font-weight: 400; margin-right: 6px; }
-.rc-verdict { position: absolute; left: 10px; bottom: 10px; }
+.rc-verdict { position: absolute; left: 9px; bottom: 9px; }
 .rc-mode { font-family: var(--font-comic); font-size: 13px; letter-spacing: 0.05em;
   padding: 5px 11px; border: 2px solid var(--ink); border-radius: 4px;
   background: var(--bone); color: var(--ink); }
@@ -3286,3 +3314,13 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .tl-wrap { max-width: 1120px; }
 .eq-card { max-width: 900px; }
 #retargetCam { max-width: 1120px; margin-left: auto; margin-right: auto; }
+/* the rig layer sits over the hand-drawn city, both inside the stage */
+.tl-stage { position: relative; }
+.tl-canvas { position: absolute; inset: 0; }
+.tl-rig { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+
+/* the networking widget sits in a bounded, centred column */
+.rg-wrap { max-width: 1000px; margin-left: auto; margin-right: auto; }
+.rg-wrap > #reachGlobe { grid-template-columns: minmax(0, 1fr) minmax(230px, 300px); }
+@media (max-width: 900px) { .rg-wrap > #reachGlobe { grid-template-columns: 1fr; } }

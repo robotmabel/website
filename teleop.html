@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=de0391d8" />
+<link rel="stylesheet" href="assets/mabel.css?v=f4e33418" />
 <link rel="stylesheet" href="assets/teleop-app.css?v=20260630-balldrag" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
@@ -369,8 +369,8 @@
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">From the paper</span>
-        <h2 class="display-md title">Drive it from <span class="italic accent">anywhere.</span></h2>
+        <span class="eyebrow">Networking</span>
+        <h2 class="display-md title">Networking: drive it from <span class="italic accent">anywhere.</span></h2>
       </div>
       <p class="lede">The operator can be on the other side of the planet. Pick a city: the budget is the great circle at fibre speed, the relay hops, and the measured on-robot pipeline — nothing hand-waved.</p>
     </div>
@@ -382,24 +382,11 @@
         <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 920 292" role="img" aria-label="Glass-to-glass video latency: 49 ms on host, 82 on LAN, 362 over the public relay" style="width:100%;height:auto;display:block;"><text x="30" y="34" font-family="Bangers, cursive" font-size="21" fill="#F0762E" letter-spacing="1">GLASS TO GLASS</text><text x="30" y="92" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#151820">HOST</text><rect x="196" y="66" width="93" height="38" rx="5" fill="#2E7D4F" stroke="#151820" stroke-width="3"/><text x="293" y="92" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">49 ms</text><text x="30" y="156" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#151820">LAN</text><rect x="196" y="130" width="156" height="38" rx="5" fill="#23577E" stroke="#151820" stroke-width="3"/><text x="356" y="156" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">82 ms</text><text x="30" y="220" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#151820">PUBLIC RELAY</text><rect x="196" y="194" width="688" height="38" rx="5" fill="#F0762E" stroke="#151820" stroke-width="3"/><text x="888" y="220" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">362 ms</text><line x1="196" y1="60" x2="196" y2="252" stroke="#151820" stroke-width="3.5"/><text x="30" y="276" font-family="'Space Mono', monospace" font-size="12" fill="#6D6551">camera photon → headset pixel, measured end to end</text></svg></div>
 </div>
       <div>
-        <div class="fade-up" style="margin-bottom:clamp(20px,3vh,32px);">
-      <div class="sec-head" style="margin-bottom:14px;">
-        <div><span class="eyebrow">Try it · runs on your machine</span>
-          <h3 class="display-sm" style="margin:0; color:var(--bone);">Be the operator.</h3></div>
-        <p class="lede" style="font-size:14px;">Turn the camera on and MABEL's arms follow
-          yours. Same retargeting idea the headset uses — shoulder-centre anchor, your own
-          build as the scale, and the torso frame fit from your shoulder line.</p>
-      </div>
-      <div id="retargetCam"></div>
-    </div>
-    <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 820 360" role="img" aria-label="A headset reports the head and both wrists; a closed-form fit recovers the operator's torso frame; looking moves the neck while turning the body drives the base" style="width:100%;height:auto;display:block;">
+        <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 820 360" role="img" aria-label="A headset reports the head and both wrists; a closed-form fit recovers the operator's torso frame; looking moves the neck while turning the body drives the base" style="width:100%;height:auto;display:block;">
 <defs>
-  <marker id="rtA" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
-    <path d="M0 0 L9 4.5 L0 9 z" fill="#151820"/></marker>
-  <marker id="rtG" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
-    <path d="M0 0 L9 4.5 L0 9 z" fill="#2E7D4F"/></marker>
-  <marker id="rtB" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto">
-    <path d="M0 0 L9 4.5 L0 9 z" fill="#23577E"/></marker>
+  <marker id="rtA" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#151820"/></marker>
+  <marker id="rtG" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#2E7D4F"/></marker>
+  <marker id="rtB" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#23577E"/></marker>
 </defs>
 
 <text x="30" y="30" font-family="Bangers, cursive" font-size="15" fill="#F0762E" letter-spacing="1">WHAT THE HEADSET SEES</text>
@@ -491,7 +478,6 @@
 <script src="assets/reach-globe.js?v=ccf35b70"></script>
 <script src="assets/burst-variety.js?v=700266a7"></script>
 <script src="assets/mabel.js?v=5dc38e96"></script>
-<script type="module" src="assets/retarget-cam.js"></script>
 <script type="module" src="assets/teleop-app.js?v=20260630-balldrag"></script>
 </body>
 </html>

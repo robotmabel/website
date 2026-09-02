@@ -12,6 +12,10 @@
  * capped at a_max, so the body barely leans. With it OFF the stop is a hard
  * one and the tilt runs past the tipping angle — which is the whole point.
  */
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
 (function () {
   'use strict';
   var host = document.getElementById('tipLab');
@@ -49,6 +53,7 @@
   host.innerHTML =
     '<div class="tl-stage">' +
       '<canvas class="tl-canvas"></canvas>' +
+      '<canvas class="tl-rig"></canvas>' +
       '<div class="tl-hud">' +
         '<span class="tl-read"><b class="tl-v">0.00</b> m/s</span>' +
         '<span class="tl-read"><b class="tl-tilt">0.0</b>° tilt</span>' +
@@ -194,111 +199,92 @@
     });
   }
 
-  /* ── the robot, drawn as a side elevation from the real dimensions ────
-     Everything here is metres from the URDF, scaled by PPM, so the picture
-     and the physics agree: a 0.49 m footprint, 0.635 m of lift travel, and a
-     centre of mass at 0.369 + 0.451·z. It faces RIGHT — the direction it is
-     driving — so the tilt you see under braking is a pitch onto the leading
+  /* ── the real robot, rendered over the comic city ────────────────────
+     The city, the road and the lettering stay hand-drawn on the 2-D canvas;
+     the robot itself is the actual rig (assets/mabel_rig.glb, generated from
+     the MJCF), shown in side view facing the direction of travel. Its lift
+     column follows the slider and the whole body pitches about the leading
      wheel, which is the edge the tip-over model is about. */
-  var PPM = 150;                    // pixels per metre, shared with the CoM marker
-  var COL = {
-    shell: '#EFE8D8', shellDark: '#D6CEBB', steel: '#B9B2A0', dark: '#8E8778',
-    ink: '#151820', accent: '#F0762E', lens: '#23577E', tyre: '#12151C'
-  };
+  var PPM = 150;                      // px per metre, shared with the CoM marker
+  var rigCv = host.querySelector('.tl-rig');
+  var three = null;                   // {renderer, scene, camera, rig, lift, pivot}
 
-  function box(x, y, w, h, fill, r) {
-    ctx.beginPath();
-    if (r && ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
-    ctx.fillStyle = fill; ctx.fill();
-    ctx.lineWidth = 2.5; ctx.strokeStyle = COL.ink; ctx.stroke();
+  function initRig() {
+    var renderer = new THREE.WebGLRenderer({ canvas: rigCv, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    var scene = new THREE.Scene();
+    var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 100);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8378, 2.2));
+    var key = new THREE.DirectionalLight(0xffffff, 1.6);
+    key.position.set(-3, 5, 4); scene.add(key);
+
+    three = { renderer: renderer, scene: scene, camera: camera,
+              rig: null, lift: null, pivot: new THREE.Group(), ready: false };
+    scene.add(three.pivot);
+
+    var loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder);
+    loader.load('assets/mabel_rig.glb', function (g) {
+      var rig = g.scene;
+      /* side view, facing +X — the direction it drives */
+      rig.rotation.y = -Math.PI / 2;
+      var box = new THREE.Box3().setFromObject(rig);
+      rig.position.y -= box.min.y;                 // stand it on the road
+      three.pivot.add(rig);
+      three.rig = rig;
+      fetch('assets/mabel_joints.json').then(function (r) { return r.json(); })
+        .then(function (man) {
+          var j = man.joints.filter(function (x) { return x.name === 'lift'; })[0] ||
+                  man.joints.filter(function (x) { return /lift/i.test(x.name); })[0];
+          if (j) {
+            var n = rig.getObjectByName(j.node);
+            if (n) three.lift = { node: n, axis: new THREE.Vector3().fromArray(j.axis),
+                                  rest: n.position.clone() };
+          }
+          three.ready = true;
+        });
+    }, undefined, function (e) { console.error('[tipover-lab] rig failed', e); });
   }
 
   function drawRobot(cx, ground, tilt, lift) {
-    var m = PPM;
+    if (!three || !three.ready) return;
+    var W = rigCv.clientWidth, H = rigCv.clientHeight;
+    /* an orthographic camera scaled so 1 world metre == PPM screen pixels */
+    var halfW = W / (2 * PPM), halfH = H / (2 * PPM);
+    var c = three.camera;
+    c.left = -halfW; c.right = halfW; c.top = halfH; c.bottom = -halfH;
+    /* put the robot where the 2-D drawing would have put it */
+    var camX = (W / 2 - cx) / PPM;
+    var groundY = (H - ground) / PPM;
+    c.position.set(camX, halfH - groundY, 6);
+    c.lookAt(camX, halfH - groundY, 0);
+    c.updateProjectionMatrix();
+
+    /* the lift column follows the command */
+    if (three.lift) {
+      three.lift.node.position.copy(three.lift.rest)
+        .addScaledVector(three.lift.axis, lift);
+    }
+    /* pitch about the leading wheel's contact patch */
+    three.pivot.position.set(0.18, 0, 0);
+    three.pivot.rotation.z = -tilt * Math.PI / 180;
+    if (three.rig) three.rig.position.x = -0.18;
+
+    three.renderer.setSize(W, H, false);
+    three.renderer.render(three.scene, three.camera);
+
+    /* the centre of mass and its lever stay on the 2-D layer, in ink */
+    var comY = -comHeight(lift) * PPM;
     ctx.save();
     ctx.translate(cx, ground);
-    /* pitch about the contact patch of the leading (right-hand) wheel */
-    ctx.translate(0.18 * m, 0);
     ctx.rotate(tilt * Math.PI / 180);
-    ctx.translate(-0.18 * m, 0);
-
-    /* wheels — 0.10 m diameter, at the front and back of the 0.49 m base */
-    [-0.17, 0.17].forEach(function (wx) {
-      ctx.beginPath(); ctx.arc(wx * m, -0.05 * m, 0.05 * m, 0, 6.284);
-      ctx.fillStyle = COL.tyre; ctx.fill();
-      ctx.lineWidth = 2.5; ctx.strokeStyle = COL.ink; ctx.stroke();
-      ctx.beginPath(); ctx.arc(wx * m, -0.05 * m, 0.018 * m, 0, 6.284);
-      ctx.fillStyle = COL.accent; ctx.fill();
-    });
-
-    /* chassis: 0.49 m long, 0.19 m tall, sitting on the swerve modules */
-    box(-0.245 * m, -0.29 * m, 0.49 * m, 0.19 * m, COL.steel, 5);
-    box(-0.20 * m, -0.275 * m, 0.40 * m, 0.05 * m, COL.shellDark, 3);
-    /* the LiDAR puck, front-mounted */
-    box(0.13 * m, -0.335 * m, 0.07 * m, 0.045 * m, COL.dark, 3);
-
-    /* cascaded lift column — the stages telescope as `lift` rises */
-    var colH = (0.34 + lift) * m;
-    var top = -0.29 * m - colH;
-    box(-0.045 * m, top, 0.09 * m, colH, COL.dark, 3);
-    box(-0.032 * m, top + 0.02 * m, 0.064 * m, colH * 0.55, COL.steel, 3);
-    for (var st = 1; st <= 2; st++) {
-      var y = top + colH * (0.30 * st);
-      ctx.beginPath(); ctx.moveTo(-0.045 * m, y); ctx.lineTo(0.045 * m, y);
-      ctx.lineWidth = 2; ctx.strokeStyle = COL.ink; ctx.stroke();
-    }
-
-    /* torso — 0.30 m tall, the arms hang off its shoulder line */
-    var torsoH = 0.30 * m, torsoTop = top - torsoH;
-    box(-0.11 * m, torsoTop, 0.24 * m, torsoH, COL.shell, 6);
-    box(-0.02 * m, torsoTop + 0.05 * m, 0.13 * m, 0.10 * m, COL.shellDark, 3);
-
-    /* one arm, seen from the side; it swings a little with the pitch */
-    var sh = torsoTop + 0.05 * m, sway = tilt * 0.0016 * m;
-    ctx.lineWidth = 0.055 * m; ctx.lineCap = 'round'; ctx.strokeStyle = COL.ink;
-    ctx.beginPath();
-    ctx.moveTo(0.02 * m, sh);
-    ctx.lineTo(0.05 * m + sway, sh + 0.14 * m);
-    ctx.lineTo(0.02 * m + sway * 1.6, sh + 0.28 * m);
-    ctx.stroke();
-    ctx.lineWidth = 0.032 * m; ctx.strokeStyle = COL.shell;
-    ctx.beginPath();
-    ctx.moveTo(0.02 * m, sh);
-    ctx.lineTo(0.05 * m + sway, sh + 0.14 * m);
-    ctx.lineTo(0.02 * m + sway * 1.6, sh + 0.28 * m);
-    ctx.stroke();
-
-    /* neck and head, facing right */
-    var neck = torsoTop - 0.05 * m;
-    box(-0.02 * m, neck, 0.04 * m, 0.05 * m, COL.dark, 2);
-    var headH = 0.13 * m, headTop = neck - headH;
-    box(-0.075 * m, headTop, 0.17 * m, headH, COL.shell, 6);
-    /* the stereo camera housing on the front face */
-    box(0.055 * m, headTop + 0.028 * m, 0.055 * m, 0.06 * m, COL.ink, 3);
-    ctx.beginPath();
-    ctx.arc(0.088 * m, headTop + 0.058 * m, 0.018 * m, 0, 6.284);
-    ctx.fillStyle = COL.lens; ctx.fill();
-    ctx.lineWidth = 2; ctx.strokeStyle = COL.ink; ctx.stroke();
-    /* the two antennas */
-    [-0.045, 0.02].forEach(function (ax, i) {
-      ctx.beginPath();
-      ctx.moveTo(ax * m, headTop);
-      ctx.lineTo((ax + (i ? 0.03 : -0.02)) * m, headTop - 0.11 * m);
-      ctx.lineWidth = 3; ctx.strokeStyle = COL.ink; ctx.stroke();
-      ctx.beginPath();
-      ctx.arc((ax + (i ? 0.03 : -0.02)) * m, headTop - 0.11 * m, 3.5, 0, 6.284);
-      ctx.fillStyle = COL.accent; ctx.fill();
-    });
-
-    /* centre of mass and its lever to the leading wheel */
-    var comY = -comHeight(lift) * m;
     ctx.setLineDash([5, 4]); ctx.lineWidth = 2;
     ctx.strokeStyle = 'rgba(198,48,26,0.55)';
     ctx.beginPath(); ctx.moveTo(0, comY); ctx.lineTo(0, 0); ctx.stroke();
     ctx.setLineDash([]);
     ctx.beginPath(); ctx.arc(0, comY, 6, 0, 6.284);
     ctx.fillStyle = '#C6301A'; ctx.fill();
-    ctx.lineWidth = 2; ctx.strokeStyle = COL.ink; ctx.stroke();
+    ctx.lineWidth = 2; ctx.strokeStyle = '#151820'; ctx.stroke();
     ctx.restore();
   }
 
@@ -380,6 +366,7 @@
   }
 
   window.__tipLab = S;   /* test hook */
+  initRig();
   resize(); note();
   elCmd.textContent = S.cmd.toFixed(2) + ' m/s';
   elLift.textContent = S.lift.toFixed(2) + ' m';

@@ -39,26 +39,35 @@ const SHOULDER_W = 0.38;      // metres, the robot's own shoulder separation
 function boot() {
   HOST.innerHTML = `
     <div class="rc-grid">
-      <div class="rc-cam">
-        <video class="rc-video" playsinline muted></video>
-        <canvas class="rc-overlay"></canvas>
-        <div class="rc-idle">
-          <span class="rc-idle-word">CAMERA OFF</span>
-          <p>Nothing is recorded and nothing is uploaded — frames go straight
-             into a model running on this machine and are thrown away.</p>
-          <button class="btn rc-start" type="button">Start the camera</button>
-        </div>
-        <span class="rc-badge">YOU</span>
-      </div>
       <div class="rc-rig">
         <canvas class="rc-3d"></canvas>
         <span class="rc-badge alt">MABEL</span>
-        <div class="rc-hud">
-          <span><b class="rc-psi">—</b>ψ<sub>β</sub> torso</span>
-          <span><b class="rc-chi">—</b>χ gate</span>
-          <span><b class="rc-fps">—</b>fps</span>
+        <div class="rc-verdict"><span class="rc-mode">waiting for you</span></div>
+      </div>
+      <div class="rc-side">
+        <div class="rc-panel">
+          <div class="rc-panel-head">
+            <span class="rc-panel-title">Camera tracking</span>
+            <span class="rc-state">off</span>
+          </div>
+          <div class="rc-seg" role="group" aria-label="Camera tracking">
+            <button class="rc-btn on" type="button" data-cam="off">Off</button>
+            <button class="rc-btn" type="button" data-cam="on">On</button>
+          </div>
+          <p class="rc-priv">Frames go straight into a model running on this
+            machine and are thrown away. Nothing is recorded or uploaded.</p>
+          <div class="rc-hud">
+            <span><b class="rc-psi">—</b>body heading</span>
+            <span><b class="rc-chi">—</b>gaze / drive</span>
+            <span><b class="rc-fps">—</b>fps</span>
+          </div>
         </div>
-        <div class="rc-verdict"><span class="rc-mode">waiting</span></div>
+        <div class="rc-cam">
+          <video class="rc-video" playsinline muted></video>
+          <canvas class="rc-overlay"></canvas>
+          <span class="rc-badge">YOU</span>
+          <div class="rc-idle"><span class="rc-idle-word">CAMERA OFF</span></div>
+        </div>
       </div>
     </div>
     <p class="rc-note">Kinematics only — this page solves where the arms must be,
@@ -70,7 +79,8 @@ function boot() {
   const overlay = HOST.querySelector('.rc-overlay');
   const octx = overlay.getContext('2d');
   const idle = HOST.querySelector('.rc-idle');
-  const startBtn = HOST.querySelector('.rc-start');
+  const seg = HOST.querySelector('.rc-seg');
+  const elState = HOST.querySelector('.rc-state');
   const elPsi = HOST.querySelector('.rc-psi');
   const elChi = HOST.querySelector('.rc-chi');
   const elFps = HOST.querySelector('.rc-fps');
@@ -181,8 +191,7 @@ function boot() {
   let psi = 0, chi = 0, psi0 = null;
 
   async function start() {
-    startBtn.disabled = true;
-    startBtn.textContent = 'Loading the model…';
+    elState.textContent = 'loading the model…';
     let vision;
     try {
       vision = await import(/* webpackIgnore: true */ `${MP_BUNDLE}/vision_bundle.mjs`);
@@ -213,16 +222,37 @@ function boot() {
     idle.hidden = true;
     running = true;
     resize();
+    elState.textContent = 'on';
     elMode.textContent = 'tracking';
   }
   function fail(msg) {
-    startBtn.disabled = false;
-    startBtn.textContent = 'Try again';
-    let p = idle.querySelector('p');
-    p.textContent = msg;
-    p.style.color = 'var(--rust)';
+    elState.textContent = msg;
+    elState.classList.add('bad');
+    seg.querySelectorAll('button').forEach(function (x) {
+      x.classList.toggle('on', x.dataset.cam === 'off');
+    });
+    idle.hidden = false;
   }
-  startBtn.addEventListener('click', start);
+  seg.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    seg.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+    if (b.dataset.cam === 'on') start(); else stop();
+  });
+
+  function stop() {
+    running = false;
+    elState.textContent = 'off';
+    elMode.textContent = 'waiting for you';
+    elMode.className = 'rc-mode';
+    idle.hidden = false;
+    octx.clearRect(0, 0, overlay.width, overlay.height);
+    var st = video.srcObject;
+    if (st) st.getTracks().forEach(function (t) { t.stop(); });
+    video.srcObject = null;
+    /* hands ease back to the rest pose rather than freezing mid-reach */
+    for (var s of ['l', 'r']) if (ee[s]) target[s].copy(home[s]);
+  }
 
   function drawSkeleton(lm, w, h) {
     octx.clearRect(0, 0, overlay.width, overlay.height);
