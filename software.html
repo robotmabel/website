@@ -216,6 +216,14 @@
         pulse that tilts the bare platform 13.1° passes at 0.1° with the envelope on — and the robot
         still carries 18 / 16 / 14 kg at lift 0 / 0.30 / 0.64 m.</p>
     </div>
+    <!-- drive it yourself: the same constants, integrated live -->
+    <div class="tl-wrap fade-up" style="margin-bottom:clamp(24px,3vh,38px);">
+      <div id="tipLab"></div>
+    </div>
+    <p class="fade-up" style="margin:-8px 0 26px; font-size:12.5px; color:var(--ash);
+       font-family:var(--font-mono);">Drive it: raise the lift, slam the brakes, then switch the
+       model off and try again. The widget integrates the constants in
+       <code>controller/mabel/motion_model/tip_over.py</code> — nothing here is animated by hand.</p>
     <div class="paper-grid fade-up">
       <div>
         <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 830 408" role="img" aria-label="Static tip payload 18, 16, 14 kg at lift 0, 0.30, 0.64 m; peak tilt 13.1 degrees with the envelope off versus 0.1 with it on" style="width:100%;height:auto;display:block;"><text x="30" y="34" font-family="Bangers, cursive" font-size="21" fill="#F0762E" letter-spacing="1">STILL CARRYING</text><rect x="60" y="132" width="64" height="198" rx="4" fill="#23577E" stroke="#151820" stroke-width="3"/><text x="92" y="122" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="19" fill="#151820">18 kg</text><text x="92" y="356" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">lift 0 m</text><rect x="170" y="154" width="64" height="176" rx="4" fill="#23577E" stroke="#151820" stroke-width="3"/><text x="202" y="144" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="19" fill="#151820">16 kg</text><text x="202" y="356" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">lift 0.30 m</text><rect x="280" y="176" width="64" height="154" rx="4" fill="#23577E" stroke="#151820" stroke-width="3"/><text x="312" y="166" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="19" fill="#151820">14 kg</text><text x="312" y="356" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">lift 0.64 m</text><line x1="42" y1="330" x2="400" y2="330" stroke="#151820" stroke-width="3.5"/><text x="30" y="392" font-family="'Space Mono', monospace" font-size="12" fill="#6D6551">static tip payload at the hand, per lift height</text><line x1="452" y1="40" x2="452" y2="390" stroke="#151820" stroke-width="2" stroke-dasharray="3 7"/><text x="486" y="34" font-family="Bangers, cursive" font-size="21" fill="#F0762E" letter-spacing="1">SAME SPEED PULSE</text><rect x="510" y="68" width="90" height="262" rx="4" fill="#C6301A" stroke="#151820" stroke-width="3" transform="rotate(-2 555 300)"/><text x="555" y="56" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="19" fill="#C6301A">13.1°</text><text x="555" y="356" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">envelope OFF</text><rect x="680" y="324" width="90" height="6" rx="2" fill="#2E7D4F" stroke="#151820" stroke-width="2.5"/><text x="725" y="312" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="19" fill="#2E7D4F">0.1°</text><text x="725" y="356" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">envelope ON</text><line x1="496" y1="330" x2="800" y2="330" stroke="#151820" stroke-width="3.5"/><text x="486" y="392" font-family="'Space Mono', monospace" font-size="12" fill="#6D6551">peak body tilt — the envelope trims first</text></svg></div>
@@ -603,6 +611,7 @@
   </div>
 </footer>
 
+<script src="assets/tipover-lab.js"></script>
 <script src="assets/mabel.js?v=92f460dd"></script>
 <script type="module" src="assets/wbc-viewer.js"></script>
 </body>
