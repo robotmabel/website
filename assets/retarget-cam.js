@@ -1,161 +1,300 @@
 /* Webcam retargeting, running entirely in your browser.
  *
- * Point a camera at yourself and MABEL's arms follow. This is the same idea
- * the Control Studio runs against the real robot, cut down to what a web page
- * can honestly do:
+ * Point a camera at yourself and MABEL follows. This is not a demo-shaped
+ * imitation of the Control Studio — it runs the studio's OWN retargeter:
+ * assets/bodyteleop-core.js is vendored verbatim from
+ * web_gui/simulation_control_center/web/js/bodyteleop.js (see
+ * scripts/sync_bodyteleop.py), so the estimate you see here is the estimate the
+ * robot would act on.
  *
- *   MediaPipe Pose  →  shoulder-centre anchor + anthropometric scale
- *                   →  wrist targets in the robot's frame
- *                   →  damped CCD inverse kinematics on the real GLB rig
+ *   MediaPipe Pose + Hands
+ *     → BT.computeAnchor      shoulder-centre clutch + anthropometric scale
+ *     → BT.synthesizeFrame    the same `teleop_frame` the Vision Pro streams:
+ *                             head 4x4, per-hand ABSOLUTE wrist transform with
+ *                             orientation, 21 finger joints, elbow transforms
+ *     → AVP_TO_ROBOT          operator frame → robot frame, gain
+ *                             RETARGET_SCALE = [1.3, 1.3, 1.4] (config.py)
+ *     → prioritised CCD       elbow first, then wrist position, then wrist
+ *                             orientation on the real GLB rig
  *
- * KINEMATICS ONLY. There is no MuJoCo here, so there is no contact, no
- * gravity, no whole-body QP and no tip-over envelope — the robot on the right
- * is solving where its arms must be, not what torques get them there. The
- * torso-frame recovery is the real one: the operator's body yaw is fit from
- * the shoulder line, and chi decides whether a turn is gaze or intent.
+ * What is tracked, and shown as numbers rather than claimed:
+ *   ABSOLUTE wrist position   metres in the robot's frame, not a delta
+ *   wrist ORIENTATION         the measured palm frame, clutched at start
+ *   ELBOW                     the operator's own elbow drives the arm's swivel
+ *   TORSO                     lean forward and the robot's torso pitches
+ *   residual                  |palm − target| after the solve, in mm: the
+ *                             closed-loop error, so you can see it converge
  *
- * Video never leaves the machine: frames go straight from getUserMedia into
- * the local WASM model and are dropped.
+ * KINEMATICS ONLY. No MuJoCo here, so no contact, no gravity, no whole-body QP
+ * and no tip-over envelope — this solves where the arms must be, not the
+ * torques that get them there.
+ *
+ * Video never leaves the machine: frames go from getUserMedia into the local
+ * WASM model and are dropped.
  */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import * as BT from './bodyteleop-core.js';
+import { readGesture, SFX, fingerExtended, palmWidth } from './hand-gestures.js';
 
-/* Mount on every [data-retarget-cam] (and the original #retargetCam), so the
-   demo can appear on more than one page section. */
 document.querySelectorAll('#retargetCam, [data-retarget-cam]').forEach(boot);
 
-/* MediaPipe is fetched at click time, not on page load — nobody pays for it
-   unless they actually start the camera. */
+/* MediaPipe is fetched at click time, not on page load. */
 const MP_VER = '0.10.14';
 const MP_BUNDLE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}`;
-const POSE_TASK = `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`;
-const HAND_TASK = `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`;
+const POSE_TASK = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+const HAND_TASK = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
 
-/* Inference is throttled to this, independently of the render loop — the
-   Control Studio does the same. Running the models inside every animation
-   frame is what pinned this demo at about 1 fps. */
+/* Inference is throttled independently of the render loop — running the models
+   inside every animation frame is what pinned this at about 1 fps. */
 const INFER_HZ = 24;
 
-/* MediaPipe pose landmark indices we use */
-const L = { nose: 0, lShoulder: 11, rShoulder: 12, lElbow: 13, rElbow: 14,
-            lWrist: 15, rWrist: 16, lHip: 23, rHip: 24 };
+/* Per-axis Cartesian gain, robot frame [forward, left, up]. Copied from
+   controller/mabel/config.py RETARGET_SCALE: the operator works in a small
+   comfortable box and the gain covers MABEL's larger reach. */
+const SCALE = [1.3, 1.3, 1.4];
 
-const SHOULDER_W = 0.38;      // metres, the robot's own shoulder separation
+const PL = BT.PL;
+
+/* ARKit operator frame → the GLB's world axes.
+ *
+ * Measured from the rig, not assumed: the two front swerve modules sit at
+ * x = +0.062 and the back one at x = +0.382, so the robot's forward is −X and
+ * up is +Y. With right = forward × up = −Z:
+ *     operator forward (−Z_arkit) → −X      so  glb.x =  a.z
+ *     operator up      (+Y_arkit) → +Y      so  glb.y =  a.y
+ *     operator right   (+X_arkit) → −Z      so  glb.z = −a.x
+ * det = +1, a proper rotation, so hand chirality survives the map. */
+function arkitToRig(ax, ay, az, out) { return out.set(az, ay, -ax); }
+
+/* The same map as a matrix, for rotating ORIENTATIONS rather than points.
+ * A rotation does not transform like a point: R_rig = M · R_arkit · Mᵀ. Doing
+ * it by permuting Euler angles instead — which is what the first version did —
+ * is only correct for rotations about a single axis, and it is why the head
+ * arrived rolled onto its side. */
+const M_AR = new THREE.Matrix4().set(0, 0, 1, 0,
+                                     0, 1, 0, 0,
+                                     -1, 0, 0, 0,
+                                     0, 0, 0, 1);
+const M_AR_T = M_AR.clone().transpose();
+function rotArkitToRig(m4, out) {
+  return out.copy(M_AR).multiply(m4).multiply(M_AR_T);
+}
 
 function boot(HOST) {
   HOST.innerHTML = `
-    <div class="rc-grid">
-      <div class="rc-rig">
-        <canvas class="rc-3d"></canvas>
-        <span class="rc-badge alt">MABEL</span>
-        <div class="rc-verdict"><span class="rc-mode">waiting for you</span></div>
+    <div class="wt-grid">
+      <div class="wt-rig">
+        <canvas class="wt-3d"></canvas>
+        <span class="wt-badge alt">MABEL</span>
+        <div class="wt-verdict"><span class="wt-mode">waiting for you</span></div>
+        <div class="wt-hint">drag to orbit · scroll to zoom · right-drag to pan</div>
+        <button class="wt-view" type="button">Reset view</button>
       </div>
-      <div class="rc-side">
-        <div class="rc-panel">
-          <div class="rc-panel-head">
-            <span class="rc-panel-title">Camera tracking</span>
-            <span class="rc-state">off</span>
+      <div class="wt-side">
+        <div class="wt-panel">
+          <div class="wt-panel-head">
+            <span class="wt-panel-title">Camera tracking</span>
+            <span class="wt-state">off</span>
           </div>
-          <div class="rc-seg" role="group" aria-label="Camera tracking">
-            <button class="rc-btn on" type="button" data-cam="off">Off</button>
-            <button class="rc-btn" type="button" data-cam="on">On</button>
+          <div class="wt-seg" role="group" aria-label="Camera tracking">
+            <button class="wt-btn on" type="button" data-cam="off">Off</button>
+            <button class="wt-btn" type="button" data-cam="on">On</button>
           </div>
-          <p class="rc-priv">Frames go straight into a model running on this
+          <button class="wt-recal" type="button" disabled>Re-centre on me</button>
+          <p class="wt-priv">Frames go straight into a model running on this
             machine and are thrown away. Nothing is recorded or uploaded.</p>
-          <div class="rc-hud">
-            <span><b class="rc-psi">—</b>body heading</span>
-            <span><b class="rc-chi">—</b>gaze / drive</span>
-            <span><b class="rc-fps">—</b>fps</span>
+          <div class="wt-hud">
+            <span><b class="wt-wrist">—</b>wrist R · x y z (m)</span>
+            <span><b class="wt-elbow">—</b>elbow angle</span>
+            <span><b class="wt-torso">—</b>torso lean</span>
+            <span><b class="wt-res">—</b>tracking residual</span>
+            <span><b class="wt-psi">—</b>body heading</span>
+            <span><b class="wt-chi">—</b>gaze / drive</span>
+            <span><b class="wt-fps">—</b>fps</span>
           </div>
         </div>
-        <div class="rc-cam">
-          <video class="rc-video" playsinline muted></video>
-          <canvas class="rc-overlay"></canvas>
-          <span class="rc-badge">YOU</span>
-          <div class="rc-idle"><span class="rc-idle-word">CAMERA OFF</span></div>
+        <div class="wt-cam">
+          <video class="wt-video" playsinline muted></video>
+          <canvas class="wt-overlay"></canvas>
+          <span class="wt-badge">YOU</span>
+          <div class="wt-idle"><span class="wt-idle-word">CAMERA OFF</span></div>
+        </div>
+        <div class="wt-ges">
+          <span class="wt-ges-lab">Try a gesture</span>
+          <span class="wt-ges-list">1 · 2 · 3 · 4 · 5 · 👍 · 🤘 · 🕷 · ♥ (two hands)</span>
         </div>
       </div>
     </div>
-    <p class="rc-note">Kinematics only — this page solves where the arms must be,
-      not the torques that get them there. Contact, gravity, the whole-body QP and
-      the tip-over envelope all live in the
+    <p class="wt-note">Runs the Control Studio's own retargeter
+      (<code>bodyteleop.js</code>, vendored) — absolute wrist pose with
+      orientation, elbow and torso. Kinematics only: contact, gravity, the
+      whole-body QP and the tip-over envelope live in the
       <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener">Control Studio</a>.</p>`;
 
-  const video = HOST.querySelector('.rc-video');
-  const overlay = HOST.querySelector('.rc-overlay');
+  const $ = (s) => HOST.querySelector(s);
+  const video = $('.wt-video'), overlay = $('.wt-overlay');
   const octx = overlay.getContext('2d');
-  const idle = HOST.querySelector('.rc-idle');
-  const seg = HOST.querySelector('.rc-seg');
-  const elState = HOST.querySelector('.rc-state');
-  const elPsi = HOST.querySelector('.rc-psi');
-  const elChi = HOST.querySelector('.rc-chi');
-  const elFps = HOST.querySelector('.rc-fps');
-  const elMode = HOST.querySelector('.rc-mode');
+  const idle = $('.wt-idle'), seg = $('.wt-seg');
+  const elState = $('.wt-state'), elMode = $('.wt-mode');
+  const out = { wrist: $('.wt-wrist'), elbow: $('.wt-elbow'), torso: $('.wt-torso'),
+                res: $('.wt-res'), psi: $('.wt-psi'), chi: $('.wt-chi'),
+                fps: $('.wt-fps') };
+  const btnRecal = $('.wt-recal');
 
   /* ── the rig ──────────────────────────────────────────────────────── */
-  const cv = HOST.querySelector('.rc-3d');
+  const cv = $('.wt-3d');
   const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(34, 1, 0.05, 60);
+  const camera = new THREE.PerspectiveCamera(36, 1, 0.05, 60);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8378, 2.1));
   const key = new THREE.DirectionalLight(0xffffff, 1.5);
-  key.position.set(2.4, 4, 3); scene.add(key);
+  key.position.set(-3, 4, 2.4); scene.add(key);
 
-  let rig = null, chains = { l: [], r: [] }, ee = { l: null, r: null },
-      home = { l: new THREE.Vector3(), r: new THREE.Vector3() },
-      target = { l: new THREE.Vector3(), r: new THREE.Vector3() },
-      dot = {}, head3 = null, ready = false;
+  let controls = null, homeCam = null, homeTarget = null;
+
+  const R = {                       // everything about the loaded rig
+    rig: null, joints: {}, chain: { l: [], r: [] }, palm: {}, elbow: {},
+    fingers: { l: [], r: [] }, torso: null, neck: {}, shoulder: new THREE.Vector3(),
+    target: { l: new THREE.Vector3(), r: new THREE.Vector3() },
+    elbowT: { l: new THREE.Vector3(), r: new THREE.Vector3() },
+    homePalm: { l: new THREE.Vector3(), r: new THREE.Vector3() },
+    wantQ: { l: null, r: null },    // commanded wrist orientation (world)
+    offQ: { l: null, r: null },     // orientation clutch, captured at start
+    dot: {}, axes: {}, ready: false, live: false
+  };
 
   const loader = new GLTFLoader();
-  loader.setMeshoptDecoder(MeshoptDecoder);      // the rig is meshopt-compressed
+  loader.setMeshoptDecoder(MeshoptDecoder);
   loader.load('assets/mabel_rig.glb', (g) => {
-    rig = g.scene;
-    scene.add(rig);
+    R.rig = g.scene;
+    scene.add(R.rig);
     fetch('assets/mabel_joints.json').then((r) => r.json()).then((man) => {
-      const joints = {};
       man.joints.forEach((j) => {
-        const n = rig.getObjectByName(j.node);
-        if (n) joints[j.name] = { node: n, axis: new THREE.Vector3().fromArray(j.axis),
-                                  lo: j.lower, hi: j.upper, q: 0, rest: n.quaternion.clone() };
+        const n = R.rig.getObjectByName(j.node);
+        if (!n) return;
+        R.joints[j.name] = { node: n, name: j.name, group: j.group,
+                             axis: new THREE.Vector3().fromArray(j.axis),
+                             lo: j.lower, hi: j.upper, q: 0,
+                             rest: n.quaternion.clone(),
+                             restP: n.position.clone(), ref: j.ref || 0 };
       });
       ['l', 'r'].forEach((s) => {
         const side = s === 'l' ? 'left' : 'right';
-        chains[s] = [1, 2, 3, 4, 5, 6, 7]
-          .map((i) => joints[`${side}_arm_${i}`]).filter(Boolean);
-        ee[s] = rig.getObjectByName(`${side}_palm`) ||
-                (chains[s].length ? chains[s][chains[s].length - 1].node : null);
+        R.chain[s] = [1, 2, 3, 4, 5, 6, 7]
+          .map((i) => R.joints[`${side}_arm_${i}`]).filter(Boolean);
+        R.palm[s] = R.rig.getObjectByName(`${side}_palm`) ||
+          (R.chain[s].length ? R.chain[s][R.chain[s].length - 1].node : null);
+        /* arm_4 is the elbow on a 7-DOF arm: 1-3 shoulder, 4 elbow, 5-7 wrist */
+        R.elbow[s] = R.joints[`${side}_arm_4`] ? R.joints[`${side}_arm_4`].node : null;
+        R.fingers[s] = ['thumb', 'index', 'middle', 'ring', 'pinky'].map((f) => ({
+          f, mcp: R.joints[`${side}_${f}_mcp`], pip: R.joints[`${side}_${f}_pip`]
+        })).filter((x) => x.mcp || x.pip);
       });
-      /* frame the robot's upper body, which is what the demo is about */
-      const box = new THREE.Box3().setFromObject(rig);
-      const size = box.getSize(new THREE.Vector3());
-      const mid = box.getCenter(new THREE.Vector3());
-      camera.position.set(0, mid.y + size.y * 0.22, size.z * 0.5 + size.y * 0.95);
-      camera.lookAt(0, mid.y + size.y * 0.2, 0);
+      R.torso = R.joints.torso || null;
+      R.neck = { yaw: R.joints.neck_yaw, pitch: R.joints.neck_pitch,
+                 roll: R.joints.neck_roll };
+      /* The head's gaze axis, MEASURED from the rig at its rest pose rather
+         than assumed: with every neck joint at zero the robot looks along its
+         own forward, which the swerve-module positions put at GLB −X. Whatever
+         local vector maps to that is the gaze axis, whichever way the head mesh
+         happens to be oriented in the file. */
+      R.headNode = R.rig.getObjectByName('head') ||
+                   (R.joints.neck_roll && R.joints.neck_roll.node) || null;
+      if (R.headNode) {
+        R.headNode.updateMatrixWorld(true);
+        const wq = R.headNode.getWorldQuaternion(new THREE.Quaternion());
+        R.gazeLocal = new THREE.Vector3(-1, 0, 0)
+          .applyQuaternion(wq.clone().invert()).normalize();
+      }
+      R.gazeGoal = new THREE.Vector3(-1, 0, 0);
+
+      /* the robot's own shoulder centre — where the operator's shoulder
+         centre is pinned, so wrist targets arrive as ABSOLUTE positions */
+      const sl = new THREE.Vector3(), sr = new THREE.Vector3();
+      if (R.chain.l[0]) R.chain.l[0].node.getWorldPosition(sl);
+      if (R.chain.r[0]) R.chain.r[0].node.getWorldPosition(sr);
+      R.shoulder.copy(sl).add(sr).multiplyScalar(0.5);
+
       ['l', 'r'].forEach((s) => {
-        if (!ee[s]) return;
-        ee[s].getWorldPosition(home[s]);
-        target[s].copy(home[s]);
+        if (!R.palm[s]) return;
+        R.palm[s].getWorldPosition(R.homePalm[s]);
+        R.target[s].copy(R.homePalm[s]);
         const m = new THREE.Mesh(
-          new THREE.SphereGeometry(size.y * 0.014, 20, 20),
+          new THREE.SphereGeometry(0.028, 20, 20),
           new THREE.MeshStandardMaterial({ color: 0x2e7d4f, emissive: 0x2e7d4f,
-                                           emissiveIntensity: 0.5 }));
-        scene.add(m); dot[s] = m;
+                                           emissiveIntensity: 0.55 }));
+        m.visible = false; scene.add(m); R.dot[s] = m;
+        const ax = new THREE.AxesHelper(0.13);
+        ax.visible = false; scene.add(ax); R.axes[s] = ax;
       });
-      head3 = rig.getObjectByName('head') || rig.getObjectByName('neck_2') || null;
-      ready = true;
-      window.__rcReady = { joints: chains.l.length + chains.r.length, ee: !!(ee.l && ee.r) };
+
+      frameCamera();
+      R.ready = true;
+      window.__wtReady = { joints: Object.keys(R.joints).length,
+                           arm: R.chain.l.length + R.chain.r.length,
+                           palms: !!(R.palm.l && R.palm.r),
+                           torso: !!R.torso, fingers: R.fingers.r.length };
     });
-  }, undefined, (err) => {
-    console.error('[retarget-cam] rig failed to load', err);
+  }, undefined, (err) => console.error('[retarget-cam] rig failed to load', err));
+
+  /* Frame the upper body from the FRONT — the operator is looking at the robot
+     the way they would look at a mirror, so their right hand moves the arm on
+     the left of the screen. */
+  function frameCamera() {
+    const box = new THREE.Box3().setFromObject(R.rig);
+    const size = box.getSize(new THREE.Vector3());
+    const mid = box.getCenter(new THREE.Vector3());
+    const eye = new THREE.Vector3(-(size.y * 1.15), R.shoulder.y + size.y * 0.06,
+                                  size.z * 0.04);
+    const look = new THREE.Vector3(mid.x, R.shoulder.y - size.y * 0.02, 0);
+    camera.position.copy(eye);
+    camera.lookAt(look);
+    if (!controls) {
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.09;
+      controls.minDistance = 0.45;
+      controls.maxDistance = 6;
+      controls.zoomSpeed = 0.75;
+      /* let the operator go a little under and over, but not through the floor */
+      controls.minPolarAngle = 0.25;
+      controls.maxPolarAngle = Math.PI * 0.86;
+    }
+    controls.target.copy(look);
+    controls.update();
+    homeCam = eye.clone(); homeTarget = look.clone();
+  }
+  $('.wt-view').addEventListener('click', () => {
+    if (!homeCam) return;
+    camera.position.copy(homeCam);
+    controls.target.copy(homeTarget);
+    controls.update();
   });
 
-  /* one damped CCD sweep per frame — enough to track a moving hand smoothly
-     without the snap an exact solve would give */
-  const _p = new THREE.Vector3(), _e = new THREE.Vector3(), _axis = new THREE.Vector3();
-  function ik(side, goal, gain = 0.5, passes = 2) {
-    const chain = chains[side], tip = ee[side];
+  /* ── inverse kinematics ───────────────────────────────────────────────
+     Prioritised, one damped sweep per frame:
+       1. the ELBOW, on the three shoulder joints only, at a low gain — this
+          is what makes the arm carry the operator's own elbow instead of
+          picking whatever redundant posture the wrist solve happens to reach;
+       2. the WRIST POSITION, on the whole chain, at the main gain;
+       3. the WRIST ORIENTATION, on the last three joints, by projecting the
+          orientation error onto each joint's own axis.
+     Solving them in that order lets the wrist override the elbow when the two
+     disagree, which is the right precedence: the hand is the task. */
+  const _p = new THREE.Vector3(), _e = new THREE.Vector3(), _wq = new THREE.Quaternion();
+
+  function setJoint(j, q) {
+    j.q = Math.max(j.lo, Math.min(j.hi, q));
+    j.node.quaternion.copy(j.rest)
+      .multiply(new THREE.Quaternion().setFromAxisAngle(j.axis, j.q));
+    j.node.updateMatrixWorld(true);
+  }
+
+  function ikPosition(chain, tip, goal, gain, passes) {
     if (!tip || !chain.length) return;
     for (let it = 0; it < passes; it++) {
       for (let i = chain.length - 1; i >= 0; i--) {
@@ -165,21 +304,96 @@ function boot(HOST) {
         const toTip = _e.clone().sub(_p), toGoal = goal.clone().sub(_p);
         if (toTip.lengthSq() < 1e-8 || toGoal.lengthSq() < 1e-8) continue;
         toTip.normalize(); toGoal.normalize();
-        const worldAxis = _axis.copy(j.axis)
-          .applyQuaternion(j.node.getWorldQuaternion(new THREE.Quaternion())).normalize();
-        /* project both directions onto the plane the joint can actually turn in */
+        const wa = _wq.copy(j.node.getWorldQuaternion(new THREE.Quaternion()));
+        const worldAxis = j.axis.clone().applyQuaternion(wa).normalize();
         const a = toTip.clone().projectOnPlane(worldAxis);
         const b = toGoal.clone().projectOnPlane(worldAxis);
         if (a.lengthSq() < 1e-8 || b.lengthSq() < 1e-8) continue;
         a.normalize(); b.normalize();
         let ang = Math.acos(Math.max(-1, Math.min(1, a.dot(b))));
         if (a.clone().cross(b).dot(worldAxis) < 0) ang = -ang;
-        j.q = Math.max(j.lo, Math.min(j.hi, j.q + ang * gain));
-        j.node.quaternion.copy(j.rest)
-          .multiply(new THREE.Quaternion().setFromAxisAngle(j.axis, j.q));
-        j.node.updateMatrixWorld(true);
+        setJoint(j, j.q + ang * gain);
       }
     }
+  }
+
+  /* Point a node's own axis at a world direction, using the same damped sweep.
+     The neck needs this rather than an Euler assignment: all three neck joints
+     carry a LOCAL axis of [0,0,1], but they are nested with body rotations
+     between them, so each one's z points somewhere different in the world.
+     Writing yaw/pitch/roll straight into them is what put the head on its side.
+     Aiming the gaze instead cannot get that wrong — it only ever asks each
+     joint for the part of the correction it is able to make. */
+  const _g0 = new THREE.Vector3(), _g1 = new THREE.Vector3();
+  function ikDirection(chain, node, localDir, goalDir, gain, passes) {
+    if (!node || !goalDir) return;
+    for (let it = 0; it < passes; it++) {
+      for (let i = chain.length - 1; i >= 0; i--) {
+        const j = chain[i];
+        if (!j) continue;
+        _g0.copy(localDir).applyQuaternion(
+          node.getWorldQuaternion(new THREE.Quaternion())).normalize();
+        _g1.copy(goalDir).normalize();
+        const wa = j.node.getWorldQuaternion(new THREE.Quaternion());
+        const worldAxis = j.axis.clone().applyQuaternion(wa).normalize();
+        const a = _g0.clone().projectOnPlane(worldAxis);
+        const b = _g1.clone().projectOnPlane(worldAxis);
+        /* AUTHORITY. A joint whose axis nearly parallels the gaze cannot turn
+           the gaze at all, but the projection of two nearly-parallel vectors
+           onto its plane is a pair of tiny, noisy stubs whose ANGLE can be
+           anything — and the sweep then applies that meaningless angle at full
+           gain. That is how a squarely-facing operator ended up with the neck
+           rolled to its 45° stop. Only act on the part each joint owns. */
+        const auth = Math.min(a.length(), b.length());
+        if (auth < 0.25) continue;
+        a.normalize(); b.normalize();
+        let ang = Math.acos(Math.max(-1, Math.min(1, a.dot(b))));
+        if (a.clone().cross(b).dot(worldAxis) < 0) ang = -ang;
+        setJoint(j, j.q + ang * gain * auth);
+      }
+    }
+  }
+
+  /* The neck is re-solved from its rest pose every frame rather than nudged
+     from wherever it was left. It is a 3-joint chain aiming a single
+     direction, so it is redundant, and an incremental sweep on a redundant
+     chain wanders — it accumulates roll that nothing ever takes back out. */
+  function aimGaze(goal) {
+    if (!R.headNode || !R.gazeLocal) return;
+    const chain = [R.neck.yaw, R.neck.pitch, R.neck.roll].filter(Boolean);
+    chain.forEach((j) => setJoint(j, 0));
+    ikDirection(chain, R.headNode, R.gazeLocal, goal, 0.85, 6);
+  }
+
+  const _cq = new THREE.Quaternion(), _dq = new THREE.Quaternion();
+  function ikOrientation(chain, tip, goalQ, gain, passes) {
+    if (!tip || !goalQ || chain.length < 3) return;
+    const wrist = chain.slice(-3);
+    for (let it = 0; it < passes; it++) {
+      for (let i = wrist.length - 1; i >= 0; i--) {
+        const j = wrist[i];
+        tip.getWorldQuaternion(_cq);
+        _dq.copy(goalQ).multiply(_cq.invert());           // world error rotation
+        let w = Math.max(-1, Math.min(1, _dq.w));
+        const ang = 2 * Math.acos(w);
+        const s = Math.sqrt(Math.max(1e-12, 1 - w * w));
+        if (!(ang > 1e-4)) continue;
+        const errAxis = new THREE.Vector3(_dq.x / s, _dq.y / s, _dq.z / s);
+        const wa = j.node.getWorldQuaternion(new THREE.Quaternion());
+        const worldAxis = j.axis.clone().applyQuaternion(wa).normalize();
+        /* only the part of the error this joint can actually undo */
+        const d = errAxis.dot(worldAxis) * (ang > Math.PI ? ang - 2 * Math.PI : ang);
+        setJoint(j, j.q + d * gain);
+      }
+    }
+  }
+
+  function relax(side, k) {
+    R.chain[side].forEach((j) => setJoint(j, j.q * (1 - k)));
+    R.fingers[side].forEach((f) => {
+      if (f.mcp) setJoint(f.mcp, f.mcp.q * (1 - k));
+      if (f.pip) setJoint(f.pip, f.pip.q * (1 - k));
+    });
   }
 
   function resize() {
@@ -188,105 +402,315 @@ function boot(HOST) {
     renderer.setSize(r.width, r.height, false);
     camera.aspect = r.width / Math.max(1, r.height);
     camera.updateProjectionMatrix();
-    const vr = HOST.querySelector('.rc-cam').getBoundingClientRect();
+    const vr = $('.wt-cam').getBoundingClientRect();
     overlay.width = Math.round(vr.width); overlay.height = Math.round(vr.height);
   }
   addEventListener('resize', resize);
   if ('ResizeObserver' in window) new ResizeObserver(resize).observe(HOST);
 
-  /* ── pose → robot ─────────────────────────────────────────────────── */
-  let landmarker = null, hands = null, running = false, lastT = 0, fps = 0;
-  let lastInfer = 0, lastPose = null, lastHands = null, lastPx = null;
-  let sfxUntil = 0, sfxWord = '', gesture = '';
-  let psi = 0, chi = 0, psi0 = null;
+  /* ── tracking state ───────────────────────────────────────────────── */
+  let poser = null, hander = null, running = false, lastT = 0, fps = 0;
+  let lastInfer = 0, lastPx = null, lastHandPx = null, seq = 0;
+  let calib = null, wantCalib = true;
+  const trackers = { left: new BT.HandShapeTracker(), right: new BT.HandShapeTracker() };
+  const region = new BT.RegionHysteresis();
+  let sfxUntil = 0, sfxWord = '', lastGesture = '';
+  let psi = 0, chi = 0, psi0 = null, elbowDeg = 0, torsoDeg = 0, resMm = 0;
 
   async function start() {
     elState.textContent = 'loading the model…';
     let vision;
     try {
       vision = await import(/* webpackIgnore: true */ `${MP_BUNDLE}/vision_bundle.mjs`);
-    } catch (e) {
-      fail('Could not load the pose model (the CDN may be blocked here).');
-      return;
-    }
+    } catch (e) { return fail('Could not load the pose model (the CDN may be blocked).'); }
     try {
       const files = await vision.FilesetResolver.forVisionTasks(`${MP_BUNDLE}/wasm`);
-      landmarker = await vision.PoseLandmarker.createFromOptions(files, {
+      poser = await vision.PoseLandmarker.createFromOptions(files, {
         baseOptions: { modelAssetPath: POSE_TASK, delegate: 'GPU' },
-        runningMode: 'VIDEO', numPoses: 1
-      });
+        runningMode: 'VIDEO', numPoses: 1 });
       try {
-        hands = await vision.HandLandmarker.createFromOptions(files, {
+        hander = await vision.HandLandmarker.createFromOptions(files, {
           baseOptions: { modelAssetPath: HAND_TASK, delegate: 'GPU' },
-          runningMode: 'VIDEO', numHands: 2
-        });
-      } catch (e) { hands = null; }        // pose alone still drives the arms
-    } catch (e) {
-      fail('The pose model failed to start on this device.');
-      return;
-    }
+          runningMode: 'VIDEO', numHands: 2 });
+      } catch (e) { hander = null; }     // pose alone still drives the arms
+    } catch (e) { return fail('The pose model failed to start on this device.'); }
     let stream;
     try {
       stream = await navigator.mediaDevices.getUserMedia(
         { video: { width: 640, height: 480, facingMode: 'user' }, audio: false });
-    } catch (e) {
-      fail('Camera permission was declined — nothing to retarget.');
-      return;
-    }
+    } catch (e) { return fail('Camera permission was declined — nothing to retarget.'); }
     video.srcObject = stream;
     await video.play();
     idle.hidden = true;
-    running = true;
+    running = true; wantCalib = true;
+    R.offQ.l = R.offQ.r = null;
+    btnRecal.disabled = false;
     resize();
     elState.textContent = 'on';
     elMode.textContent = 'tracking';
+    ['l', 'r'].forEach((s) => { if (R.dot[s]) R.dot[s].visible = true;
+                                if (R.axes[s]) R.axes[s].visible = true; });
   }
   function fail(msg) {
     elState.textContent = msg;
     elState.classList.add('bad');
-    seg.querySelectorAll('button').forEach(function (x) {
-      x.classList.toggle('on', x.dataset.cam === 'off');
-    });
+    seg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x.dataset.cam === 'off'));
     idle.hidden = false;
   }
-  seg.addEventListener('click', function (e) {
-    var b = e.target.closest('button');
+  function stop() {
+    running = false; R.live = false;
+    elState.textContent = 'off'; elState.classList.remove('bad');
+    elMode.textContent = 'waiting for you'; elMode.className = 'wt-mode';
+    idle.hidden = false;
+    btnRecal.disabled = true;
+    octx.clearRect(0, 0, overlay.width, overlay.height);
+    const st = video.srcObject;
+    if (st) st.getTracks().forEach((t) => t.stop());
+    video.srcObject = null;
+    ['l', 'r'].forEach((s) => {
+      R.target[s].copy(R.homePalm[s]);
+      R.wantQ[s] = null;
+      if (R.dot[s]) R.dot[s].visible = false;
+      if (R.axes[s]) R.axes[s].visible = false;
+    });
+    Object.values(out).forEach((n) => { n.textContent = '—'; });
+  }
+  seg.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
     if (!b) return;
-    seg.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+    seg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
     if (b.dataset.cam === 'on') start(); else stop();
   });
+  btnRecal.addEventListener('click', () => {
+    wantCalib = true; R.offQ.l = R.offQ.r = null;
+    elState.textContent = 'centred on you';
+    setTimeout(() => { if (running) elState.textContent = 'on'; }, 1200);
+  });
 
-  function stop() {
-    running = false;
-    elState.textContent = 'off';
-    elMode.textContent = 'waiting for you';
-    elMode.className = 'rc-mode';
-    idle.hidden = false;
-    octx.clearRect(0, 0, overlay.width, overlay.height);
-    var st = video.srcObject;
-    if (st) st.getTracks().forEach(function (t) { t.stop(); });
-    video.srcObject = null;
-    /* hands ease back to the rest pose rather than freezing mid-reach */
-    for (var s of ['l', 'r']) if (ee[s]) target[s].copy(home[s]);
+  /* ── one inference, through the studio's retargeter ────────────────── */
+  function infer(t) {
+    const res = poser.detectForVideo(video, t);
+    const world = (res.worldLandmarks && res.worldLandmarks[0]) || null;
+    const norm = (res.landmarks && res.landmarks[0]) || null;
+    if (!world || !norm) { R.live = false; return; }
+    const vis = norm.map((p) => (p.visibility == null ? 1 : p.visibility));
+    lastPx = norm;
+
+    /* clutch: capture the shoulder-centre anchor and anthropometric scale */
+    if (wantCalib || !calib) {
+      const c = BT.computeAnchor(world, vis);
+      if (!c) return;
+      calib = c; wantCalib = false; psi0 = null;
+    }
+
+    /* hands, routed by nearest pose wrist rather than the mirror-prone label */
+    let hands = { left: null, right: null }, img = null;
+    lastHandPx = null;
+    if (hander) {
+      const hr = hander.detectForVideo(video, t);
+      const dets = (hr.landmarks || []).map((lms, i) => ({
+        idx: i, wrist: lms[0],
+        label: (hr.handednesses && hr.handednesses[i] && hr.handednesses[i][0]
+                && hr.handednesses[i][0].categoryName) || '' }));
+      const route = BT.routeHands(dets, norm);
+      const w = (i) => (i == null ? null : hr.worldLandmarks[i]);
+      hands = { left: w(route.left), right: w(route.right) };
+      lastHandPx = { left: route.left == null ? null : hr.landmarks[route.left],
+                     right: route.right == null ? null : hr.landmarks[route.right] };
+      if (route.left != null && route.right != null)
+        img = { left: { wrist: hr.landmarks[route.left][0] },
+                right: { wrist: hr.landmarks[route.right][0] },
+                aspect: video.videoWidth / Math.max(1, video.videoHeight) };
+    }
+
+    const frame = BT.synthesizeFrame(
+      { t: t / 1000, pose: { world, vis }, hands, img }, calib, seq++,
+      { trackers, refine: true, scaleShape: true, fuse: !!img, elbows: true });
+    if (!frame) { R.live = false; return; }
+    R.live = true;
+
+    applyFrame(frame, world, vis);
+    readBody(world, vis);
+    if (lastHandPx) readGestures(hands, lastHandPx, t);
   }
 
-  /* Comic-book overlay: everything gets a heavy ink outline first, the colour
-     laid over it, and the joints drawn as inked dots — the same treatment as
-     the rest of the site rather than hairline debug lines. */
+  /* translation out of a row-major 4x4 as the wire carries it */
+  const mTrans = (m) => [m[3], m[7], m[11]];
+  /* the rotation part of that same row-major matrix. THREE.Matrix4.set() takes
+     its arguments in ROW order, so the wire's layout goes straight in. */
+  function mRot(m, into) {
+    return into.set(m[0], m[1], m[2], 0,
+                    m[4], m[5], m[6], 0,
+                    m[8], m[9], m[10], 0,
+                    0, 0, 0, 1);
+  }
+
+  const _tmp = new THREE.Vector3(), _q1 = new THREE.Quaternion();
+  const _m1 = new THREE.Matrix4(), _m2 = new THREE.Matrix4();
+
+  /* ARKit world point (metres, shoulder-anchored, +1.35 m standing height)
+     → the rig's world, scaled per axis in the ROBOT frame the gain is
+     defined in, then rotated into GLB axes. */
+  function toRig(p, outV) {
+    const dx = p[0], dy = p[1] - BT.ANCHOR_HEIGHT_M, dz = p[2];
+    const fwd = -dz * SCALE[0], left = -dx * SCALE[1], up = dy * SCALE[2];
+    /* forward = −X, left = +Z, up = +Y */
+    return outV.set(-fwd, up, left).add(R.shoulder);
+  }
+
+  function applyFrame(f, world, vis) {
+    ['l', 'r'].forEach((s) => {
+      const hand = s === 'l' ? f.leftHand : f.rightHand;
+      const elb = s === 'l' ? f.leftElbow : f.rightElbow;
+      const wi = s === 'l' ? PL.leftWrist : PL.rightWrist;
+      const ei = s === 'l' ? PL.leftElbow : PL.rightElbow;
+      const seen = vis && vis[wi] != null ? vis[wi] : 1;
+
+      /* The hand model gives the WRIST POSE; the pose model gives the wrist
+         POSITION. `synthesizeFrame` only emits a HandPose when it has both, so
+         with the hand model unavailable (or your hands out of frame) it hands
+         back nulls — and the arms froze. The pose wrist alone is still a real
+         absolute target, through BT's own clutch, so fall back to it and lose
+         only the orientation. */
+      if (!hand || !hand.isTracked) {
+        if (!world || !world[wi] || seen < BT.VIS_T) { relax(s, 0.07); return; }
+        toRig(BT.worldPoint(world[wi], calib.anchor, calib.scale), R.target[s]);
+        if (world[ei] && (vis[ei] == null || vis[ei] >= BT.VIS_T))
+          toRig(BT.worldPoint(world[ei], calib.anchor, calib.scale), R.elbowT[s]);
+        else R.elbowT[s].set(NaN, NaN, NaN);
+        R.wantQ[s] = null;
+        return;
+      }
+
+      toRig(mTrans(hand.anchorTransform.matrix), R.target[s]);
+      if (elb) toRig(mTrans(elb.matrix), R.elbowT[s]);
+      else R.elbowT[s].set(NaN, NaN, NaN);
+
+      /* the measured palm frame, rotated into the rig's axes. The FIRST
+         tracked frame captures the offset between it and the robot's own
+         wrist, so the hand does not snap when tracking starts — the same
+         clutch a headset session uses. */
+      const wj = hand.joints && hand.joints[0];
+      if (wj && wj.localTransform) {
+        const qr = new THREE.Quaternion().setFromRotationMatrix(
+          rotArkitToRig(mRot(wj.localTransform.matrix, _m1), _m2));
+        if (!R.offQ[s] && R.palm[s]) {
+          const cur = R.palm[s].getWorldQuaternion(new THREE.Quaternion());
+          R.offQ[s] = qr.clone().invert().premultiply(cur);   // cur = qr * off
+        }
+        R.wantQ[s] = R.offQ[s] ? qr.clone().multiply(R.offQ[s]) : qr;
+      }
+    });
+
+    /* THE GAZE. BT's head frame puts the operator's look direction on −Z
+       (AVP_GAZE_LOCAL), so the goal is the third column of the head rotation,
+       negated, carried into the rig's axes. The neck is then AIMED at it — see
+       ikDirection for why writing yaw/pitch/roll into the joints instead is
+       wrong for this particular chain. */
+    if (f.head && f.head.trackingState === 'normal' && R.gazeLocal) {
+      /* Map the gaze VECTOR, not a column of the conjugated matrix. Those are
+         different things and the difference is a 90° error: M·R·Mᵀ is the right
+         rotation in rig coordinates, but its columns are the images of the
+         RIG's basis vectors, so its third column is not the operator's −Z. The
+         gaze is a direction, so it maps with M alone. */
+      const m = f.head.transform.matrix;
+      arkitToRig(-m[2], -m[6], -m[10], R.gazeGoal).normalize();
+      aimGaze(R.gazeGoal);
+    }
+
+    /* fingers, from the tracked hand shape */
+    ['l', 'r'].forEach((s) => {
+      const px = lastHandPx && lastHandPx[s === 'l' ? 'left' : 'right'];
+      if (!px) return;
+      R.fingers[s].forEach((fg) => {
+        if (fg.f === 'thumb') return;              // the thumb needs its own map
+        const open = fingerExtended(px, fg.f);
+        const curl = open ? 0 : 1;
+        if (fg.mcp) setJoint(fg.mcp, fg.mcp.lo + (fg.mcp.hi - fg.mcp.lo) *
+                             (fg.mcp.q === 0 ? curl : lerp(norm01(fg.mcp), curl, 0.35)));
+        if (fg.pip) setJoint(fg.pip, fg.pip.lo + (fg.pip.hi - fg.pip.lo) * curl);
+      });
+    });
+  }
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const norm01 = (j) => (j.hi - j.lo > 1e-9 ? (j.q - j.lo) / (j.hi - j.lo) : 0);
+  const clampJ = (j, q) => Math.max(j.lo, Math.min(j.hi, q));
+
+  /* ── body: heading, gaze-vs-drive, and the torso lean ───────────────── */
+  function readBody(w, vis) {
+    const ls = w[PL.leftShoulder], rs = w[PL.rightShoulder];
+    const lh = w[PL.leftHip], rh = w[PL.rightHip];
+    if (!ls || !rs) return;
+
+    const yaw = Math.atan2(rs.z - ls.z, rs.x - ls.x);
+    if (psi0 === null) psi0 = yaw;
+    psi = yaw - psi0;
+    const lw = w[PL.leftWrist], rw = w[PL.rightWrist];
+    const swing = (lw && rw)
+      ? Math.min(1, Math.abs((lw.z - rw.z) / Math.max(0.08, Math.abs(lw.x - rw.x)))) : 0;
+    chi = Math.max(0, Math.min(1, Math.abs(psi) / 0.5 * (1 - swing * 0.6)));
+
+    /* TORSO. MediaPipe world is +y DOWN and +z away from the camera, so the
+       spine vector hip→shoulder has height −(sy−hy) and a forward component
+       −(sz−hz): lean toward the camera and that goes positive. The joint's
+       own range is asymmetric (−60°…+15°), which is the giveaway that
+       negative is forward — a torso bends much further forward than back. */
+    if (lh && rh && R.torso) {
+      const sy = (ls.y + rs.y) / 2, sz = (ls.z + rs.z) / 2;
+      const hy = (lh.y + rh.y) / 2, hz = (lh.z + rh.z) / 2;
+      const up = -(sy - hy), fwd = -(sz - hz);
+      const lean = Math.atan2(fwd, Math.max(0.05, up));
+      torsoDeg = lean * 180 / Math.PI;
+      setJoint(R.torso, clampJ(R.torso, -lean * 1.25));
+    }
+
+    /* the elbow angle the operator is actually holding — reported, and the
+       thing the elbow priority in the solver is tracking */
+    const e = w[PL.rightElbow], s2 = w[PL.rightShoulder], w2 = w[PL.rightWrist];
+    if (e && s2 && w2) {
+      const a = [s2.x - e.x, s2.y - e.y, s2.z - e.z];
+      const b = [w2.x - e.x, w2.y - e.y, w2.z - e.z];
+      const na = Math.hypot(...a), nb = Math.hypot(...b);
+      if (na > 1e-6 && nb > 1e-6) {
+        const c = (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (na * nb);
+        elbowDeg = Math.acos(Math.max(-1, Math.min(1, c))) * 180 / Math.PI;
+      }
+    }
+
+    const parts = BT.trackingParts(vis, { left: 1, right: 1 });
+    const reg = region.update(BT.regionForParts(parts), performance.now() / 1000);
+    elMode.textContent = chi > 0.5 ? 'intent → base would turn'
+                                   : 'gaze → neck only · ' + reg.replace('_', ' ');
+    elMode.className = 'wt-mode ' + (chi > 0.5 ? 'drive' : 'look');
+  }
+
+  function readGestures(hands, px, t) {
+    const g = readGesture(
+      { left: hands.left, right: hands.right },
+      { left: px.left, right: px.right });
+    if (g && g !== lastGesture) { sfxWord = SFX[g] || g.toUpperCase(); sfxUntil = t + 1400; }
+    lastGesture = g;
+  }
+
+  /* ── the comic overlay ────────────────────────────────────────────── */
   function inked(draw, color, w) {
     octx.lineCap = 'round'; octx.lineJoin = 'round';
     octx.strokeStyle = '#151820'; octx.lineWidth = w + 6; draw();
     octx.strokeStyle = color; octx.lineWidth = w; draw();
   }
+  const HB = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],
+              [10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],
+              [18,19],[19,20],[5,9],[9,13],[13,17]];
 
-  function drawSkeleton(lm, handSets, t) {
+  function drawSkeleton(t) {
     octx.clearRect(0, 0, overlay.width, overlay.height);
+    const lm = lastPx;
     if (!lm) return;
     const W = overlay.width, H = overlay.height;
     const P = (i) => [(1 - lm[i].x) * W, lm[i].y * H];
 
-    /* torso + arms */
-    const bones = [[11, 13], [13, 15], [12, 14], [14, 16], [11, 12], [11, 23], [12, 24], [23, 24]];
+    const bones = [[11, 13], [13, 15], [12, 14], [14, 16], [11, 12],
+                   [11, 23], [12, 24], [23, 24]];
     inked(() => {
       octx.beginPath();
       bones.forEach(([a, b]) => {
@@ -297,29 +721,31 @@ function boot(HOST) {
       octx.stroke();
     }, '#F0762E', 9);
 
-    /* the head, and where it is looking */
-    if (lm[L.nose] && lm[7] && lm[8]) {
-      const [nx, ny] = P(L.nose);
-      const [lx] = P(7), [rx] = P(8);
+    /* the spine, drawn separately because it is what moves the torso */
+    if (lm[11] && lm[12] && lm[23] && lm[24]) {
+      const sx = (P(11)[0] + P(12)[0]) / 2, sy = (P(11)[1] + P(12)[1]) / 2;
+      const hx = (P(23)[0] + P(24)[0]) / 2, hy = (P(23)[1] + P(24)[1]) / 2;
+      inked(() => { octx.beginPath(); octx.moveTo(hx, hy); octx.lineTo(sx, sy); octx.stroke(); },
+            '#23577E', 7);
+    }
+
+    if (lm[PL.nose] && lm[7] && lm[8]) {
+      const [nx, ny] = P(PL.nose), [lx] = P(7), [rx] = P(8);
       const r = Math.max(16, Math.abs(rx - lx) * 0.7);
       octx.beginPath(); octx.arc(nx, ny, r, 0, 6.283);
       octx.fillStyle = 'rgba(253,246,226,0.9)'; octx.fill();
       octx.strokeStyle = '#151820'; octx.lineWidth = 5; octx.stroke();
       const gaze = ((lx + rx) / 2 - nx) / Math.max(1, r);
       inked(() => {
-        octx.beginPath();
-        octx.moveTo(nx, ny);
-        octx.lineTo(nx - gaze * r * 2.6, ny + r * 0.5);
-        octx.stroke();
+        octx.beginPath(); octx.moveTo(nx, ny);
+        octx.lineTo(nx - gaze * r * 2.6, ny + r * 0.5); octx.stroke();
       }, '#2E7D4F', 6);
     }
 
-    /* the hands, when the hand model has them */
-    if (handSets && handSets.length) {
-      const HB = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],
-                  [10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],
-                  [18,19],[19,20],[5,9],[9,13],[13,17]];
-      handSets.forEach((hand) => {
+    if (lastHandPx) {
+      ['left', 'right'].forEach((side) => {
+        const hand = lastHandPx[side];
+        if (!hand) return;
         inked(() => {
           octx.beginPath();
           HB.forEach(([a, b]) => {
@@ -329,10 +755,16 @@ function boot(HOST) {
           });
           octx.stroke();
         }, '#F2C94C', 5);
+        [4, 8, 12, 16, 20].forEach((i) => {
+          if (!hand[i]) return;
+          octx.beginPath();
+          octx.arc((1 - hand[i].x) * W, hand[i].y * H, 5, 0, 6.283);
+          octx.fillStyle = '#FDF6E2'; octx.fill();
+          octx.strokeStyle = '#151820'; octx.lineWidth = 3; octx.stroke();
+        });
       });
     }
 
-    /* inked joints — the wrists in green, because they drive the robot */
     [11, 12, 13, 14, 15, 16].forEach((i) => {
       if (!lm[i]) return;
       const [x, y] = P(i);
@@ -341,117 +773,107 @@ function boot(HOST) {
       octx.fill(); octx.strokeStyle = '#151820'; octx.lineWidth = 4; octx.stroke();
     });
 
-    /* the reaction */
     if (t < sfxUntil && sfxWord) {
-      const k = 1 - (sfxUntil - t) / 1200;
+      const k = 1 - (sfxUntil - t) / 1400;
       octx.save();
-      octx.translate(W * 0.5, H * 0.2 - k * 18);
-      octx.rotate(-0.12);
-      octx.font = '700 ' + Math.round(H * 0.14) + 'px Bangers, Impact, sans-serif';
+      octx.translate(W * 0.5, H * 0.22 - k * 20);
+      octx.rotate(-0.1 + Math.sin(k * 9) * 0.02);
+      octx.font = '700 ' + Math.round(H * 0.15) + 'px Bangers, Impact, sans-serif';
       octx.textAlign = 'center';
-      octx.lineWidth = 10; octx.strokeStyle = '#151820';
-      octx.strokeText(sfxWord, 0, 0);
+      octx.lineWidth = 10; octx.strokeStyle = '#151820'; octx.strokeText(sfxWord, 0, 0);
       octx.fillStyle = '#F2C94C'; octx.fillText(sfxWord, 0, 0);
       octx.restore();
     }
   }
 
+  /* ── loop ─────────────────────────────────────────────────────────── */
   function step(t) {
     requestAnimationFrame(step);
-    if (running && landmarker && video.readyState >= 2 &&
-        t - lastInfer >= 1000 / INFER_HZ) {
+    if (running && poser && video.readyState >= 2 && t - lastInfer >= 1000 / INFER_HZ) {
       lastInfer = t;
-      try {
-        const res = landmarker.detectForVideo(video, t);
-        lastPose = (res.worldLandmarks && res.worldLandmarks[0]) || null;
-        lastPx = (res.landmarks && res.landmarks[0]) || null;
-        if (hands) {
-          const hr = hands.detectForVideo(video, t);
-          lastHands = (hr && hr.landmarks) || null;
-        }
-      } catch (e) { /* a dropped frame is not worth killing the loop over */ }
-      if (lastPose) mapPose(lastPose);
-      if (lastPx) readGesture(lastPx, t);
-      drawSkeleton(lastPx, lastHands, t);
+      try { infer(t); } catch (e) { /* a dropped frame is not worth the loop */ }
+      drawSkeleton(t);
     }
-    if (ready) {
+    if (R.ready) {
+      let res = 0, n = 0;
       ['l', 'r'].forEach((s) => {
-        if (!ee[s]) return;
-        ik(s, target[s], 0.45, 2);
-        if (dot[s]) dot[s].position.copy(target[s]);
+        if (!R.palm[s]) return;
+        if (R.live) {
+          if (Number.isFinite(R.elbowT[s].x) && R.elbow[s])
+            ikPosition(R.chain[s].slice(0, 3), R.elbow[s], R.elbowT[s], 0.18, 1);
+          ikPosition(R.chain[s], R.palm[s], R.target[s], 0.45, 2);
+          ikOrientation(R.chain[s], R.palm[s], R.wantQ[s], 0.35, 1);
+          R.palm[s].getWorldPosition(_tmp);
+          res += _tmp.distanceTo(R.target[s]); n++;
+        }
+        if (R.dot[s]) R.dot[s].position.copy(R.target[s]);
+        if (R.axes[s]) {
+          R.axes[s].position.copy(R.target[s]);
+          if (R.wantQ[s]) R.axes[s].quaternion.copy(R.wantQ[s]);
+        }
       });
+      if (n) resMm = resMm * 0.8 + (res / n) * 1000 * 0.2;
+      if (controls) controls.update();
       renderer.render(scene, camera);
     }
     if (lastT) fps = fps * 0.9 + (1000 / Math.max(1, t - lastT)) * 0.1;
     lastT = t;
-    elFps.textContent = fps ? fps.toFixed(0) : '—';
-  }
-
-  /* ── what your body is doing, in comic terms ──────────────────────────
-     Read off the pixel landmarks, which are already normalised to the frame,
-     so the tests are resolution-independent. */
-  function readGesture(p, t) {
-    const N = L, up = (w, s) => p[w] && p[s] && p[w].y < p[s].y - 0.06;
-    const lUp = up(N.lWrist, N.lShoulder), rUp = up(N.rWrist, N.rShoulder);
-    const span = (p[N.lWrist] && p[N.rWrist])
-      ? Math.abs(p[N.lWrist].x - p[N.rWrist].x) : 0;
-    const together = span > 0 && span < 0.10;
-    let g = '';
-    if (lUp && rUp) g = span > 0.45 ? 'TA-DA!' : 'HANDS UP!';
-    else if (lUp || rUp) g = 'WAVE~~';
-    else if (together) g = 'CLAP!';
-    if (g && g !== gesture) { sfxWord = g; sfxUntil = t + 1200; }
-    gesture = g;
-  }
-
-  function mapPose(w) {
-    const ls = w[L.lShoulder], rs = w[L.rShoulder];
-    if (!ls || !rs) return;
-    /* anchor at the shoulder centre and scale by the operator's own build,
-       so a tall and a short person drive the robot the same way */
-    const anchor = { x: (ls.x + rs.x) / 2, y: (ls.y + rs.y) / 2, z: (ls.z + rs.z) / 2 };
-    const span = Math.hypot(ls.x - rs.x, ls.y - rs.y, ls.z - rs.z) || 0.38;
-    const k = SHOULDER_W / span;
-
-    /* the torso frame, fit from the shoulder line — the same quantity the
-       paper recovers analytically from head + wrists */
-    const yaw = Math.atan2(rs.z - ls.z, rs.x - ls.x);
-    if (psi0 === null) psi0 = yaw;
-    psi = yaw - psi0;
-
-    /* chi: how much of that yaw is body rotation rather than a glance. Both
-       wrists swinging with the shoulders is intent; a still torso is gaze. */
-    const lw = w[L.lWrist], rw = w[L.rWrist];
-    const swing = (lw && rw)
-      ? Math.min(1, Math.abs((lw.z - rw.z) / Math.max(0.08, Math.abs(lw.x - rw.x))))
-      : 0;
-    chi = Math.max(0, Math.min(1, Math.abs(psi) / 0.5 * (1 - swing * 0.6)));
-
-    elPsi.textContent = (psi * 180 / Math.PI).toFixed(0) + '°';
-    elChi.textContent = chi.toFixed(2);
-    elMode.textContent = chi > 0.5 ? 'intent → base would turn' : 'gaze → neck only';
-    elMode.className = 'rc-mode ' + (chi > 0.5 ? 'drive' : 'look');
-
-    /* the neck follows your head: yaw from the ear/nose offset, pitch from
-       how far the nose sits below the shoulder line */
-    const nose = w[L.nose], ls2 = w[L.lShoulder], rs2 = w[L.rShoulder];
-    if (nose && head3 && ls2 && rs2) {
-      const mid = { x: (ls2.x + rs2.x) / 2, y: (ls2.y + rs2.y) / 2, z: (ls2.z + rs2.z) / 2 };
-      const yaw = Math.max(-0.8, Math.min(0.8, -(nose.x - mid.x) * k * 3.2));
-      const pitch = Math.max(-0.5, Math.min(0.5, (nose.y - mid.y) * k * 2.4 + 0.15));
-      head3.rotation.set(pitch * 0.6, yaw, 0);
+    if (running) {
+      out.fps.textContent = fps ? fps.toFixed(0) : '—';
+      const p = R.target.r.clone().sub(R.shoulder);
+      out.wrist.textContent = R.live
+        ? `${(-p.x).toFixed(2)} ${p.z.toFixed(2)} ${p.y.toFixed(2)}` : '—';
+      out.elbow.textContent = R.live ? elbowDeg.toFixed(0) + '°' : '—';
+      out.torso.textContent = R.live ? torsoDeg.toFixed(0) + '°' : '—';
+      out.res.textContent = R.live ? resMm.toFixed(0) + ' mm' : '—';
+      out.psi.textContent = R.live ? (psi * 180 / Math.PI).toFixed(0) + '°' : '—';
+      out.chi.textContent = R.live ? chi.toFixed(2) : '—';
     }
-
-    /* mirror image: your right hand drives the robot's right hand as you see it */
-    ['l', 'r'].forEach((s) => {
-      const p = w[s === 'l' ? L.lWrist : L.rWrist];
-      if (!p || !ee[s]) return;
-      const dx = (p.x - anchor.x) * k, dy = (p.y - anchor.y) * k, dz = (p.z - anchor.z) * k;
-      /* MediaPipe: +x right, +y DOWN, +z toward camera. Robot: +y up, and the
-         model faces -Z, so depth flips sign. */
-      target[s].set(home[s].x - dx, home[s].y - dy, home[s].z - dz);
-    });
   }
+
+  /* test hook — scripts/camtest.py drives the retarget path with recorded
+     landmarks so the mapping can be checked without a camera */
+  window.__wt = {
+    rig: R, applyFrame, toRig, arkitToRig, BT,
+    feed: function (world, vis, hands, px) {
+      calib = BT.computeAnchor(world, vis);
+      if (!calib) return null;
+      /* every probe starts from the rest pose, so a test measures the mapping
+         and not the order the probes happened to run in */
+      ['l', 'r'].forEach((s) => R.chain[s].forEach((j) => setJoint(j, 0)));
+      if (R.torso) setJoint(R.torso, 0);
+      const f = BT.synthesizeFrame({ t: 0, pose: { world, vis }, hands: hands || {} },
+                                   calib, 0, { refine: true, scaleShape: true, elbows: true });
+      if (!f) return null;
+      lastHandPx = px || null;
+      R.live = true;
+      applyFrame(f, world, vis);
+      readBody(world, vis);
+      ['l', 'r'].forEach((s) => {
+        if (!R.palm[s]) return;
+        ikPosition(R.chain[s], R.palm[s], R.target[s], 0.6, 24);
+      });
+      const g = (s) => {
+        const v = new THREE.Vector3();
+        R.palm[s].getWorldPosition(v);
+        return { target: R.target[s].toArray(), palm: v.toArray(),
+                 err: v.distanceTo(R.target[s]) };
+      };
+      let gaze = null;
+      if (R.headNode && R.gazeLocal) {
+        R.headNode.updateMatrixWorld(true);
+        gaze = R.gazeLocal.clone()
+          .applyQuaternion(R.headNode.getWorldQuaternion(new THREE.Quaternion()))
+          .normalize().toArray();
+      }
+      return { l: g('l'), r: g('r'), torsoDeg, elbowDeg,
+               torsoQ: R.torso ? R.torso.q : null,
+               gaze, gazeGoal: R.gazeGoal ? R.gazeGoal.toArray() : null,
+               neck: { yaw: R.neck.yaw ? R.neck.yaw.q : null,
+                       pitch: R.neck.pitch ? R.neck.pitch.q : null,
+                       roll: R.neck.roll ? R.neck.roll.q : null } };
+    }
+  };
 
   resize();
   requestAnimationFrame(step);

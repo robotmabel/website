@@ -3194,78 +3194,6 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .bom-toggle button.on { background: var(--yellow); }
 .bom-toggle button:hover:not(.on) { background: #FFF3D0; }
 
-/* ═══ Webcam retargeting demo ═══
-   The robot is the subject and takes the room; the controls and the camera
-   feed stack beside it, the way the compliance viewer is laid out. */
-.rc-grid { display: grid; grid-template-columns: 1fr minmax(240px, 320px); gap: 14px;
-  align-items: start; }
-@media (max-width: 860px) { .rc-grid { grid-template-columns: 1fr; } }
-.rc-grid > * { min-width: 0; }
-
-.rc-rig { position: relative; border: 3px solid var(--ink); border-radius: 8px;
-  overflow: hidden; background: var(--bone); box-shadow: 6px 6px 0 var(--ink);
-  aspect-ratio: 4 / 3; }
-.dark-sec .rc-rig { box-shadow: 6px 6px 0 rgba(0,0,0,0.8); border-color: var(--gold);
-  background: #171A24; }
-.rc-3d { width: 100%; height: 100%; display: block; }
-
-.rc-side { display: flex; flex-direction: column; gap: 12px; }
-.rc-panel { border: 3px solid var(--ink); border-radius: 8px; background: var(--panel);
-  box-shadow: 6px 6px 0 var(--ink); padding: 14px; }
-.dark-sec .rc-panel { box-shadow: 6px 6px 0 rgba(0,0,0,0.8); }
-.rc-panel-head { display: flex; align-items: baseline; justify-content: space-between;
-  margin-bottom: 10px; }
-.rc-panel-title { font-family: var(--font-comic); font-size: 15px; letter-spacing: 0.05em;
-  color: var(--ink); }
-.rc-state { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em;
-  color: var(--ash); text-align: right; max-width: 60%; }
-.rc-state.bad { color: var(--rust); }
-
-.rc-seg { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink);
-  border-radius: 7px; overflow: hidden; box-shadow: 3px 3px 0 var(--ink); }
-.rc-btn { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.05em;
-  padding: 9px 10px; border: none; cursor: pointer; background: var(--bone);
-  color: var(--ink); transition: background 0.18s ease; }
-.rc-btn + .rc-btn { border-left: 2px solid var(--ink); }
-.rc-btn.on { background: var(--yellow); }
-.rc-btn:hover:not(.on) { background: #FFF3D0; }
-.rc-priv { margin: 10px 0 0; font-size: 11px; line-height: 1.55; color: var(--ash); }
-
-.rc-hud { display: flex; flex-direction: column; gap: 5px; margin-top: 11px; }
-.rc-hud span { display: flex; justify-content: space-between; align-items: baseline;
-  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.05em; color: var(--ash);
-  border-top: 1px solid rgba(21,24,32,0.14); padding-top: 5px; }
-.rc-hud b { font-family: var(--font-display); font-size: 14px; color: var(--rust); }
-
-.rc-cam { position: relative; border: 3px solid var(--ink); border-radius: 8px;
-  overflow: hidden; background: #0B0E15; box-shadow: 6px 6px 0 var(--ink);
-  aspect-ratio: 4 / 3; }
-.dark-sec .rc-cam { box-shadow: 6px 6px 0 rgba(0,0,0,0.8); border-color: var(--gold); }
-.rc-video { width: 100%; height: 100%; object-fit: cover; display: block;
-  transform: scaleX(-1); background: #0B0E15; }
-.rc-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.rc-idle { position: absolute; inset: 0; display: grid; place-items: center;
-  background: repeating-linear-gradient(45deg,#1B1F2B 0 14px,#171A24 14px 28px); }
-.rc-idle[hidden] { display: none; }
-.rc-idle-word { font-family: var(--font-comic); font-size: clamp(15px, 2.4vw, 22px);
-  color: var(--yellow); -webkit-text-stroke: 2px var(--ink); letter-spacing: 0.05em; }
-
-.rc-badge { position: absolute; top: 9px; left: 9px; font-family: var(--font-comic);
-  font-size: 12px; letter-spacing: 0.1em; padding: 3px 9px; color: var(--ink);
-  background: var(--yellow); border: 2px solid var(--ink); border-radius: 4px; }
-.rc-badge.alt { background: var(--orange); color: #FFF9F0; }
-.rc-verdict { position: absolute; left: 9px; bottom: 9px; }
-.rc-mode { font-family: var(--font-comic); font-size: 13px; letter-spacing: 0.05em;
-  padding: 5px 11px; border: 2px solid var(--ink); border-radius: 4px;
-  background: var(--bone); color: var(--ink); }
-.rc-mode.look { background: var(--green); color: #FFF6E4; }
-.rc-mode.drive { background: var(--blue); color: #FFF6E4; }
-.rc-note { margin: 12px 0 0; font-family: var(--font-mono); font-size: 11px;
-  line-height: 1.6; color: var(--ash); }
-.dark-sec .rc-note { color: var(--ash-light); }
-.rc-note a { color: var(--rust); }
-.dark-sec .rc-note a { color: var(--yellow); }
-
 /* ═══ Architecture explorer — same book as everything else ═══
    It shipped with hairline borders, 18 px radii and white tabs, which read as
    a different product bolted onto the page. Ink lines, a hard shadow, comic
@@ -3310,10 +3238,11 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .tl-reset:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--ink); }
 
 /* the three interactive blocks sit centred in their column */
-.tl-wrap, .rc-grid, .eq-card { margin-left: auto; margin-right: auto; }
+.tl-wrap, .wt-grid, .eq-card { margin-left: auto; margin-right: auto; }
 .tl-wrap { max-width: 1120px; }
 .eq-card { max-width: 900px; }
-#retargetCam { max-width: 1120px; margin-left: auto; margin-right: auto; }
+#retargetCam, [data-retarget-cam] { max-width: 1120px;
+  margin-left: auto; margin-right: auto; }
 /* the rig layer sits over the hand-drawn city, both inside the stage */
 .tl-stage { position: relative; }
 .tl-canvas { position: absolute; inset: 0; }
@@ -3368,3 +3297,178 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .scene-grid > *:nth-child(4n+2) { box-shadow: 4px 4px 0 var(--yellow); }
 .scene-grid > *:nth-child(4n+3) { box-shadow: 4px 4px 0 var(--blue); }
 .scene-grid > *:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
+
+/* ── glass-to-glass latency breakdown (teleop) ──────────────────────────────
+   One stacked bar per transport, each block a real measured stage. The bar is
+   a row of buttons rather than an SVG so it is hoverable, tappable AND
+   tab-reachable without a second implementation. */
+.lat-bars{position:relative;background:var(--panel);border:3px solid var(--ink);
+  border-radius:18px;box-shadow:8px 8px 0 rgba(21,24,32,.9);
+  padding:clamp(18px,2.6vw,30px);}
+.lb-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;
+  margin-bottom:clamp(14px,2vw,22px);}
+.lb-title{font-family:Bangers,cursive;font-size:clamp(20px,2.4vw,27px);
+  letter-spacing:1px;color:var(--orange);line-height:1;}
+.lb-sub{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);}
+.lb-rows{display:grid;gap:clamp(12px,1.8vw,18px);}
+.lb-row{display:grid;grid-template-columns:minmax(120px,150px) 1fr auto;
+  gap:clamp(10px,1.4vw,16px);align-items:center;}
+.lb-label b{display:block;font-family:Jost,sans-serif;font-weight:700;
+  font-size:14px;color:var(--ink);line-height:1.2;}
+.lb-label i{display:block;font-family:'Space Mono',monospace;font-style:normal;
+  font-size:10.5px;color:var(--muted);line-height:1.35;margin-top:3px;}
+.lb-track{display:flex;height:38px;border:3px solid var(--ink);border-radius:7px;
+  overflow:hidden;background:var(--bone);}
+.lb-seg{flex:0 0 auto;border:0;border-right:2px solid rgba(21,24,32,.55);
+  padding:0;cursor:pointer;position:relative;min-width:3px;
+  transition:opacity .14s ease,filter .14s ease;}
+.lb-seg:last-child{border-right:0;}
+.lb-seg span{display:block;font-family:'Space Mono',monospace;font-size:10px;
+  font-weight:700;color:#FFF9F0;text-shadow:0 1px 0 rgba(21,24,32,.7);
+  letter-spacing:.4px;overflow:hidden;white-space:nowrap;}
+.lb-seg:hover,.lb-seg:focus-visible{filter:brightness(1.15);outline:0;}
+.lb-seg:focus-visible{box-shadow:inset 0 0 0 3px var(--yellow);}
+.lb-seg.dim{opacity:.34;}
+.lb-total{font-family:'Space Mono',monospace;font-weight:700;font-size:15px;
+  color:var(--rust);white-space:nowrap;}
+.lb-key{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:clamp(14px,2vw,20px);}
+.lb-k{display:inline-flex;align-items:center;gap:6px;
+  font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);}
+.lb-k i{width:12px;height:12px;border:2px solid var(--ink);border-radius:3px;}
+.lb-foot{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);
+  margin:10px 0 0;}
+.lb-foot code{font-size:10.5px;background:rgba(21,24,32,.06);padding:1px 5px;
+  border-radius:4px;}
+.lb-tip{position:absolute;z-index:6;width:min(320px,74vw);pointer-events:none;
+  background:var(--ink);color:#FFF9F0;border:3px solid var(--ink);
+  border-radius:12px;padding:12px 14px;box-shadow:6px 6px 0 rgba(21,24,32,.35);}
+.lb-tip span{display:block;}
+.lb-tip-path{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;
+  text-transform:uppercase;color:rgba(255,249,240,.6);}
+.lb-tip-stage{font-family:Bangers,cursive;font-size:19px;letter-spacing:1px;
+  line-height:1.1;margin-top:2px;}
+.lb-tip-ms{font-family:'Space Mono',monospace;font-weight:700;font-size:22px;
+  color:var(--yellow);line-height:1.2;}
+.lb-tip-share{font-family:'Space Mono',monospace;font-size:10.5px;
+  color:rgba(255,249,240,.65);margin-bottom:7px;}
+.lb-tip-what{font-family:Jost,sans-serif;font-size:12.5px;line-height:1.45;}
+.lb-tip-note{font-family:Jost,sans-serif;font-size:12px;line-height:1.45;
+  margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,249,240,.22);
+  color:var(--yellow);}
+@media (max-width:620px){
+  .lb-row{grid-template-columns:1fr auto;grid-template-areas:"l t" "b b";}
+  .lb-label{grid-area:l;} .lb-total{grid-area:t;} .lb-track{grid-area:b;height:32px;}
+  .lb-seg span{display:none;}
+}
+
+/* ═══ Webcam retargeting demo ═══
+   Prefixed `wt-` on purpose. The first version used `rc-`, which an older
+   dark control panel higher up this file already owns; `.rc-seg button` there
+   sets a pale bone text colour, so it won over `.rc-btn` on specificity and
+   the OFF/ON labels rendered invisible on a light panel. Renaming ends the
+   collision rather than out-specifying it. */
+.wt-grid { display: grid; grid-template-columns: 1fr minmax(250px, 330px);
+  gap: 14px; align-items: stretch; }
+@media (max-width: 900px) { .wt-grid { grid-template-columns: 1fr; } }
+.wt-grid > * { min-width: 0; }
+
+/* The rig fills the row rather than holding a 4:3 box: the readouts, camera
+   and gesture card together are taller than 4:3, and pinning the aspect left
+   a third of the panel as empty background. */
+.wt-rig { position: relative; border: 3px solid var(--ink); border-radius: 8px;
+  overflow: hidden; background: var(--bone); box-shadow: 6px 6px 0 var(--ink);
+  min-height: 460px; touch-action: none; cursor: grab; }
+@media (max-width: 900px) { .wt-rig { aspect-ratio: 4 / 3; min-height: 0; } }
+.wt-rig:active { cursor: grabbing; }
+.dark-sec .wt-rig { box-shadow: 6px 6px 0 rgba(0,0,0,0.8); border-color: var(--gold);
+  background: #171A24; }
+.wt-3d { width: 100%; height: 100%; display: block; }
+.wt-hint { position: absolute; right: 10px; top: 10px; font-family: var(--font-mono);
+  font-size: 9.5px; letter-spacing: 0.04em; color: var(--ash);
+  background: rgba(253,246,226,0.82); border: 2px solid var(--ink);
+  border-radius: 5px; padding: 3px 8px; pointer-events: none; }
+.dark-sec .wt-hint { background: rgba(23,26,36,0.85); color: var(--ash-light);
+  border-color: var(--gold); }
+.wt-view { position: absolute; right: 10px; bottom: 10px; font-family: var(--font-comic);
+  font-size: 11px; letter-spacing: 0.05em; padding: 5px 11px; cursor: pointer;
+  border: 2px solid var(--ink); border-radius: 5px; background: var(--bone);
+  color: var(--ink); box-shadow: 3px 3px 0 var(--ink); transition: transform .14s ease; }
+.wt-view:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--ink); }
+
+.wt-side { display: flex; flex-direction: column; gap: 12px; }
+.wt-panel { border: 3px solid var(--ink); border-radius: 8px; background: var(--panel);
+  box-shadow: 6px 6px 0 var(--ink); padding: 14px; }
+.dark-sec .wt-panel { box-shadow: 6px 6px 0 rgba(0,0,0,0.8); }
+.wt-panel-head { display: flex; align-items: baseline; justify-content: space-between;
+  gap: 8px; margin-bottom: 10px; }
+.wt-panel-title { font-family: var(--font-comic); font-size: 15px;
+  letter-spacing: 0.05em; color: var(--ink); }
+.wt-state { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em;
+  color: var(--ash); text-align: right; max-width: 62%; }
+.wt-state.bad { color: var(--rust); }
+
+.wt-seg { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink);
+  border-radius: 7px; overflow: hidden; box-shadow: 3px 3px 0 var(--ink); }
+.wt-btn { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.05em;
+  padding: 9px 10px; border: none; cursor: pointer; background: var(--bone);
+  color: var(--ink); transition: background 0.18s ease; }
+.wt-btn + .wt-btn { border-left: 2px solid var(--ink); }
+.wt-btn.on { background: var(--yellow); color: var(--ink); }
+.wt-btn:hover:not(.on) { background: #FFF3D0; }
+.wt-recal { width: 100%; margin-top: 9px; font-family: var(--font-comic);
+  font-size: 12px; letter-spacing: 0.05em; padding: 8px 10px; cursor: pointer;
+  border: 2px solid var(--ink); border-radius: 7px; background: var(--bone);
+  color: var(--ink); box-shadow: 3px 3px 0 var(--ink);
+  transition: transform .14s ease, opacity .14s ease; }
+.wt-recal:hover:not(:disabled) { transform: translate(-2px,-2px);
+  box-shadow: 5px 5px 0 var(--ink); }
+.wt-recal:disabled { opacity: 0.4; cursor: default; box-shadow: 2px 2px 0 var(--ink); }
+.wt-priv { margin: 10px 0 0; font-size: 11px; line-height: 1.55; color: var(--ash); }
+
+.wt-hud { display: flex; flex-direction: column; gap: 4px; margin-top: 11px; }
+.wt-hud span { display: flex; justify-content: space-between; align-items: baseline;
+  gap: 10px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.04em;
+  color: var(--ash); border-top: 1px solid rgba(21,24,32,0.14); padding-top: 4px; }
+.wt-hud b { font-family: var(--font-display); font-size: 14px; color: var(--rust);
+  white-space: nowrap; }
+
+.wt-cam { position: relative; border: 3px solid var(--ink); border-radius: 8px;
+  overflow: hidden; background: #0B0E15; box-shadow: 6px 6px 0 var(--ink);
+  aspect-ratio: 4 / 3; }
+.dark-sec .wt-cam { box-shadow: 6px 6px 0 rgba(0,0,0,0.8); border-color: var(--gold); }
+.wt-video { width: 100%; height: 100%; object-fit: cover; display: block;
+  transform: scaleX(-1); background: #0B0E15; }
+.wt-overlay { position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; }
+.wt-idle { position: absolute; inset: 0; display: grid; place-items: center;
+  background: repeating-linear-gradient(45deg,#1B1F2B 0 14px,#171A24 14px 28px); }
+.wt-idle[hidden] { display: none; }
+.wt-idle-word { font-family: var(--font-comic); font-size: clamp(15px, 2.4vw, 22px);
+  color: var(--yellow); -webkit-text-stroke: 2px var(--ink); letter-spacing: 0.05em; }
+
+.wt-badge { position: absolute; top: 9px; left: 9px; font-family: var(--font-comic);
+  font-size: 12px; letter-spacing: 0.1em; padding: 3px 9px; color: var(--ink);
+  background: var(--yellow); border: 2px solid var(--ink); border-radius: 4px; }
+.wt-badge.alt { background: var(--orange); color: #FFF9F0; }
+.wt-verdict { position: absolute; left: 9px; bottom: 9px; }
+.wt-mode { font-family: var(--font-comic); font-size: 13px; letter-spacing: 0.05em;
+  padding: 5px 11px; border: 2px solid var(--ink); border-radius: 4px;
+  background: var(--bone); color: var(--ink); }
+.wt-mode.look { background: var(--green); color: #FFF6E4; }
+.wt-mode.drive { background: var(--blue); color: #FFF6E4; }
+
+.wt-ges { border: 2px dashed var(--ink); border-radius: 8px; padding: 9px 11px;
+  display: flex; flex-direction: column; gap: 3px; }
+.dark-sec .wt-ges { border-color: rgba(217,161,63,0.55); }
+.wt-ges-lab { font-family: var(--font-comic); font-size: 12px; letter-spacing: 0.06em;
+  color: var(--orange); }
+.wt-ges-list { font-family: var(--font-mono); font-size: 11px; color: var(--ash);
+  line-height: 1.5; }
+.dark-sec .wt-ges-list { color: var(--ash-light); }
+
+.wt-note { margin: 12px 0 0; font-family: var(--font-mono); font-size: 11px;
+  line-height: 1.6; color: var(--ash); }
+.dark-sec .wt-note { color: var(--ash-light); }
+.wt-note code { font-size: 10.5px; background: rgba(21,24,32,0.07);
+  padding: 1px 5px; border-radius: 4px; }
+.dark-sec .wt-note code { background: rgba(255,255,255,0.09); }

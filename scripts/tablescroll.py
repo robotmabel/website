@@ -38,7 +38,17 @@ async def go():
         await cmd("Emulation.setDeviceMetricsOverride",
                   {"width":390,"height":844,"deviceScaleFactor":2,"mobile":True})
         for url in sys.argv[1:]:
-            await cmd("Page.navigate",{"url":url}); await asyncio.sleep(3.0)
+            await cmd("Page.navigate",{"url":url}); await asyncio.sleep(1.2)
+            # Wait for the WEBFONTS, not for a stopwatch. The fallback faces are
+            # wider than Jost/Space Mono, so measuring mid-swap reports a table
+            # as overflowing by a few tens of px and the check flakes.
+            for _ in range(30):
+                r=await cmd("Runtime.evaluate",{
+                    "expression":"document.fonts.status==='loaded' && document.readyState==='complete'",
+                    "returnByValue":True,"awaitPromise":False})
+                if r["result"]["result"].get("value"): break
+                await asyncio.sleep(0.3)
+            await asyncio.sleep(0.6)
             r=await cmd("Runtime.evaluate",{"expression":CHECK,"returnByValue":True})
             d=json.loads(r["result"]["result"]["value"])
             page=url.rsplit('/',1)[-1]

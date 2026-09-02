@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=034e6d78" />
+<link rel="stylesheet" href="assets/mabel.css?v=224c28ba" />
 <link rel="stylesheet" href="assets/teleop-app.css?v=20260630-balldrag" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
@@ -377,81 +377,7 @@
     <div class="rg-wrap fade-up" style="margin-bottom:clamp(24px,3vh,38px);">
       <div id="reachGlobe"></div>
     </div>
-    <div class="paper-grid fade-up">
-      <div>
-        <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 920 292" role="img" aria-label="Glass-to-glass video latency: 49 ms on host, 82 on LAN, 362 over the public relay" style="width:100%;height:auto;display:block;"><text x="30" y="34" font-family="Bangers, cursive" font-size="21" fill="#F0762E" letter-spacing="1">GLASS TO GLASS</text><text x="30" y="92" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#151820">HOST</text><rect x="196" y="66" width="93" height="38" rx="5" fill="#2E7D4F" stroke="#151820" stroke-width="3"/><text x="293" y="92" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">49 ms</text><text x="30" y="156" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#151820">LAN</text><rect x="196" y="130" width="156" height="38" rx="5" fill="#23577E" stroke="#151820" stroke-width="3"/><text x="356" y="156" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">82 ms</text><text x="30" y="220" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#151820">PUBLIC RELAY</text><rect x="196" y="194" width="688" height="38" rx="5" fill="#F0762E" stroke="#151820" stroke-width="3"/><text x="888" y="220" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">362 ms</text><line x1="196" y1="60" x2="196" y2="252" stroke="#151820" stroke-width="3.5"/><text x="30" y="276" font-family="'Space Mono', monospace" font-size="12" fill="#6D6551">camera photon → headset pixel, measured end to end</text></svg></div>
-</div>
-      <div>
-        <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 820 360" role="img" aria-label="A headset reports the head and both wrists; a closed-form fit recovers the operator's torso frame; looking moves the neck while turning the body drives the base" style="width:100%;height:auto;display:block;">
-<defs>
-  <marker id="rtA" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#151820"/></marker>
-  <marker id="rtG" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#2E7D4F"/></marker>
-  <marker id="rtB" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#23577E"/></marker>
-</defs>
-
-<text x="30" y="30" font-family="Bangers, cursive" font-size="15" fill="#F0762E" letter-spacing="1">WHAT THE HEADSET SEES</text>
-<g font-family="'Space Mono', monospace" font-size="12.5" fill="#151820">
-  <rect x="30" y="46" width="150" height="40" rx="7" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
-  <text x="105" y="71" text-anchor="middle">your head</text>
-  <rect x="30" y="96" width="150" height="40" rx="7" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
-  <text x="105" y="121" text-anchor="middle">left wrist</text>
-  <rect x="30" y="146" width="150" height="40" rx="7" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
-  <text x="105" y="171" text-anchor="middle">right wrist</text>
-</g>
-<text x="105" y="208" font-family="'Space Mono', monospace" font-size="10.5" fill="#C6301A" text-anchor="middle">it never sees your torso</text>
-
-<g stroke="#D9A13F" stroke-width="2.5" fill="none" marker-end="url(#rtA)">
-  <path d="M180 66 C222 66 226 104 268 114"/>
-  <path d="M180 116 H268"/>
-  <path d="M180 166 C222 166 226 128 268 118"/>
-</g>
-
-<text x="290" y="30" font-family="Bangers, cursive" font-size="15" fill="#F0762E" letter-spacing="1">WE WORK IT OUT</text>
-<rect x="290" y="46" width="200" height="140" rx="10" fill="#F0762E" stroke="#151820" stroke-width="3"/>
-<text x="390" y="88" font-family="Bangers, cursive" font-size="21" fill="#FFF9F0" text-anchor="middle" letter-spacing="1">WHICH WAY</text>
-<text x="390" y="112" font-family="Bangers, cursive" font-size="21" fill="#FFF9F0" text-anchor="middle" letter-spacing="1">YOUR BODY FACES</text>
-<text x="390" y="142" font-family="'Space Mono', monospace" font-size="11" fill="#3A1E10" text-anchor="middle">solved directly from those</text>
-<text x="390" y="160" font-family="'Space Mono', monospace" font-size="11" fill="#3A1E10" text-anchor="middle">three, every frame</text>
-<text x="390" y="208" font-family="'Space Mono', monospace" font-size="10.5" fill="#6D6551" text-anchor="middle">no waist tracker · no calibration pose · no learning</text>
-
-<path d="M490 116 H556" stroke="#151820" stroke-width="2.5" marker-end="url(#rtA)"/>
-
-<text x="566" y="30" font-family="Bangers, cursive" font-size="15" fill="#F0762E" letter-spacing="1">SO IT KNOWS WHAT YOU MEANT</text>
-<g>
-  <rect x="566" y="52" width="224" height="56" rx="8" fill="#E9F2EA" stroke="#2E7D4F" stroke-width="2.5"/>
-  <text x="678" y="76" font-family="Bangers, cursive" font-size="17" fill="#2E7D4F" text-anchor="middle" letter-spacing="1">GLANCE SIDEWAYS</text>
-  <text x="678" y="96" font-family="'Space Mono', monospace" font-size="11" fill="#3B5B45" text-anchor="middle">only the neck turns</text>
-
-  <rect x="566" y="124" width="224" height="56" rx="8" fill="#E4ECF3" stroke="#23577E" stroke-width="2.5"/>
-  <text x="678" y="148" font-family="Bangers, cursive" font-size="17" fill="#23577E" text-anchor="middle" letter-spacing="1">TURN YOUR BODY</text>
-  <text x="678" y="168" font-family="'Space Mono', monospace" font-size="11" fill="#2C4B66" text-anchor="middle">the robot drives</text>
-</g>
-<path d="M556 116 C566 116 560 92 566 82" stroke="#2E7D4F" stroke-width="2.5" fill="none" marker-end="url(#rtG)"/>
-<path d="M556 116 C566 116 560 140 566 150" stroke="#23577E" stroke-width="2.5" fill="none" marker-end="url(#rtB)"/>
-
-<line x1="30" y1="236" x2="790" y2="236" stroke="#151820" stroke-width="2"/>
-<text x="30" y="260" font-family="Bangers, cursive" font-size="15" fill="#C6301A" letter-spacing="1">HOW WELL IT WORKS · 60 TRIALS</text>
-<g font-family="'Space Mono', monospace">
-  <rect x="30" y="274" width="180" height="52" rx="7" fill="#E9F2EA" stroke="#2E7D4F" stroke-width="2.5"/>
-  <text x="120" y="298" font-family="Limelight, serif" font-size="20" fill="#2E7D4F" text-anchor="middle">2.3°</text>
-  <text x="120" y="316" font-size="10" fill="#3B5B45" text-anchor="middle">off, when you turn</text>
-
-  <rect x="222" y="274" width="180" height="52" rx="7" fill="#E9F2EA" stroke="#2E7D4F" stroke-width="2.5"/>
-  <text x="312" y="298" font-family="Limelight, serif" font-size="20" fill="#2E7D4F" text-anchor="middle">0.0%</text>
-  <text x="312" y="316" font-size="10" fill="#3B5B45" text-anchor="middle">accidental driving</text>
-
-  <rect x="414" y="274" width="180" height="52" rx="7" fill="#FBE9E4" stroke="#C6301A" stroke-width="2.5"/>
-  <text x="504" y="298" font-family="Limelight, serif" font-size="20" fill="#C6301A" text-anchor="middle">43.3°</text>
-  <text x="504" y="316" font-size="10" fill="#7A2A18" text-anchor="middle">head-only guess</text>
-
-  <rect x="606" y="274" width="184" height="52" rx="7" fill="#FBE9E4" stroke="#C6301A" stroke-width="2.5"/>
-  <text x="698" y="298" font-family="Limelight, serif" font-size="20" fill="#C6301A" text-anchor="middle">60.1°</text>
-  <text x="698" y="316" font-size="10" fill="#7A2A18" text-anchor="middle">both hands together</text>
-</g>
-<text x="30" y="350" font-family="'Space Mono', monospace" font-size="10.5" fill="#6D6551">The simpler guesses mistake a glance for a turn. This one never has to guess.</text>
-</svg></div>
-</div>
-    </div>
+    <div class="lat-bars fade-up" id="latencyBars"></div>
     <div class="callout fade-up" style="margin-top:clamp(28px,4vh,44px);">
       <p><strong>Which headset?</strong> The <strong>Apple Vision Pro</strong> runs the native visionOS
       app — ARKit head pose plus a 27-joint skeleton per hand, and it is simultaneously visualizer,
@@ -475,6 +401,7 @@
   </div>
 </footer>
 
+<script src="assets/latency-bars.js"></script>
 <script src="assets/reach-globe.js?v=ccf35b70"></script>
 <script src="assets/burst-variety.js?v=700266a7"></script>
 <script src="assets/mabel.js?v=5dc38e96"></script>

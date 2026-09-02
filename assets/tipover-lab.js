@@ -289,21 +289,34 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
     loader.setMeshoptDecoder(MeshoptDecoder);
     loader.load('assets/mabel_rig.glb', function (g) {
       var rig = g.scene;
-      /* side view, facing +X — the direction it drives */
-      rig.rotation.y = -Math.PI / 2;
+      /* Side view with the FRONT facing screen-right, the direction it drives.
+         Measured from the rig rather than guessed: the two front swerve
+         modules (fl/fr_steer_body) sit at x = +0.062 and the back one at
+         x = +0.382, so the robot's forward axis is -X in GLB world. A yaw of
+         pi maps -X onto +X = screen right. (-pi/2, which this used to be,
+         pointed it into the screen — you saw its back.) */
+      rig.rotation.y = Math.PI;
       var box = new THREE.Box3().setFromObject(rig);
       rig.position.y -= box.min.y;                 // stand it on the road
       three.pivot.add(rig);
       three.rig = rig;
       fetch('assets/mabel_joints.json').then(function (r) { return r.json(); })
         .then(function (man) {
-          var j = man.joints.filter(function (x) { return x.name === 'lift'; })[0] ||
-                  man.joints.filter(function (x) { return /lift/i.test(x.name); })[0];
-          if (j) {
-            var n = rig.getObjectByName(j.node);
-            if (n) three.lift = { node: n, axis: new THREE.Vector3().fromArray(j.axis),
-                                  rest: n.position.clone() };
-          }
+          /* The lift is a CASCADED two-stage tendon: `lift_lower` (lift_mid)
+             and `lift_upper` (lift_top) each carry HALF the commanded height,
+             0-0.3175 m of the 0.635 m stroke. Driving one stage by the whole
+             command — which this did — both overshot the top (the body flew
+             off the column) and could never reach the bottom. The MJCF bakes
+             the geometry at ref = 0.15875 (half travel), so each node's
+             displacement is (height/2 - ref). */
+          three.lift = man.joints
+            .filter(function (x) { return /^lift_(lower|upper)$/.test(x.name); })
+            .map(function (j) {
+              var n = rig.getObjectByName(j.node);
+              return n ? { node: n, axis: new THREE.Vector3().fromArray(j.axis),
+                           rest: n.position.clone(), ref: j.ref || 0,
+                           lo: j.lower, hi: j.upper } : null;
+            }).filter(Boolean);
           three.ready = true;
         });
     }, undefined, function (e) { console.error('[tipover-lab] rig failed', e); });
@@ -323,10 +336,13 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
     c.lookAt(camX, halfH - groundY, 0);
     c.updateProjectionMatrix();
 
-    /* the lift column follows the command */
+    /* the lift column follows the command — half the height per stage,
+       clamped to the joint's own range so it cannot leave the rails */
     if (three.lift) {
-      three.lift.node.position.copy(three.lift.rest)
-        .addScaledVector(three.lift.axis, lift);
+      three.lift.forEach(function (st) {
+        var d = Math.max(st.lo, Math.min(st.hi, lift / 2 - st.ref));
+        st.node.position.copy(st.rest).addScaledVector(st.axis, d);
+      });
     }
     /* pitch about the leading wheel's contact patch */
     three.pivot.position.set(0.18, 0, 0);
@@ -439,7 +455,24 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
     requestAnimationFrame(frame);
   }
 
-  window.__tipLab = S;   /* test hook */
+  /* Test hooks. `__tipRig` lets scripts/labrig.py MEASURE the two things a
+     screenshot cannot settle: which way the robot faces, and whether the lift
+     really travels its full 0.635 m stroke. */
+  window.__tipLab = S;
+  window.__tipRig = function (lift) {
+    if (!three || !three.ready || !three.rig) return null;
+    if (lift != null) drawRobot(rigCv.clientWidth / 2, rigCv.clientHeight, 0, lift);
+    three.rig.updateMatrixWorld(true);
+    var w = function (n) {
+      var o = three.rig.getObjectByName(n);
+      if (!o) return null;
+      var v = new THREE.Vector3(); o.getWorldPosition(v);
+      return [v.x, v.y, v.z];
+    };
+    return { front: w('fl_steer_body'), back: w('b_steer_body'),
+             head: w('head'), top: w('lift_top'), mid: w('lift_mid'),
+             stages: three.lift ? three.lift.length : 0 };
+  };
   initRig();
   resize(); note();
   elCmd.textContent = S.cmd.toFixed(2) + ' m/s';
