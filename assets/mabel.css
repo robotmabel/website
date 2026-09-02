@@ -2607,3 +2607,19 @@ body.pop-locked { overflow: hidden; }
 /* every 4th cell wears the accent, so the grid reads as a comic page */
 .task-grid > *:nth-child(4n) { box-shadow: 4px 4px 0 var(--orange); }
 .task-grid > *:nth-child(4n+2) { box-shadow: 4px 4px 0 var(--gold); }
+
+/* app download links sitting right under a section title */
+.app-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.app-links .btn { margin-top: 0; }
+
+/* side-by-side teleop clips: the operator and the robot, same row */
+.tele-duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.tele-clip { margin: 0; position: relative; border: 2px solid var(--ink);
+  border-radius: 6px; overflow: hidden; background: #0B0E15; box-shadow: 5px 5px 0 var(--ink); }
+.dark-sec .tele-clip { box-shadow: 5px 5px 0 rgba(0,0,0,0.85); border-color: var(--gold); }
+.tele-clip video { width: 100%; display: block; aspect-ratio: 4 / 3; object-fit: cover; }
+.tele-clip figcaption { padding: 9px 12px 11px; font-size: 12px; line-height: 1.5;
+  color: var(--ash-light); background: var(--ink); font-family: var(--font-mono); }
+.tele-clip .burst.sm { position: absolute; top: 8px; right: 8px; }
+/* invisible aliases so links written against the old teleop section ids still land */
+.anchor-alias { display: block; height: 0; scroll-margin-top: 90px; }

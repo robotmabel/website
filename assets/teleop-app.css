@@ -6,8 +6,9 @@
    .ta-app / .ta-dock.
    ════════════════════════════════════════════════════════════════════ */
 
-.ta-wrap { padding: 0 24px 110px; max-width: 1480px; margin: 0 auto; }
+.ta-wrap { position: relative; padding: 0 24px 110px; max-width: 1480px; margin: 0 auto; }
 .ta-wrap:fullscreen { padding: 0; max-width: none; background: #0d0c0b; }
+.ta-wrap:fullscreen .ta-dock { position: fixed; z-index: 999; }
 .ta-wrap:fullscreen .ta-app { height: 100%; border-radius: 0; border: none; }
 
 .ta-app {
@@ -248,8 +249,12 @@
 
 /* ════ THE DOCK — floating liquid glass, persists over page scroll ════ */
 .ta-dock {
-  position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
-  z-index: 999;
+  /* Absolute inside .ta-wrap, not fixed to the viewport. When the app is
+     embedded in a page (teleop.html) a fixed dock kept floating over every
+     section below it as the reader scrolled past the simulator. Fullscreen
+     restores fixed positioning below. */
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+  z-index: 20;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   max-width: min(96vw, 1340px);
   padding: 10px 14px 9px;
