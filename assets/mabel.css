@@ -2431,3 +2431,116 @@ section > .wrap > h2 > .sticker, section > .wrap > h2 + .sticker {
 .sec-head .lede::first-letter { font-family: var(--font-display); font-size: 2.2em;
   line-height: 0.8; float: left; margin: 4px 8px 0 0; color: var(--orange); }
 .dark-sec .sec-head .lede::first-letter { color: var(--gold); }
+
+
+/* ═══ BOM — the donut and the table sit on ONE line ═══
+   These rules used to live in hardware.html's inline <style> while the
+   markup lives on build.html, so the grid never applied and the chart
+   stacked above the table. Shared stylesheet = both pages get it. */
+.bom-grid { display: grid; grid-template-columns: minmax(0, 380px) 1fr;
+  gap: clamp(20px, 3vw, 44px); align-items: center; }
+@media (max-width: 900px) { .bom-grid { grid-template-columns: 1fr; } }
+.bom-grid > * { min-width: 0; }
+.bom-pie-wrap { position: relative; width: min(320px, 100%); margin: 0 auto; }
+#bomPie svg { width: 100%; height: auto; display: block; }
+.bom-centre { position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; pointer-events: none; text-align: center; }
+#bomPieVal { font-family: var(--font-display); font-size: clamp(22px, 2.4vw, 30px);
+  color: var(--rust); line-height: 1; }
+#bomPieKey { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ash); margin-top: 7px; max-width: 66%; line-height: 1.5; }
+.bom-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px;
+  border: 1.5px solid var(--ink); margin-right: 9px; vertical-align: -1px; }
+#bomRows td:first-child { font-weight: 600; }
+#bomRows { font-size: 13px; }
+#bomRows th, #bomRows td { padding: 7px 10px; }
+tr.bom-row-hot td { background: rgba(198,48,26,0.08); }
+
+/* ═══ Comic pop-ups — a card opens like a panel reveal ═══ */
+.is-poppable { cursor: pointer; position: relative; }
+.is-poppable:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+.pop-cue { display: inline-block; margin-top: 14px; font-family: var(--font-comic);
+  font-size: 15px; letter-spacing: 0.08em; color: var(--rust);
+  border-bottom: 2px solid var(--rust); padding-bottom: 1px;
+  transition: transform 0.18s ease; }
+.is-poppable:hover .pop-cue { transform: translateX(5px) rotate(-1.5deg); }
+.card-grid > *:nth-child(4n) .pop-cue { color: var(--yellow); border-color: var(--yellow); }
+
+body.pop-locked { overflow: hidden; }
+
+.pop-overlay { position: fixed; inset: 0; z-index: 3000; display: none;
+  align-items: center; justify-content: center; padding: 5vh 20px;
+  background: rgba(21, 24, 32, 0.82); }
+.pop-overlay.open { display: flex; animation: popFade 0.18s ease both; }
+@keyframes popFade { from { opacity: 0; } to { opacity: 1; } }
+
+.pop-panel { position: relative; width: min(680px, 100%); max-height: 88vh; overflow: auto;
+  background: var(--panel); border: 3px solid var(--ink); border-radius: 6px;
+  box-shadow: 12px 12px 0 var(--orange), 0 0 0 3px var(--ink);
+  padding: clamp(20px, 3vw, 32px);
+  animation: popIn 0.42s cubic-bezier(0.22, 1.4, 0.36, 1) both; }
+@keyframes popIn {
+  from { transform: translate(var(--from-x, 0), var(--from-y, 0)) scale(0.16) rotate(-7deg); opacity: 0; }
+  62%  { transform: translate(0, 0) scale(1.05) rotate(1.2deg); opacity: 1; }
+  to   { transform: translate(0, 0) scale(1) rotate(0); opacity: 1; }
+}
+.pop-close { position: absolute; top: 12px; right: 12px; width: 38px; height: 38px;
+  border: 3px solid var(--ink); border-radius: 50%; background: var(--yellow);
+  font-family: var(--font-comic); font-size: 18px; color: var(--ink); cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink); transition: transform 0.15s ease; z-index: 2; }
+.pop-close:hover { transform: rotate(90deg) scale(1.08); }
+
+.pop-art { margin: -6px 0 18px; }
+.pop-art-svg { width: 100%; height: auto; display: block;
+  border-radius: 4px; }
+.pop-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--rust); display: block; margin-bottom: 6px; }
+.pop-title { font-family: var(--font-display); font-size: clamp(24px, 3.4vw, 34px);
+  line-height: 1.05; color: var(--ink); margin: 0 0 14px; }
+.pop-body { font-size: 15px; line-height: 1.72; color: var(--ink-soft); }
+.pop-body p { margin: 0 0 12px; }
+.pop-body p:first-of-type::first-letter { font-family: var(--font-display);
+  font-size: 2.1em; line-height: 0.8; float: left; margin: 4px 8px 0 0; color: var(--orange); }
+.pop-body ul { margin: 0 0 14px; padding-left: 20px; }
+.pop-body li { margin-bottom: 6px; }
+.pop-body .pop-stat { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px; margin: 16px 0; }
+.pop-body .pop-stat > div { border: 2px solid var(--ink); border-radius: 5px;
+  background: var(--bone); padding: 10px 12px; box-shadow: 3px 3px 0 var(--ink); }
+.pop-body .pop-stat b { display: block; font-family: var(--font-display);
+  font-size: 21px; color: var(--rust); line-height: 1; }
+.pop-body .pop-stat span { font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ash); }
+
+/* the onomatopoeia flung out behind the panel */
+.pop-burst { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+.pop-panel { z-index: 1; }
+.pop-fx { position: absolute; font-family: var(--font-comic); color: var(--yellow);
+  -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill;
+  text-shadow: 5px 5px 0 var(--rust); white-space: nowrap; }
+.pop-fx-main { top: 9%; left: 50%; font-size: clamp(48px, 9vw, 104px);
+  animation: fxMain 0.85s cubic-bezier(0.2, 1.5, 0.4, 1) both; }
+@keyframes fxMain {
+  from { transform: translate(-50%, 40px) scale(0.2) rotate(-16deg); opacity: 0; }
+  40%  { transform: translate(-50%, 0) scale(1.15) rotate(-6deg); opacity: 1; }
+  75%  { opacity: 1; }
+  to   { transform: translate(-50%, -26px) scale(1) rotate(-4deg); opacity: 0; }
+}
+.pop-fx-mini { font-size: clamp(22px, 3.4vw, 40px); color: var(--orange);
+  text-shadow: 3px 3px 0 var(--ink); animation: fxMini 0.95s ease-out both; }
+.pop-fx-0 { top: 24%; left: 9%;  animation-delay: 0.06s; }
+.pop-fx-1 { top: 68%; right: 11%; left: auto; animation-delay: 0.13s; }
+.pop-fx-2 { bottom: 15%; left: 16%; animation-delay: 0.2s; }
+@keyframes fxMini {
+  from { transform: scale(0.2) rotate(12deg); opacity: 0; }
+  45%  { transform: scale(1.1) rotate(-8deg); opacity: 1; }
+  to   { transform: scale(0.9) rotate(-5deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pop-panel { animation: popFade 0.2s ease both; }
+  .pop-fx { display: none; }
+}
+@media (max-width: 600px) {
+  .pop-panel { box-shadow: 7px 7px 0 var(--orange), 0 0 0 3px var(--ink); }
+  .pop-body { font-size: 14px; }
+}

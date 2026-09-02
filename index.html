@@ -130,28 +130,82 @@
     <div class="divider" style="margin:clamp(48px,7vh,80px) 0;"></div>
 
     <div class="contrib-grid fade-up">
-      <div class="contrib-cell">
+      <div class="contrib-cell" data-pop data-art="price" data-fx="VHOOM!" data-pop-title="Cheap, dexterous, whole-body" data-pop-kicker="01 · THE ROBOT">
         <h3>Cheap, dexterous, whole-body</h3>
         <p>$9,670 as built. Two 17-DOF hands, two 7-DOF arms, a 3-DOF active head, and a holonomic
         swerve base — a 0–2.23 m fingertip band on a 0.49 m footprint. The only open platform that is
         holonomic, hand-dexterous, and neck-articulated under $10k.</p>
+      <template class="pop-more"><p>Dexterity is normally where an open platform gives up. Hands get replaced by a
+parallel gripper, the neck gets bolted solid, the base gets two wheels and a caster.
+MABEL keeps all three and still lands under ten thousand dollars.</p>
+<div class="pop-stat">
+  <div><b>$9,670</b><span>as built</span></div>
+  <div><b>34</b><span>arm + hand DOF</span></div>
+  <div><b>2.23 m</b><span>fingertip reach</span></div>
+  <div><b>0.49 m</b><span>footprint</span></div>
+</div>
+<p>The swerve base is holonomic: it translates in any direction while the body keeps
+facing where the cameras are pointed, so the head never has to fight the wheels. The
+3-DOF neck gives active perception — the robot looks where the task is instead of
+carrying a fixed camera and hoping.</p>
+<p>Nothing needs a machine shop. Aluminium extrusion, laser-cut sheet metal, and printed
+parts, with the whole CAD tree MIT-licensed.</p></template>
       </div>
-      <div class="contrib-cell">
+      <div class="contrib-cell" data-pop data-art="modules" data-fx="KA-CHUNK!" data-pop-title="Modular by construction" data-pop-kicker="02 · THE BUILD">
         <h3>Modular by construction</h3>
         <p>Every subsystem is its own project on its own bus — swap an arm, a hand, the base, or the
         head without touching the rest. Extrusion + sheet metal; no machine shop; MIT-licensed CAD,
         firmware, and software.</p>
+      <template class="pop-more"><p>Every subsystem is its own project on its own bus, behind its own connector. An arm
+is a unit you unbolt and carry away; the hand is a separate unit again; the head, the
+neck, the lift, and the base are four more.</p>
+<div class="pop-stat">
+  <div><b>6</b><span>swappable modules</span></div>
+  <div><b>MIT</b><span>CAD, firmware, software</span></div>
+  <div><b>0</b><span>machine-shop parts</span></div>
+</div>
+<p>That is what makes the platform a research base rather than a demo: swap in your own
+hand and the whole-body controller keeps working, because the controller talks to the
+kinematic model, not to a specific gripper.</p>
+<p>Build one subsystem at a time. The bill of materials is split the same way, so you can
+price an arm, a hand, or the base on its own.</p></template>
       </div>
-      <div class="contrib-cell">
+      <div class="contrib-cell" data-pop data-art="twin" data-fx="BZZZT!" data-pop-title="Simulation-complete" data-pop-kicker="03 · THE TWIN">
         <h3>Simulation-complete</h3>
         <p>A MuJoCo twin runs the production control code unmodified at 500 Hz across 35 released
         environments. Same URDF, same ROS 2 interface — <code>use_sim:=true</code> is the only difference.</p>
+      <template class="pop-more"><p>Most robot simulators are a second implementation — a different controller, a
+different URDF, a different set of bugs. Here the twin runs the <em>production</em>
+control code, unmodified.</p>
+<div class="pop-stat">
+  <div><b>500 Hz</b><span>physics</span></div>
+  <div><b>35</b><span>released scenes</span></div>
+  <div><b>1</b><span>canonical model</span></div>
+</div>
+<p>One MuJoCo MJCF is the single source of truth. The ROS URDF, the web viewer's GLB, the
+iOS and Vision Pro rigs, and the controller's tip-over constants are all generated from
+it, so the simulated robot cannot silently drift away from the real one.</p>
+<p><code>use_sim:=true</code> is the entire difference between driving the twin and
+driving the hardware — same wire protocol, same safety gate, same ROS 2 interface.</p></template>
       </div>
-      <div class="contrib-cell">
+      <div class="contrib-cell" data-pop data-art="teleop" data-fx="THWIP!" data-pop-title="One integrated system" data-pop-kicker="04 · THE STACK">
         <h3>One integrated system</h3>
         <p>Teleop (Vision Pro, iPhone, browser), electronics and firmware, data collection, and
         training are one stack: every command passes one wire protocol and one whole-body QP —
         and every session is a training demonstration.</p>
+      <template class="pop-more"><p>The parts that usually live in four separate repos are one stack here: teleoperation,
+electronics and firmware, data collection, and policy training.</p>
+<div class="pop-stat">
+  <div><b>49 ms</b><span>browser teleop</span></div>
+  <div><b>82 ms</b><span>iPhone</span></div>
+  <div><b>362 ms</b><span>Vision Pro</span></div>
+</div>
+<p>Every command source — Vision Pro, iPhone, the browser studio, a gamepad, or Nav2 —
+is a client of the same wire protocol, and every one of them passes the same whole-body
+quadratic program before a single joint moves. There is exactly one gate, so a safety
+fix lands everywhere at once.</p>
+<p>And because teleoperation and data collection share that path, every session you fly
+is already a training demonstration — no separate recording rig.</p></template>
       </div>
     </div>
   </div>
@@ -628,6 +682,7 @@
 </footer>
 
 <script src="assets/mabel.js"></script>
+<script src="assets/comic-pop.js"></script>
 <script>
 (function () {
   /* power on the simulator: swap the poster for the live console iframe */
