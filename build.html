@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=46ef6415" />
+<link rel="stylesheet" href="assets/mabel.css?v=7a0cfc73" />
 <style>
   /* Build-guide-scoped primitives, in the MABEL design language */
   pre.code { background: var(--ink); color: #EDE7DA; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.75; padding: 18px 22px; border-radius: 16px; overflow-x: auto; margin: 16px 0; white-space: pre; -webkit-overflow-scrolling: touch; box-shadow: 0 12px 34px -18px rgba(21,24,32,0.5); }
@@ -244,6 +244,18 @@
         <div id="bomParts"></div>
       </div>
     </div>
+    <div class="fade-up" style="margin-top:clamp(30px,4vh,46px);">
+      <div class="sec-head" style="margin-bottom:14px;">
+        <div>
+          <span class="eyebrow">Every line</span>
+          <h3 class="display-sm" style="margin:0;">All 49 parts.</h3>
+        </div>
+        <p class="lede" style="font-size:14px;">Search it, filter by subsystem, and hover any
+          row for a preview. Prices are as paid on 31 July 2026.</p>
+      </div>
+      <div id="bomTable"></div>
+    </div>
+
     <div class="callout fade-up" style="margin-top:clamp(28px,4vh,44px);">
       <p><strong>Prices move.</strong> NVIDIA raised every Jetson price 33–101% on 22 July 2026 —
       the identical robot went from $12,969 to $14,968 overnight. Compute is a choice here, not a
@@ -814,5 +826,6 @@
 </script>
 <script src="assets/bom/bom_data.js"></script>
 <script src="assets/bom-pie.js"></script>
+<script src="assets/bom-table.js"></script>
 </body>
 </html>
