@@ -16,6 +16,11 @@ prof = f"/tmp/cdp-shot-{P}"      # screenshots in a row do not collide
 url = sys.argv[1]
 out = sys.argv[2]
 sel = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] != "-" else None
+# `--reveal` forces every scroll-revealed block visible before capture. A
+# full-page shot otherwise comes back as a hero and then nothing: content below
+# the fold never intersects the viewport, so .fade-up stays at opacity 0.
+REVEAL = "--reveal" in sys.argv
+sys.argv = [a for a in sys.argv if a != "--reveal"]
 W = int(sys.argv[4]) if len(sys.argv) > 4 else 1440
 H = int(sys.argv[5]) if len(sys.argv) > 5 else 1000
 
@@ -60,6 +65,17 @@ async def go():
             if await ev("document.fonts.status==='loaded' && document.readyState==='complete'"):
                 break
             await asyncio.sleep(0.3)
+        if REVEAL:
+            await ev("""(function(){
+              var st=document.createElement('style');
+              st.textContent='.fade-up,.fade-in,[class*=fade]{opacity:1!important;'
+                + 'transform:none!important;transition:none!important}'
+                + '.nav{position:static!important}';
+              document.head.appendChild(st);
+              document.querySelectorAll('.fade-up,.fade-in').forEach(function(e){
+                e.classList.add('in','on','visible');});
+              return 1;})()""")
+            await asyncio.sleep(1.2)
         clip = None
         if sel:
             for _ in range(40):
@@ -81,6 +97,21 @@ async def go():
         pp = {"format": "png", "captureBeyondViewport": True}
         if clip:
             pp["clip"] = clip
+        else:
+            # A full-page capture with captureBeyondViewport TILES a long page —
+            # it came back with the hero repeated three times. Growing the
+            # viewport to the document instead captures it once, so cap the
+            # height and let the caller crop.
+            # Chrome tiles a very long page whichever way it is captured, so a
+            # full-page shot is capped: review long pages section by section
+            # with a selector instead.
+            full = await ev("Math.min(5200, document.documentElement.scrollHeight)")
+            if full and full > H:
+                await cmd("Emulation.setDeviceMetricsOverride",
+                          {"width": W, "height": int(full), "deviceScaleFactor": 2,
+                           "mobile": False})
+                await asyncio.sleep(1.5)
+                pp["captureBeyondViewport"] = False
         r = await cmd("Page.captureScreenshot", pp)
         data = r["result"]["data"]
         with open(out, "wb") as f:

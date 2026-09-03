@@ -49,7 +49,11 @@
 
     mods.forEach(function (m, i) {
       html +=
-        '<article class="hs-card" role="listitem" data-id="' + m.id + '">' +
+        /* the real anchor id, so #hw-hands resolves in the DOM as well as in
+           the handler below — the nav's deep links are the page's own
+           table of contents and must not dangle */
+        '<article class="hs-card" role="listitem" id="hw-' + m.id + '" ' +
+          'data-id="' + m.id + '">' +
           '<div class="hs-shot"><img src="' + m.img + '" alt="MABEL’s ' +
             esc(m.name) + '" loading="' + (i < 2 ? 'eager' : 'lazy') + '"/>' +
             '<span class="hs-kicker">' + esc(m.kicker) + '</span></div>' +
@@ -212,8 +216,14 @@
     function jump() {
       var id = (location.hash || '').replace(/^#hw-/, '');
       var i = mods.findIndex(function (m) { return m.id === id; });
-      if (i >= 0) cards[i].scrollIntoView(
-        { behavior: 'smooth', block: 'center', inline: 'center' });
+      if (i < 0) return;
+      /* Set scrollLeft directly rather than scrollIntoView: the rail is inside
+         a scrollable page, so scrollIntoView moves BOTH and lands wherever the
+         smooth animation happens to be. This is exact. */
+      var c = cards[i];
+      rail.scrollTo({ left: Math.max(0, c.offsetLeft - (rail.clientWidth - c.offsetWidth) / 2),
+                      behavior: 'smooth' });
+      host.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     addEventListener('hashchange', jump);
     if (/^#hw-/.test(location.hash)) setTimeout(jump, 350);

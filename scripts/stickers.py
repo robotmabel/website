@@ -16,6 +16,11 @@ CHECK = """(function(){
       if(!n.nodeValue||!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
       var p=n.parentElement;
       if(!p||p.closest('.sticker')) return NodeFilter.FILTER_REJECT;
+      /* The nav is a FIXED, opaque overlay. Content passing beneath it is
+         hidden by it, not obscured by a badly-placed sticker, so counting the
+         nav's own words as overlapped text reports a defect that does not
+         exist -- both remaining hits were stickers scrolling under the bar. */
+      if(p.closest('.nav,.mob,.sub,#progress')) return NodeFilter.FILTER_REJECT;
       var cs=getComputedStyle(p);
       if(cs.visibility==='hidden'||cs.opacity==='0'||cs.display==='none')
         return NodeFilter.FILTER_REJECT;

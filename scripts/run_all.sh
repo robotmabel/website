@@ -6,11 +6,11 @@ B="${1:-http://localhost:8741}"
 cd "$(dirname "$0")/.."
 pass=0; fail=0
 run () {
-  printf '── %-18s ' "$1"; shift
+  printf '── %-14s ' "$1"; shift
   out=$("$@" 2>&1)
   if grep -q "RESULT: PASS" <<<"$out"; then echo "PASS"; pass=$((pass+1))
   elif grep -qE "TOTAL (OVERLAPS|SCROLLING TABLES): 0" <<<"$out"; then echo "PASS"; pass=$((pass+1))
-  else echo "FAIL"; fail=$((fail+1)); sed 's/^/      /' <<<"$out" | tail -6; fi
+  else echo "FAIL"; fail=$((fail+1)); sed 's/^/      /' <<<"$out" | tail -8; fi
 }
 P=python3
 run structure   $P scripts/structure.py $B/index.html $B/build.html $B/software.html \
@@ -26,8 +26,14 @@ run bom-groups  $P scripts/bomgroup.py $B/build.html
 run films       $P scripts/filmtest.py $B/connect.html
 run palm-track  $P scripts/tracktest.py $B/software.html
 run lab-table   $P scripts/labtable.py $B/software.html
+run lab-rig     $P scripts/labrig.py $B/software.html
 run globe       $P scripts/globecentre.py $B/teleop.html
 run webcam      $P scripts/camtest.py $B/software.html
+run gestures    node scripts/gesturetest.mjs
+run retargeter  $P scripts/sync_bodyteleop.py --check
+run hardware    $P scripts/hwtest.py $B/hardware.html
+run curation    $P scripts/curtest.py $B/autonomy.html
+run scenes      $P scripts/scenetest.py $B/software.html
 run figures     $P scripts/figscale.py $B/index.html
 run panels      $P scripts/panels.py $B/build.html
 echo

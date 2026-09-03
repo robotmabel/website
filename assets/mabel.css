@@ -3800,3 +3800,20 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .studio-shot code { font-family: var(--font-mono); font-size: 11px;
   background: rgba(21,24,32,0.08); padding: 1px 5px; border-radius: 4px; }
 .dark-sec .studio-shot code { background: rgba(255,255,255,0.1); }
+
+/* sim ↔ real pairs */
+.ab-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 1000px) { .ab-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .ab-row { grid-template-columns: 1fr; } }
+.ab-cell { position: relative; margin: 0; border: 3px solid var(--ink);
+  border-radius: 10px; overflow: hidden; background: var(--panel);
+  box-shadow: 6px 6px 0 var(--ink); }
+.ab-cell video { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+  background: #171A24; border-bottom: 3px solid var(--ink); }
+.ab-cell figcaption { padding: 9px 11px; font-size: 11.5px; line-height: 1.5;
+  color: var(--ash); }
+.ab-tag { position: absolute; top: 9px; left: 9px; z-index: 2;
+  font-family: var(--font-comic); font-size: 10.5px; letter-spacing: 0.07em;
+  padding: 3px 8px; border-radius: 4px; border: 2px solid var(--ink); }
+.ab-tag.sim { background: var(--blue); color: #FFF6E4; }
+.ab-tag.real { background: var(--rust); color: #FFF6E4; }

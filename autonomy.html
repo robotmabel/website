@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=14102312" />
+<link rel="stylesheet" href="assets/mabel.css?v=c74e7d75" />
 <style>
   /* Data Curation live-tool CTA */
   .studio-card { padding: clamp(28px, 4vw, 48px); }
@@ -563,6 +563,51 @@
     task-success-rate harness for imitation policies: the metric today is open-loop action error,
     not "did it make the coffee". Navigation is the exception, with measured pose error and map
     accuracy.</p>
+  </div>
+
+  <div class="sec-head fade-up" style="margin-top:clamp(34px,4.5vh,52px);">
+    <div><span class="eyebrow">On the floor</span>
+      <h3 class="display-sm title">Sim, then the real thing.</h3></div>
+    <p class="lede">The same stack, the same scenes, the same wire protocol —
+      once on a laptop and once on the robot.</p>
+  </div>
+  <div class="ab-row fade-up">
+    <figure class="ab-cell">
+      <span class="ab-tag sim">Simulation</span>
+      <video data-lazyvid="assets/sim/scenes/mabel_home.mp4"
+             data-lo="assets/sim/scenes/mabel_home-lo.mp4"
+             poster="assets/sim/scenes/mabel_home.jpg"
+             autoplay muted loop playsinline preload="none"
+             aria-label="The home scene in MuJoCo, camera orbiting"></video>
+      <figcaption>A released scene in MuJoCo. The physics, the sensors and the
+        controller are the ones the robot runs.</figcaption>
+    </figure>
+    <figure class="ab-cell">
+      <span class="ab-tag real">Real robot</span>
+      <video data-lazyvid="assets/wild/d-nav.mp4" data-lo="assets/wild/d-nav-lo.mp4"
+             poster="assets/wild/d-nav.jpg"
+             autoplay muted loop playsinline preload="none"
+             aria-label="MABEL navigating a real room"></video>
+      <figcaption>Navigating for real, on the map its own lidar built.</figcaption>
+    </figure>
+    <figure class="ab-cell">
+      <span class="ab-tag sim">Simulation</span>
+      <video data-lazyvid="assets/sim/scenes/mabel_supermarket.mp4"
+             data-lo="assets/sim/scenes/mabel_supermarket-lo.mp4"
+             poster="assets/sim/scenes/mabel_supermarket.jpg"
+             autoplay muted loop playsinline preload="none"
+             aria-label="The supermarket scene in MuJoCo"></video>
+      <figcaption>A shelf-height task in sim, where a failure costs nothing.</figcaption>
+    </figure>
+    <figure class="ab-cell">
+      <span class="ab-tag real">Real robot</span>
+      <video data-lazyvid="assets/wild/d-manip.mp4" data-lo="assets/wild/d-manip-lo.mp4"
+             poster="assets/wild/d-manip.jpg"
+             autoplay muted loop playsinline preload="none"
+             aria-label="MABEL manipulating an object on hardware"></video>
+      <figcaption>The same reach on hardware, teleoperated — this is where the
+        demonstrations come from.</figcaption>
+    </figure>
   </div>
 </div></section>
 
