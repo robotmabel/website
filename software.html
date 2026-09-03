@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=4e7b1a34" />
+<link rel="stylesheet" href="assets/mabel.css?v=a8ad1d46" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -483,10 +483,10 @@
 
     <!-- the twin, moving: four captures straight from the MuJoCo stack -->
     <div class="fade-up" style="margin-top:44px; display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
-      <div class="strip-panel"><video src="assets/sim/swerve.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Holonomic swerve — translating and spinning at once (studio nav clips)</span></div>
-      <div class="strip-panel"><video src="assets/sim/hands.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">ORCA hands — 17 tendon DOF each, per-finger retargeting</span></div>
-      <div class="strip-panel"><video src="assets/sim/lift.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Lift — 0.635 m of travel, tip-over envelope tightening as it rises</span></div>
-      <div class="strip-panel"><video src="assets/sim/wave.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Wave Hello — a Control Studio animation clip played on the twin</span></div>
+      <div class="strip-panel"><video data-lazyvid="assets/sim/swerve.mp4" poster="assets/sim/swerve.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Holonomic swerve — translating and spinning at once (studio nav clips)</span></div>
+      <div class="strip-panel"><video data-lazyvid="assets/sim/hands.mp4" poster="assets/sim/hands.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">ORCA hands — 17 tendon DOF each, per-finger retargeting</span></div>
+      <div class="strip-panel"><video data-lazyvid="assets/sim/lift.mp4" poster="assets/sim/lift.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Lift — 0.635 m of travel, tip-over envelope tightening as it rises</span></div>
+      <div class="strip-panel"><video data-lazyvid="assets/sim/wave.mp4" poster="assets/sim/wave.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Wave Hello — a Control Studio animation clip played on the twin</span></div>
     </div>
 
 
@@ -567,12 +567,12 @@
   </div>
 </footer>
 
-<script type="module" src="assets/tipover-lab.js?v=77c5c973"></script>
+<script type="module" src="assets/defer-module.js" data-mod="./tipover-lab.js?v=c9793a6d" data-when="#tipLab"></script>
 <script src="assets/scene-filter.js?v=530d9dd9"></script>
 <script src="assets/retarget-compare.js"></script>
 <script src="assets/retarget-clips.js"></script>
-<script src="assets/mabel.js?v=fd6568a8"></script>
-<script type="module" src="assets/wbc-viewer.js?v=c74c2734"></script>
-<script type="module" src="assets/retarget-cam.js"></script>
+<script src="assets/mabel.js?v=fc3a47cd"></script>
+<script type="module" src="assets/defer-module.js" data-mod="./wbc-viewer.js?v=c74c2734" data-when="#wbcViewer, #wbc3d"></script>
+<script type="module" src="assets/defer-module.js" data-mod="./retarget-cam.js" data-when="#retargetCam"></script>
 </body>
 </html>

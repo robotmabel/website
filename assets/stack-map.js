@@ -105,8 +105,14 @@
     ['retarget', 'wbc'], ['wbc', 'motion'], ['motion', 'torque'],
     ['torque', 'hal'], ['torque', 'simbridge'],
     ['hal', 'fw'], ['fw', 'robot'],
-    ['robot', 'fw'], ['fw', 'hal'],
-    ['simbridge', 'mujoco'], ['mujoco', 'simbridge'],
+    /* The sensors are ON the robot, and VIDEO LEAVES THE HAL FOR THE DEVICES
+       DIRECTLY — that is the invariant this diagram exists to show, and until
+       now the "Video → your screen" route lit four nodes and NOT ONE EDGE,
+       because neither of these links was drawn. A route with no line is not a
+       route. */
+    ['robot', 'percep'],
+    ['hal', 'vp'], ['hal', 'ios'], ['hal', 'web'],
+    ['simbridge', 'mujoco'],
     ['hal', 'percep'], ['simbridge', 'percep'],
     ['percep', 'ros'], ['hal', 'ros'], ['simbridge', 'ros'],
     ['ros', 'slam'], ['ros', 'loc'], ['slam', 'server'], ['loc', 'wbc'],
@@ -124,6 +130,15 @@
      ['policy', 'server', 'wbc', 'motion', 'torque', 'hal', 'fw', 'robot'],
      'A policy is a command SOURCE like any other. It does not get its own path ' +
      'to the hardware, and it does not get to skip the envelope.'],
+    ['phone', 'iPhone → torque', '#C6301A',
+     ['ios', 'server', 'wbc', 'motion', 'torque', 'hal', 'fw', 'robot'],
+     'Thumbsticks for the base, a task-space pad for the arms. No retargeter ' +
+     'in this one — you are commanding the robot\u2019s frame directly — but ' +
+     'the same gate and the same envelope.'],
+    ['console', 'Browser → torque', '#2F6F8F',
+     ['web', 'server', 'wbc', 'motion', 'torque', 'hal', 'fw', 'robot'],
+     'Nothing to install. The Control Center opens the same WebSocket the ' +
+     'apps do and gets exactly the same privileges: none.'],
     ['navp', 'Nav goal → wheels', '#2E7D4F',
      ['nav', 'server', 'wbc', 'motion', 'torque', 'hal', 'fw', 'robot'],
      'Nav2 plans, but it never publishes a twist at the base. The goal goes ' +
@@ -148,10 +163,17 @@
      'of the HAL, never an owner of a device.'],
   ];
 
-  /* clicking a node lights the first path that runs through it */
+  /* Clicking a node prefers the route that STARTS there — you point at the
+     thing you are holding and ask where it goes — then any route through it.
+     Nodes on no route at all (the relay, SLAM, localization) are not dead:
+     they light their own neighbourhood instead, so every block does
+     something when clicked. */
   function pathFor(id) {
     for (var i = 0; i < PATHS.length; i++) {
-      if (PATHS[i][3].indexOf(id) >= 0) return PATHS[i][0];
+      if (PATHS[i][3][0] === id) return PATHS[i][0];
+    }
+    for (var j = 0; j < PATHS.length; j++) {
+      if (PATHS[j][3].indexOf(id) >= 0) return PATHS[j][0];
     }
     return null;
   }
@@ -263,17 +285,65 @@
   var note = host.querySelector('.sm-note');
   var tip = host.querySelector('.sm-tip');
 
+  /* A node on no named route lights its own NEIGHBOURHOOD — itself and
+     everything it connects to. Localization, SLAM and the secure relay are
+     real parts of this system that no single command path passes through, and
+     a block that does nothing when clicked reads as broken rather than as
+     "not on a route". */
+  function focus(id) {
+    var n = BY_ID[id];
+    if (!n) return;
+    var near = {};
+    near[id] = 1;
+    EDGES.forEach(function (e) {
+      if (e[0] === id) near[e[1]] = 1;
+      if (e[1] === id) near[e[0]] = 1;
+    });
+    stage.classList.add('lit');
+    stage.querySelectorAll('.sm-node').forEach(function (x) {
+      x.classList.toggle('on', !!near[x.dataset.id]);
+    });
+    stage.querySelectorAll('.sm-edge').forEach(function (e) {
+      var used = e.dataset.a === id || e.dataset.b === id;
+      e.classList.toggle('on', used);
+      e.style.stroke = used ? '#7A3E8F' : '';
+    });
+    host.querySelectorAll('.sm-chip').forEach(function (c) {
+      c.classList.remove('on');
+    });
+    var names = Object.keys(near).filter(function (k) { return k !== id; })
+      .map(function (k) { return BY_ID[k][1]; });
+    note.innerHTML = '<b style="color:#7A3E8F">' + esc(n[1]) + '</b>' +
+      esc(n[7]) + ' Connects to ' + esc(names.join(', ')) + '.';
+    note.hidden = false;
+    current = null;
+  }
+
+  var current = null;
+
   function show(id) {
     var p = PATHS.filter(function (x) { return x[0] === id; })[0];
+    current = p ? id : null;
     stage.classList.toggle('lit', !!p);
     var on = p ? p[3] : [];
     stage.querySelectorAll('.sm-node').forEach(function (n) {
       n.classList.toggle('on', on.indexOf(n.dataset.id) >= 0);
     });
+    /* An edge lights when its two ends are adjacent on the route IN EITHER
+       ORDER. The graph draws ONE line per connection, so a return path —
+       state coming back up the spine, video coming out of the HAL — travels
+       along lines that were drawn in the outbound direction. Matching only
+       a→b left "State → your screen" with its last hop unlit and "Video →
+       your screen" with no line at all. */
     stage.querySelectorAll('.sm-edge').forEach(function (e) {
-      var i = on.indexOf(e.dataset.a), j = on.indexOf(e.dataset.b);
-      var used = p && i >= 0 && j === i + 1;
-      e.classList.toggle('on', !!used);
+      var used = false;
+      for (var k = 0; p && k < on.length - 1; k++) {
+        if ((on[k] === e.dataset.a && on[k + 1] === e.dataset.b) ||
+            (on[k] === e.dataset.b && on[k + 1] === e.dataset.a)) {
+          used = true; break;
+        }
+      }
+      e.classList.toggle('on', used);
       e.style.stroke = used ? p[2] : '';
     });
     host.querySelectorAll('.sm-chip').forEach(function (c) {
@@ -297,7 +367,7 @@
     var g = e.target.closest('.sm-node');
     if (!g) return;
     var p = pathFor(g.dataset.id);
-    if (p) show(p);
+    if (p) show(p); else focus(g.dataset.id);
   });
   stage.addEventListener('keydown', function (e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -305,7 +375,7 @@
     if (!g) return;
     e.preventDefault();
     var p = pathFor(g.dataset.id);
-    if (p) show(p);
+    if (p) show(p); else focus(g.dataset.id);
   });
 
   var WORLD = { both: ['Shared', 'The same code drives the robot and the sim.'],
@@ -349,7 +419,8 @@
   show(PATHS[0][0]);
 
   window.__stackMap = {
-    paths: PATHS, nodes: NODES, show: show, pathFor: pathFor,
+    paths: PATHS, nodes: NODES, edges: EDGES, show: show, pathFor: pathFor,
+    focus: focus,
     hover: function (id) {
       var g = stage.querySelector('.sm-node[data-id="' + id + '"]');
       if (g) tipFor(g);

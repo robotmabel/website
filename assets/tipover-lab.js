@@ -119,8 +119,18 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
     '<div class="tl-panel">' +
       '<div class="tl-row">' +
         '<label>Commanded speed<b class="tl-cmd">0.60 m/s</b></label>' +
-        '<input class="tl-slider" type="range" min="0" max="2.5" step="0.05" value="0.6" ' +
-               'aria-label="Commanded speed">' +
+        /* THE CEILING IS DRAWN ON THE SLIDER. The slider runs to 2.5 m/s and
+           the envelope at lift 0.30 m allows 0.61 — so pushing past that
+           point changes nothing on screen and reads as a broken control
+           ("past like 1.5 m/s the background stopped moving faster"). It is
+           not broken; it is the demonstration. The marker moves with the lift,
+           so lowering the lift visibly buys speed and raising it takes it
+           away, which is the whole claim this lab makes. */
+        '<div class="tl-track">' +
+          '<input class="tl-slider" type="range" min="0" max="2.5" step="0.05" ' +
+                 'value="0.6" aria-label="Commanded speed">' +
+          '<span class="tl-ceil"><i></i><b></b></span>' +
+        '</div>' +
       '</div>' +
       '<div class="tl-row">' +
         '<label>Lift height<b class="tl-lift">0.30 m</b></label>' +
@@ -144,6 +154,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
       elLift = host.querySelector('.tl-lift'),
       elNote = host.querySelector('.tl-note'),
       elFx = host.querySelector('.tl-fx'),
+      elCeil = host.querySelector('.tl-ceil'),
       sCmd = host.querySelector('.tl-slider'),
       sLift = host.querySelector('.tl-liftslider'),
       bTog = host.querySelector('.tl-toggle'),
@@ -513,6 +524,18 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
       ? (trimmed ? '<i class="tl-trim">trimmed to ' + vm.toFixed(2) + '</i>'
                  : 'within envelope')
       : '<i class="tl-off">no envelope</i>';
+    /* the ceiling marker, in slider coordinates */
+    if (elCeil) {
+      var frac = Math.max(0, Math.min(1, vm / 2.5));
+      elCeil.style.left = (frac * 100) + '%';
+      elCeil.hidden = !S.safe;
+      elCeil.classList.toggle('hit', trimmed);
+      elCeil.querySelector('b').textContent = S.safe
+        ? (trimmed ? 'envelope ceiling ' + vm.toFixed(2) + ' — asking for more '
+                     + 'changes nothing'
+                   : 'ceiling ' + vm.toFixed(2))
+        : '';
+    }
     if (S.fxT > 0) { S.fxT -= dt; if (S.fxT <= 0) elFx.className = 'tl-fx'; }
 
     requestAnimationFrame(frame);

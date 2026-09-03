@@ -13,17 +13,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=4e7b1a34" />
+<link rel="stylesheet" href="assets/mabel.css?v=a8ad1d46" />
 <script>document.documentElement.classList.add('js');</script>
 <script>
-/* start the rig download during parse — desktop fine-pointer only */
+/* The rig used to be preloaded here with <link rel="preload" as="fetch">.
+   It was DOWNLOADED TWICE — 1.87 MB as the preload and 1.87 MB again by the
+   loader, because a preload only serves a matching request and the GLTFLoader
+   does not issue one that matches. The hero canvas is at the top of the page
+   and starts its own fetch within a few milliseconds of parse, so the preload
+   was buying nothing except a second copy. Only three.js is preloaded now,
+   where modulepreload really is reused. */
 (function () {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  [['fetch', 'assets/mabel_rig.glb'], ['fetch', 'assets/mabel_joints.json']].forEach(function (p) {
-    var l = document.createElement('link');
-    l.rel = 'preload'; l.as = p[0]; l.href = p[1];
-    document.head.appendChild(l);
-  });
   var m = document.createElement('link');
   m.rel = 'modulepreload'; m.href = 'assets/three/three.module.js';
   document.head.appendChild(m);
@@ -501,9 +502,7 @@ is already a training demonstration — no separate recording rig.</p></template
       <div>
       <p class="caption-box" style="margin-bottom:22px;">Envelope · measured</p>
       <figure class="panel-frame reach-env" style="padding:clamp(12px,1.6vw,18px); margin:0;">
-        <img src="assets/reach-envelope.svg" alt="MABEL's fingertip reach envelope,
-             front and side, at the bottom, middle and top of the lift stroke"
-             loading="lazy" />
+        <div class="env-svg" data-inline-src="assets/reach-envelope.svg" role="img" aria-label="MABEL's fingertip reach envelope, front and side, at the bottom, middle and top of the lift stroke"></div><noscript><img src="assets/reach-envelope.svg" alt="MABEL's fingertip reach envelope, front and side, at the bottom, middle and top of the lift stroke" /></noscript>
         <figcaption>Where the fingertip can actually go, at three lift heights.
           Rejection-sampled forward kinematics over the arm&rsquo;s own joint
           limits &mdash; 24,000 samples per height, from the same MuJoCo model
@@ -611,7 +610,7 @@ is already a training demonstration — no separate recording rig.</p></template
 <script src="assets/stack-map.js"></script>
 <script src="assets/spec-grid.js"></script>
 <script src="assets/platform-table.js"></script>
-<script src="assets/mabel.js?v=fd6568a8"></script>
+<script src="assets/mabel.js?v=fc3a47cd"></script>
 <script src="assets/comic-pop.js?v=36ad9059"></script>
 <script>
 (function () {
@@ -644,9 +643,22 @@ is already a training demonstration — no separate recording rig.</p></template
   var wantHero = document.getElementById('heroRig')
     && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (wantHero) {
-    var t = document.createElement('script');
-    t.type = 'module'; t.src = 'assets/hero-rig.js';
-    document.body.appendChild(t);
+    /* AFTER THE PAGE HAS LOADED, AND THEN ON AN IDLE FRAME. The rig is
+       three.js (1.24 MB) plus mabel_rig.glb (1.87 MB) and it is decoration —
+       a cursor-following robot behind a hero that already has its photograph.
+       Racing it against the page's own assets pushed first paint out for
+       nothing; waiting costs the reader a second of an empty corner. */
+    var loadHero = function () {
+      var t = document.createElement('script');
+      t.type = 'module'; t.src = 'assets/hero-rig.js';
+      document.body.appendChild(t);
+    };
+    var idle = function () {
+      if (window.requestIdleCallback) requestIdleCallback(loadHero, { timeout: 2500 });
+      else setTimeout(loadHero, 400);
+    };
+    if (document.readyState === 'complete') idle();
+    else addEventListener('load', idle, { once: true });
     /* phones: once the hero scrolls away, the robot docks as a wee
        corner companion — still watching the cursor, still poke-able */
     if (window.matchMedia('(max-width: 979px)').matches) {
@@ -668,6 +680,7 @@ is already a training demonstration — no separate recording rig.</p></template
 <!-- Control Studio links: the REAL studio is passkey-gated SERVER-side (basic
      auth at control.<domain>) — no client-side gate needed. The SIM twin is an
      open demo whose planes can only reach the token-gated simulation relay. -->
-<script type="module" src="assets/retarget-cam.js"></script>
+<script type="module" src="assets/defer-module.js" data-mod="./retarget-cam.js" data-when="#retargetCam"></script>
+<script src="assets/inline-svg.js"></script>
 </body>
 </html>

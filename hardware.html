@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=4e7b1a34" />
+<link rel="stylesheet" href="assets/mabel.css?v=a8ad1d46" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -133,7 +133,7 @@
         to go quietly stale.</p>
     </div>
     <figure class="callout-fig fade-up">
-      <img src="assets/hw/callout.svg" alt="MABEL with its twelve major components labelled: stereo head camera, Dynamixel neck, DAMIAO shoulder and elbow actuators, wrist module, ORCA hand, torso yaw, FlexiSpot lift, Jetson and power, lidar, REV MAXSwerve modules, and Feetech finger servos." loading="lazy" />
+      <div class="callout-svg" data-inline-src="assets/hw/callout.svg" role="img" aria-label="MABEL with its twelve major components labelled: stereo head camera, Dynamixel neck, DAMIAO shoulder and elbow actuators, wrist module, ORCA hand, torso yaw, FlexiSpot lift, Jetson and power, lidar, REV MAXSwerve modules, and Feetech finger servos."></div><noscript><img src="assets/hw/callout.svg" alt="MABEL with its twelve major components labelled: stereo head camera, Dynamixel neck, DAMIAO shoulder and elbow actuators, wrist module, ORCA hand, torso yaw, FlexiSpot lift, Jetson and power, lidar, REV MAXSwerve modules, and Feetech finger servos." /></noscript>
       <figcaption>Rendered by <code>simulation/mabel_mujoco/scripts/tools/render_callout.py</code> from
         <code>mabel_full.xml</code>. Part numbers come from the same BOM the build page bills.</figcaption>
     </figure>
@@ -185,7 +185,8 @@
 
 <script src="assets/hw-slider.js"></script>
 <script src="assets/accuracy-lab.js"></script>
-<script src="assets/mabel.js?v=fd6568a8"></script>
-<script type="module" src="assets/robot-viewer.js?v=10c66c59"></script>
+<script src="assets/mabel.js?v=fc3a47cd"></script>
+<script type="module" src="assets/defer-module.js" data-mod="./robot-viewer.js?v=10c66c59" data-when="#robot3d"></script>
+<script src="assets/inline-svg.js"></script>
 </body>
 </html>

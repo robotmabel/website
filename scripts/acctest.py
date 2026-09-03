@@ -96,12 +96,22 @@ async def go():
                 bad.append(f"{path}: deployed RMS {cs[-1]['rms_mm']:.1f} mm "
                            "is not on screen")
 
-        # the callout drawing: a broken <img> is invisible and silent
-        cw = await ev("(function(){var i=document.querySelector('.callout-fig img');"
-                      "return i ? i.naturalWidth : -1;})()")
-        print(f"   callout.svg      naturalWidth {cw}")
-        if not cw or cw < 100:
-            bad.append(f"the callout drawing did not load (naturalWidth={cw})")
+        # The callout drawing. inline-svg.js REPLACES the <img> with an inline
+        # <svg> so the figure gets the page's webfonts, so "is the img loaded"
+        # is the wrong question — it measures the rendered box and the number
+        # of leader lines actually drawn instead.
+        cw = await ev("(function(){var f=document.querySelector('.callout-fig');"
+                      "if(!f) return null; var g=f.querySelector('svg,img');"
+                      "if(!g) return null; var r=g.getBoundingClientRect();"
+                      "return {w:Math.round(r.width),h:Math.round(r.height),"
+                      "tag:g.tagName.toLowerCase(),"
+                      "leaders:f.querySelectorAll('path.ld').length,"
+                      "labels:f.querySelectorAll('text.lb').length};})()")
+        print(f"   callout: {cw}")
+        if not cw or cw["w"] < 200 or cw["h"] < 200:
+            bad.append(f"the callout drawing did not render ({cw})")
+        elif cw["tag"] == "svg" and (cw["leaders"] < 10 or cw["labels"] < 10):
+            bad.append(f"the callout is missing leader lines ({cw})")
 
         print("errors:", " | ".join(errs) or "none")
         for b in bad:

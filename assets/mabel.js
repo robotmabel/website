@@ -352,8 +352,17 @@
     return r.bottom > -100 && r.top < innerHeight + 100 && v.offsetParent !== null;
   }
 
-  /* background high-res fetch queue — strictly one at a time */
-  var hiQueue = [], hiBusy = false;
+  /* background high-res fetch queue — strictly one at a time, and never
+     before the page itself has finished loading */
+  var hiQueue = [], hiBusy = false, pageDone = document.readyState === 'complete';
+  if (!pageDone) addEventListener('load', function () { pageDone = true; });
+  function whenIdle(fn) {
+    var go = function () {
+      if (window.requestIdleCallback) requestIdleCallback(fn, { timeout: 3000 });
+      else setTimeout(fn, 600);
+    };
+    if (pageDone) go(); else addEventListener('load', go, { once: true });
+  }
   function pumpHi() {
     if (hiBusy) return;
     var v = hiQueue.shift();
@@ -434,7 +443,12 @@
       v.src = v.dataset.lo || v.dataset.lazyvid;
       v.load();
       if (v.dataset.lo && v.dataset.lazyvid !== v.dataset.lo) {
-        hiQueue.push(v); pumpHi();
+        /* The full-quality upgrade waits for the page to finish loading and
+           then for an idle moment. It is a nicety — the -lo rendition is
+           already playing — and racing it against the page's own assets is
+           what turned a 1.3 MB clip into part of a 42-second first paint. */
+        hiQueue.push(v);
+        whenIdle(pumpHi);
       } else {
         v.dataset.hiDone = '1';
       }
@@ -442,20 +456,29 @@
     var p = v.play(); if (p && p.catch) p.catch(function () {});
   }
 
-  /* start EVERY clip the moment the page opens: the tiny -lo renditions
-     load in parallel right away; the full files stream one at a time
-     behind them. The observer only handles play/pause by visibility. */
-  vids.forEach(function (v) { start(v); });
+  /* START ONLY WHAT IS ON SCREEN. This used to start EVERY clip the moment
+     the page opened, on the theory that the -lo renditions are small. They
+     are; twenty of them are not. Measured on a cold load of index.html: 74
+     requests, 8.6 MB, and DOMContentLoaded at 42.5 SECONDS. connect.html
+     pulled a 7.3 MB clip that lives below the fold. The observer already
+     knows which clips are near the viewport — it just was not the thing
+     deciding when to fetch.
+
+     The property worth keeping is that a clip you are looking at plays
+     immediately, and it survives: `start` runs on intersection with a 400 px
+     margin, so a clip is loading before it is visible. */
   var io = null;
   if ('IntersectionObserver' in window) {
     io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         var v = e.target;
-        if (e.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+        if (e.isIntersecting) start(v);
         else if (v.src) v.pause();
       });
     }, { rootMargin: '400px 0px' });
     vids.forEach(function (v) { io.observe(v); });
+  } else {
+    vids.forEach(function (v) { if (wantsPlay(v)) start(v); });
   }
 
   /* Clips that arrive AFTER this ran — the scene gallery builds itself from
@@ -465,7 +488,15 @@
     var fresh = Array.prototype.slice.call(
       (root || document).querySelectorAll('video[data-lazyvid]'))
       .filter(function (v) { return vids.indexOf(v) < 0; });
-    fresh.forEach(function (v) { vids.push(v); start(v); if (io) io.observe(v); });
+    /* OBSERVE, do not start. Calling start() here loaded all forty scene
+       clips the moment the gallery built itself — 108 requests and 5.2 MB on
+       software.html, for a grid you scroll through a row at a time. The
+       observer starts each tile 400 px before it is visible, which is what
+       every other clip on the site already does. */
+    fresh.forEach(function (v) {
+      vids.push(v);
+      if (io) io.observe(v); else if (wantsPlay(v)) start(v);
+    });
     return fresh.length;
   };
 

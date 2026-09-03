@@ -54,6 +54,10 @@ async def go():
             if await ev("!!window.__platformTable"):
                 break
         bad = 0
+        if not await ev("!!window.__platformTable"):
+            print("the platform table never initialised")
+            print("\nRESULT: FAIL")
+            return
         n = await ev("window.__platformTable.data.platforms.length")
         shown = await ev("window.__platformTable.shown()")
         print(f"{n} platforms surveyed, {shown} shown unfiltered")

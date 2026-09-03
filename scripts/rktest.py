@@ -89,11 +89,12 @@ async def go():
         # every cell in the index must have a file on disk
         missing = []
         for t in D["tasks"]:
-            for m, c in t["cells"].items():
+            # NOT `c` — that is the websocket connection this closure sends on
+            for _m, cell in t["cells"].items():
                 for k in ("clip", "poster"):
-                    f = os.path.join(SITE, "assets", "retarget", c[k])
+                    f = os.path.join(SITE, "assets", "retarget", cell[k])
                     if not os.path.exists(f) or os.path.getsize(f) < 2000:
-                        missing.append(c[k])
+                        missing.append(cell[k])
         print(f"files: {sum(len(t['cells']) for t in D['tasks']) * 2 - len(missing)}"
               f" present, {len(missing)} missing/empty")
         if missing:

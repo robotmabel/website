@@ -98,8 +98,42 @@ async def go():
         lit = await ev("window.__stackMap.lit().length")
         edges = await ev("window.__stackMap.litEdges()")
         print(f"teleop path lights {lit} nodes and {edges} edges")
-        if lit != 9 or edges != 8:
-            print("   *** the highlight does not cover the whole route"); bad += 1
+        if lit != 9 or edges != lit - 1:
+            print("   *** the highlight does not cover the whole route "
+                  f"(want {lit-1} edges for {lit} nodes)")
+            bad += 1
+
+        # EVERY route must draw its lines. "Video -> your screen" lit four
+        # nodes and NOT ONE EDGE for a week, because the two links it needs
+        # (robot->perception, HAL->device) were never in the edge list. A route
+        # with no line is not a route, and nothing here noticed.
+        for pth in paths:
+            await ev(f"window.__stackMap.show('{pth['id']}')")
+            await asyncio.sleep(0.15)
+            ln = await ev("window.__stackMap.lit().length")
+            le = await ev("window.__stackMap.litEdges()")
+            print(f"   {pth['name']:24s} {ln} nodes, {le} edges")
+            if le != len(pth["route"]) - 1:
+                print(f"     *** {pth['name']} is missing "
+                      f"{len(pth['route'])-1-le} of its lines")
+                bad += 1
+
+        # EVERY BLOCK must respond to a click. Blocks on no named route
+        # (localization, SLAM, the relay) light their own neighbourhood; a
+        # block that does nothing reads as broken rather than as off-route.
+        ids = await ev("window.__stackMap.nodes.map(function(n){return n[0];})")
+        dead = []
+        for nid in ids:                     # NOT `i` — that is the closure's
+            await ev("window.__stackMap.show(null)")   # request counter
+            await ev(f"window.__stackMap.clickNode('{nid}')")
+            await asyncio.sleep(0.08)
+            if (await ev("window.__stackMap.lit()") or []).count(nid) == 0:
+                dead.append(nid)
+        if dead:
+            print(f"   *** clicking these does nothing: {', '.join(dead)}")
+            bad += 1
+        else:
+            print(f"all {len(ids)} blocks respond to a click")
 
         # ── the sim/real split ────────────────────────────────────────
         w = await ev("window.__stackMap.worlds()")
@@ -134,8 +168,8 @@ async def go():
 
         # ── hovering ANY block must produce a card with text in it ──────
         ids = await ev("window.__stackMap.nodes.map(function(n){return n[0];})")
-        empty = [i for i in ids
-                 if not await ev(f"window.__stackMap.hover('{i}')")]
+        empty = [nid for nid in ids
+                 if not await ev(f"window.__stackMap.hover('{nid}')")]
         if empty:
             print(f"   *** no hover card for: {', '.join(empty)}"); bad += 1
         else:

@@ -4434,3 +4434,23 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   .rk-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
   .rk-tile figcaption em { display: none; }
 }
+/* the envelope ceiling, drawn on the speed slider */
+.tl-track { position: relative; padding-bottom: 17px; }
+.tl-ceil { position: absolute; top: -3px; transform: translateX(-50%);
+  pointer-events: none; display: grid; justify-items: center; }
+.tl-ceil[hidden] { display: none; }
+.tl-ceil i { display: block; width: 3px; height: 21px; background: var(--hi);
+  border-radius: 2px; box-shadow: 0 0 0 1.5px var(--panel); }
+.tl-ceil b { font-family: var(--font-mono); font-size: 8.5px; white-space: nowrap;
+  color: var(--ash); margin-top: 2px; letter-spacing: .02em; }
+.tl-ceil.hit i { background: var(--pop); box-shadow: 0 0 0 1.5px var(--ink);
+  animation: ceilPulse .6s ease-in-out infinite alternate; }
+.tl-ceil.hit b { color: var(--hi); font-weight: 700; }
+@keyframes ceilPulse { from { transform: scaleY(1); } to { transform: scaleY(1.25); } }
+@media (prefers-reduced-motion: reduce) { .tl-ceil.hit i { animation: none; } }
+/* inline-svg slots: sized before the figure arrives, so nothing jumps */
+.callout-svg, .frames-svg, .env-svg { display: block; width: 100%; }
+.callout-svg { aspect-ratio: 2360 / 1900; }
+.frames-svg  { aspect-ratio: 1180 / 520; }
+.env-svg     { aspect-ratio: 760 / 400; }
+.callout-svg > svg, .frames-svg > svg, .env-svg > svg { width: 100%; height: auto; }
