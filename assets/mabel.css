@@ -4145,3 +4145,11 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   .sg-table tr { display: block; padding: 7px 0;
     border-bottom: 1px solid rgba(21,24,32,.11); }
 }
+
+/* the reach bar and the measured envelope, side by side */
+.reach-row { display: grid; grid-template-columns: 1.55fr 1fr; gap: clamp(14px,2vw,26px);
+  align-items: start; }
+@media (max-width: 900px) { .reach-row { grid-template-columns: 1fr; } }
+.reach-env img { width: 100%; display: block; border-radius: 6px; }
+.reach-env figcaption { font-size: 11px; line-height: 1.55; color: var(--ash);
+  margin-top: 10px; }
