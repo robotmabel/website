@@ -1,0 +1,1037 @@
+{
+ "generated_by": "scripts/build_hw_modules.py",
+ "source": "BOM/data/{core,choices}.csv",
+ "modules": [
+  {
+   "id": "base",
+   "name": "Base",
+   "kicker": "Holonomic",
+   "blurb": "Three independently steered-and-driven swerve modules in a delta layout. It strafes through a doorway, spins on the spot, and holds a heading while driving sideways \u2014 there is no direction it has to turn to face first.",
+   "why": "A delta is the smallest arrangement that is fully holonomic. Four modules would add a redundant constraint and a fourth thing to calibrate; three cannot disagree about where the robot is going.",
+   "specs": [
+    [
+     "Modules",
+     "3 \u00d7 REV MAXSwerve, delta"
+    ],
+    [
+     "Wheel",
+     "76.2 mm dia (38.1 mm radius)"
+    ],
+    [
+     "Bus",
+     "CAN 1 Mbit \u2192 6 REV SPARK"
+    ],
+    [
+     "Controller",
+     "Teensy 4.1 over UDP :8888"
+    ],
+    [
+     "Footprint",
+     "0.49 m across"
+    ]
+   ],
+   "gotcha": "REV's catalogue price is for the module ONLY \u2014 motors, controllers and framing are not included. Budget a NEO, a NEO 550, a SPARK Flex and a SPARK MAX per module on top.",
+   "files": [
+    [
+     "Firmware",
+     "firmware/swerve_drive/"
+    ],
+    [
+     "CAN protocol",
+     "firmware/swerve_drive/rev_can_protocol.md"
+    ],
+    [
+     "Kinematics",
+     "controller/mabel/swerve.py"
+    ]
+   ],
+   "parts": [
+    {
+     "ref": "1.01",
+     "item": "REV Swerve Drive Module",
+     "spec": "REV-21-3005",
+     "qty": 3,
+     "price": 675.0,
+     "vendor": "revrobotics.com",
+     "link": "https://www.revrobotics.com/rev-21-3005/",
+     "search": false,
+     "note": "As-paid lump per module. REV's catalog page prices the module itself at $275 and states motors, controllers and framing are NOT included - see the open items."
+    },
+    {
+     "ref": "1.02",
+     "item": "Base sheet metal, lower",
+     "spec": "Custom laser-cut",
+     "qty": 1,
+     "price": 51.75,
+     "vendor": "Custom fabrication",
+     "link": "",
+     "search": false,
+     "note": "Laser cutting only, no secondary operations."
+    },
+    {
+     "ref": "1.03",
+     "item": "Base sheet metal, upper",
+     "spec": "Custom laser-cut",
+     "qty": 1,
+     "price": 195.36,
+     "vendor": "Custom fabrication",
+     "link": "",
+     "search": false,
+     "note": "4 bends, dimple forming, hardware insertion, tapping."
+    }
+   ],
+   "options": [],
+   "price": 2272.11,
+   "img": "assets/hw/base.png"
+  },
+  {
+   "id": "lift",
+   "name": "Lift",
+   "kicker": "0.635 m of reach",
+   "blurb": "A two-stage worm-gear column lifts the whole upper body through 0.635 m, so the same arms work at a floor socket and at a top shelf.",
+   "why": "The column is a stock standing-desk lift. It is non-backdrivable, which means it holds its height with the motor off \u2014 and it is the single cheapest way to buy this much rigid, repeatable vertical travel.",
+   "specs": [
+    [
+     "Stroke",
+     "0.635 m (two 0.3175 m stages)"
+    ],
+    [
+     "Top stop",
+     "0.9525 m"
+    ],
+    [
+     "Drive",
+     "RP2040 Pico + BTS7960"
+    ],
+    [
+     "Link",
+     "USB serial 115200"
+    ],
+    [
+     "Holding",
+     "worm gear \u2014 no power needed"
+    ]
+   ],
+   "gotcha": "Both stages move together, each taking half the command. Driving one stage with the whole height overshoots the top and can never reach the bottom.",
+   "files": [
+    [
+     "Firmware",
+     "firmware/lift/"
+    ],
+    [
+     "Bring-up",
+     "hardware_bridge/LIFT_VERIFY.md"
+    ]
+   ],
+   "parts": [
+    {
+     "ref": "2.01",
+     "item": "FlexiSpot E7 Pro lift column",
+     "spec": "CBR4830MD-E7WS",
+     "qty": 1,
+     "price": 399.0,
+     "vendor": "flexispot.com",
+     "link": "https://www.flexispot.com/flexispot-pro-standing-desk-e7",
+     "search": false,
+     "note": "A complete standing desk is bought; only the column and frame are used. 0-0.635 m stroke."
+    },
+    {
+     "ref": "2.02",
+     "item": "Lift-to-torso adapter",
+     "spec": "Custom machined",
+     "qty": 1,
+     "price": 59.26,
+     "vendor": "Custom fabrication",
+     "link": "",
+     "search": false,
+     "note": "2 bends, dimple forming, hardware insertion, tapping."
+    },
+    {
+     "ref": "7.11",
+     "item": "Raspberry Pi Pico",
+     "spec": "Auxiliary MCU (lift)",
+     "qty": 1,
+     "price": 15.95,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Raspberry%20Pi%20Pico%20Auxiliary%20MCU%20%28lift%29",
+     "search": true,
+     "note": "Runs the lift leadscrew loop."
+    },
+    {
+     "ref": "7.12",
+     "item": "Motor driver",
+     "spec": "BTS7960 auxiliary DC drive (lift)",
+     "qty": 1,
+     "price": 9.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Motor%20driver%20BTS7960%20auxiliary%20DC%20drive%20%28lift%29",
+     "search": true,
+     "note": ""
+    }
+   ],
+   "options": [],
+   "price": 484.2,
+   "img": "assets/hw/lift.png"
+  },
+  {
+   "id": "body",
+   "name": "Body & torso",
+   "kicker": "One yaw, huge torque",
+   "blurb": "A hollow-shaft planetary actuator turns the whole upper body on the lift, so the arms can face a workspace the base is not pointed at.",
+   "why": "Turning the torso instead of the base is what lets the robot work at a bench without re-parking. The hollow shaft carries the arm harness through the joint rather than around it.",
+   "specs": [
+    [
+     "Actuator",
+     "DAMIAO DM-J10422P"
+    ],
+    [
+     "Torque",
+     "100 N\u00b7m rated \u00b7 400 N\u00b7m peak"
+    ],
+    [
+     "Range",
+     "\u221260\u00b0 to +15\u00b0"
+    ],
+    [
+     "Bus",
+     "DaMiao MIT CAN 1 Mbit"
+    ],
+    [
+     "Plates",
+     "5 custom bent-sheet parts"
+    ]
+   ],
+   "files": [
+    [
+     "Model",
+     "simulation/mabel_mujoco/models/mabel_full.xml"
+    ],
+    [
+     "Machined parts",
+     "BOM/data/machined.csv"
+    ]
+   ],
+   "parts": [
+    {
+     "ref": "2.02",
+     "item": "Lift-to-torso adapter",
+     "spec": "Custom machined",
+     "qty": 1,
+     "price": 59.26,
+     "vendor": "Custom fabrication",
+     "link": "",
+     "search": false,
+     "note": "2 bends, dimple forming, hardware insertion, tapping."
+    },
+    {
+     "ref": "2.03",
+     "item": "Torso output plate",
+     "spec": "Custom machined",
+     "qty": 1,
+     "price": 55.16,
+     "vendor": "Custom fabrication",
+     "link": "",
+     "search": false,
+     "note": "1 bend, hardware insertion, tapping."
+    },
+    {
+     "ref": "2.04",
+     "item": "Body bottom plate",
+     "spec": "Custom machined",
+     "qty": 1,
+     "price": 33.55,
+     "vendor": "Custom fabrication",
+     "link": "",
+     "search": false,
+     "note": "2 bends, hardware insertion, tapping."
+    },
+    {
+     "ref": "2.05",
+     "item": "Arm mounting plate",
+     "spec": "Custom machined",
+     "qty": 2,
+     "price": 13.17,
+     "vendor": "Custom fabrication",
+     "link": "",
+     "search": false,
+     "note": "Hardware insertion, tapping. One per arm."
+    },
+    {
+     "ref": "2.06",
+     "item": "Neck mounting plate",
+     "spec": "Custom machined",
+     "qty": 1,
+     "price": 29.05,
+     "vendor": "Custom fabrication",
+     "link": "",
+     "search": false,
+     "note": "2 bends only."
+    },
+    {
+     "ref": "2.07",
+     "item": "DAMIAO DM10422P torso actuator",
+     "spec": "Hollow-shaft planetary, dual inductive encoder",
+     "qty": 1,
+     "price": 1999.0,
+     "vendor": "Taobao",
+     "link": "https://s.taobao.com/search?q=DM10422P%20%E5%8F%8C%E7%94%B5%E6%84%9F%E7%BC%96%E7%A0%81%E5%99%A8%E9%AB%98%E7%B2%BE%E5%BA%A6%E4%B8%AD%E7%A9%BA%E8%A1%8C%E6%98%9F%E5%87%8F%E9%80%9F%E5%85%B3%E8%8A%82%E7%94%B5%E6%9C%BA%E6%A8%A1%E7%BB%84",
+     "search": true,
+     "note": "400 N.m torso-pitch joint."
+    }
+   ],
+   "options": [],
+   "price": 2202.36,
+   "img": "assets/hw/body.png"
+  },
+  {
+   "id": "arms",
+   "name": "Arms",
+   "kicker": "14 DOF, back-drivable",
+   "blurb": "Two 7-DOF arms on the open OpenArm structure, driven by quasi-direct-drive motors in MIT mode. Low gearing means a commanded torque is a real torque, so gravity compensation and Cartesian impedance are available rather than faked.",
+   "why": "Seven joints give a null space: the elbow can move out of the way without the hand moving at all. That is what makes teleoperation feel like your own arm.",
+   "specs": [
+    [
+     "DOF",
+     "14 (2 \u00d7 7)"
+    ],
+    [
+     "Rate",
+     "500 Hz, MIT CAN 1 Mbit"
+    ],
+    [
+     "Reach",
+     "0 \u2013 2.23 m fingertip span"
+    ],
+    [
+     "Housing",
+     "8 printed parts, ~260 g PETG per arm"
+    ],
+    [
+     "Fasteners",
+     "14 \u00d7 M2.5\u00d710 per arm"
+    ]
+   ],
+   "gotcha": "Verify each motor's (p_max, v_max, t_max) in the DaMiao desktop tool first. A mismatch silently rescales every packed value on the wire.",
+   "files": [
+    [
+     "Firmware",
+     "firmware/openarm/"
+    ],
+    [
+     "Housings",
+     "mechanical/arm_housing/"
+    ],
+    [
+     "Controller",
+     "controller/mabel/"
+    ]
+   ],
+   "parts": [
+    {
+     "ref": "3.01",
+     "item": "DAMIAO FOCGM43 joint module",
+     "spec": "MIT-mode BLDC, dual encoder, geared",
+     "qty": 6,
+     "price": 599.0,
+     "vendor": "Taobao",
+     "link": "https://s.taobao.com/search?q=MIT%E9%A9%B1%E5%8A%A8%E6%97%A0%E5%88%B7%E4%BC%BA%E6%9C%8D%E6%9C%BA%E6%A2%B0%E8%87%82%E6%9C%BA%E5%99%A8%E4%BA%BA%E8%BE%BE%E5%A6%99%E7%A7%91%E6%8A%80%E5%85%B3%E8%8A%82%E6%A8%A1%E7%BB%84%E7%94%B5%E6%9C%BAFOCGM43%E5%87%8F%E9%80%9F%E5%8F%8C%E7%BC%96",
+     "search": true,
+     "note": "The parts list calls this 'DMJ4301'. The verified Taobao listing is a DAMIAO FOCGM43 module; the repo's own build table calls the arm-wrist actuator DM-J4310. Search the model string, not the sheet's label."
+    },
+    {
+     "ref": "3.02",
+     "item": "DAMIAO DM4340 joint motor",
+     "spec": "Geared, dual encoder, 9 N.m rated",
+     "qty": 4,
+     "price": 882.33,
+     "vendor": "Taobao",
+     "link": "https://s.taobao.com/search?q=MIT%E9%A9%B1%E5%8A%A8%E6%97%A0%E5%88%B7%E4%BC%BA%E6%9C%8D%E6%9C%BA%E6%A2%B0%E8%87%82%E6%9C%BA%E5%99%A8%E4%BA%BA%E8%BE%BE%E5%A6%99%E7%A7%91%E6%8A%80%E5%85%B3%E8%8A%82%E7%94%B5%E6%9C%BADM4340%E5%87%8F%E9%80%9F%E5%8F%8C%E7%BC%96%E7%A0%81%E5%99%A8",
+     "search": true,
+     "note": "Parts list says 'DMJ4343'; the listing and the repo build table both say DM4340. Shoulder roll + elbow."
+    },
+    {
+     "ref": "3.03",
+     "item": "DAMIAO DM8009P joint module",
+     "spec": "MIT-mode BLDC module, V4, 40 N.m",
+     "qty": 4,
+     "price": 1899.0,
+     "vendor": "Taobao",
+     "link": "https://s.taobao.com/search?q=DM8009P%20%E6%97%A0%E5%88%B7MIT%E9%A9%B1%E5%8A%A8%E4%BC%BA%E6%9C%8D%E6%9C%BA%E6%A2%B0%E8%87%82%E6%9C%BA%E5%99%A8%E4%BA%BA%E8%BE%BE%E5%A6%99%E7%A7%91%E6%8A%80%E5%85%B3%E8%8A%82%E6%A8%A1%E7%BB%84%E7%94%B5%E6%9C%BA%E5%8F%8C%E7%BC%96",
+     "search": true,
+     "note": "Parts list says 'DMJ4341'; the listing and the repo build table both say DM8009P. Shoulder pitch + yaw. Bought at 25% below the CNY 2529 list."
+    },
+    {
+     "ref": "3.04",
+     "item": "OpenArm structural set",
+     "spec": "CNC 7075 aluminium + sheet steel",
+     "qty": 1,
+     "price": 2699.0,
+     "vendor": "Taobao",
+     "link": "https://s.taobao.com/search?q=%E7%8E%B0%E8%B4%A7openarm%E6%9C%BA%E6%A2%B0%E8%87%82%E7%BB%93%E6%9E%84%E4%BB%B6%20%E5%AE%9A%E5%81%9Acnc%E9%9B%B6%E4%BB%B6%E9%92%A3%E9%87%91%E4%B8%8D%E9%94%88%E9%92%A2%207075%E9%93%9D%E5%90%88%E9%87%91%E5%8A%A0%E5%B7%A5",
+     "search": true,
+     "note": "Dual-arm structural set."
+    },
+    {
+     "ref": "3.05",
+     "item": "Arm harness set",
+     "spec": "Harness + hub + e-stop + power adapter board + PSU",
+     "qty": 1,
+     "price": 865.0,
+     "vendor": "Taobao",
+     "link": "",
+     "search": false,
+     "note": "The original sheet gave '865' with no currency. Read as CNY on the basis of its Taobao link. If it is USD every total rises by $740.93."
+    }
+   ],
+   "options": [],
+   "price": 18283.32,
+   "img": "assets/hw/arms.png"
+  },
+  {
+   "id": "hands",
+   "name": "Hands",
+   "kicker": "34 DOF of fingers",
+   "blurb": "Two open-source ORCA hands: five tendon-routed fingers each, 17 actuated DOF per hand, on one serial chain per hand.",
+   "why": "Tendons put the motors in the palm rather than the finger, so the fingers stay slim enough to fit a real handle \u2014 and a snapped tendon is a five-minute repair rather than a replacement joint.",
+   "specs": [
+    [
+     "DOF",
+     "34 (17 per hand)"
+    ],
+    [
+     "Servos",
+     "32 \u00d7 HL3915M + 2 \u00d7 HL3930M"
+    ],
+    [
+     "Bus",
+     "TTL serial 1 Mbit, one chain per hand"
+    ],
+    [
+     "Per finger",
+     "abduction, MCP, PIP"
+    ],
+    [
+     "Design",
+     "open \u2014 print, string, run"
+    ]
+   ],
+   "gotcha": "The two hand adapters are identical CH340s, so the USB serial number is the only stable way to tell left from right. Register both before first run.",
+   "files": [
+    [
+     "Firmware",
+     "firmware/orca_hand/"
+    ],
+    [
+     "Tensioning",
+     "orca_core initial-tensioning docs"
+    ],
+    [
+     "Config",
+     "hardware_bridge/mabel_hw/config.py"
+    ]
+   ],
+   "parts": [
+    {
+     "ref": "4.01",
+     "item": "Feetech HL3915M servo",
+     "spec": "HL-3915-C001, 12 V, 14 kg-cm, dual-shaft, steel gear, TTL",
+     "qty": 32,
+     "price": 235.0,
+     "vendor": "Taobao",
+     "link": "https://s.taobao.com/search?q=%E9%A3%9E%E7%89%B9HL3915M%E5%8A%9B%E6%8E%A7%E5%85%A8%E9%87%91%E5%B1%9E%E9%92%A2%E9%BD%BF14KG%E5%8F%8C%E8%BD%B4%E7%81%B5%E5%B7%A7%E6%89%8B%E6%9C%BA%E6%A2%B0%E8%87%82TTL%E6%80%BB%E7%BA%BF%E4%B8%B2%E5%8F%A3%E8%88%B5%E6%9C%BA",
+     "search": true,
+     "note": "16 per ORCA hand."
+    },
+    {
+     "ref": "4.02",
+     "item": "Feetech HL3930M servo",
+     "spec": "HL-3930-C001, 12 V, 35 kg-cm, metal case, dual-shaft, TTL",
+     "qty": 2,
+     "price": 359.0,
+     "vendor": "Taobao",
+     "link": "https://s.taobao.com/search?q=%E9%A3%9E%E7%89%B9HL3930M%E6%81%92%E5%8A%9B%E9%87%91%E5%B1%9E%E5%A4%96%E5%A3%B335KG%E5%A4%A7%E6%89%AD%E7%9F%A9%E5%8F%8C%E8%BD%B4%E6%9C%BA%E6%A2%B0%E8%87%82%E6%9C%BA%E5%99%A8%E4%BA%BATTL%E4%B8%B2%E5%8F%A3%E8%88%B5%E6%9C%BA",
+     "search": true,
+     "note": "1 per hand."
+    },
+    {
+     "ref": "4.03",
+     "item": "ST/SC bus servo driver board",
+     "spec": "USB-UART TTL debug board",
+     "qty": 2,
+     "price": 27.65,
+     "vendor": "Taobao",
+     "link": "",
+     "search": false,
+     "note": "One per hand on the 1 Mbit TTL bus."
+    },
+    {
+     "ref": "4.04",
+     "item": "Bus servo power distribution board",
+     "spec": "5264 terminal splitter",
+     "qty": 2,
+     "price": 18.0,
+     "vendor": "Taobao",
+     "link": "",
+     "search": false,
+     "note": "One per hand."
+    }
+   ],
+   "options": [],
+   "price": 8329.3,
+   "img": "assets/hw/hands.png"
+  },
+  {
+   "id": "head",
+   "name": "Neck & head",
+   "kicker": "Where it looks",
+   "blurb": "A 3-DOF neck \u2014 yaw on a DaMiao actuator, pitch and roll on a dual-axis Dynamixel \u2014 carries the head camera.",
+   "why": "Looking is separated from driving on purpose. The controller recovers the operator's torso frame, so a glance moves only the neck while an actual turn of the body drives the base.",
+   "specs": [
+    [
+     "DOF",
+     "3 \u2014 yaw, pitch, roll"
+    ],
+    [
+     "Yaw",
+     "DaMiao FOCGM43, CAN"
+    ],
+    [
+     "Pitch / roll",
+     "Dynamixel 2XL430-W250-T"
+    ],
+    [
+     "Range",
+     "\u00b190\u00b0 yaw, \u00b145\u00b0 pitch and roll"
+    ],
+    [
+     "Bus",
+     "Protocol 2.0 serial, in-house driver"
+    ]
+   ],
+   "files": [
+    [
+     "Driver",
+     "hardware_bridge/mabel_hw/drivers/dynamixel.py"
+    ],
+    [
+     "ROS node",
+     "mabel_ws/src/mabel_body_hardware/"
+    ]
+   ],
+   "parts": [
+    {
+     "ref": "5.01",
+     "item": "Robotis Dynamixel 2XL430-W250-T",
+     "spec": "Dual-axis smart servo",
+     "qty": 1,
+     "price": 149.39,
+     "vendor": "robotshop.com",
+     "link": "https://www.robotshop.com/products/robotis-dynamixel-2xl430-w250-t-smart-servo-actuator",
+     "search": false,
+     "note": "The HAL disagrees: mabel_hw/drivers/dynamixel.py records that MABEL's neck reports model 1090 = XC330-T181 and config.py:665 says there are two of them. 2x XC330-T181-T would be $206.78. Unresolved - see open items."
+    },
+    {
+     "ref": "5.02",
+     "item": "DAMIAO FOCGM43 neck actuator",
+     "spec": "MIT-mode BLDC, dual encoder",
+     "qty": 1,
+     "price": 599.0,
+     "vendor": "Taobao",
+     "link": "",
+     "search": false,
+     "note": "Neck yaw. Same module as line 3.01."
+    }
+   ],
+   "options": [],
+   "price": 748.39,
+   "img": "assets/hw/head.png"
+  },
+  {
+   "id": "sensors",
+   "name": "Sensors",
+   "kicker": "Seven streams",
+   "blurb": "A stereo head camera, a depth camera on the base, one camera per wrist and a 2-D lidar. Every one of them is a documented choice with a cheap option and an expensive one.",
+   "why": "The lidar is the one we recommend you not skip. It makes mapping a CPU job, which leaves the GPU for the policy \u2014 the visual SLAM stack wants the same GPU your model does.",
+   "specs": [
+    [
+     "Head",
+     "stereo, 1280\u00d7720"
+    ],
+    [
+     "Wrists",
+     "2 \u00d7 global shutter, one USB-2 hub"
+    ],
+    [
+     "Base",
+     "depth, optional"
+    ],
+    [
+     "Lidar",
+     "2-D, 12 m, 360 pts"
+    ],
+    [
+     "Measured",
+     "front 26 Hz \u00b7 head 10\u201315 Hz \u00b7 wrists 13\u201315 Hz"
+    ]
+   ],
+   "gotcha": "The two wrist cameras share one USB-2 hub and cap at about 15 Hz for the pair. Pin them by hub port with udev, or they swap sides on reboot.",
+   "files": [
+    [
+     "Camera notes",
+     "sensors/CAMERA_DEBUG.md"
+    ],
+    [
+     "udev rules",
+     "hardware_bridge/install/"
+    ]
+   ],
+   "parts": [],
+   "options": [
+    {
+     "choice": "Wrist cameras",
+     "option": "MMlove AR0144 GS-720P-60fps",
+     "spec": "1280x720 @ 60, global shutter, 170 deg fisheye, no depth",
+     "qty": 2,
+     "price": 48.99,
+     "tier": "essential",
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=MMlove%20AR0144%20GS-720P-60fps%201280x720%20%40%2060%2C%20global%20shutter%2C%20170%20deg%20fisheye%2C%20no%20depth",
+     "search": true
+    },
+    {
+     "choice": "Wrist cameras",
+     "option": "MMlove AR0144 GS-1200P-90fps",
+     "spec": "1600x1200 @ 90, global shutter, same board, higher rate",
+     "qty": 2,
+     "price": 82.99,
+     "tier": "recommended",
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=MMlove%20AR0144%20GS-1200P-90fps%201600x1200%20%40%2090%2C%20global%20shutter%2C%20same%20board%2C%20higher%20rate",
+     "search": true
+    },
+    {
+     "choice": "Wrist cameras",
+     "option": "Intel RealSense D405",
+     "spec": "1280x720 @ 90, global shutter, metric depth 7-50 cm",
+     "qty": 2,
+     "price": 288.0,
+     "tier": "maximum",
+     "vendor": "digikey.com",
+     "link": "https://www.digikey.com/en/product-highlight/i/intel-realsense/d405-depth-camera",
+     "search": false
+    },
+    {
+     "choice": "Head camera",
+     "option": "MMlove 1200P stereo, 112 deg HFOV",
+     "spec": "3200x1200 @ 60, global shutter, synced pair, host-side matching",
+     "qty": 1,
+     "price": 97.99,
+     "tier": "essential recommended",
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=MMlove%201200P%20stereo%2C%20112%20deg%20HFOV%203200x1200%20%40%2060%2C%20global%20shutter%2C%20synced%20pair%2C%20host-side%20matching",
+     "search": true
+    },
+    {
+     "choice": "Head camera",
+     "option": "Intel RealSense D435i",
+     "spec": "1280x720 @ 90, rolling shutter, depth + IMU",
+     "qty": 1,
+     "price": 319.72,
+     "tier": "",
+     "vendor": "pcnation.com",
+     "link": "https://pcnation.com",
+     "search": false
+    },
+    {
+     "choice": "Head camera",
+     "option": "Stereolabs ZED Mini",
+     "spec": "1280x720 @ 60, rolling shutter, on-board depth engine + VIO",
+     "qty": 1,
+     "price": 399.0,
+     "tier": "maximum",
+     "vendor": "stereolabs.com",
+     "link": "https://www.stereolabs.com/store/products/zed-mini",
+     "search": false
+    },
+    {
+     "choice": "Base depth camera",
+     "option": "Omit - rely on the 2D lidar",
+     "spec": "Nav2 maps and plans from the lidar scan alone",
+     "qty": 1,
+     "price": 0.0,
+     "tier": "essential recommended",
+     "vendor": "-",
+     "link": "",
+     "search": false
+    },
+    {
+     "choice": "Base depth camera",
+     "option": "Intel RealSense D435i",
+     "spec": "Adds 3D obstacle detection at the base: overhangs, table edges, low clutter",
+     "qty": 1,
+     "price": 319.72,
+     "tier": "maximum",
+     "vendor": "pcnation.com",
+     "link": "https://pcnation.com",
+     "search": false
+    },
+    {
+     "choice": "2D lidar",
+     "option": "youyeetoo FHL-LD19",
+     "spec": "DTOF, 12 m, 10 Hz, 4.5 kHz, 30 klux, 50 g, ROS 2 SDK (est.)",
+     "qty": 1,
+     "price": 69.0,
+     "tier": "essential",
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=youyeetoo%20FHL-LD19%20DTOF%2C%2012%20m%2C%2010%20Hz%2C%204.5%20kHz%2C%2030%20klux%2C%2050%20g%2C%20ROS%202%20SDK%20%28est.%29",
+     "search": true
+    },
+    {
+     "choice": "2D lidar",
+     "option": "Slamtec RPLIDAR C1",
+     "spec": "DTOF, 12 m, 8-12 Hz, 5 kHz, 40 klux, 110 g (est.)",
+     "qty": 1,
+     "price": 99.0,
+     "tier": "recommended",
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Slamtec%20RPLIDAR%20C1%20DTOF%2C%2012%20m%2C%208-12%20Hz%2C%205%20kHz%2C%2040%20klux%2C%20110%20g%20%28est.%29",
+     "search": true
+    },
+    {
+     "choice": "2D lidar",
+     "option": "youyeetoo FHL-LD19 Plus",
+     "spec": "DTOF, 25 m, 60 klux, IP5X, drop-in LD19 replacement (est.)",
+     "qty": 1,
+     "price": 99.0,
+     "tier": "",
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=youyeetoo%20FHL-LD19%20Plus%20DTOF%2C%2025%20m%2C%2060%20klux%2C%20IP5X%2C%20drop-in%20LD19%20replacement%20%28est.%29",
+     "search": true
+    },
+    {
+     "choice": "2D lidar",
+     "option": "Slamtec RPLIDAR A2M12",
+     "spec": "Triangulation, 12 m, 5-15 Hz, 16 kHz, 190 g - the original spec",
+     "qty": 1,
+     "price": 228.63,
+     "tier": "maximum",
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Slamtec%20RPLIDAR%20A2M12%20Triangulation%2C%2012%20m%2C%205-15%20Hz%2C%2016%20kHz%2C%20190%20g%20-%20the%20original%20spec",
+     "search": true
+    }
+   ],
+   "price": 362.97,
+   "img": "assets/hw/sensors.png"
+  },
+  {
+   "id": "electronics",
+   "name": "Electronics",
+   "kicker": "Two rails",
+   "blurb": "One 24 V supply, one buck converter, and a 12 V rail under it. Compute, the lift controller and the torso bus each get their own line from the supply; everything else hangs off the buck.",
+   "why": "Motor spikes must not reach the compute. That is the whole reason for the split, and the reason nothing shares a return run with the lift \u2014 which draws the biggest current spike on the robot.",
+   "specs": [
+    [
+     "Primary",
+     "24 V \u2014 compute, torso, lift"
+    ],
+    [
+     "Secondary",
+     "12 V via one buck converter"
+    ],
+    [
+     "On 12 V",
+     "6 base drivers, both hands, USB tree, neck"
+    ],
+    [
+     "Network",
+     "6-port 2.5 GbE switch"
+    ],
+    [
+     "MCUs",
+     "2 \u00d7 Teensy 4.1 + 1 \u00d7 RP2040 Pico"
+    ]
+   ],
+   "gotcha": "The buck converter is a single point of failure. If the hands, the base and the whole USB tree die at once, check it first.",
+   "files": [
+    [
+     "Wiring guide",
+     "assets/bom/MABEL_Wiring_Guide.pdf"
+    ],
+    [
+     "HAL config",
+     "hardware_bridge/mabel_hw/config.py"
+    ]
+   ],
+   "parts": [
+    {
+     "ref": "7.01",
+     "item": "SODOLA 6-port 2.5 GbE switch",
+     "spec": "4x 2.5G-BaseT, 2x 10G SFP+, managed",
+     "qty": 1,
+     "price": 49.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=SODOLA%206-port%202.5%20GbE%20switch%204x%202.5G-BaseT%2C%202x%2010G%20SFP%2B%2C%20managed",
+     "search": true,
+     "note": "Onboard network spine."
+    },
+    {
+     "ref": "7.02",
+     "item": "USB expansion board",
+     "spec": "Powered multi-port hub",
+     "qty": 1,
+     "price": 74.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=USB%20expansion%20board%20Powered%20multi-port%20hub",
+     "search": true,
+     "note": "Feeds the camera USB3 tree; contention here is a known video-latency source."
+    },
+    {
+     "ref": "7.03",
+     "item": "Battery",
+     "spec": "Main pack",
+     "qty": 2,
+     "price": 46.81,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Battery%20Main%20pack",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.04",
+     "item": "Ethernet twinax cable",
+     "spec": "SFP+ direct-attach",
+     "qty": 1,
+     "price": 45.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Ethernet%20twinax%20cable%20SFP%2B%20direct-attach",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.05",
+     "item": "Wi-Fi antenna cable",
+     "spec": "Pigtail extension",
+     "qty": 2,
+     "price": 17.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Wi-Fi%20antenna%20cable%20Pigtail%20extension",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.06",
+     "item": "Power cable, 6XT",
+     "spec": "Main DC run",
+     "qty": 1,
+     "price": 24.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Power%20cable%2C%206XT%20Main%20DC%20run",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.07",
+     "item": "Buck converter 24 V to 12 V",
+     "spec": "Step-down regulator",
+     "qty": 1,
+     "price": 18.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Buck%20converter%2024%20V%20to%2012%20V%20Step-down%20regulator",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.08",
+     "item": "Speaker + USB sound card",
+     "spec": "8 ohm 5 W, Jetson/Pi",
+     "qty": 1,
+     "price": 19.5,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Speaker%20%2B%20USB%20sound%20card%208%20ohm%205%20W%2C%20Jetson/Pi",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.09",
+     "item": "Power cord extension",
+     "spec": "AC mains",
+     "qty": 1,
+     "price": 16.95,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Power%20cord%20extension%20AC%20mains",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.10",
+     "item": "Fuse box",
+     "spec": "Blade-fuse distribution",
+     "qty": 1,
+     "price": 15.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Fuse%20box%20Blade-fuse%20distribution",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.11",
+     "item": "Raspberry Pi Pico",
+     "spec": "Auxiliary MCU (lift)",
+     "qty": 1,
+     "price": 15.95,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Raspberry%20Pi%20Pico%20Auxiliary%20MCU%20%28lift%29",
+     "search": true,
+     "note": "Runs the lift leadscrew loop."
+    },
+    {
+     "ref": "7.12",
+     "item": "Motor driver",
+     "spec": "BTS7960 auxiliary DC drive (lift)",
+     "qty": 1,
+     "price": 9.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Motor%20driver%20BTS7960%20auxiliary%20DC%20drive%20%28lift%29",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.13",
+     "item": "USB-C to USB-A cable",
+     "spec": "Head cam, hands x2, base cam",
+     "qty": 4,
+     "price": 6.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=USB-C%20to%20USB-A%20cable%20Head%20cam%2C%20hands%20x2%2C%20base%20cam",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.14",
+     "item": "Ethernet patch cable",
+     "spec": "Upper body + mobile base",
+     "qty": 2,
+     "price": 6.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Ethernet%20patch%20cable%20Upper%20body%20%2B%20mobile%20base",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.15",
+     "item": "Protective sleeving, 1/2 in",
+     "spec": "Harness loom",
+     "qty": 2,
+     "price": 8.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Protective%20sleeving%2C%201/2%20in%20Harness%20loom",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.16",
+     "item": "Protective sleeving, 1/4 in",
+     "spec": "Harness loom",
+     "qty": 1,
+     "price": 8.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Protective%20sleeving%2C%201/4%20in%20Harness%20loom",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.17",
+     "item": "Flashlight",
+     "spec": "Inspection / work light",
+     "qty": 1,
+     "price": 7.99,
+     "vendor": "amazon.com",
+     "link": "https://www.amazon.com/s?k=Flashlight%20Inspection%20/%20work%20light",
+     "search": true,
+     "note": ""
+    },
+    {
+     "ref": "7.18",
+     "item": "Custom PCBs",
+     "spec": "Two-layer distribution boards - not yet priced",
+     "qty": 1,
+     "price": 0.0,
+     "vendor": "JLCPCB",
+     "link": "https://jlcpcb.com/",
+     "search": false,
+     "note": "Budget $100-300 at JLCPCB for boards plus components. No gerbers are released under hardware/ yet, so this cannot be verified from the repo."
+    },
+    {
+     "ref": "7.19",
+     "item": "Custom PCB components",
+     "spec": "Connectors, regulators, CAN transceivers - not yet priced",
+     "qty": 1,
+     "price": 0.0,
+     "vendor": "-",
+     "link": "",
+     "search": false,
+     "note": "Carried at zero in every total on this page."
+    }
+   ],
+   "options": [
+    {
+     "choice": "Onboard compute",
+     "option": "NVIDIA Jetson Orin Nano Super Dev Kit",
+     "spec": "8 GB, 67 TOPS, carrier also accepts Orin NX modules",
+     "qty": 1,
+     "price": 399.0,
+     "tier": "essential",
+     "vendor": "amazon.com",
+     "link": "https://developer.nvidia.com/embedded/buy-jetson",
+     "search": false
+    },
+    {
+     "choice": "Onboard compute",
+     "option": "NVIDIA Jetson Orin NX 8 GB + carrier",
+     "spec": "8 GB, 117 TOPS, module $649 + ~$250 carrier (est.)",
+     "qty": 1,
+     "price": 899.0,
+     "tier": "",
+     "vendor": "nvidia.com",
+     "link": "https://developer.nvidia.com/embedded/buy-jetson",
+     "search": false
+    },
+    {
+     "choice": "Onboard compute",
+     "option": "NVIDIA Jetson Orin NX 16 GB + carrier",
+     "spec": "16 GB, 157 TOPS, module $999 + ~$250 carrier (est.)",
+     "qty": 1,
+     "price": 1249.0,
+     "tier": "recommended",
+     "vendor": "nvidia.com",
+     "link": "https://developer.nvidia.com/embedded/buy-jetson",
+     "search": false
+    },
+    {
+     "choice": "Onboard compute",
+     "option": "NVIDIA Jetson AGX Orin 64 GB Dev Kit",
+     "spec": "64 GB, 275 TOPS, emulates every Orin module, 60 W",
+     "qty": 1,
+     "price": 3499.0,
+     "tier": "",
+     "vendor": "amazon.com",
+     "link": "https://developer.nvidia.com/embedded/buy-jetson",
+     "search": false
+    },
+    {
+     "choice": "Onboard compute",
+     "option": "NVIDIA Jetson AGX Thor Developer Kit",
+     "spec": "128 GB, 2070 TFLOPS",
+     "qty": 1,
+     "price": 5499.0,
+     "tier": "maximum",
+     "vendor": "nvidia.com",
+     "link": "https://developer.nvidia.com/embedded/buy-jetson",
+     "search": false
+    }
+   ],
+   "price": 1748.83,
+   "img": "assets/hw/electronics.png"
+  }
+ ]
+}
