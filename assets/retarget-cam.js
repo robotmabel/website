@@ -49,12 +49,17 @@ const HAND_TASK = 'https://storage.googleapis.com/mediapipe-models/hand_landmark
 
 /* Inference is throttled independently of the render loop — running the models
    inside every animation frame is what pinned this at about 1 fps. */
-const INFER_HZ = 24;
+const INFER_HZ = 30;
 
 /* Per-axis Cartesian gain, robot frame [forward, left, up]. Copied from
    controller/mabel/config.py RETARGET_SCALE: the operator works in a small
    comfortable box and the gain covers MABEL's larger reach. */
 const SCALE = [1.3, 1.3, 1.4];
+
+/* -1 mirrors the head so it matches the mirrored webcam preview; +1 gives the
+   body-true mapping a robot standing opposite you would have. See the note at
+   the gaze block. */
+const MIRROR_GAZE = -1;
 
 const PL = BT.PL;
 
@@ -207,8 +212,9 @@ function boot(HOST) {
       if (R.headNode) {
         R.headNode.updateMatrixWorld(true);
         const wq = R.headNode.getWorldQuaternion(new THREE.Quaternion());
-        R.gazeLocal = new THREE.Vector3(-1, 0, 0)
-          .applyQuaternion(wq.clone().invert()).normalize();
+        const inv = wq.clone().invert();
+        R.gazeLocal = new THREE.Vector3(-1, 0, 0).applyQuaternion(inv).normalize();
+        R.upLocal = new THREE.Vector3(0, 1, 0).applyQuaternion(inv).normalize();
       }
       R.gazeGoal = new THREE.Vector3(-1, 0, 0);
 
@@ -287,11 +293,27 @@ function boot(HOST) {
      disagree, which is the right precedence: the hand is the task. */
   const _p = new THREE.Vector3(), _e = new THREE.Vector3(), _wq = new THREE.Quaternion();
 
+  /* Scratch objects, allocated once. Every one of these used to be a `new`
+     inside the sweep, which at 7 joints x 2 passes x 2 arms x 60 fps is a few
+     thousand quaternions a second for the collector to clean up. */
+  const _sq = new THREE.Quaternion(), _jq = new THREE.Quaternion();
+  const _ax = new THREE.Vector3(), _a = new THREE.Vector3(), _b = new THREE.Vector3();
+  const _toTip = new THREE.Vector3(), _toGoal = new THREE.Vector3();
+
   function setJoint(j, q) {
     j.q = Math.max(j.lo, Math.min(j.hi, q));
     j.node.quaternion.copy(j.rest)
-      .multiply(new THREE.Quaternion().setFromAxisAngle(j.axis, j.q));
-    j.node.updateMatrixWorld(true);
+      .multiply(_sq.setFromAxisAngle(j.axis, j.q));
+    /* NO updateMatrixWorld(true) here.
+       That was the whole reason the rig lagged while the target markers stayed
+       perfectly smooth: force-updating from a SHOULDER walks the entire arm,
+       the wrist, all 17 hand joints and every mesh under them — about 25 nodes
+       — and the sweep does it ~40 times a frame. Nothing needs it, because
+       getWorldPosition/getWorldQuaternion call updateWorldMatrix(true, false),
+       which walks UP the ~10 ancestors of the node being read. O(depth) once
+       per read instead of O(subtree) per write. The renderer updates the whole
+       scene once at draw time anyway. */
+    j.node.matrixWorldNeedsUpdate = true;
   }
 
   function ikPosition(chain, tip, goal, gain, passes) {
@@ -301,17 +323,18 @@ function boot(HOST) {
         const j = chain[i];
         j.node.getWorldPosition(_p);
         tip.getWorldPosition(_e);
-        const toTip = _e.clone().sub(_p), toGoal = goal.clone().sub(_p);
-        if (toTip.lengthSq() < 1e-8 || toGoal.lengthSq() < 1e-8) continue;
-        toTip.normalize(); toGoal.normalize();
-        const wa = _wq.copy(j.node.getWorldQuaternion(new THREE.Quaternion()));
-        const worldAxis = j.axis.clone().applyQuaternion(wa).normalize();
-        const a = toTip.clone().projectOnPlane(worldAxis);
-        const b = toGoal.clone().projectOnPlane(worldAxis);
-        if (a.lengthSq() < 1e-8 || b.lengthSq() < 1e-8) continue;
-        a.normalize(); b.normalize();
-        let ang = Math.acos(Math.max(-1, Math.min(1, a.dot(b))));
-        if (a.clone().cross(b).dot(worldAxis) < 0) ang = -ang;
+        _toTip.copy(_e).sub(_p);
+        _toGoal.copy(goal).sub(_p);
+        if (_toTip.lengthSq() < 1e-8 || _toGoal.lengthSq() < 1e-8) continue;
+        _toTip.normalize(); _toGoal.normalize();
+        j.node.getWorldQuaternion(_jq);
+        _ax.copy(j.axis).applyQuaternion(_jq).normalize();
+        _a.copy(_toTip).projectOnPlane(_ax);
+        _b.copy(_toGoal).projectOnPlane(_ax);
+        if (_a.lengthSq() < 1e-8 || _b.lengthSq() < 1e-8) continue;
+        _a.normalize(); _b.normalize();
+        let ang = Math.acos(Math.max(-1, Math.min(1, _a.dot(_b))));
+        if (_a.cross(_b).dot(_ax) < 0) ang = -ang;
         setJoint(j, j.q + ang * gain);
       }
     }
@@ -331,13 +354,13 @@ function boot(HOST) {
       for (let i = chain.length - 1; i >= 0; i--) {
         const j = chain[i];
         if (!j) continue;
-        _g0.copy(localDir).applyQuaternion(
-          node.getWorldQuaternion(new THREE.Quaternion())).normalize();
+        node.getWorldQuaternion(_jq);
+        _g0.copy(localDir).applyQuaternion(_jq).normalize();
         _g1.copy(goalDir).normalize();
-        const wa = j.node.getWorldQuaternion(new THREE.Quaternion());
-        const worldAxis = j.axis.clone().applyQuaternion(wa).normalize();
-        const a = _g0.clone().projectOnPlane(worldAxis);
-        const b = _g1.clone().projectOnPlane(worldAxis);
+        j.node.getWorldQuaternion(_jq);
+        const worldAxis = _ax.copy(j.axis).applyQuaternion(_jq).normalize();
+        const a = _a.copy(_g0).projectOnPlane(worldAxis);
+        const b = _b.copy(_g1).projectOnPlane(worldAxis);
         /* AUTHORITY. A joint whose axis nearly parallels the gaze cannot turn
            the gaze at all, but the projection of two nearly-parallel vectors
            onto its plane is a pair of tiny, noisy stubs whose ANGLE can be
@@ -348,7 +371,7 @@ function boot(HOST) {
         if (auth < 0.25) continue;
         a.normalize(); b.normalize();
         let ang = Math.acos(Math.max(-1, Math.min(1, a.dot(b))));
-        if (a.clone().cross(b).dot(worldAxis) < 0) ang = -ang;
+        if (a.cross(b).dot(worldAxis) < 0) ang = -ang;
         setJoint(j, j.q + ang * gain * auth);
       }
     }
@@ -378,9 +401,9 @@ function boot(HOST) {
         const ang = 2 * Math.acos(w);
         const s = Math.sqrt(Math.max(1e-12, 1 - w * w));
         if (!(ang > 1e-4)) continue;
-        const errAxis = new THREE.Vector3(_dq.x / s, _dq.y / s, _dq.z / s);
-        const wa = j.node.getWorldQuaternion(new THREE.Quaternion());
-        const worldAxis = j.axis.clone().applyQuaternion(wa).normalize();
+        const errAxis = _a.set(_dq.x / s, _dq.y / s, _dq.z / s);
+        j.node.getWorldQuaternion(_jq);
+        const worldAxis = _ax.copy(j.axis).applyQuaternion(_jq).normalize();
         /* only the part of the error this joint can actually undo */
         const d = errAxis.dot(worldAxis) * (ang > Math.PI ? ang - 2 * Math.PI : ang);
         setJoint(j, j.q + d * gain);
@@ -549,6 +572,18 @@ function boot(HOST) {
 
   const _tmp = new THREE.Vector3(), _q1 = new THREE.Quaternion();
   const _m1 = new THREE.Matrix4(), _m2 = new THREE.Matrix4();
+  const _tgt = new THREE.Vector3(), _up = new THREE.Vector3();
+
+  /* Landmark noise is a few millimetres frame to frame, and a 1.3x gain puts
+     it straight onto the wrist. A deadband plus a light lag removes the shake
+     without adding lag you can feel: below 4 mm nothing moves at all, and
+     above it the target chases at 45% per sample. */
+  function smoothTo(cur, want) {
+    const d = _tmp.copy(want).sub(cur);
+    const n = d.length();
+    if (n < 0.004) return;
+    cur.addScaledVector(d, n > 0.25 ? 1.0 : 0.45);
+  }
 
   /* ARKit world point (metres, shoulder-anchored, +1.35 m standing height)
      → the rig's world, scaled per axis in the ROBOT frame the gain is
@@ -575,17 +610,24 @@ function boot(HOST) {
          absolute target, through BT's own clutch, so fall back to it and lose
          only the orientation. */
       if (!hand || !hand.isTracked) {
-        if (!world || !world[wi] || seen < BT.VIS_T) { relax(s, 0.07); return; }
-        toRig(BT.worldPoint(world[wi], calib.anchor, calib.scale), R.target[s]);
-        if (world[ei] && (vis[ei] == null || vis[ei] >= BT.VIS_T))
-          toRig(BT.worldPoint(world[ei], calib.anchor, calib.scale), R.elbowT[s]);
-        else R.elbowT[s].set(NaN, NaN, NaN);
+        /* HOLD, do not relax. A dropped detection is a gap in the estimate,
+           not an instruction to move — easing back toward the rest pose on
+           every lost frame is what made the arms twitch whenever a hand left
+           the frame for an instant. Freeze on the last good target instead. */
+        if (!world || !world[wi] || seen < BT.VIS_T) return;
+        toRig(BT.worldPoint(world[wi], calib.anchor, calib.scale), _tgt);
+        smoothTo(R.target[s], _tgt);
+        if (world[ei] && (vis[ei] == null || vis[ei] >= BT.VIS_T)) {
+          toRig(BT.worldPoint(world[ei], calib.anchor, calib.scale), _tgt);
+          smoothTo(R.elbowT[s], _tgt);
+        } else R.elbowT[s].set(NaN, NaN, NaN);
         R.wantQ[s] = null;
         return;
       }
 
-      toRig(mTrans(hand.anchorTransform.matrix), R.target[s]);
-      if (elb) toRig(mTrans(elb.matrix), R.elbowT[s]);
+      toRig(mTrans(hand.anchorTransform.matrix), _tgt);
+      smoothTo(R.target[s], _tgt);
+      if (elb) { toRig(mTrans(elb.matrix), _tgt); smoothTo(R.elbowT[s], _tgt); }
       else R.elbowT[s].set(NaN, NaN, NaN);
 
       /* the measured palm frame, rotated into the rig's axes. The FIRST
@@ -616,8 +658,35 @@ function boot(HOST) {
          RIG's basis vectors, so its third column is not the operator's −Z. The
          gaze is a direction, so it maps with M alone. */
       const m = f.head.transform.matrix;
-      arkitToRig(-m[2], -m[6], -m[10], R.gazeGoal).normalize();
+      /* MIRROR. The webcam preview beside this is mirrored, the way a bathroom
+         mirror is, so turning your head to your own left moves your image to
+         the left of that frame. A robot facing you and copying your body
+         turns the OTHER way on screen — physically right, and it reads as
+         backwards next to the preview. The lateral component is flipped so
+         the two views agree; MIRROR_GAZE = 1 restores the body-true mapping. */
+      arkitToRig(-m[2] * MIRROR_GAZE, -m[6], -m[10], R.gazeGoal).normalize();
       aimGaze(R.gazeGoal);
+
+      /* ROLL is left over once the gaze is aimed: pointing a direction says
+         nothing about rotation ABOUT that direction, and ikDirection
+         deliberately skips a joint whose axis parallels the gaze because it
+         has no authority over it. So take the operator's head-up vector, drop
+         the part along the gaze, and measure the signed angle to the robot's
+         own up. That is the tilt of your ear toward your shoulder. */
+      if (R.neck.roll && R.headNode) {
+        arkitToRig(m[1] * MIRROR_GAZE, m[5], m[9], _up).normalize();
+        setJoint(R.neck.roll, 0);
+        R.headNode.getWorldQuaternion(_q1);
+        const have = _tmp.copy(R.upLocal).applyQuaternion(_q1).normalize();
+        const g = R.gazeGoal;
+        const a = have.projectOnPlane(g).normalize();
+        const b = _up.projectOnPlane(g).normalize();
+        if (a.lengthSq() > 0.04 && b.lengthSq() > 0.04) {
+          let roll = Math.acos(Math.max(-1, Math.min(1, a.dot(b))));
+          if (a.clone().cross(b).dot(g) < 0) roll = -roll;
+          setJoint(R.neck.roll, clampJ(R.neck.roll, roll));
+        }
+      }
     }
 
     /* fingers, from the tracked hand shape */
@@ -837,6 +906,33 @@ function boot(HOST) {
      landmarks so the mapping can be checked without a camera */
   window.__wt = {
     rig: R, applyFrame, toRig, arkitToRig, BT,
+    /* solve the arms N times and report the cost, so "it feels slow" can be
+       answered with a number */
+    bench: function (n) {
+      n = n || 200;
+      const t0 = performance.now();
+      for (let k = 0; k < n; k++) {
+        ['l', 'r'].forEach((s) => {
+          if (!R.palm[s]) return;
+          if (Number.isFinite(R.elbowT[s].x) && R.elbow[s])
+            ikPosition(R.chain[s].slice(0, 3), R.elbow[s], R.elbowT[s], 0.18, 1);
+          ikPosition(R.chain[s], R.palm[s], R.target[s], 0.45, 2);
+          ikOrientation(R.chain[s], R.palm[s], R.wantQ[s], 0.35, 1);
+        });
+      }
+      return { n: n, ms: (performance.now() - t0) / n };
+    },
+    targets: function () {
+      return { l: R.target.l.toArray(), r: R.target.r.toArray(),
+               live: R.live };
+    },
+    lose: function () {
+      /* what the loop does when a frame carries no usable landmarks */
+      const w = new Array(33).fill(null);
+      const f = { head: { trackingState: 'notAvailable' },
+                  leftHand: null, rightHand: null };
+      applyFrame(f, w, new Array(33).fill(0));
+    },
     feed: function (world, vis, hands, px) {
       calib = BT.computeAnchor(world, vis);
       if (!calib) return null;

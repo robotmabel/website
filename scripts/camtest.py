@@ -37,7 +37,7 @@ window.__mkPose = function (o) {
   // head: [turnLeft, lookDown, roll] in metres of landmark displacement. The
   // operator's LEFT is image +x, so turning that way swings the nose to +x
   // while the ears rotate about the head centre.
-  var hd = o.head || [0, 0, 0];
+  var hd = o.head || [0, 0, 0];   // [turnLeft, lookDown, roll]
   var P = new Array(33);
   for (var i = 0; i < 33; i++) P[i] = { x: 0, y: 0, z: 0, visibility: 1 };
   var put = function (i, x, y, z) { P[i] = { x: x, y: y, z: z, visibility: 1 }; };
@@ -228,10 +228,14 @@ async def go():
         # turn the head to the operator's LEFT: the nose swings toward image
         # right (+x) and the ears follow. The robot's head must turn to ITS
         # left, which with forward = −X and right = −Z means gaze z goes +.
+        # The preview beside this widget is MIRRORED, so turning your head to
+        # your own left moves your image to the left of that frame and the
+        # robot must follow it there. Screen-left is −Z with the camera in
+        # front of the robot, so the gaze z must go NEGATIVE.
         turn = await probe(head=[0.10, 0.0, 0.0])
         print(f"turn left gaze {fmt(turn['gaze'])}  Δz {turn['gaze'][2]-rest['gaze'][2]:+.2f}")
-        if not (turn["gaze"][2] - rest["gaze"][2] > 0.15):
-            print("   *** turning the head did not turn the gaze the same way"); bad += 1
+        if not (turn["gaze"][2] - rest["gaze"][2] < -0.15):
+            print("   *** turning the head does not match the mirrored preview"); bad += 1
 
         down = await probe(head=[0.0, 0.10, 0.0])
         print(f"look down gaze {fmt(down['gaze'])}  Δy {down['gaze'][1]-rest['gaze'][1]:+.2f}")
@@ -241,7 +245,35 @@ async def go():
             print("   *** looking down also swung the gaze sideways (axes crossed)")
             bad += 1
 
-        # 6 — the solver actually converges on the target it was given
+        # 6 — ROLL. Tilting your head toward a shoulder has to reach the neck,
+        # and aiming a direction alone cannot carry it.
+        roll = await probe(head=[0.0, 0.0, 0.12])
+        print(f"head roll neck roll {roll['neck']['roll']:+.2f} rad "
+              f"(rest {rest['neck']['roll']:+.2f})")
+        if abs(roll["neck"]["roll"] - rest["neck"]["roll"]) < 0.10:
+            print("   *** tilting the head does not roll the neck"); bad += 1
+        if abs(roll["gaze"][1] - rest["gaze"][1]) > 0.25:
+            print("   *** a pure roll also pitched the gaze"); bad += 1
+
+        # 7 — HOLD ON LOSS. A dropped detection must freeze the arms, not
+        # spring them back: relaxing on every lost frame is what made them
+        # twitch whenever a hand left the frame.
+        before = json.loads(await ev("JSON.stringify(window.__wt.targets())"))
+        await ev("window.__wt.lose()")
+        after = json.loads(await ev("JSON.stringify(window.__wt.targets())"))
+        moved = max(abs(a - b) for a, b in zip(before["r"], after["r"]))
+        print(f"\ntracking lost → target moved {moved*1000:.1f} mm")
+        if moved > 0.001:
+            print("   *** losing tracking moved the arm"); bad += 1
+
+        # 8 — the solve has to fit in a frame
+        bench = json.loads(await ev("JSON.stringify(window.__wt.bench(300))"))
+        print(f"solve cost {bench['ms']:.2f} ms per frame over {bench['n']} solves "
+              f"→ {1000/max(0.01, bench['ms']):.0f} fps ceiling")
+        if bench["ms"] > 6.0:
+            print("   *** the solve alone cannot hold 60 fps"); bad += 1
+
+        # 9 — the solver actually converges on the target it was given
         worst = max(rest["r"]["err"], up["r"]["err"], fwd["r"]["err"]) * 1000
         print(f"\nworst tracking residual {worst:.0f} mm")
         if worst > 260:

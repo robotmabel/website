@@ -27,6 +27,8 @@ body { overflow-x: hidden; }
   --orange:      #F0762E;   /* apple orange — THE main accent (microduck) */
   --orange-dim:  #D45E17;
   --yellow:      #F2C94C;   /* NYC taxi yellow — narration, step cards */
+  --nyc:         #FFD400;   /* the LOUD cab yellow: reserved for the one thing
+                               on the page that is meant to shout */
   --rust:        #C6301A;   /* vermillion — the LOUD voice: bursts, seals */
   --rust-dim:    #93220F;
   --clay:        #8B5A3C;
@@ -3504,7 +3506,7 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
    second, slightly larger star sitting behind it, because clip-path crops the
    border away — you cannot stroke a clipped edge. */
 .nav-build { position: relative; display: inline-grid; place-items: center;
-  width: 150px; height: 54px; margin: -6px 2px -6px 6px; flex: 0 0 auto;
+  width: 186px; height: 66px; margin: -10px 2px -10px 8px; flex: 0 0 auto;
   text-decoration: none; isolation: isolate; }
 .nav-build::before, .nav-build::after { content: ""; position: absolute;
   inset: 0; clip-path: polygon(50.0% 0.0%, 60.4% 14.5%, 77.0% 7.9%, 78.0% 25.8%,
@@ -3512,12 +3514,15 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
     64.1% 98.0%, 50.0% 87.0%, 35.9% 98.0%, 30.0% 81.1%, 12.2% 82.7%, 16.3% 65.4%,
     0.5% 57.1%, 13.4% 44.7%, 4.5% 29.2%, 22.0% 25.8%, 23.0% 7.9%, 39.6% 14.5%); }
 .nav-build::before { background: var(--ink); transform: scale(1.06) translate(1px,2px); }
-.nav-build::after { background: var(--rust); z-index: 1; }
+.nav-build::after { background: var(--nyc); z-index: 1; }
+/* NYC-cab yellow, ink lettering — the star is the loudest thing in the bar
+   on purpose, and it is now the ONLY way into the build (the Build dropdown
+   beside it said the same thing twice). */
 .nav-build span { position: relative; z-index: 2; font-family: var(--font-comic);
-  font-size: 12px; line-height: 1; letter-spacing: 0.04em; color: #FFF6E4;
+  font-size: 15px; line-height: 1.02; letter-spacing: 0.03em; color: var(--ink);
   text-align: center; transform: rotate(-4deg); pointer-events: none;
-  text-shadow: 0 2px 0 rgba(21,24,32,0.45); }
-.nav-build:hover::after { background: var(--orange); }
+  text-shadow: 0 1px 0 rgba(255,255,255,.5); }
+.nav-build:hover::after { background: #FFE24A; }
 .nav-build:hover { animation: buildPop 0.5s ease; }
 .nav-build:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px;
   border-radius: 6px; }
@@ -3533,7 +3538,7 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 
 /* the star's spikes reach past the pill, so the bar needs room on the right */
 .nav:has(.nav-build) { padding-right: 12px; }
-@media (max-width: 1240px) { .nav-build { display: none; } }
+@media (max-width: 1120px) { .nav-build { display: none; } }
 
 /* ═══ Hardware subsystem slider ═══
    Cards side by side, scroll-snapped. Each is a portrait of the real part
@@ -3605,14 +3610,27 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .hs-dot.on { background: var(--rust); }
 
 /* the detail sheet */
-.hs-sheet { position: fixed; inset: 0; z-index: 90; background: rgba(21,24,32,0.72);
-  display: grid; place-items: center; padding: clamp(12px,3vw,40px);
-  overflow-y: auto; }
+.hs-sheet { position: fixed; inset: 0; z-index: 400; background: rgba(21,24,32,0.78);
+  display: grid; place-items: start center; padding: clamp(10px,3vw,40px);
+  overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .hs-sheet[hidden] { display: none; }
-.hs-sheet-in { position: relative; width: min(760px, 100%); background: var(--panel);
-  border: 3px solid var(--ink); border-radius: 14px;
-  box-shadow: 10px 10px 0 rgba(21,24,32,0.55); padding: clamp(18px,3vw,30px);
-  max-height: 92vh; overflow-y: auto; }
+.hs-sheet-in { position: relative; width: min(820px, 100%); margin: auto;
+  background: var(--panel); border: 3px solid var(--ink); border-radius: 14px;
+  box-shadow: 10px 10px 0 rgba(21,24,32,0.55); padding: clamp(16px,3vw,30px);
+  max-height: none; }
+@media (min-width: 700px) {
+  .hs-sheet { place-items: center; }
+  .hs-sheet-in { max-height: 90vh; overflow-y: auto; }
+}
+@media (max-width: 700px) {
+  /* on a phone the sheet IS the page: let it scroll with the document rather
+     than trapping a long parts table in a short inner scroller */
+  .hs-sheet-in { padding: 16px 14px 22px; border-radius: 12px; }
+  .hs-sheet-head img { max-width: 200px; }
+  .hs-close { position: sticky; top: 0; float: right; }
+  .hs-table { font-size: 12px; }
+  .hs-files b { flex-basis: 84px; }
+}
 .hs-close { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px;
   cursor: pointer; font-size: 15px; border: 2px solid var(--ink); border-radius: 7px;
   background: var(--bone); color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }

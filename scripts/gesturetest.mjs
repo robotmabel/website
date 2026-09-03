@@ -41,10 +41,15 @@ function hand({ ext = [], thumb = false, thumbDown = false, at = [0.5, 0.6],
     put(2, -0.055, -0.045 * s);
     put(3, -0.105, -0.085 * s);
     put(4, -0.150, -0.125 * s);
-  } else {                           // tucked across the palm
+  } else {
+    /* Tucked ACROSS the palm, the way a real hand holds up one finger: the
+       thumb folds over toward the little finger, so its tip ends up closer to
+       the pinky knuckle than its own IP joint. A thumb merely resting beside
+       the index is not folded, and reading it as folded is what let every
+       count come out one too high. */
     put(2, -0.030, -0.045);
-    put(3, 0.005, -0.070);
-    put(4, 0.040, -0.080);
+    put(3, 0.010, -0.062);
+    put(4, 0.060, -0.070);
   }
   return P;
 }
@@ -56,6 +61,9 @@ function is(name, got, want) {
 }
 
 console.log('one hand');
+/* the counts are the thing that broke in the wild, so test each of them with
+   the thumb both tucked and merely resting alongside */
+is('one, thumb tucked', readHand(hand({ ext: ['index'] }), hand({ ext: ['index'] })), 'one');
 is('index only', readHand(hand({ ext: ['index'] }), hand({ ext: ['index'] })), 'one');
 is('index+middle', readHand(hand({ ext: ['index', 'middle'] }),
                             hand({ ext: ['index', 'middle'] })), 'two');

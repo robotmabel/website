@@ -77,10 +77,17 @@
       '<div class="hs-sheet" hidden><div class="hs-sheet-in"></div></div>';
     host.innerHTML = html;
 
+    /* The sheet is position:fixed, but a `transform` on ANY ancestor makes
+       fixed positioning resolve against that ancestor instead of the viewport
+       — and .fade-up animates a transform. That is why the sheet was trapped
+       inside the slider's box and clipped by its border. Re-parenting it to
+       <body> puts it back on the viewport, where a modal belongs. (The BOM
+       hover card had exactly this bug.) */
     var rail = host.querySelector('.hs-rail');
     var dots = host.querySelector('.hs-dots');
     var sheet = host.querySelector('.hs-sheet');
     var sheetIn = host.querySelector('.hs-sheet-in');
+    document.body.appendChild(sheet);
     var cards = [].slice.call(host.querySelectorAll('.hs-card'));
 
     dots.innerHTML = cards.map(function (c, i) {
@@ -208,11 +215,11 @@
     }
     host.addEventListener('click', function (e) {
       var b = e.target.closest('.hs-more');
-      if (b) {
-        var id = b.closest('.hs-card').dataset.id;
-        open(mods.filter(function (m) { return m.id === id; })[0]);
-        return;
-      }
+      if (!b) return;
+      var id = b.closest('.hs-card').dataset.id;
+      open(mods.filter(function (m) { return m.id === id; })[0]);
+    });
+    sheet.addEventListener('click', function (e) {
       if (e.target.closest('.hs-close') || e.target === sheet) close();
     });
     addEventListener('keydown', function (e) {

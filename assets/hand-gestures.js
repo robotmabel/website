@@ -48,18 +48,27 @@ export function fingerExtended(pts, name) {
   return reach > 0.82 && straight > 0.55 && outward;
 }
 
-/* The thumb does not fold like the others — it ABDUCTS. It counts as extended
- * when its tip has swung clear of the index knuckle by a good fraction of the
- * palm, and its own two segments are not curled. */
+/* The thumb does not fold like the others — it ABDUCTS across the palm. */
 export function thumbExtended(pts) {
   const w = palmWidth(pts);
   const tip = v(pts[4]), ip = v(pts[3]), mcp = v(pts[2]);
   const idxMcp = v(pts[5]), pinkyMcp = v(pts[17]);
-  const clear = len(sub(tip, idxMcp)) / w;
+
+  /* The discriminator is the PINKY KNUCKLE, not the index one.
+   *
+   * A thumb folds by crossing the palm TOWARD the little finger, so a tucked
+   * thumb's tip ends up nearer the pinky knuckle than its own IP joint is; an
+   * abducted thumb swings the tip away and the ratio goes above one. Measuring
+   * distance from the INDEX knuckle instead — which is what the first version
+   * did — cannot tell those apart, because a tucked thumb still rests a good
+   * fraction of a palm away from the index. That false positive is why every
+   * count came out one too high: one finger read as "2", four as "5", and a
+   * real "1" was unreachable.
+   */
+  const reach = len(sub(tip, pinkyMcp)) / (len(sub(ip, pinkyMcp)) + 1e-9);
   const straight = dot(unit(sub(tip, ip)), unit(sub(ip, mcp)));
-  /* a curled thumb tucks TOWARD the pinky side; an extended one moves away */
-  const away = len(sub(tip, pinkyMcp)) > len(sub(idxMcp, pinkyMcp)) * 0.72;
-  return clear > 0.62 && straight > 0.2 && away;
+  const clear = len(sub(tip, idxMcp)) / w;
+  return reach > 1.05 && straight > 0.1 && clear > 0.5;
 }
 
 export function fingerState(pts) {
