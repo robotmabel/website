@@ -215,6 +215,15 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
      far end of the strip walks off the left edge and nothing follows it, so
      the skyline quietly emptied out after about 20 seconds of driving. */
   var STRIP = 3000;
+  /* PARALLAX GAIN. The city scrolls at exactly v x PPM px/s, which is honest
+     and reads as almost still: at 0.6 m/s that is 90 px/s across a 1000 px
+     stage, so moving the slider barely changes the picture. The gain is a
+     CAMERA choice, not a physics one — the robot's speed, its tilt and the CoM
+     marker are all unaffected — so the background gets a cinematic multiplier
+     and the foreground a much larger one, which is what makes a speed change
+     land visually. */
+  var BG_GAIN = 2.6;
+  var FG_GAIN = 7.5;
   var SKY = [];
   (function seedCity() {
     var x = 0;
@@ -235,6 +244,47 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
   }
   window.addEventListener('resize', resize);
 
+  /* Street furniture close to the lens. It is the layer that sells speed:
+     near objects sweep past far faster than the skyline, and at 2.5 m/s these
+     become streaks while the towers merely drift. */
+  var FG = [];
+  (function seedStreet() {
+    var x = 0;
+    while (x < STRIP) {
+      FG.push({ x: x, h: 54 + Math.random() * 40, lamp: Math.random() > 0.55 });
+      x += 150 + Math.random() * 120;
+    }
+  })();
+
+  function drawStreet(W, H, ground) {
+    var off = (S.x * FG_GAIN * PPM) % STRIP;
+    if (off < 0) off += STRIP;
+    var tiles = Math.ceil((W + 300) / STRIP) + 1;
+    /* A LIGHTER ink than the towers. Drawn in the same near-black they are,
+       this layer vanished into them and the fastest thing on screen was
+       invisible — the whole point is that it reads as separate and close. */
+    for (var t = 0; t < tiles; t++) {
+      var tx = t * STRIP - off;
+      FG.forEach(function (o) {
+        var x = o.x + tx;
+        if (x < -80 || x > W + 80) return;
+        ctx.fillStyle = '#3A4152';
+        if (o.lamp) {
+          var h = o.h + 60;                 // tall enough to cross the skyline
+          ctx.fillRect(x, ground - h, 6, h);
+          ctx.fillRect(x - 12, ground - h - 7, 30, 8);
+          ctx.fillStyle = 'rgba(255,206,10,0.9)';
+          ctx.fillRect(x - 8, ground - h - 2, 22, 5);
+        } else {
+          ctx.fillRect(x, ground - 30, 11, 30);
+          ctx.fillRect(x - 4, ground - 36, 19, 7);
+          ctx.fillStyle = '#C6301A';        // a hydrant, so it is legible
+          ctx.fillRect(x + 2, ground - 26, 7, 20);
+        }
+      });
+    }
+  }
+
   function drawCity(W, H, ground) {
     /* two parallax bands of art-deco setback towers */
     [[0.35, '#2A2E3A', 0.55], [1.0, '#151820', 1]].forEach(function (band, bi) {
@@ -242,7 +292,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
          S.x integrates the real speed — so the city sweeps past at exactly
          v·PPM px/s on the near band, and proportionally slower on the far
          one. Faster robot, faster background, with nothing fudged. */
-      var off = (S.x * band[0] * PPM) % STRIP;
+      var off = (S.x * band[0] * BG_GAIN * PPM) % STRIP;
       if (off < 0) off += STRIP;            // driving backwards must tile too
       ctx.fillStyle = band[1];
       var tiles = Math.ceil((W + 280) / STRIP) + 1;
@@ -430,11 +480,14 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
     sky.addColorStop(0, '#F6E9C9'); sky.addColorStop(1, '#EBD9AE');
     ctx.fillStyle = sky; ctx.fillRect(0, 0, W, ground);
     drawCity(W, H, ground);
+    drawStreet(W, H, ground);         // the fast layer, over the towers
 
     /* road + speed dashes that stream past at the real speed */
     ctx.fillStyle = '#151820'; ctx.fillRect(0, ground, W, H - ground);
     ctx.fillStyle = '#F2C94C';
-    var dashOff = (S.x * PPM) % 60;   // road dashes: same scale as the robot
+    /* the dashes carry the speed too, so raise their gain with the scenery —
+       at 60 px apart and v x PPM they crawl at walking pace */
+    var dashOff = (S.x * FG_GAIN * PPM) % 60;
     for (var dx = -dashOff; dx < W; dx += 60) ctx.fillRect(dx, ground + 20, 32, 4);
 
     /* motion streaks behind the robot, length ∝ speed */

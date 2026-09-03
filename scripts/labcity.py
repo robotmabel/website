@@ -75,6 +75,29 @@ async def go():
                       f"({n} vs {base})"); bad += 1
         if base <= 0:
             print("   *** no skyline at all"); bad += 1
+        # PARALLAX: the point of the layers is that speed is visible. Sample
+        # the same short interval of travel at two speeds and check the near
+        # scenery sweeps proportionally further.
+        await ev("window.__tipLab.x = 0;")
+        await asyncio.sleep(0.6)
+        shifts = {}
+        for dist in (2.0, 20.0):
+            a = await ev("""(function(){var c=document.querySelector('.tl-canvas');
+              var x=c.getContext('2d');
+              return x.getImageData(0,Math.round(c.height*0.45),c.width,2).data
+                      .reduce(function(s,v,i){return i%4?s:s+(v<70?1:0);},0);})()""")
+            await ev(f"window.__tipLab.x = {dist};")
+            await asyncio.sleep(0.6)
+            b = await ev("""(function(){var c=document.querySelector('.tl-canvas');
+              var x=c.getContext('2d');
+              return x.getImageData(0,Math.round(c.height*0.45),c.width,2).data
+                      .reduce(function(s,v,i){return i%4?s:s+(v<70?1:0);},0);})()""")
+            shifts[dist] = abs(b - a)
+            await ev("window.__tipLab.x = 0;")
+            await asyncio.sleep(0.4)
+        print(f"\nscanline change over 2 m vs 20 m driven: "
+              f"{shifts[2.0]} vs {shifts[20.0]} px")
+
         print("\nRESULT:", "PASS" if bad == 0 else "FAIL")
 
 

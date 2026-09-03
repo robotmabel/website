@@ -4037,3 +4037,67 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   background: rgba(21,24,32,.06); padding: 1px 5px; border-radius: 4px;
   word-break: break-all; }
 .rc2-err { font-family: var(--font-mono); font-size: 12px; color: var(--rust); }
+
+/* ═══ Platform landscape — filterable survey ═══ */
+.pt { border: 3px solid var(--ink); border-radius: 14px; background: var(--panel);
+  box-shadow: 8px 8px 0 var(--ink); padding: clamp(16px,2.4vw,26px); }
+.dark-sec .pt { box-shadow: 8px 8px 0 rgba(0,0,0,.8); border-color: var(--gold); }
+.pt-head { margin-bottom: 12px; }
+.pt-kicker { font-family: var(--font-comic); font-size: 12px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--hi); }
+.pt-title { font-family: var(--font-display); font-size: clamp(24px,3.4vw,34px);
+  line-height: 1; margin: 4px 0 0; color: var(--ink); }
+.pt-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.pt-chip, .pt-clear { font-family: var(--font-comic); font-size: 12px;
+  letter-spacing: .04em; padding: 6px 11px; cursor: pointer;
+  border: 2px solid var(--ink); border-radius: 999px; background: var(--bone);
+  color: var(--ink); transition: background .14s ease, transform .12s ease; }
+.pt-chip:hover, .pt-clear:hover { transform: translateY(-1px); background: var(--pop); }
+.pt-chip.on { background: var(--hi); color: #FFF9F0; }
+.pt-clear { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+  border-style: dashed; }
+.pt-verdict { font-size: 13.5px; line-height: 1.6; color: var(--ink-soft);
+  margin: 0 0 12px; padding: 9px 13px; border-radius: 8px;
+  background: rgba(255,206,10,.2); border-left: 4px solid var(--pop); }
+.pt-verdict b { color: var(--hi); }
+.pt-scroll { overflow-x: auto; }
+.pt-table { width: 100%; border-collapse: collapse; min-width: 760px; font-size: 12.5px; }
+.pt-table th { font-family: var(--font-mono); font-size: 9px; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--ash); text-align: left;
+  padding: 0 8px 7px 0; border-bottom: 3px solid var(--ink); cursor: pointer;
+  white-space: nowrap; }
+.pt-table th:hover { color: var(--hi); }
+.pt-table th.sorted { color: var(--hi); }
+.pt-table th.sorted::after { content: " ▲"; font-size: 7px; }
+.pt-table th.sorted[data-dir="down"]::after { content: " ▼"; }
+.pt-table td { padding: 8px 8px 8px 0; vertical-align: top;
+  border-bottom: 1px solid rgba(21,24,32,.11); }
+.pt-name b { display: block; font-family: var(--font-head); font-weight: 700;
+  font-size: 13.5px; color: var(--ink); }
+.pt-name i { display: block; font-style: normal; font-family: var(--font-mono);
+  font-size: 9.5px; color: var(--ash); line-height: 1.35; }
+.pt-name em { display: block; font-style: normal; font-family: var(--font-mono);
+  font-size: 9px; color: var(--ash-light); }
+.pt-n { font-family: var(--font-mono); white-space: nowrap; }
+.pt-n.hi { color: var(--hi); font-weight: 700; }
+.pt-y { font-family: var(--font-mono); font-size: 8.5px; text-transform: uppercase;
+  padding: 1px 5px; border-radius: 4px; background: var(--green); color: #FFF6E4; }
+.pt-open { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px; border: 2px solid var(--ink);
+  background: var(--green); color: #FFF6E4; }
+.pt-closed { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px; border: 2px solid rgba(21,24,32,.3);
+  color: var(--ash); }
+.pt-table tr.ours td { background: rgba(255,206,10,.2); border-top: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink); }
+.pt-table tr.ours .pt-name b { color: var(--hi); font-size: 15px; }
+.pt-table tbody tr:hover td { background: rgba(242,201,76,.16); }
+.pt-src { font-size: 10.5px; line-height: 1.6; color: var(--ash); margin: 12px 0 0; }
+.pt-src code { font-family: var(--font-mono); font-size: 9.5px;
+  background: rgba(21,24,32,.06); padding: 1px 5px; border-radius: 4px;
+  word-break: break-all; }
+.pt-err { font-family: var(--font-mono); font-size: 12px; color: var(--rust); }
+@media (max-width: 700px) {
+  .pt-name i, .pt-name em { display: none; }
+  .pt-table { min-width: 620px; font-size: 11.5px; }
+}
