@@ -5,8 +5,10 @@ cursor really is the card, dispatch a real mouse click, then assert the
 overlay opened, the title is right, the URL did not change, and Escape closes."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-PORT=9253
-prof="/tmp/cdp-poptest"; subprocess.run(["rm","-rf",prof])
+import random
+PORT = 9253 + random.randrange(60)  # its own port and profile:
+                                # two checks in flight collided and one died
+prof = f"/tmp/cdp-poptest-{PORT}"; subprocess.run(["rm","-rf",prof])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={PORT}",
   f"--user-data-dir={prof}","--window-size=1400,950","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],

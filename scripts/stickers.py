@@ -1,7 +1,10 @@
 """Report any sticker whose box overlaps real text. Run across every page."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P=9267; prof="/tmp/cdp-st"; subprocess.run(["rm","-rf",prof])
+import random
+P = 9267 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died
+prof = f"/tmp/cdp-st-{P}"; subprocess.run(["rm","-rf",prof])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   f"--user-data-dir={prof}","--window-size=1440,1000","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],

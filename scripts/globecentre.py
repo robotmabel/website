@@ -2,7 +2,9 @@
 """The globe must be centred in its stage and follow the drag, not fight it."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P=9299; subprocess.run(["rm","-rf","/tmp/cdp-gc"])
+import random
+P = 9299 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died; subprocess.run(["rm","-rf",f"/tmp/cdp-gc-{P}"])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   "--user-data-dir=/tmp/cdp-gc","--window-size=1400,900","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],

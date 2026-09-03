@@ -6,7 +6,10 @@ drives the extracted pure integrator (window.__tipStep) in a tight loop with
 a fixed dt instead, so the result depends only on the law."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P=9265; prof="/tmp/cdp-lt"; subprocess.run(["rm","-rf",prof])
+import random
+P = 9265 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died
+prof = f"/tmp/cdp-lt-{P}"; subprocess.run(["rm","-rf",prof])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   f"--user-data-dir={prof}","--window-size=1200,800","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],

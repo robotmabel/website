@@ -2095,17 +2095,23 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
 .panel-speech.thought { border-radius: 50%; }
 .panel-speech.thought::before, .panel-speech.thought::after { display: none; }
 .panel-speech.thought .tb { position: absolute; background: #FFF9F0; border: 2.5px solid var(--ink); border-radius: 50%; }
-/* TMNT-style centre title burst */
-.adv-burst { position: relative; z-index: 5; width: min(340px, 74vw); margin: -26px auto -30px;
-  text-align: center; transform: rotate(-2deg); pointer-events: none;
-  filter: drop-shadow(4px 5px 0 rgba(0,0,0,0.55)); }
-.adv-burst .ab-in { background: var(--ink); border: 3px solid #FFF9F0;
+/* TMNT-style centre title burst.
+   It sits OUTSIDE the horizontally-scrolling rail now. As a child of .marquee
+   it scrolled away with the cards, which is the one place a title must not go
+   — and on the dark section its ink body read as a hole. NYC-cab yellow with
+   ink lettering makes it the loudest thing in the panel, which is the job. */
+.marquee-wrap { position: relative; padding-top: 34px; }
+.adv-burst { position: absolute; z-index: 6; top: 0; left: 50%;
+  width: min(340px, 74vw); text-align: center;
+  transform: translateX(-50%) rotate(-2deg); pointer-events: none;
+  filter: drop-shadow(5px 6px 0 rgba(0,0,0,0.6)); }
+.adv-burst .ab-in { background: var(--nyc); border: 3px solid var(--ink);
   clip-path: polygon(2% 18%, 10% 12%, 8% 2%, 20% 8%, 30% 0%, 36% 9%, 50% 2%, 60% 10%, 72% 1%, 76% 11%, 90% 5%, 90% 15%, 100% 20%, 94% 34%, 100% 48%, 93% 60%, 99% 76%, 88% 80%, 92% 94%, 76% 90%, 68% 100%, 58% 91%, 44% 99%, 38% 89%, 24% 97%, 22% 86%, 8% 91%, 12% 76%, 0% 68%, 7% 52%, 1% 36%, 8% 28%);
   padding: 26px 30px 30px; }
-.adv-burst .ab-mabel { font-family: var(--font-comic); font-size: 34px; color: #7ED957;
+.adv-burst .ab-mabel { font-family: var(--font-comic); font-size: 38px; color: var(--ink);
   letter-spacing: 0.06em; line-height: 0.9; display: block;
-  text-shadow: 2px 2px 0 rgba(0,0,0,0.8); }
-.adv-burst .ab-sub { font-family: var(--font-comic); font-size: 15px; color: #FFF9F0;
+  text-shadow: 2px 2px 0 rgba(255,255,255,0.45); }
+.adv-burst .ab-sub { font-family: var(--font-comic); font-size: 15px; color: var(--rust);
   letter-spacing: 0.12em; display: block; margin-top: 4px; }
 /* panel-in-panel inset — the Spidey close-up */
 .panel-inset { position: absolute; right: 12px; bottom: 12px; z-index: 3;

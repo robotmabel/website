@@ -2,7 +2,9 @@
 """Both groupings must show every dollar of the core bill."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P=9305; subprocess.run(["rm","-rf","/tmp/cdp-bg"])
+import random
+P = 9305 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died; subprocess.run(["rm","-rf",f"/tmp/cdp-bg-{P}"])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   "--user-data-dir=/tmp/cdp-bg","--window-size=1400,900","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],

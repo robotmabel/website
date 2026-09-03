@@ -3,7 +3,9 @@
 figure (a robot hand on a leadscrew step) is visible at a glance."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P=9293; subprocess.run(["rm","-rf","/tmp/cdp-art"])
+import random
+P = 9293 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died; subprocess.run(["rm","-rf",f"/tmp/cdp-art-{P}"])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   "--user-data-dir=/tmp/cdp-art","--window-size=1400,900","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],

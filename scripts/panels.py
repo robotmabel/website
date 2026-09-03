@@ -1,6 +1,8 @@
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P=9291; subprocess.run(["rm","-rf","/tmp/cdp-pn"])
+import random
+P = 9291 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died; subprocess.run(["rm","-rf",f"/tmp/cdp-pn-{P}"])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   "--user-data-dir=/tmp/cdp-pn","--window-size=1440,900","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],

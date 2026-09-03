@@ -4,26 +4,36 @@ every width (viewBox SVGs scale; nothing should clip)."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
-P=9303
+P = 9303 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died
 async def run(url, width):
     global P
     P += 1
-    subprocess.run(["rm","-rf","/tmp/cdp-fs"])
+    subprocess.run(["rm","-rf",f"/tmp/cdp-fs-{P}"])
     p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
-      "--user-data-dir=/tmp/cdp-fs",f"--window-size={width},900","--hide-scrollbars",
+      f"--user-data-dir=/tmp/cdp-fs-{P}",f"--window-size={width},900","--hide-scrollbars",
       "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
-        for _ in range(40):
-            try: tabs=json.load(urllib.request.urlopen(f"http://127.0.0.1:{P}/json")); break
-            except Exception: time.sleep(0.4)
+        tabs = None
+        for _ in range(60):
+            try:
+                tabs = json.load(urllib.request.urlopen(f"http://127.0.0.1:{P}/json"))
+                break
+            except Exception:
+                time.sleep(0.4)
+        if not tabs:
+            # naming the failure beats an UnboundLocalError twenty lines later
+            print(f"  chrome never answered on :{P}")
+            return False
         ws=[t for t in tabs if t["type"]=="page"][0]["webSocketDebuggerUrl"]
         async with websockets.connect(ws, max_size=None) as c:
             i=[0]
             async def cmd(m,pp=None):
                 i[0]+=1; await c.send(json.dumps({"id":i[0],"method":m,"params":pp or {}}))
                 while True:
-                    r=json.loads(await c.recv())
+                    # bounded: a stuck width must fail loudly, not hang the run
+                    r=json.loads(await asyncio.wait_for(c.recv(), 40))
                     if r.get("id")==i[0]: return r
             await cmd("Page.enable"); await cmd("Runtime.enable")
             await cmd("Network.enable"); await cmd("Network.setCacheDisabled",{"cacheDisabled":True})
@@ -52,6 +62,9 @@ async def run(url, width):
 async def main():
     ok=True
     for w in (1600, 1440, 1100, 820, 500, 390):
-        ok = (await run(sys.argv[1], w)) and ok
+        try:
+            ok = (await asyncio.wait_for(run(sys.argv[1], w), 120)) and ok
+        except asyncio.TimeoutError:
+            print(f"  {w:5d}px: timed out"); ok = False
     print("RESULT:", "PASS" if ok else "FAIL")
 asyncio.run(main())

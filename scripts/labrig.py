@@ -14,8 +14,10 @@ Two things a screenshot argues about and a measurement settles:
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P = 9284
-prof = "/tmp/cdp-labrig"
+import random
+P = 9284 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died
+prof = f"/tmp/cdp-labrig-{P}"
 subprocess.run(["rm", "-rf", prof])
 p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
                       f"--user-data-dir={prof}", "--window-size=1440,1000",

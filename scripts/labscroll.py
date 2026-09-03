@@ -2,7 +2,9 @@
 """The background must sweep past in linear proportion to the robot's speed."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P=9313; subprocess.run(["rm","-rf","/tmp/cdp-ls"])
+import random
+P = 9313 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died; subprocess.run(["rm","-rf",f"/tmp/cdp-ls-{P}"])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   "--user-data-dir=/tmp/cdp-ls","--window-size=1400,900","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],

@@ -2,7 +2,9 @@
 """Clicking a playable film card must open the lightbox and start playing."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P=9301; subprocess.run(["rm","-rf","/tmp/cdp-fp"])
+import random
+P = 9301 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died; subprocess.run(["rm","-rf",f"/tmp/cdp-fp-{P}"])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   "--user-data-dir=/tmp/cdp-fp","--window-size=1400,900","--hide-scrollbars",
   "--autoplay-policy=no-user-gesture-required",
