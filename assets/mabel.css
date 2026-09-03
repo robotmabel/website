@@ -23,12 +23,31 @@ body { overflow-x: hidden; }
   --ink-soft:    #2A2E3A;
   --ash:         #6D6551;
   --ash-light:   #A99F87;
-  /* printed color */
-  --orange:      #F0762E;   /* apple orange — THE main accent (microduck) */
-  --orange-dim:  #D45E17;
+  /* ── printed colour ──────────────────────────────────────────────────
+     THREE voices, and every element on the site picks one of them:
+
+       --hi    the HIGHLIGHT. A warm comic red. Primary buttons, live links,
+               accents, the letter that starts a lede. It replaced an apple
+               orange; a warmer red sits better against the newsprint and
+               reads as ink rather than as a highlighter.
+       --pop   the SHOUT. Saturated cab yellow, and there is at most one of
+               these in view — the BUILD ONE NOW! star. If two things shout,
+               neither does.
+       --rust  the DEEP voice. Bursts, seals, error states, the hover of --hi.
+
+     Everything else is support: --yellow narrates (step cards, panel notes),
+     --blue and --green label, --gold is deco brass on dark sections.
+     Full guidance: STYLE.md. */
+  --hi:          #E4442A;   /* warm comic red — THE highlight */
+  --hi-deep:     #B92E17;   /* its hover / its shadow */
+  --pop:         #FFCE0A;   /* saturated cab yellow — the one thing that shouts */
+  --pop-deep:    #E0A800;
+  /* `--orange` is kept as an alias so nothing has to be renamed in one pass;
+     new code should say --hi. */
+  --orange:      #E4442A;
+  --orange-dim:  #B92E17;
   --yellow:      #F2C94C;   /* NYC taxi yellow — narration, step cards */
-  --nyc:         #FFD400;   /* the LOUD cab yellow: reserved for the one thing
-                               on the page that is meant to shout */
+  --nyc:         #FFCE0A;   /* alias of --pop */
   --rust:        #C6301A;   /* vermillion — the LOUD voice: bursts, seals */
   --rust-dim:    #93220F;
   --clay:        #8B5A3C;
@@ -259,8 +278,13 @@ section { position: relative; }
 }
 .btn:hover { transform: translate(-2px, -2px); }
 /* primary — vermillion plate */
-.btn-primary { background: var(--orange); color: #FFF9F0; box-shadow: 4px 4px 0 rgba(21,24,32,0.9); }
-.btn-primary:hover { background: var(--rust); color: #FFF9F0; box-shadow: 6px 6px 0 rgba(21,24,32,0.9); }
+/* ONE button recipe, three roles. Primary carries the highlight, ghost is
+   the paper itself, and the shout (.nav-build) is the only --pop on a page.
+   Every other button on the site — .cl-btn, .hs-more, .wt-btn, .tl-reset,
+   .hs-arrow — inherits these colours through the tokens rather than naming
+   its own, so "make the buttons consistent" is one edit and not thirty. */
+.btn-primary { background: var(--hi); color: #FFF9F0; box-shadow: 4px 4px 0 rgba(21,24,32,0.9); }
+.btn-primary:hover { background: var(--hi-deep); color: #FFF9F0; box-shadow: 6px 6px 0 rgba(21,24,32,0.9); }
 /* ghost — paper plate */
 .btn-ghost {
   color: var(--ink); background: var(--panel); border-color: var(--ink);
@@ -268,8 +292,8 @@ section { position: relative; }
 }
 .btn-ghost:hover { background: #FFFDF0; box-shadow: 6px 6px 0 rgba(21,24,32,0.9); }
 /* on dark backgrounds — brass line-work, gold plate primary */
-.dark-sec .btn-primary, .page-hero .btn-primary { background: var(--gold); color: var(--ink); border-color: var(--ink); box-shadow: 4px 4px 0 rgba(0,0,0,0.85); }
-.dark-sec .btn-primary:hover, .page-hero .btn-primary:hover { background: var(--rust); color: #FFF6E4; box-shadow: 6px 6px 0 rgba(0,0,0,0.85); }
+.dark-sec .btn-primary, .page-hero .btn-primary { background: var(--pop); color: var(--ink); border-color: var(--ink); box-shadow: 4px 4px 0 rgba(0,0,0,0.85); }
+.dark-sec .btn-primary:hover, .page-hero .btn-primary:hover { background: var(--hi); color: #FFF6E4; box-shadow: 6px 6px 0 rgba(0,0,0,0.85); }
 .dark-sec .btn-ghost, .page-hero .btn-ghost {
   color: var(--bone); background: transparent; border-color: rgba(217,161,63,0.75);
   box-shadow: 4px 4px 0 rgba(0,0,0,0.85);
@@ -1943,11 +1967,11 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
 
 /* ─── Nav CTA — the inviting right-side button ────────────────────── */
 .nav-cta { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.06em;
-  text-transform: uppercase; color: #FFF9F0 !important; background: var(--orange);
+  text-transform: uppercase; color: #FFF9F0 !important; background: var(--hi);
   border: 2px solid var(--ink); border-radius: 9px; padding: 6px 13px 5px !important;
   box-shadow: 3px 3px 0 rgba(21,24,32,0.9); opacity: 1 !important; white-space: nowrap;
   transition: transform 0.15s var(--ease-out), background 0.15s ease, box-shadow 0.15s var(--ease-out); }
-.nav-cta:hover { background: var(--rust) !important; transform: translate(-1px,-1px);
+.nav-cta:hover { background: var(--hi-deep) !important; transform: translate(-1px,-1px);
   box-shadow: 4px 4px 0 rgba(21,24,32,0.9); }
 
 /* mobile: contract tables scroll inside themselves, never widen the page */
@@ -2105,7 +2129,7 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   width: min(340px, 74vw); text-align: center;
   transform: translateX(-50%) rotate(-2deg); pointer-events: none;
   filter: drop-shadow(5px 6px 0 rgba(0,0,0,0.6)); }
-.adv-burst .ab-in { background: var(--nyc); border: 3px solid var(--ink);
+.adv-burst .ab-in { background: var(--pop); border: 3px solid var(--ink);
   clip-path: polygon(2% 18%, 10% 12%, 8% 2%, 20% 8%, 30% 0%, 36% 9%, 50% 2%, 60% 10%, 72% 1%, 76% 11%, 90% 5%, 90% 15%, 100% 20%, 94% 34%, 100% 48%, 93% 60%, 99% 76%, 88% 80%, 92% 94%, 76% 90%, 68% 100%, 58% 91%, 44% 99%, 38% 89%, 24% 97%, 22% 86%, 8% 91%, 12% 76%, 0% 68%, 7% 52%, 1% 36%, 8% 28%);
   padding: 26px 30px 30px; }
 .adv-burst .ab-mabel { font-family: var(--font-comic); font-size: 38px; color: var(--ink);
@@ -2589,11 +2613,11 @@ body.pop-locked { overflow: hidden; }
 
 /* the one exception: the nav's control-centre CTA stays orange */
 .btn-special, .nav-cta {
-  background: var(--orange) !important; color: #FFF9F0 !important;
+  background: var(--hi) !important; color: #FFF9F0 !important;
   border-color: var(--ink) !important;
 }
 .btn-special:hover, .nav-cta:hover {
-  background: var(--rust) !important; color: #FFF9F0 !important;
+  background: var(--hi-deep) !important; color: #FFF9F0 !important;
 }
 
 /* ═══ Task clip grid — 4 × 3 of the twin actually working ═══ */
@@ -3445,7 +3469,7 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .wt-btn[data-cam="off"].on { background: var(--rust); color: #FFF6E4; }
 .wt-btn[data-cam="on"].on { background: var(--green); color: #FFF6E4; }
 .wt-btn.on::before { background: currentColor; }
-.wt-btn:hover:not(.on) { background: var(--yellow); }
+.wt-btn:hover:not(.on) { background: var(--pop); }
 .wt-state { font-weight: 700; }
 .wt-panel-head .wt-state::before { content: "● "; color: var(--rust); }
 .wt-panel-head .wt-state.live::before { color: var(--green); }
@@ -3520,7 +3544,7 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
     64.1% 98.0%, 50.0% 87.0%, 35.9% 98.0%, 30.0% 81.1%, 12.2% 82.7%, 16.3% 65.4%,
     0.5% 57.1%, 13.4% 44.7%, 4.5% 29.2%, 22.0% 25.8%, 23.0% 7.9%, 39.6% 14.5%); }
 .nav-build::before { background: var(--ink); transform: scale(1.06) translate(1px,2px); }
-.nav-build::after { background: var(--nyc); z-index: 1; }
+.nav-build::after { background: var(--pop); z-index: 1; }
 /* NYC-cab yellow, ink lettering — the star is the loudest thing in the bar
    on purpose, and it is now the ONLY way into the build (the Build dropdown
    beside it said the same thing twice). */
@@ -3528,7 +3552,7 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   font-size: 15px; line-height: 1.02; letter-spacing: 0.03em; color: var(--ink);
   text-align: center; transform: rotate(-4deg); pointer-events: none;
   text-shadow: 0 1px 0 rgba(255,255,255,.5); }
-.nav-build:hover::after { background: #FFE24A; }
+.nav-build:hover::after { background: #FFE04C; }
 .nav-build:hover { animation: buildPop 0.5s ease; }
 .nav-build:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px;
   border-radius: 6px; }
@@ -3567,7 +3591,7 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   background: var(--yellow); color: var(--ink); box-shadow: 3px 3px 0 var(--ink);
   transition: transform .14s ease, opacity .14s ease; }
 .hs-arrow:hover:not(:disabled) { transform: translate(-2px,-2px);
-  box-shadow: 5px 5px 0 var(--ink); background: var(--orange); }
+  box-shadow: 5px 5px 0 var(--ink); background: var(--hi); }
 .hs-arrow:disabled { opacity: 0.35; cursor: default; box-shadow: 2px 2px 0 var(--ink); }
 
 .hs-rail { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory;
@@ -3614,7 +3638,7 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   border-radius: 7px; background: var(--yellow); color: var(--ink);
   box-shadow: 3px 3px 0 var(--ink); transition: transform .14s ease; }
 .hs-more:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--ink);
-  background: var(--orange); color: #FFF9F0; }
+  background: var(--hi); color: #FFF9F0; }
 
 .hs-dots { display: flex; gap: 7px; justify-content: center; margin-top: 4px; }
 .hs-dot { width: 10px; height: 10px; padding: 0; cursor: pointer; border-radius: 50%;
@@ -3811,7 +3835,7 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .cl-clip { position: absolute; top: 4px; bottom: 4px; border: 2px solid var(--ink);
   border-radius: 6px; background: var(--yellow); overflow: hidden; cursor: grab;
   display: flex; flex-direction: column; justify-content: center; padding: 0 12px; }
-.cl-clip.on { background: var(--orange); box-shadow: inset 0 0 0 2px var(--ink); }
+.cl-clip.on { background: var(--hi); color: #FFF9F0; box-shadow: inset 0 0 0 2px var(--ink); }
 .cl-lab { font-family: var(--font-comic); font-size: 11.5px; letter-spacing: 0.03em;
   color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cl-meta { font-family: var(--font-mono); font-size: 9px; color: rgba(21,24,32,.65);
