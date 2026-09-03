@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 520" role="img"
+     aria-label="How an operator's frame becomes the robot's: the headset reports head and wrists in ARKit world, a shoulder-centre clutch anchors them, one permutation carries them into the robot's axes, and a per-axis gain covers MABEL's larger reach">
+  <title>Operator frame → robot frame</title>
+  <defs>
+    <style>
+      .ink   { fill: none; stroke: #151820; stroke-width: 3; stroke-linecap: round;
+               stroke-linejoin: round; }
+      .thin  { fill: none; stroke: #151820; stroke-width: 2; stroke-linecap: round; }
+      .body  { fill: #FDF6E2; stroke: #151820; stroke-width: 3; stroke-linejoin: round; }
+      .robot { fill: #3A4050; stroke: #151820; stroke-width: 3; stroke-linejoin: round; }
+      .ax-x  { stroke: #E4442A; stroke-width: 3.5; fill: none; stroke-linecap: round; }
+      .ax-y  { stroke: #2E7D4F; stroke-width: 3.5; fill: none; stroke-linecap: round; }
+      .ax-z  { stroke: #23577E; stroke-width: 3.5; fill: none; stroke-linecap: round; }
+      .lab   { font-family: 'Space Mono', ui-monospace, monospace; font-size: 10.5px;
+               fill: #151820; }
+      .lab-s { font-family: 'Space Mono', ui-monospace, monospace; font-size: 9px;
+               fill: #6D6551; }
+      .head  { font-family: Bangers, cursive; font-size: 19px; letter-spacing: 1px;
+               fill: #E4442A; }
+      .eq    { font-family: 'Space Mono', ui-monospace, monospace; font-size: 11.5px;
+               fill: #151820; }
+      .card  { fill: #FDF6E2; stroke: #151820; stroke-width: 3; }
+      .pop   { fill: #FFCE0A; stroke: #151820; stroke-width: 2.5; }
+    </style>
+    <marker id="fa" markerWidth="8" markerHeight="8" refX="7" refY="4"
+            orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0.6 L8 4 L0 7.4 z" fill="#151820"/>
+    </marker>
+    <marker id="fx" markerWidth="7" markerHeight="7" refX="6" refY="3.5"
+            orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#E4442A"/>
+    </marker>
+    <marker id="fy" markerWidth="7" markerHeight="7" refX="6" refY="3.5"
+            orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#2E7D4F"/>
+    </marker>
+    <marker id="fz" markerWidth="7" markerHeight="7" refX="6" refY="3.5"
+            orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#23577E"/>
+    </marker>
+  </defs>
+
+  <rect width="1180" height="520" fill="#FDF6E2"/>
+
+  <!-- ─────────── the operator ─────────── -->
+  <text x="150" y="34" class="head" text-anchor="middle">THE OPERATOR</text>
+  <text x="150" y="50" class="lab-s" text-anchor="middle">ARKit world · metres</text>
+
+  <!-- head, torso, arms -->
+  <circle cx="150" cy="108" r="26" class="body"/>
+  <path d="M124 96 q26 -16 52 0" class="thin"/>
+  <circle cx="140" cy="106" r="3.2" fill="#151820"/>
+  <circle cx="160" cy="106" r="3.2" fill="#151820"/>
+  <path d="M150 134 L150 236" class="ink"/>
+  <path d="M104 168 L196 168" class="ink"/>            <!-- shoulder line -->
+  <path d="M104 168 L74 214 L60 258" class="ink"/>     <!-- operator's right arm -->
+  <path d="M196 168 L226 214 L240 258" class="ink"/>
+  <circle cx="60" cy="258" r="9" fill="#FFCE0A" stroke="#151820" stroke-width="3"/>
+  <circle cx="240" cy="258" r="9" fill="#FFCE0A" stroke="#151820" stroke-width="3"/>
+  <path d="M150 236 L124 320 M150 236 L176 320" class="ink"/>
+
+  <!-- the anchor: shoulder centre -->
+  <circle cx="150" cy="168" r="6.5" fill="#E4442A" stroke="#151820" stroke-width="3"/>
+  <path d="M150 168 L150 168" class="ink"/>
+  <text x="96" y="160" class="lab" text-anchor="end">anchor</text>
+
+  <!-- ARKit axes at the anchor -->
+  <path d="M150 168 L206 168" class="ax-x" marker-end="url(#fx)"/>
+  <path d="M150 168 L182 96" class="ax-y" marker-end="url(#fy)"/>
+  <path d="M150 168 L114 200" class="ax-z" marker-end="url(#fz)"/>
+  <text x="212" y="172" class="lab" fill="#E4442A">+X right</text>
+  <text x="190" y="86" class="lab" fill="#2E7D4F">+Y up</text>
+  <text x="60" y="212" class="lab" fill="#23577E">+Z back</text>
+
+  <text x="150" y="368" class="lab-s" text-anchor="middle">wrists and head, reported</text>
+  <text x="150" y="382" class="lab-s" text-anchor="middle">by the headset every frame</text>
+
+  <!-- ─────────── the transform ─────────── -->
+  <text x="500" y="34" class="head" text-anchor="middle">THE MAP</text>
+  <text x="500" y="50" class="lab-s" text-anchor="middle">three steps, no learned priors</text>
+
+  <rect x="336" y="70" width="400" height="76" rx="10" class="card"/>
+  <circle cx="362" cy="94" r="11" class="pop"/>
+  <text x="362" y="98" class="lab" text-anchor="middle">1</text>
+  <text x="382" y="92" class="lab">CLUTCH — subtract the shoulder centre,</text>
+  <text x="382" y="107" class="lab">scale by 0.38 m / your own shoulder width,</text>
+  <text x="382" y="122" class="lab">lift to a standing 1.35 m.</text>
+  <text x="382" y="138" class="lab-s">a tall and a short operator drive it the same</text>
+
+  <rect x="336" y="158" width="400" height="96" rx="10" class="card"/>
+  <circle cx="362" cy="182" r="11" class="pop"/>
+  <text x="362" y="186" class="lab" text-anchor="middle">2</text>
+  <text x="382" y="180" class="lab">PERMUTE — one matrix, det = +1.</text>
+  <text x="382" y="200" class="eq">x_r =  z_a      forward is −X</text>
+  <text x="382" y="217" class="eq">y_r =  y_a      up stays up</text>
+  <text x="382" y="234" class="eq">z_r = −x_a      right is −Z</text>
+  <text x="382" y="249" class="lab-s">a proper rotation, so your left hand stays your left</text>
+
+  <rect x="336" y="266" width="400" height="82" rx="10" class="card"/>
+  <circle cx="362" cy="290" r="11" class="pop"/>
+  <text x="362" y="294" class="lab" text-anchor="middle">3</text>
+  <text x="382" y="288" class="lab">GAIN — ×1.3 forward, ×1.3 left, ×1.4 up.</text>
+  <text x="382" y="306" class="lab-s">You work in a comfortable box; the lift, the</text>
+  <text x="382" y="320" class="lab-s">torso and the base carry the long reaches.</text>
+  <text x="382" y="338" class="lab-s">config.py RETARGET_SCALE</text>
+
+  <path d="M268 214 L328 214" class="ink" marker-end="url(#fa)"/>
+  <path d="M744 214 L812 214" class="ink" marker-end="url(#fa)"/>
+
+  <!-- ─────────── the robot ─────────── -->
+  <text x="960" y="34" class="head" text-anchor="middle">THE ROBOT</text>
+  <text x="960" y="50" class="lab-s" text-anchor="middle">rig world · metres</text>
+
+  <!-- head -->
+  <rect x="936" y="86" width="48" height="30" rx="8" class="robot"/>
+  <circle cx="950" cy="101" r="5" fill="#FDF6E2"/>
+  <circle cx="970" cy="101" r="5" fill="#FDF6E2"/>
+  <path d="M944 86 L936 66 M976 86 L984 66" class="thin"/>
+  <path d="M960 116 L960 130" class="ink"/>
+  <!-- torso -->
+  <rect x="928" y="130" width="64" height="66" rx="14" class="robot"/>
+  <!-- arms -->
+  <path d="M928 148 L898 186 L886 222" class="ink"/>
+  <path d="M992 148 L1022 186 L1034 222" class="ink"/>
+  <circle cx="886" cy="222" r="9" fill="#FFCE0A" stroke="#151820" stroke-width="3"/>
+  <circle cx="1034" cy="222" r="9" fill="#FFCE0A" stroke="#151820" stroke-width="3"/>
+  <!-- lift column and base -->
+  <rect x="952" y="196" width="16" height="70" class="robot"/>
+  <rect x="916" y="266" width="88" height="40" rx="8" class="robot"/>
+  <circle cx="932" cy="310" r="9" class="robot"/>
+  <circle cx="988" cy="310" r="9" class="robot"/>
+
+  <!-- the robot's shoulder centre, and its axes -->
+  <circle cx="960" cy="148" r="6.5" fill="#E4442A" stroke="#151820" stroke-width="3"/>
+  <text x="900" y="140" class="lab" text-anchor="end">anchor</text>
+  <path d="M960 148 L904 176" class="ax-x" marker-end="url(#fx)"/>
+  <path d="M960 148 L1000 90" class="ax-y" marker-end="url(#fy)"/>
+  <path d="M960 148 L1016 148" class="ax-z" marker-end="url(#fz)"/>
+  <text x="836" y="192" class="lab" fill="#E4442A">−X front</text>
+  <text x="1006" y="80" class="lab" fill="#2E7D4F">+Y up</text>
+  <text x="1022" y="152" class="lab" fill="#23577E">+Z left</text>
+
+  <text x="960" y="368" class="lab-s" text-anchor="middle">the same wrists, on a body that is</text>
+  <text x="960" y="382" class="lab-s" text-anchor="middle">shorter, narrower and differently jointed</text>
+
+  <!-- ─────────── the footnote that costs people days ─────────── -->
+  <rect x="40" y="404" width="1100" height="94" rx="10" fill="#FFF0CC"
+        stroke="#151820" stroke-width="3"/>
+  <text x="62" y="430" class="head" font-size="16">THE ONE THAT BITES</text>
+  <text x="62" y="452" class="lab">A palm frame built from anatomy is chirality-MIRRORED: its normal comes out palmar on the right hand and DORSAL on the left, because</text>
+  <text x="62" y="470" class="lab">the two hands are mirror images and the cross product flips with them. The robot's normal is palmar on BOTH sides, so the left one must be</text>
+  <text x="62" y="488" class="lab">flipped before the two are paired. Measured cost of forgetting: 178.6&#176; &#8212; a wrist upside down.</text>
+</svg>

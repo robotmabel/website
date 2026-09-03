@@ -4153,3 +4153,16 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .reach-env img { width: 100%; display: block; border-radius: 6px; }
 .reach-env figcaption { font-size: 11px; line-height: 1.55; color: var(--ash);
   margin-top: 10px; }
+
+/* the operator → robot frame figure */
+.frames-fig { margin: 0 0 clamp(24px,3.5vh,40px); border: 3px solid var(--ink);
+  border-radius: 14px; overflow: hidden; background: var(--panel);
+  box-shadow: 8px 8px 0 var(--ink); }
+.dark-sec .frames-fig { box-shadow: 8px 8px 0 rgba(0,0,0,.8); border-color: var(--gold); }
+.frames-fig img { width: 100%; display: block; }
+.frames-fig figcaption { padding: 12px 16px; font-size: 12.5px; line-height: 1.6;
+  color: var(--ash); border-top: 3px solid var(--ink); }
+.dark-sec .frames-fig figcaption { border-top-color: var(--gold); color: var(--ash-light); }
+.frames-fig code { font-family: var(--font-mono); font-size: 11px;
+  background: rgba(21,24,32,.07); padding: 1px 5px; border-radius: 4px; }
+.dark-sec .frames-fig code { background: rgba(255,255,255,.1); }
