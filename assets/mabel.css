@@ -4172,3 +4172,55 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
    tables elsewhere use. */
 .data-table.compact th, .data-table.compact td { padding: 9px 12px; font-size: 13px; }
 .data-table.compact th { font-size: 10px; }
+
+/* ═══ The stack, as a graph you can trace ═══ */
+.sm { border: 3px solid var(--ink); border-radius: 14px; background: var(--panel);
+  box-shadow: 8px 8px 0 var(--ink); padding: clamp(16px,2.4vw,26px); }
+.dark-sec .sm { box-shadow: 8px 8px 0 rgba(0,0,0,.8); border-color: var(--gold); }
+.sm-head { margin-bottom: 12px; }
+.sm-kicker { font-family: var(--font-comic); font-size: 12px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--hi); }
+.sm-title { font-family: var(--font-display); font-size: clamp(22px,3.2vw,32px);
+  line-height: 1; margin: 4px 0 0; color: var(--ink); }
+.sm-paths { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.sm-chip { font-family: var(--font-comic); font-size: 12px; letter-spacing: .04em;
+  padding: 7px 12px; cursor: pointer; border: 2px solid var(--ink);
+  border-radius: 999px; background: var(--bone); color: var(--ink);
+  transition: background .14s ease, transform .12s ease; }
+.sm-chip:hover { transform: translateY(-1px); background: var(--pop); }
+.sm-chip.on { background: var(--c, var(--hi)); color: #FFF9F0; }
+.sm-chip.sm-clear { font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; border-style: dashed; }
+.sm-say { font-size: 12.5px; line-height: 1.6; color: var(--ash); margin: 0 0 12px; }
+.sm-say b { color: var(--ink); }
+.sm-stage { overflow-x: auto; }
+.sm-svg { width: 100%; min-width: 900px; height: auto; display: block; }
+.sm-col { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em;
+  fill: var(--ash); text-anchor: middle; }
+.sm-edge { fill: none; stroke: rgba(21,24,32,.26); stroke-width: 2;
+  transition: stroke .2s ease, stroke-width .2s ease, opacity .2s ease; }
+.sm-node rect { fill: var(--panel); stroke: var(--ink); stroke-width: 2.5;
+  transition: fill .2s ease, opacity .2s ease; }
+.sm-lab { font-family: var(--font-head); font-weight: 700; font-size: 14px;
+  fill: var(--ink); text-anchor: middle; }
+.sm-sub { font-family: var(--font-mono); font-size: 9px; fill: var(--ash);
+  text-anchor: middle; }
+.sm-node.k-hal rect { fill: #FFF0CC; stroke-width: 3.5; }
+.sm-node.k-ctl rect { fill: #FBE9E4; }
+.sm-node.k-ros rect { fill: #E7EEF4; }
+.sm-node.k-net rect { fill: #EAF3EC; }
+.sm-node.k-bot rect { fill: var(--ink); }
+.sm-node.k-bot .sm-lab { fill: #FFF9F0; }
+.sm-node.k-bot .sm-sub { fill: rgba(255,249,240,.6); }
+/* when a path is lit, everything not on it recedes */
+.sm-stage.lit .sm-node { opacity: .28; }
+.sm-stage.lit .sm-edge { opacity: .16; }
+.sm-stage.lit .sm-node.on { opacity: 1; }
+.sm-stage.lit .sm-node.on rect { stroke-width: 4; }
+.sm-stage.lit .sm-edge.on { opacity: 1; stroke-width: 5; }
+.sm-note { font-size: 13px; line-height: 1.6; color: var(--ink-soft);
+  margin: 12px 0 0; padding: 11px 14px; border-radius: 9px;
+  background: rgba(255,206,10,.16); border-left: 4px solid var(--pop); }
+.sm-note[hidden] { display: none; }
+.sm-note b { display: block; font-family: var(--font-comic); font-size: 14px;
+  letter-spacing: .04em; margin-bottom: 3px; }

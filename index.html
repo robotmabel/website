@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=ad1aa524" />
+<link rel="stylesheet" href="assets/mabel.css?v=ca25fc3d" />
 <script>document.documentElement.classList.add('js');</script>
 <script>
 /* start the rig download during parse — desktop fine-pointer only */
@@ -279,91 +279,7 @@ is already a training demonstration — no separate recording rig.</p></template
       <div class="stat"><div class="stat-num"><span class="counter" data-target="500">0</span><span class="unit">Hz</span></div><div class="stat-label">Twin runs the production<br/>controller, unmodified</div></div>
       <div class="stat"><div class="stat-num"><span class="counter" data-target="9.7">0</span><span class="unit">k USD</span></div><div class="stat-label">As built — under<br/>ten thousand</div></div>
     </div>
-    <div class="arch-map fade-up" id="archMap">
-      <div class="arch-toggle" role="tablist" aria-label="Branch">
-        <button class="on" data-branch="hw">On hardware</button>
-        <button data-branch="sim">In simulation</button>
-      </div>
-
-      <div class="arch-layer" data-tier="top">
-        <div class="arch-name">Operator · Autonomy</div>
-        <div class="arch-chips">
-          <a href="teleop.html" data-tip="Apple Vision Pro app — ARKit head pose + a 27-joint skeleton per hand, streamed at 60 Hz.">Vision Pro</a>
-          <a href="teleop.html#ios-app" data-tip="iPhone / iPad cockpit: drive, body pose, maps, and policy dispatch.">iPhone app</a>
-          <a href="simulator.html" data-tip="Zero-install browser console — the one embedded above. Same wire protocol.">Browser console</a>
-          <a href="autonomy.html" data-tip="Trained policies dispatched onto the same command path as a human operator.">Learned policies</a>
-          <a href="autonomy.html#mapping" data-tip="Click-on-the-map navigation goals over the live SLAM map.">Nav goals</a>
-        </div>
-      </div>
-      <div class="arch-flow"><span class="dn">▼ commands</span><span class="up">state ▲</span></div>
-
-      <div class="arch-layer">
-        <div class="arch-name">Onboard intelligence · Jetson Thor</div>
-        <div class="arch-chips">
-          <a href="software.html#wbc" data-tip="One quadratic program renders EVERY reference — teleop, collaborator, or policy — with self-collision avoidance and a lift-aware tip-over model.">Whole-body control · QP</a>
-          <a href="autonomy.html#mapping" data-tip="Nav2 + SLAM on the base LiDAR — mapping, localization, and planning for a holonomic footprint.">Nav2 + SLAM</a>
-          <a href="autonomy.html" data-tip="The policy runtime replays learned skills through the same safety gate as teleop.">Policy runtime</a>
-          <a href="software.html" data-tip="Head RGB-D, wrist cameras, LiDAR — fused onboard.">Perception</a>
-        </div>
-      </div>
-      <div class="arch-flow"><span class="dn">▼ joint targets</span><span class="up">joints · odometry · vision ▲</span></div>
-
-      <div class="arch-layer">
-        <div class="arch-name">ROS 2 middleware · mabel_ws</div>
-        <div class="arch-chips">
-          <a href="software.html#ros" data-tip="One driver node per firmware bus — each can restart alone.">driver nodes</a>
-          <a href="software.html#ros" data-tip="Every joint, calibrated, at 200 Hz.">/joint_states</a>
-          <a href="software.html#ros" data-tip="Swerve odometry from the base Teensy.">/odom</a>
-          <a href="software.html#ros" data-tip="Cameras, LiDAR, IMU — standard topics.">sensor topics</a>
-          <a href="software.html#ros" data-tip="One command topic per subsystem; every publisher passes the controller gate.">/cmd</a>
-        </div>
-      </div>
-
-      <div class="arch-fork">
-        <div class="arch-fork-label">the stack is identical down to ROS 2 — pick a world</div>
-        <div class="arch-branches">
-          <div class="arch-branch" data-branch="hw">
-            <div class="arch-branch-tag">On hardware</div>
-            <div class="arch-layer">
-              <div class="arch-name">Firmware · per-MCU</div>
-              <div class="arch-chips">
-                <a href="software.html#firmware" data-tip="Swerve base: Teensy 4.1 + REV CAN, on-chip inverse kinematics, 100 ms deadman.">swerve · REV CAN</a>
-                <a href="software.html#firmware" data-tip="Arms, torso: DAMIAO quasi-direct-drive, on-motor MIT impedance at 500 Hz.">arms + body · Damiao</a>
-                <a href="software.html#firmware" data-tip="ORCA hands: Feetech servos on a 1 Mbit/s TTL bus.">hands · Feetech</a>
-                <a href="software.html#firmware" data-tip="3-DOF neck on Dynamixel serial.">neck · Dynamixel</a>
-                <a href="software.html#firmware" data-tip="The lift closes its loop on a Raspberry Pi Pico.">lift · Pico</a>
-              </div>
-            </div>
-            <div class="arch-flow solo"><span class="dn">▼ torque</span></div>
-            <div class="arch-layer">
-              <div class="arch-name">Real robot · 56 DOF</div>
-              <div class="arch-chips">
-                <a href="hardware.html#hw-base" data-tip="3 independent swerve modules — strafe, spin in place, hold heading.">Base</a>
-                <a href="hardware.html#hw-lift" data-tip="0.635 m of vertical travel — floor to overhead.">Lift</a>
-                <a href="hardware.html#hw-body" data-tip="Tilting torso + 3-DOF active head.">Body + neck</a>
-                <a href="hardware.html#hw-arms" data-tip="Two 7-DOF backdriveable arms.">Arms 2×7</a>
-                <a href="hardware.html#hw-hands" data-tip="Two 17-DOF tendon-driven ORCA hands.">Hands 2×17</a>
-                <a href="hardware.html#hw-sensors" data-tip="Stereo RGB-D head, wrist cams, 2D LiDAR.">Sensors</a>
-                <a href="hardware.html#hw-electronics" data-tip="One power PCB, one battery, no tether.">PCB + power</a>
-              </div>
-            </div>
-          </div>
-          <div class="arch-branch" data-branch="sim">
-            <div class="arch-branch-tag">In simulation</div>
-            <div class="arch-layer twin">
-              <div class="arch-name">Digital twin · MuJoCo</div>
-              <div class="arch-chips">
-                <a href="software.html#simulation" data-tip="The MJCF is generated from the same source as the URDF — sim and hardware cannot silently diverge.">same URDF → MJCF</a>
-                <a href="software.html#simulation" data-tip="The twin exposes the identical ROS 2 topics.">same ROS 2 interface</a>
-                <a href="software.html#simulation" data-tip="The whole-body controller runs UNMODIFIED at 500 Hz.">same control code</a>
-                <a href="software.html#simulation" data-tip="35 released environments — homes, offices, a full building.">35 environments</a>
-                <a href="software.html#simulation" data-tip="use_sim:=true is the only difference.">sim or real, one flag</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="sm fade-up" id="stackMap"></div>
     <div class="tenets fade-up" style="margin-top:32px;">
       <div class="tenet"><b>01</b><h5>One source of geometry</h5>
         <p>A single URDF generates the MJCF for <a href="software.html#simulation">simulation</a>, the
@@ -687,6 +603,7 @@ is already a training demonstration — no separate recording rig.</p></template
 
 <script src="assets/burst-variety.js?v=4bc405a8"></script>
 <script src="assets/rail-loop.js?v=546ee8f7"></script>
+<script src="assets/stack-map.js"></script>
 <script src="assets/spec-grid.js"></script>
 <script src="assets/platform-table.js"></script>
 <script src="assets/mabel.js?v=fd6568a8"></script>
