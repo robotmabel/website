@@ -4101,3 +4101,47 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   .pt-name i, .pt-name em { display: none; }
   .pt-table { min-width: 620px; font-size: 11.5px; }
 }
+
+/* ═══ Spec grid — the marketing cut of the paper's Table I ═══ */
+.sg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 900px) { .sg-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .sg-grid { grid-template-columns: 1fr; } }
+.sg-tile { border: 3px solid var(--ink); border-radius: 12px; background: var(--panel);
+  box-shadow: 5px 5px 0 var(--ink); padding: 14px 15px 15px;
+  transition: transform .16s ease, box-shadow .16s ease; }
+.sg-tile:hover { transform: translate(-3px,-3px); box-shadow: 8px 8px 0 var(--ink); }
+.sg-tile:nth-child(4n+1) { box-shadow: 5px 5px 0 var(--hi); }
+.sg-tile:nth-child(4n+2) { box-shadow: 5px 5px 0 var(--pop); }
+.sg-tile:nth-child(4n+3) { box-shadow: 5px 5px 0 var(--blue); }
+.sg-tile:nth-child(4n+4) { box-shadow: 5px 5px 0 var(--green); }
+.sg-tile b { display: block; font-family: var(--font-display);
+  font-size: clamp(30px, 4.4vw, 44px); line-height: 0.95; color: var(--ink);
+  letter-spacing: -0.01em; }
+.sg-tile b i { font-style: normal; font-family: var(--font-comic);
+  font-size: 0.44em; color: var(--hi); margin-left: 3px; letter-spacing: .02em; }
+.sg-lab { display: block; font-family: var(--font-comic); font-size: 13px;
+  letter-spacing: .05em; color: var(--hi); margin-top: 5px; }
+.sg-sub { display: block; font-size: 11.5px; line-height: 1.45; color: var(--ash);
+  margin-top: 5px; }
+.sg-more { margin-top: 14px; font-family: var(--font-comic); font-size: 13px;
+  letter-spacing: .05em; padding: 9px 15px; cursor: pointer;
+  border: 3px solid var(--ink); border-radius: 9px; background: var(--pop);
+  color: var(--ink); box-shadow: 4px 4px 0 var(--ink);
+  transition: transform .14s ease; }
+.sg-more:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+.sg-full { margin-top: 14px; border: 3px solid var(--ink); border-radius: 12px;
+  background: var(--panel); padding: 14px 16px; }
+.sg-full[hidden] { display: none; }
+.sg-table { width: 100%; border-collapse: collapse; }
+.sg-table th { text-align: left; font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: .05em; text-transform: uppercase; color: var(--ash);
+  padding: 7px 14px 7px 0; white-space: nowrap; vertical-align: top;
+  border-bottom: 1px solid rgba(21,24,32,.11); font-weight: 400; }
+.sg-table td { font-size: 13px; color: var(--ink); padding: 7px 0;
+  border-bottom: 1px solid rgba(21,24,32,.11); }
+.sg-src { font-size: 11px; line-height: 1.6; color: var(--ash); margin: 12px 0 0; }
+@media (max-width: 620px) {
+  .sg-table th, .sg-table td { display: block; border-bottom: 0; padding: 2px 0; }
+  .sg-table tr { display: block; padding: 7px 0;
+    border-bottom: 1px solid rgba(21,24,32,.11); }
+}
