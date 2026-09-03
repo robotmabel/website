@@ -277,6 +277,9 @@ def main():
         rec["options"] = opts
         rec["price"] = round(total, 2)
         rec["img"] = f"assets/hw/{m['id']}.png"
+        art = os.path.join(SITE, "assets", "hw", f"{m['id']}.svg")
+        if os.path.isfile(art):
+            rec["art"] = f"assets/hw/{m['id']}.svg"
         out.append(rec)
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)

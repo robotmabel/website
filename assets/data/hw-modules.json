@@ -721,7 +721,8 @@
     }
    ],
    "price": 362.97,
-   "img": "assets/hw/sensors.png"
+   "img": "assets/hw/sensors.png",
+   "art": "assets/hw/sensors.svg"
   },
   {
    "id": "electronics",

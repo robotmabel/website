@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 220" role="img"
+     aria-label="The four sensor families MABEL uses, drawn to their real proportions">
+  <title>MABEL's sensors</title>
+  <!--
+    Drawn, not photographed. Vendor product photography is not ours to
+    republish, so these are illustrations of the ACTUAL parts in
+    BOM/data/choices.csv, drawn in the site's ink-and-flat-colour style and to
+    each part's real proportions from its datasheet.
+  -->
+  <defs>
+    <style>
+      .ink  { fill: none; stroke: #151820; stroke-width: 4; stroke-linejoin: round;
+              stroke-linecap: round; }
+      .body { fill: #3A4050; }
+      .dark { fill: #23283A; }
+      .lens { fill: #23577E; }
+      .glass{ fill: #6FA3C9; }
+      .ir   { fill: #C6301A; }
+      .plate{ fill: #F0762E; }
+      .cap  { fill: #F2C94C; }
+      .lbl  { font-family: 'Space Mono', ui-monospace, monospace; font-size: 11px;
+              fill: #151820; letter-spacing: .04em; }
+      .sub  { font-family: 'Space Mono', ui-monospace, monospace; font-size: 9px;
+              fill: #6D6551; }
+    </style>
+  </defs>
+
+  <!-- ─── stereo head camera: a wide bar with two lenses and an IMU dot ─── -->
+  <g transform="translate(16,26)">
+    <rect x="0" y="26" width="176" height="52" rx="10" class="body"/>
+    <rect x="0" y="26" width="176" height="52" rx="10" class="ink"/>
+    <rect x="8" y="34" width="160" height="20" rx="6" class="dark"/>
+    <circle cx="36" cy="52" r="17" class="lens"/><circle cx="36" cy="52" r="17" class="ink"/>
+    <circle cx="36" cy="52" r="8" class="glass"/>
+    <circle cx="140" cy="52" r="17" class="lens"/><circle cx="140" cy="52" r="17" class="ink"/>
+    <circle cx="140" cy="52" r="8" class="glass"/>
+    <circle cx="88" cy="52" r="5" class="ir"/><circle cx="88" cy="52" r="5" class="ink"/>
+    <rect x="70" y="78" width="36" height="10" rx="3" class="dark"/>
+    <rect x="70" y="78" width="36" height="10" rx="3" class="ink"/>
+    <text x="88" y="112" class="lbl" text-anchor="middle">HEAD · STEREO</text>
+    <text x="88" y="126" class="sub" text-anchor="middle">1280×720 · IMU</text>
+  </g>
+
+  <!-- ─── wrist camera: a small global-shutter module on a board ─── -->
+  <g transform="translate(232,26)">
+    <rect x="26" y="30" width="84" height="46" rx="6" class="plate"/>
+    <rect x="26" y="30" width="84" height="46" rx="6" class="ink"/>
+    <rect x="44" y="14" width="48" height="48" rx="8" class="body"/>
+    <rect x="44" y="14" width="48" height="48" rx="8" class="ink"/>
+    <circle cx="68" cy="38" r="15" class="dark"/><circle cx="68" cy="38" r="15" class="ink"/>
+    <circle cx="68" cy="38" r="7" class="glass"/>
+    <g class="ink" stroke-width="3">
+      <path d="M30 76 h12 M52 76 h12 M74 76 h12 M96 76 h10"/>
+    </g>
+    <text x="68" y="112" class="lbl" text-anchor="middle">WRIST ×2</text>
+    <text x="68" y="126" class="sub" text-anchor="middle">global shutter</text>
+  </g>
+
+  <!-- ─── 2-D lidar: a squat drum with a spinning head and a scan fan ─── -->
+  <g transform="translate(400,26)">
+    <path d="M8 62 A62 30 0 0 0 132 62" class="glass" opacity=".45"/>
+    <path d="M8 62 A62 30 0 0 0 132 62" class="ink" stroke-width="3" stroke-dasharray="7 6"/>
+    <rect x="30" y="52" width="80" height="30" rx="8" class="body"/>
+    <rect x="30" y="52" width="80" height="30" rx="8" class="ink"/>
+    <ellipse cx="70" cy="52" rx="40" ry="13" class="dark"/>
+    <ellipse cx="70" cy="52" rx="40" ry="13" class="ink"/>
+    <rect x="46" y="30" width="48" height="26" rx="7" class="cap"/>
+    <rect x="46" y="30" width="48" height="26" rx="7" class="ink"/>
+    <circle cx="70" cy="43" r="6" class="ir"/><circle cx="70" cy="43" r="6" class="ink"/>
+    <path d="M96 40 q16 -8 26 -2" class="ink" stroke-width="3"/>
+    <text x="70" y="112" class="lbl" text-anchor="middle">2-D LIDAR</text>
+    <text x="70" y="126" class="sub" text-anchor="middle">12 m · 360 pts</text>
+  </g>
+
+  <!-- ─── base depth camera: short bar, one colour + two IR ─── -->
+  <g transform="translate(556,26)">
+    <rect x="6" y="34" width="128" height="40" rx="8" class="body"/>
+    <rect x="6" y="34" width="128" height="40" rx="8" class="ink"/>
+    <rect x="14" y="40" width="112" height="16" rx="5" class="dark"/>
+    <circle cx="34" cy="54" r="12" class="ir"/><circle cx="34" cy="54" r="12" class="ink"/>
+    <circle cx="70" cy="54" r="13" class="lens"/><circle cx="70" cy="54" r="13" class="ink"/>
+    <circle cx="70" cy="54" r="6" class="glass"/>
+    <circle cx="106" cy="54" r="12" class="ir"/><circle cx="106" cy="54" r="12" class="ink"/>
+    <text x="70" y="112" class="lbl" text-anchor="middle">BASE · DEPTH</text>
+    <text x="70" y="126" class="sub" text-anchor="middle">optional</text>
+  </g>
+
+  <!-- ─── compute: the Jetson carrier with a finned heatsink ─── -->
+  <g transform="translate(712,26)">
+    <rect x="10" y="52" width="120" height="30" rx="5" class="plate"/>
+    <rect x="10" y="52" width="120" height="30" rx="5" class="ink"/>
+    <rect x="24" y="18" width="92" height="38" rx="4" class="body"/>
+    <rect x="24" y="18" width="92" height="38" rx="4" class="ink"/>
+    <g class="ink" stroke-width="3">
+      <path d="M34 22 v30 M46 22 v30 M58 22 v30 M70 22 v30 M82 22 v30 M94 22 v30 M106 22 v30"/>
+      <path d="M18 82 h10 M38 82 h10 M58 82 h10 M78 82 h10 M98 82 h10 M118 82 h6"/>
+    </g>
+    <text x="70" y="112" class="lbl" text-anchor="middle">COMPUTE</text>
+    <text x="70" y="126" class="sub" text-anchor="middle">Jetson · Orin → Thor</text>
+  </g>
+</svg>

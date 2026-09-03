@@ -3817,3 +3817,9 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   padding: 3px 8px; border-radius: 4px; border: 2px solid var(--ink); }
 .ab-tag.sim { background: var(--blue); color: #FFF6E4; }
 .ab-tag.real { background: var(--rust); color: #FFF6E4; }
+.hs-art { margin: 0 0 18px; border: 2px solid var(--ink); border-radius: 9px;
+  overflow: hidden; background: var(--bone); }
+.hs-art img { width: 100%; display: block; }
+.hs-art figcaption { padding: 7px 11px; font-family: var(--font-mono);
+  font-size: 10px; color: var(--ash); border-top: 2px solid var(--ink);
+  background: var(--panel); }

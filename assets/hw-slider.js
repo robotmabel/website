@@ -172,6 +172,13 @@
         '<dl class="hs-specs wide">' + m.specs.map(function (s) {
           return '<div><dt>' + esc(s[0]) + '</dt><dd>' + esc(s[1]) + '</dd></div>';
         }).join('') + '</dl>' +
+        /* the sensors and compute cards get a drawing of the actual parts.
+           Vendor product photography is not ours to republish, so these are
+           illustrations to each part's real proportions, in the site's own ink
+           and flat colour. */
+        (m.art ? '<figure class="hs-art"><img src="' + m.art + '" alt="" ' +
+          'loading="lazy"/><figcaption>Drawn to each part\u2019s real ' +
+          'proportions &mdash; not a vendor photograph.</figcaption></figure>' : '') +
         (m.parts.length
           ? '<h4 class="hs-sub">What you buy</h4>' +
             '<div class="table-scroll"><table class="hs-table"><thead><tr>' +
