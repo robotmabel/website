@@ -101,6 +101,46 @@ async def go():
         if lit != 9 or edges != 8:
             print("   *** the highlight does not cover the whole route"); bad += 1
 
+        # ── the sim/real split ────────────────────────────────────────
+        w = await ev("window.__stackMap.worlds()")
+        print(f"\nworlds: {w}")
+        if not (w.get("sim") and w.get("real") and w.get("both")):
+            print("   *** the diagram no longer distinguishes sim from real")
+            bad += 1
+        simp = [x for x in paths if x["id"] == "sim"]
+        if not simp:
+            print("   *** there is no route through the simulator"); bad += 1
+        else:
+            await ev("window.__stackMap.show('sim')")
+            slit = await ev("window.__stackMap.lit()")
+            real = [x for x in paths if x["id"] == "teleop"][0]["route"]
+            shared = [n for n in slit if n in real]
+            print(f"sim route lights {len(slit)}; {len(shared)} of them are on "
+                  f"the real route too")
+            if len(shared) < 6:
+                print("   *** sim and real barely overlap — the shared-spine "
+                      "claim is not what the graph draws")
+                bad += 1
+            if "mujoco" not in slit:
+                print("   *** the sim route never reaches MuJoCo"); bad += 1
+
+        # ── every command source is CLICKABLE and lights its own route ──
+        for src in ["vp", "policy", "nav"]:
+            if not await ev(f"window.__stackMap.clickNode('{src}')"):
+                print(f"   *** {src} is not on the diagram"); bad += 1; continue
+            if src not in (await ev("window.__stackMap.lit()")):
+                print(f"   *** clicking {src} lit no route through it"); bad += 1
+        print("every command source is clickable")
+
+        # ── hovering ANY block must produce a card with text in it ──────
+        ids = await ev("window.__stackMap.nodes.map(function(n){return n[0];})")
+        empty = [i for i in ids
+                 if not await ev(f"window.__stackMap.hover('{i}')")]
+        if empty:
+            print(f"   *** no hover card for: {', '.join(empty)}"); bad += 1
+        else:
+            print(f"all {len(ids)} blocks have a hover card")
+
         print("errors:", errs[:2] or "none")
         if errs:
             bad += 1

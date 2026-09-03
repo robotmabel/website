@@ -18,6 +18,32 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.dirname(HERE)
 OUT = os.path.join(SITE, "assets", "data", "platforms.json")
 
+# Where each platform can be read about. Taken from the paper's own
+# bibliography (papers/ral2026/citations.bib) — a URL where it gives one, an
+# arXiv id where it gives that instead, and NOTHING where it gives neither.
+# Guessing a company's URL from its name is how a comparison table starts
+# linking to the wrong company.
+LINKS = {
+    "Mobile ALOHA": "https://mobile-aloha.github.io/",
+    "AhaRobot": "https://arxiv.org/abs/2503.10070",
+    "XLeRobot": "https://github.com/Vector-Wangel/XLeRobot",
+    "YOR": "https://arxiv.org/abs/2602.11150",
+    "Trossen Mobile AI": "https://www.trossenrobotics.com/mobile-ai",
+    "Reachy 2": "https://www.pollen-robotics.com/reachy/",
+    "LeKiwi": "https://github.com/SIGRobotics-UIUC/LeKiwi",
+    "Reflex": "https://www.reflexrobotics.com/",
+    "Rainbow RB-Y1": "https://www.rainbow-robotics.com/en_rby1",
+    "Sunday Memo": "https://www.sunday.ai/",
+    "Weave Isaac 1": "https://www.weaverobotics.com/isaac-1",
+    "Galaxea R1": "https://galaxea.ai/",
+    "Galbot G1": "https://www.galbot.com/en",
+    "DexMate Vega": "https://www.dexmate.ai/product/vega",
+    "Astribot S1": "https://www.astribot.com/product",
+    "AgiBot Genie G1": "https://www.agibot.com/",
+    "Unitree R1-A7-D": "https://www.unitree.com/",
+    "MABEL": "https://github.com/robotmabel/MABEL",
+}
+
 # name, year, base, holonomic (True/False/None=unstated), arms "NxM",
 # hand DOF per hand, neck DOF, lift/torso, cost k$ (None = undisclosed),
 # open?, focus, note
@@ -82,6 +108,7 @@ def main():
             "arms": arms, "n_arms": n_arms, "hand": hand, "neck": neck,
             "lift": lift, "cost": cost, "open": is_open, "focus": focus,
             "note": note, "mobile": base != "Fixed", "ours": name == "MABEL",
+            "link": LINKS.get(name, ""),
         })
     out = {
         "generated_by": "website/scripts/build_platforms.py",
@@ -98,6 +125,8 @@ def main():
     with open(OUT, "w") as f:
         json.dump(out, f, indent=1)
 
+    n_link = sum(1 for r in rows if r["link"])
+    print(f"   {n_link}/{len(rows)} carry a link from the bibliography")
     n_open = sum(1 for r in rows if r["open"])
     print(f"wrote {os.path.relpath(OUT, SITE)} — {len(rows)} platforms "
           f"({n_open} open, {len(rows)-n_open} commercial)")

@@ -19,7 +19,8 @@
    "focus": "Bimanual mobile imitation learning",
    "note": null,
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://mobile-aloha.github.io/"
   },
   {
    "name": "AhaRobot",
@@ -36,7 +37,8 @@
    "focus": "Ultra-low-cost bimanual mobile manipulation",
    "note": "estimate",
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://arxiv.org/abs/2503.10070"
   },
   {
    "name": "Cone-E",
@@ -53,7 +55,8 @@
    "focus": "Low-cost mobile manipulation",
    "note": null,
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": ""
   },
   {
    "name": "XLeRobot",
@@ -70,7 +73,8 @@
    "focus": "Hobby-scale bimanual mobile base",
    "note": null,
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://github.com/Vector-Wangel/XLeRobot"
   },
   {
    "name": "YOR",
@@ -87,7 +91,8 @@
    "focus": "Low-cost generalizable mobile manipulation",
    "note": null,
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://arxiv.org/abs/2602.11150"
   },
   {
    "name": "Trossen Mobile AI",
@@ -104,7 +109,8 @@
    "focus": "Open ALOHA-style research kit",
    "note": null,
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.trossenrobotics.com/mobile-ai"
   },
   {
    "name": "OpenPyRo-A1",
@@ -121,7 +127,8 @@
    "focus": "Open bimanual torso",
    "note": null,
    "mobile": false,
-   "ours": false
+   "ours": false,
+   "link": ""
   },
   {
    "name": "Reachy 2",
@@ -138,7 +145,8 @@
    "focus": "Open teleoperation and manipulation",
    "note": null,
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.pollen-robotics.com/reachy/"
   },
   {
    "name": "TidyBot++",
@@ -155,7 +163,8 @@
    "focus": "Open holonomic mobile manipulator",
    "note": "arm not included",
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": ""
   },
   {
    "name": "LeKiwi",
@@ -172,7 +181,8 @@
    "focus": "Hobby-scale mobile arm",
    "note": null,
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://github.com/SIGRobotics-UIUC/LeKiwi"
   },
   {
    "name": "Reflex",
@@ -189,7 +199,8 @@
    "focus": "Teleoperated warehouse manipulation",
    "note": "gripper, not in-hand dexterity",
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.reflexrobotics.com/"
   },
   {
    "name": "Rainbow RB-Y1",
@@ -206,7 +217,8 @@
    "focus": "Industrial bimanual coordination",
    "note": null,
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.rainbow-robotics.com/en_rby1"
   },
   {
    "name": "Sunday Memo",
@@ -223,7 +235,8 @@
    "focus": "Learn-from-demonstration home chores",
    "note": "target at scale; beta ~$20k",
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.sunday.ai/"
   },
   {
    "name": "Weave Isaac 1",
@@ -240,7 +253,8 @@
    "focus": "Teleoperation-assisted home robot",
    "note": null,
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.weaverobotics.com/isaac-1"
   },
   {
    "name": "Galaxea R1",
@@ -257,7 +271,8 @@
    "focus": "Generalist mobile manipulation",
    "note": "base model; R1 Pro ~$70k",
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://galaxea.ai/"
   },
   {
    "name": "Galbot G1",
@@ -274,7 +289,8 @@
    "focus": "Retail and pharmacy manipulation",
    "note": "suction + 1-DOF jaw; retail-listed",
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.galbot.com/en"
   },
   {
    "name": "DexMate Vega",
@@ -291,7 +307,8 @@
    "focus": "General-purpose research robot",
    "note": null,
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.dexmate.ai/product/vega"
   },
   {
    "name": "Astribot S1",
@@ -308,7 +325,8 @@
    "focus": "High-speed bimanual manipulation",
    "note": "third-party price",
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.astribot.com/product"
   },
   {
    "name": "AgiBot Genie G1",
@@ -325,7 +343,8 @@
    "focus": "Fleet-scale data collection",
    "note": "third-party price",
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.agibot.com/"
   },
   {
    "name": "Unitree R1-A7-D",
@@ -342,7 +361,8 @@
    "focus": "Modular dual-arm mobile manipulation",
    "note": "lineup from $4,290; -D quote-based",
    "mobile": true,
-   "ours": false
+   "ours": false,
+   "link": "https://www.unitree.com/"
   },
   {
    "name": "MABEL",
@@ -359,7 +379,8 @@
    "focus": "Open anthropomorphic dexterity + spatial teleoperation",
    "note": null,
    "mobile": true,
-   "ours": true
+   "ours": true,
+   "link": "https://github.com/robotmabel/MABEL"
   }
  ]
 }

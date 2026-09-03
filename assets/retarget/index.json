@@ -1,0 +1,18 @@
+{
+ "generated_by": "controller/experiments/retargeting_ablation/render_compare.py",
+ "dataset": "EgoDex (Hoque et al. 2025, arXiv:2505.11709) \u2014 recorded Apple Vision Pro hand and head motion, replayed through MABEL's own headset wire format",
+ "note": "every clip is the SAME episode its metrics row was scored on, snapshotted from that run rather than re-simulated",
+ "methods": [
+  {
+   "id": "ours",
+   "label": "Ours",
+   "why": "GMR keypoints plus the offline front-workspace posture atlas, per-finger keypoint IK, the standoff clamps, the head-anchor low-pass and the mobile-base re-anchor."
+  },
+  {
+   "id": "direct",
+   "label": "Direct copy",
+   "why": "Copy the operator's joint angles onto the robot. A human arm is longer and a human torso about three times wider, so equal ANGLES do not put the hand in the same place."
+  }
+ ],
+ "tasks": []
+}

@@ -147,11 +147,27 @@
       console.error('[curation-lab]', e);
     });
 
+  /* playback state lives here, not inside wire(): render() has to know
+     whether it should be seeking or letting the media clock run. */
+  var playing = false, lastShown = null;
+
   function boot(idx) {
     host.innerHTML =
       '<div class="cl-top">' +
         '<div class="cl-view">' +
-          '<video class="cl-video" muted playsinline preload="auto"></video>' +
+          /* ONE <video> PER EPISODE, not one element whose src we swap.
+             Assigning .src resets the media element: it drops back to
+             readyState 0, paints BLACK, and ignores any currentTime set
+             before metadata arrives. Since the playhead crosses a clip
+             boundary mid-playback, that is exactly when the swap happens —
+             the viewer went black the moment the timeline reached the second
+             take and stayed black. Three 640x480 clips preload happily; the
+             visible one is the only difference. */
+          idx.episodes.map(function (e, i) {
+            return '<video class="cl-video" data-ep="' + esc(e.id) + '" muted ' +
+                   'playsinline preload="auto" src="assets/curation/' +
+                   esc(e.clip) + '"' + (i ? ' hidden' : '') + '></video>';
+          }).join('') +
           '<div class="cl-hud"><span class="cl-frame">frame 0</span>' +
             '<span class="cl-clipname">—</span></div>' +
           '<div class="cl-flag" hidden></div>' +
@@ -213,10 +229,11 @@
         'camera feeds and LeRobot export; both it and the Trainer Studio are ' +
         'still being polished.</p>';
 
-    ['video', 'frame', 'clipname', 'flag', 'defects', 'bin', 'ruler',
+    ['frame', 'clipname', 'flag', 'defects', 'bin', 'ruler',
      'defrow', 'notes', 'head', 'scorev', 'len', 'zv', 'scroll'].forEach(function (k) {
       el[k] = host.querySelector('.cl-' + k);
     });
+    el.videos = [].slice.call(host.querySelectorAll('.cl-video'));
     el.play = host.querySelector('.cl-play');
     el.timeline = host.querySelector('.cl-timeline');
     el.tracks = [].slice.call(host.querySelectorAll('.cl-track'));
@@ -344,12 +361,33 @@
         return s.local + s.c.in >= d.start && s.local + s.c.in <= d.end; });
       el.flag.hidden = !hit.length;
       if (hit.length) el.flag.textContent = hit[0].label;
-      var v = el.video;
-      var src = 'assets/curation/' + eps[s.c.ep].clip;
-      if (!v.src || v.src.indexOf(eps[s.c.ep].clip) < 0) v.src = src;
-      var want = (s.c.in + s.local) / 15;
-      if (Math.abs(v.currentTime - want) > 0.09 && v.readyState >= 1)
-        try { v.currentTime = want; } catch (e) { /* still seeking */ }
+      /* show the episode's own element; never re-point a src */
+      /* keyed by episode ID, not by index — clip.ep is an id string
+         ('ep01'), and `i === s.c.ep` is a number-vs-string comparison that is
+         false for every element, so every video hid and the panel went black */
+      var v = null;
+      el.videos.forEach(function (x) {
+        var mine = x.dataset.ep === s.c.ep;
+        if (x.hidden === mine) x.hidden = !mine;
+        if (mine) v = x;
+      });
+      if (v) {
+        var want = (s.c.in + s.local) / 15;
+        /* PLAY, DON'T SEEK, WHILE PLAYING.
+           The playhead advances one frame every 1/15 s and render() runs each
+           time, so seeking here meant FIFTEEN SEEKS A SECOND. Every one of
+           them dropped the element to HAVE_METADATA and the viewer stayed
+           black for the whole take. During playback the media clock is the
+           right clock: let it run and only correct it when it has genuinely
+           drifted (or when the clip under the playhead changed). Scrubbing
+           still seeks, which is what scrubbing is. */
+        var tol = playing && v === lastShown ? 0.35 : 0.09;
+        lastShown = v;
+        if (playing && v.paused) { try { v.play(); } catch (e) { /* blocked */ } }
+        if (!playing && !v.paused) v.pause();
+        if (Math.abs(v.currentTime - want) > tol && v.readyState >= 1)
+          try { v.currentTime = want; } catch (e) { /* still seeking */ }
+      }
     }
     el.frame.textContent = 'frame ' + playhead + ' / ' + T;
     el.head.style.left = fx(playhead) + 'px';
@@ -562,7 +600,7 @@
     });
 
     /* playback moves the playhead, not just the video */
-    var playing = false, raf = null, last = 0;
+    var raf = null, last = 0;
     function tick(t) {
       if (!playing) return;
       if (t - last > 1000 / 15) {

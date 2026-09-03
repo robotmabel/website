@@ -36,6 +36,11 @@ run curation    $P scripts/curtest.py $B/autonomy.html
 run scenes      $P scripts/scenetest.py $B/software.html
 run figures     $P scripts/figscale.py $B/index.html
 run panels      $P scripts/panels.py $B/build.html
+run css         $P scripts/csscheck.py
+run platforms   $P scripts/pttest.py $B/index.html
+run stack-map   $P scripts/smtest.py $B/index.html
+run accuracy    $P scripts/acctest.py $B/hardware.html
+run retarget-tv $P scripts/rktest.py $B/software.html
 echo
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

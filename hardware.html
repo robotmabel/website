@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=ca25fc3d" />
+<link rel="stylesheet" href="assets/mabel.css?v=4e7b1a34" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -53,10 +53,11 @@
 
 <aside class="sidenav" aria-label="Hardware section navigation">
   <div class="sidenav-title">Hardware</div>
-  <a href="#model">In 3D</a><a href="anatomy.html">Anatomy ↗</a>
+  <a href="#model">In 3D</a><a href="#callout">What's inside</a><a href="anatomy.html">Anatomy ↗</a>
   <a href="#hw-hands">Hands</a><a href="#hw-arms">Arms</a><a href="#hw-base">Base</a>
   <a href="#hw-lift">Lift</a><a href="#hw-body">Body &amp; head</a><a href="#hw-sensors">Sensors</a>
   <a href="#hw-electronics">Electronics</a>
+  <a href="#accuracy">Accuracy</a>
 </aside>
 
 <section class="page-hero">
@@ -119,6 +120,26 @@
   </div>
 </section>
 
+<section class="pad-y alt" id="callout">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The parts, named</span>
+        <h2 class="display-md title">What's <span class="italic accent">inside.</span></h2>
+      </div>
+      <p class="lede">Every leader line in this drawing is aimed by projecting that part's real
+        position in the MuJoCo model through the same camera that rendered the robot. Move a
+        component in the model and the arrow follows it — there is no hand-placed coordinate here
+        to go quietly stale.</p>
+    </div>
+    <figure class="callout-fig fade-up">
+      <img src="assets/hw/callout.svg" alt="MABEL with its twelve major components labelled: stereo head camera, Dynamixel neck, DAMIAO shoulder and elbow actuators, wrist module, ORCA hand, torso yaw, FlexiSpot lift, Jetson and power, lidar, REV MAXSwerve modules, and Feetech finger servos." loading="lazy" />
+      <figcaption>Rendered by <code>simulation/mabel_mujoco/scripts/tools/render_callout.py</code> from
+        <code>mabel_full.xml</code>. Part numbers come from the same BOM the build page bills.</figcaption>
+    </figure>
+  </div>
+</section>
+
 <section class="pad-y" id="anatomy">
   <div class="wrap">
     <div class="sec-head fade-up">
@@ -130,6 +151,22 @@
     </div>
 
     <div class="hw-slider fade-up" id="hwSlider"></div>
+  </div>
+</section>
+
+<section class="pad-y alt" id="accuracy">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">On the bench</span>
+        <h2 class="display-md title">Does it go where you <span class="italic accent">tell it?</span></h2>
+      </div>
+      <p class="lede">A build is a claim, and a claim wants a number. So we ran the ISO 9283
+        schedule on the real robot and measured every landing, then traced commanded paths in
+        simulation across four controller conditions. Both panels below are drawn live from the
+        experiment archives — pick a station, pick a path.</p>
+    </div>
+    <div class="fade-up" id="accuracyLab"></div>
   </div>
 </section>
 
@@ -147,6 +184,7 @@
 </footer>
 
 <script src="assets/hw-slider.js"></script>
+<script src="assets/accuracy-lab.js"></script>
 <script src="assets/mabel.js?v=fd6568a8"></script>
 <script type="module" src="assets/robot-viewer.js?v=10c66c59"></script>
 </body>

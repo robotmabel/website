@@ -67,7 +67,10 @@
           return '<th data-sort="' + c[0] + '">' + esc(c[1]) + '</th>';
         }).join('') +
       '</tr></thead><tbody></tbody></table></div>' +
-      '<p class="pt-src">' + esc(D.cost_note) + '. Source: <code>' +
+      '<div class="pt-card" hidden></div>' +
+      '<p class="pt-src">' + esc(D.cost_note) + '. Links go to the project page ' +
+        'or paper the survey cites; three platforms the bibliography gives ' +
+        'neither for carry no link rather than a guessed one. Source: <code>' +
         esc(D.source) + '</code>.</p>';
 
     var tbody = host.querySelector('tbody');
@@ -94,7 +97,11 @@
 
       tbody.innerHTML = rows.map(function (r) {
         return '<tr class="' + (r.ours ? 'ours' : '') + '">' +
-          '<td class="pt-name"><b>' + esc(r.name) + '</b>' +
+          '<td class="pt-name" data-row="' + esc(r.name) + '">' +
+            (r.link
+              ? '<a href="' + esc(r.link) + '" target="_blank" rel="noopener"><b>' +
+                esc(r.name) + '</b><span class="pt-go">↗</span></a>'
+              : '<b>' + esc(r.name) + '</b>') +
             '<i>' + r.year + ' · ' + esc(r.focus) + '</i>' +
             (r.note ? '<em>' + esc(r.note) + '</em>' : '') + '</td>' +
           '<td>' + esc(r.base) +
@@ -143,6 +150,41 @@
       });
       render();
     });
+
+    /* Hovering a platform brings up its full row. It is NOT a photo of their
+       robot: those are other people's product photography and not ours to
+       republish, so the card carries what we actually surveyed instead. */
+    var card = host.querySelector('.pt-card');
+    host.addEventListener('pointerover', function (e) {
+      var td = e.target.closest('[data-row]');
+      if (!td) return;
+      var r = D.platforms.filter(function (x) { return x.name === td.dataset.row; })[0];
+      if (!r) return;
+      card.innerHTML =
+        '<b>' + esc(r.name) + '</b><span class="pt-card-y">' + r.year + '</span>' +
+        '<p>' + esc(r.focus) + '</p>' +
+        '<dl>' +
+          '<div><dt>Base</dt><dd>' + esc(r.base) +
+            (r.holo === true ? ' · holonomic' : r.holo === false ?
+             ' · non-holonomic' : ' · not stated') + '</dd></div>' +
+          '<div><dt>Arms</dt><dd>' + esc(r.arms) + '</dd></div>' +
+          '<div><dt>Hand</dt><dd>' + r.hand + ' DOF' +
+            (r.hand === 1 ? ' — a parallel jaw' : '') + '</dd></div>' +
+          '<div><dt>Neck</dt><dd>' + r.neck + ' DOF' +
+            (r.neck === 0 ? ' — fixed head' : '') + '</dd></div>' +
+          '<div><dt>Lift</dt><dd>' + esc(r.lift) + '</dd></div>' +
+          '<div><dt>Cost</dt><dd>' + money(r.cost) + '</dd></div>' +
+        '</dl>' +
+        (r.note ? '<em>' + esc(r.note) + '</em>' : '') +
+        (r.link ? '<span class="pt-card-link">' + esc(r.link.replace(
+          /^https?:\/\//, '')) + ' ↗</span>' : '');
+      card.hidden = false;
+      var hb = host.getBoundingClientRect(), b = td.getBoundingClientRect();
+      card.style.top = Math.max(8, b.top - hb.top - 8) + 'px';
+      card.style.left = Math.min(hb.width - card.offsetWidth - 12,
+                                 b.right - hb.left + 14) + 'px';
+    });
+    host.addEventListener('pointerleave', function () { card.hidden = true; });
 
     render();
     window.__platformTable = {

@@ -144,6 +144,43 @@ async def go():
             print("   *** the label dialog is still the browser's"); bad += 1
         await ev("var d=document.querySelector('.cl-ask'); if(d) d.remove();")
 
+        # ── THE PREVIEW MUST ACTUALLY SHOW SOMETHING ──────────────────
+        # It went black for a whole take twice: once because swapping .src
+        # reset the element, and once because playback seeked 15x a second
+        # through long-GOP video. Both are invisible to every other check
+        # here, which is why they shipped.
+        vids = await ev("[].slice.call(document.querySelectorAll('.cl-video'))"
+                        ".map(function(v){return v.dataset.ep;})")
+        print(f"\npreview: {len(vids)} elements, one per episode: {vids}")
+        if len(vids) < 3 or len(set(vids)) != len(vids):
+            print("   *** the preview is not one element per episode"); bad += 1
+        seen, dark = set(), []
+        for f in [0, 60, 134, 135, 200, 269, 270, 340]:
+            await ev(f"window.__curationLab.seek({f})")
+            await asyncio.sleep(0.25)
+            shown = await ev(
+                "(function(){var v=[].slice.call("
+                "document.querySelectorAll('.cl-video'))"
+                ".filter(function(x){return !x.hidden;});"
+                "return v.length===1 ? {ep:v[0].dataset.ep,"
+                "ready:v[0].readyState} : {ep:null,ready:-1,n:v.length};})()")
+            if not shown or shown.get("ep") is None:
+                print(f"   *** frame {f}: {shown} visible videos"); bad += 1
+                continue
+            seen.add(shown["ep"])
+            if shown["ready"] < 2:
+                dark.append((f, shown["ep"]))
+        print(f"   walked 8 frames across every clip boundary; "
+              f"showed {len(seen)} distinct episodes")
+        if len(seen) < 3:
+            print("   *** the preview never changed episode"); bad += 1
+        if dark:
+            print(f"   note: {len(dark)} frame(s) still below HAVE_CURRENT_DATA "
+                  f"{dark[:3]} — headless has no media pipeline for seeks, so "
+                  "this is only fatal if it is ALL of them")
+            if len(dark) >= 8:
+                print("   *** the preview is black at every frame"); bad += 1
+
         print("errors:", errs[:3] or "none")
         if errs:
             bad += 1
