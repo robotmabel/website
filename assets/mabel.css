@@ -3420,14 +3420,27 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   color: var(--ash); text-align: right; max-width: 62%; }
 .wt-state.bad { color: var(--rust); }
 
-.wt-seg { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink);
-  border-radius: 7px; overflow: hidden; box-shadow: 3px 3px 0 var(--ink); }
-.wt-btn { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.05em;
-  padding: 9px 10px; border: none; cursor: pointer; background: var(--bone);
-  color: var(--ink); transition: background 0.18s ease; }
-.wt-btn + .wt-btn { border-left: 2px solid var(--ink); }
-.wt-btn.on { background: var(--yellow); color: var(--ink); }
-.wt-btn:hover:not(.on) { background: #FFF3D0; }
+/* A two-state switch that says which state it is in from across the room.
+   The version before this used a pale pill for both halves, so the inactive
+   label was near-invisible and you could not tell the camera was off. Now the
+   ACTIVE half is a solid colour with light text — red for off, green for on —
+   and the inactive half is plain ink on bone, always readable. */
+.wt-seg { display: grid; grid-template-columns: 1fr 1fr; border: 3px solid var(--ink);
+  border-radius: 8px; overflow: hidden; box-shadow: 4px 4px 0 var(--ink); }
+.wt-btn { display: flex; align-items: center; justify-content: center; gap: 7px;
+  font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.06em;
+  padding: 11px 10px; border: none; cursor: pointer; background: var(--bone);
+  color: var(--ink); transition: background .18s ease, color .18s ease; }
+.wt-btn::before { content: ""; width: 9px; height: 9px; border-radius: 50%;
+  border: 2px solid currentColor; background: transparent; }
+.wt-btn + .wt-btn { border-left: 3px solid var(--ink); }
+.wt-btn[data-cam="off"].on { background: var(--rust); color: #FFF6E4; }
+.wt-btn[data-cam="on"].on { background: var(--green); color: #FFF6E4; }
+.wt-btn.on::before { background: currentColor; }
+.wt-btn:hover:not(.on) { background: var(--yellow); }
+.wt-state { font-weight: 700; }
+.wt-panel-head .wt-state::before { content: "● "; color: var(--rust); }
+.wt-panel-head .wt-state.live::before { color: var(--green); }
 .wt-recal { width: 100%; margin-top: 9px; font-family: var(--font-comic);
   font-size: 12px; letter-spacing: 0.05em; padding: 8px 10px; cursor: pointer;
   border: 2px solid var(--ink); border-radius: 7px; background: var(--bone);

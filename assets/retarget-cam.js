@@ -446,7 +446,8 @@ function boot(HOST) {
     R.offQ.l = R.offQ.r = null;
     btnRecal.disabled = false;
     resize();
-    elState.textContent = 'on';
+    elState.textContent = 'tracking you';
+    elState.classList.add('live');
     elMode.textContent = 'tracking';
     ['l', 'r'].forEach((s) => { if (R.dot[s]) R.dot[s].visible = true;
                                 if (R.axes[s]) R.axes[s].visible = true; });
@@ -459,7 +460,8 @@ function boot(HOST) {
   }
   function stop() {
     running = false; R.live = false;
-    elState.textContent = 'off'; elState.classList.remove('bad');
+    elState.textContent = 'off';
+    elState.classList.remove('bad', 'live');
     elMode.textContent = 'waiting for you'; elMode.className = 'wt-mode';
     idle.hidden = false;
     btnRecal.disabled = true;
