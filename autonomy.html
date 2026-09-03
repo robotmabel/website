@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=51467c58" />
+<link rel="stylesheet" href="assets/mabel.css?v=ad1aa524" />
 <style>
   /* Data Curation live-tool CTA */
   .studio-card { padding: clamp(28px, 4vw, 48px); }
@@ -183,7 +183,7 @@
   </div>
 
   <div class="table-scroll tight fade-up">
-    <table class="data-table">
+    <table class="data-table compact">
       <thead><tr><th style="text-align:left;">Estimator</th><th>Position error</th><th>Heading</th><th>Path length vs truth</th></tr></thead>
       <tbody>
         <tr><td data-l="Estimator">Wheel odometry only</td><td data-l="Position error">0.67 m</td><td data-l="Heading">12.8°</td><td data-l="Path" class="hi">3.0× — slip reads as distance</td></tr>
@@ -238,7 +238,7 @@
       occupancy layer out of it. Everything loads as composable nodes into one container so
       frames move by zero-copy.</p>
       <div class="table-scroll tight" style="margin-top:12px;">
-        <table class="data-table">
+        <table class="data-table compact">
           <tbody>
             <tr><td data-l="Setting">Voxel size</td><td data-l="Value" style="text-align:right;">0.05 m navigating · 0.01 m manipulating</td></tr>
             <tr><td data-l="Setting">Integration range</td><td data-l="Value" style="text-align:right;">4 m nav · 1.5 m manip</td></tr>
@@ -255,7 +255,7 @@
       at 50 Hz. Loop closure is on: it searches 3 m and needs a chain of ten scans before it
       will believe a match.</p>
       <div class="table-scroll tight" style="margin-top:12px;">
-        <table class="data-table">
+        <table class="data-table compact">
           <tbody>
             <tr><td data-l="Setting">Resolution</td><td data-l="Value" style="text-align:right;">0.05 m</td></tr>
             <tr><td data-l="Setting">Laser range used</td><td data-l="Value" style="text-align:right;">0.45 – 12 m</td></tr>
@@ -425,7 +425,7 @@
   </div>
 
   <div class="table-scroll fade-up">
-    <table class="data-table">
+    <table class="data-table compact">
       <thead><tr><th style="text-align:left;">Architecture</th><th>Decoder</th><th>Chunk</th><th>Status</th></tr></thead>
       <tbody>
         <tr><td data-l="Architecture"><strong>ACT</strong> — action chunking transformer</td><td data-l="Decoder">transformer + CVAE</td><td data-l="Chunk">100</td><td data-l="Status" class="hi">trains, resumes, evaluates</td></tr>
@@ -624,7 +624,7 @@
 </footer>
 
 <script src="assets/curation-lab.js"></script>
-<script src="assets/mabel.js?v=63cb2e07"></script>
+<script src="assets/mabel.js?v=fd6568a8"></script>
 <script type="module" src="assets/arch-contribute.js"></script>
 </body>
 </html>

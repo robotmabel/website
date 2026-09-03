@@ -345,6 +345,13 @@
   'use strict';
   var vids = Array.prototype.slice.call(document.querySelectorAll('video[data-lazyvid]'));
 
+  /* is this clip on screen? used both by the observer and by the hi-res swap,
+     which has to know whether to start the replacement it just inserted */
+  function wantsPlay(v) {
+    var r = v.getBoundingClientRect();
+    return r.bottom > -100 && r.top < innerHeight + 100 && v.offsetParent !== null;
+  }
+
   /* background high-res fetch queue — strictly one at a time */
   var hiQueue = [], hiBusy = false;
   function pumpHi() {
@@ -392,9 +399,23 @@
             /* hand the original element's identity over, then drop it */
             setTimeout(function () {
               try { v.pause(); } catch (e) {}
+              /* HAND OVER THE OBSERVER TOO. The replacement element was never
+                 registered with the IntersectionObserver or the vids list, so
+                 a clip whose swap completed while it was off screen was left
+                 paused FOREVER — scrolling to it played nothing, because the
+                 thing being watched had already been removed from the DOM.
+                 That is why the Vision Pro clips sat at t = 0 while the ones
+                 further down the page ran. */
+              var k = vids.indexOf(v);
+              if (k >= 0) vids[k] = hi; else vids.push(hi);
+              if (io) { io.unobserve(v); io.observe(hi); }
+              hi.dataset.hiDone = '1';
               v.remove();
               hi.style.position = ''; hi.style.inset = '';
               hi.style.opacity = '';
+              if (wantsPlay(hi)) {
+                var q = hi.play(); if (q && q.catch) q.catch(function () {});
+              }
             }, 60);
           });
         };
@@ -449,10 +470,6 @@
   };
 
   /* a freshly shown tab panel: start its clips immediately */
-  function wantsPlay(v) {
-    var r = v.getBoundingClientRect();
-    return r.bottom > -100 && r.top < innerHeight + 100 && v.offsetParent !== null;
-  }
   document.querySelectorAll('.tab-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
       setTimeout(function () {

@@ -1,0 +1,110 @@
+{
+ "generated_by": "render_callout.py",
+ "camera": {
+  "az": 214.0,
+  "el": -7.0,
+  "distance": 2.295
+ },
+ "size": [
+  2360,
+  1900
+ ],
+ "anchors": [
+  {
+   "body": "head",
+   "label": "Stereo head camera",
+   "sub": "on a 3-DOF neck",
+   "side": "L",
+   "x": 855.6,
+   "y": 417.1
+  },
+  {
+   "body": "neck_2",
+   "label": "Dynamixel 2XL430",
+   "sub": "pitch + roll",
+   "side": "R",
+   "x": 831.6,
+   "y": 442.2
+  },
+  {
+   "body": "r_shoulder_1",
+   "label": "DAMIAO DM-J8009P",
+   "sub": "shoulder \u00b7 40 N\u00b7m peak",
+   "side": "R",
+   "x": 762.6,
+   "y": 587.6
+  },
+  {
+   "body": "r_elbow",
+   "label": "DAMIAO DM-J4340",
+   "sub": "elbow \u00b7 27 N\u00b7m",
+   "side": "R",
+   "x": 651.0,
+   "y": 787.6
+  },
+  {
+   "body": "r_wrist",
+   "label": "FOCGM43 wrist module",
+   "sub": "DM-J3507 profile",
+   "side": "R",
+   "x": 479.7,
+   "y": 833.6
+  },
+  {
+   "body": "right_palm",
+   "label": "ORCA hand",
+   "sub": "17 DOF \u00b7 16 finger servos + wrist",
+   "side": "R",
+   "x": 279.1,
+   "y": 974.5
+  },
+  {
+   "body": "torso",
+   "label": "DAMIAO DM-J10422P",
+   "sub": "torso yaw \u00b7 100 N\u00b7m rated",
+   "side": "L",
+   "x": 814.1,
+   "y": 726.8
+  },
+  {
+   "body": "lift_mid",
+   "label": "FlexiSpot E7 Pro",
+   "sub": "0.635 m in two stages",
+   "side": "L",
+   "x": 843.8,
+   "y": 1448.2
+  },
+  {
+   "body": "mabel_chassis",
+   "label": "Jetson + power",
+   "sub": "24 V primary, 12 V rail",
+   "side": "L",
+   "x": 888.9,
+   "y": 1610.5
+  },
+  {
+   "body": "lidar",
+   "label": "2-D lidar",
+   "sub": "12 m \u00b7 360 points",
+   "side": "L",
+   "x": 945.1,
+   "y": 1351.3
+  },
+  {
+   "body": "fl_wheel",
+   "label": "REV MAXSwerve \u00d73",
+   "sub": "76.2 mm \u00b7 CAN 1 Mbit",
+   "side": "L",
+   "x": 967.4,
+   "y": 1703.2
+  },
+  {
+   "body": "left_palm",
+   "label": "Feetech HL3915M",
+   "sub": "\u00d716 per hand, TTL 1 Mbit",
+   "side": "L",
+   "x": 776.3,
+   "y": 399.8
+  }
+ ]
+}

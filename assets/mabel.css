@@ -4166,3 +4166,9 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .frames-fig code { font-family: var(--font-mono); font-size: 11px;
   background: rgba(21,24,32,.07); padding: 1px 5px; border-radius: 4px; }
 .dark-sec .frames-fig code { background: rgba(255,255,255,.1); }
+
+/* A three-row comparison does not need 60 px rows. The autonomy estimator and
+   SLAM tables are read at a glance, so they get the tighter rhythm the data
+   tables elsewhere use. */
+.data-table.compact th, .data-table.compact td { padding: 9px 12px; font-size: 13px; }
+.data-table.compact th { font-size: 10px; }

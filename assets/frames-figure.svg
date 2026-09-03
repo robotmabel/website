@@ -11,13 +11,15 @@
       .ax-x  { stroke: #E4442A; stroke-width: 3.5; fill: none; stroke-linecap: round; }
       .ax-y  { stroke: #2E7D4F; stroke-width: 3.5; fill: none; stroke-linecap: round; }
       .ax-z  { stroke: #23577E; stroke-width: 3.5; fill: none; stroke-linecap: round; }
-      .lab   { font-family: 'Space Mono', ui-monospace, monospace; font-size: 10.5px;
-               fill: #151820; }
-      .lab-s { font-family: 'Space Mono', ui-monospace, monospace; font-size: 9px;
+      .lab   { font-family: Jost, -apple-system, sans-serif; font-weight: 500;
+               font-size: 13px; fill: #151820; }
+      .lab-s { font-family: Jost, -apple-system, sans-serif; font-size: 11.5px;
                fill: #6D6551; }
-      .head  { font-family: Bangers, cursive; font-size: 19px; letter-spacing: 1px;
+      .head  { font-family: Bangers, cursive; font-size: 21px; letter-spacing: 1.5px;
                fill: #E4442A; }
-      .eq    { font-family: 'Space Mono', ui-monospace, monospace; font-size: 11.5px;
+      .eq    { font-family: 'Space Mono', ui-monospace, monospace; font-size: 12.5px;
+               fill: #151820; }
+      .ax    { font-family: 'Space Mono', ui-monospace, monospace; font-size: 11px;
                fill: #151820; }
       .card  { fill: #FDF6E2; stroke: #151820; stroke-width: 3; }
       .pop   { fill: #FFCE0A; stroke: #151820; stroke-width: 2.5; }
@@ -62,15 +64,15 @@
   <!-- the anchor: shoulder centre -->
   <circle cx="150" cy="168" r="6.5" fill="#E4442A" stroke="#151820" stroke-width="3"/>
   <path d="M150 168 L150 168" class="ink"/>
-  <text x="96" y="160" class="lab" text-anchor="end">anchor</text>
+  <text x="96" y="160" class="ax" text-anchor="end">anchor</text>
 
   <!-- ARKit axes at the anchor -->
   <path d="M150 168 L206 168" class="ax-x" marker-end="url(#fx)"/>
   <path d="M150 168 L182 96" class="ax-y" marker-end="url(#fy)"/>
   <path d="M150 168 L114 200" class="ax-z" marker-end="url(#fz)"/>
-  <text x="212" y="172" class="lab" fill="#E4442A">+X right</text>
-  <text x="190" y="86" class="lab" fill="#2E7D4F">+Y up</text>
-  <text x="60" y="212" class="lab" fill="#23577E">+Z back</text>
+  <text x="212" y="172" class="ax" fill="#E4442A">+X right</text>
+  <text x="190" y="86" class="ax" fill="#2E7D4F">+Y up</text>
+  <text x="60" y="212" class="ax" fill="#23577E">+Z back</text>
 
   <text x="150" y="368" class="lab-s" text-anchor="middle">wrists and head, reported</text>
   <text x="150" y="382" class="lab-s" text-anchor="middle">by the headset every frame</text>
@@ -81,7 +83,7 @@
 
   <rect x="336" y="70" width="400" height="76" rx="10" class="card"/>
   <circle cx="362" cy="94" r="11" class="pop"/>
-  <text x="362" y="98" class="lab" text-anchor="middle">1</text>
+  <text x="362" y="98" class="eq" text-anchor="middle">1</text>
   <text x="382" y="92" class="lab">CLUTCH — subtract the shoulder centre,</text>
   <text x="382" y="107" class="lab">scale by 0.38 m / your own shoulder width,</text>
   <text x="382" y="122" class="lab">lift to a standing 1.35 m.</text>
@@ -89,7 +91,7 @@
 
   <rect x="336" y="158" width="400" height="96" rx="10" class="card"/>
   <circle cx="362" cy="182" r="11" class="pop"/>
-  <text x="362" y="186" class="lab" text-anchor="middle">2</text>
+  <text x="362" y="186" class="eq" text-anchor="middle">2</text>
   <text x="382" y="180" class="lab">PERMUTE — one matrix, det = +1.</text>
   <text x="382" y="200" class="eq">x_r =  z_a      forward is −X</text>
   <text x="382" y="217" class="eq">y_r =  y_a      up stays up</text>
@@ -98,7 +100,7 @@
 
   <rect x="336" y="266" width="400" height="82" rx="10" class="card"/>
   <circle cx="362" cy="290" r="11" class="pop"/>
-  <text x="362" y="294" class="lab" text-anchor="middle">3</text>
+  <text x="362" y="294" class="eq" text-anchor="middle">3</text>
   <text x="382" y="288" class="lab">GAIN — ×1.3 forward, ×1.3 left, ×1.4 up.</text>
   <text x="382" y="306" class="lab-s">You work in a comfortable box; the lift, the</text>
   <text x="382" y="320" class="lab-s">torso and the base carry the long reaches.</text>
@@ -132,13 +134,13 @@
 
   <!-- the robot's shoulder centre, and its axes -->
   <circle cx="960" cy="148" r="6.5" fill="#E4442A" stroke="#151820" stroke-width="3"/>
-  <text x="900" y="140" class="lab" text-anchor="end">anchor</text>
+  <text x="900" y="140" class="ax" text-anchor="end">anchor</text>
   <path d="M960 148 L904 176" class="ax-x" marker-end="url(#fx)"/>
   <path d="M960 148 L1000 90" class="ax-y" marker-end="url(#fy)"/>
   <path d="M960 148 L1016 148" class="ax-z" marker-end="url(#fz)"/>
-  <text x="836" y="192" class="lab" fill="#E4442A">−X front</text>
-  <text x="1006" y="80" class="lab" fill="#2E7D4F">+Y up</text>
-  <text x="1022" y="152" class="lab" fill="#23577E">+Z left</text>
+  <text x="836" y="192" class="ax" fill="#E4442A">−X front</text>
+  <text x="1006" y="80" class="ax" fill="#2E7D4F">+Y up</text>
+  <text x="1022" y="152" class="ax" fill="#23577E">+Z left</text>
 
   <text x="960" y="368" class="lab-s" text-anchor="middle">the same wrists, on a body that is</text>
   <text x="960" y="382" class="lab-s" text-anchor="middle">shorter, narrower and differently jointed</text>
