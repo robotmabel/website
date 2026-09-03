@@ -1,0 +1,19 @@
+{
+ "scene": "mabel_cafe",
+ "resolution_m": 0.05,
+ "size": [
+  358,
+  359
+ ],
+ "extent_m": [
+  17.92,
+  17.98
+ ],
+ "scans": 50,
+ "range_m": 12.0,
+ "bins": 720,
+ "free_cells": 23191,
+ "occupied_cells": 901,
+ "area_m2": 58.0,
+ "note": "mapping with KNOWN poses \u2014 the grid a perfect 2-D SLAM front end would build; poses come from the simulator, not from scan matching"
+}

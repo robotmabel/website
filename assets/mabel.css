@@ -2169,12 +2169,19 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em;
   line-height: 1.45; padding: 8px 10px; }
 
-/* ─── Mobile: WBC controls dock ON the visualizer; tight tables ───── */
+/* A `.tight` table is a two-column key/value list, so it never needs the
+   640 px floor `.table-scroll` puts under a wide data table. That floor used
+   to apply on DESKTOP too, and the two SLAM tables sit in a half-width grid
+   cell — so both of them scrolled sideways and ate their own row labels
+   ("...ution", "...range used"). This is unconditional now; the media query
+   below only tunes the type. */
+.table-scroll.tight { overflow: visible; }
+.table-scroll.tight .data-table { min-width: 0; width: 100%; table-layout: fixed; }
+.table-scroll.tight .data-table td { word-break: break-word; }
+.table-scroll.tight .data-table td:first-child { width: 44%; }
+.table-scroll.tight .data-table td:last-child { text-align: right; }
 @media (max-width: 700px) {
-  .table-scroll.tight { overflow: visible; }
-  .table-scroll.tight .data-table { min-width: 0; width: 100%; }
   .table-scroll.tight .data-table td { font-size: 12px; padding: 9px 10px; }
-  .table-scroll.tight .data-table td:last-child { text-align: right; }
 }
 @media (max-width: 760px) {
   .wbc-block { display: block !important; position: relative; }
@@ -3117,11 +3124,17 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 /* the four tenets: a compact 2×2 instead of a full-width stack */
 .tenets { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 760px) { .tenets { grid-template-columns: 1fr; } }
+/* The label sits ABOVE the title, not absolutely positioned beside it. It
+   used to be pinned at left:13px inside a 44 px left pad, which fits "WHAT"
+   and "SIZE" and collides with the heading the moment the word is longer —
+   "LABEL" and "RAW" both ran straight into their titles. A block cannot
+   overlap the thing after it, whatever the word is. */
 .tenet { position: relative; border: 2px solid var(--ink); border-radius: 6px;
   background: var(--panel); box-shadow: 4px 4px 0 var(--ink);
-  padding: 13px 15px 14px 44px; }
-.tenet b { position: absolute; left: 13px; top: 13px; font-family: var(--font-comic);
-  font-size: 15px; color: var(--rust); letter-spacing: 0.06em; }
+  padding: 13px 15px 14px; }
+.tenet b { display: inline-block; margin-bottom: 5px; font-family: var(--font-comic);
+  font-size: 11px; color: #FFF6E4; background: var(--rust); letter-spacing: 0.09em;
+  padding: 2px 8px; border-radius: 4px; border: 2px solid var(--ink); }
 .tenet h5 { font-family: var(--font-comic); font-weight: 400; font-size: 16px;
   letter-spacing: 0.02em; color: var(--ink); margin: 0 0 4px; line-height: 1.15; }
 .tenet p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); }
@@ -3641,3 +3654,149 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   letter-spacing: 0.05em; text-transform: uppercase; color: var(--ash);
   padding: 1px 5px; border: 1px solid rgba(21,24,32,0.3); border-radius: 4px;
   margin-left: 5px; }
+
+/* the scene gallery's second filter axis + the moving badge */
+.scene-filters.cats { margin: 10px 0 14px; flex-wrap: wrap; }
+.sg-live { position: absolute; top: 8px; right: 8px; z-index: 2;
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em;
+  padding: 2px 7px; border-radius: 4px; border: 2px solid var(--ink);
+  background: var(--green); color: #FFF6E4; }
+.scene-cell { position: relative; }
+.sg-desc { display: none; }
+.sg-err { font-family: var(--font-mono); font-size: 12px; color: var(--rust); }
+
+/* ═══ In-browser curation studio (autonomy) ═══
+   A viewer, a quality panel, a bin, and a real EDL timeline underneath. */
+.cur-lab { border: 3px solid var(--ink); border-radius: 14px; background: var(--panel);
+  box-shadow: 8px 8px 0 var(--ink); padding: clamp(14px,2vw,20px); }
+.dark-sec .cur-lab { box-shadow: 8px 8px 0 rgba(0,0,0,.8); border-color: var(--gold); }
+.cl-top { display: grid; grid-template-columns: 1fr minmax(220px, 300px); gap: 14px; }
+@media (max-width: 860px) { .cl-top { grid-template-columns: 1fr; } }
+.cl-view { position: relative; border: 3px solid var(--ink); border-radius: 9px;
+  overflow: hidden; background: #0B0E15; aspect-ratio: 16/10;
+  max-height: 46vh; }
+.cl-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cl-hud { position: absolute; left: 0; right: 0; top: 0; display: flex;
+  justify-content: space-between; gap: 8px; padding: 8px 10px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.05em;
+  color: #FFF6E4; text-shadow: 0 1px 3px rgba(0,0,0,.9); pointer-events: none; }
+.cl-clipname { font-family: var(--font-comic); font-size: 12px; letter-spacing: 0.05em;
+  color: var(--yellow); }
+.cl-flag { position: absolute; left: 10px; bottom: 10px; right: 10px;
+  font-family: var(--font-comic); font-size: 12px; letter-spacing: 0.04em;
+  padding: 6px 10px; border-radius: 6px; border: 2px solid var(--ink);
+  background: var(--rust); color: #FFF6E4; }
+.cl-flag[hidden] { display: none; }
+
+.cl-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.cl-panel { border: 2px solid var(--ink); border-radius: 9px; background: var(--bone);
+  padding: 11px 12px; }
+.cl-panel h4 { font-family: var(--font-comic); font-size: 13px; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--rust); margin: 0 0 8px; }
+.cl-score { display: flex; align-items: baseline; gap: 8px; margin-bottom: 9px; }
+.cl-scorev { font-family: var(--font-display); font-size: 30px; line-height: 1;
+  color: var(--green); }
+.cl-scorev.bad { color: var(--rust); }
+.cl-score span { font-family: var(--font-mono); font-size: 9.5px;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--ash); }
+.cl-defects { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.cl-defects li { font-size: 11.5px; line-height: 1.45; color: var(--ink-soft);
+  padding-left: 9px; border-left: 3px solid var(--ash); }
+.cl-defects li b { display: block; font-family: var(--font-comic); font-size: 11px;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+.cl-defects li i { display: block; font-family: var(--font-mono); font-style: normal;
+  font-size: 9.5px; color: var(--ash); margin-top: 2px; }
+.cl-defects li.d-frozen { border-left-color: var(--rust); }
+.cl-defects li.d-gap { border-left-color: var(--orange); }
+.cl-defects li.d-rate, .cl-defects li.d-low_rate { border-left-color: var(--gold); }
+.cl-defects li.clean { border-left-color: var(--green); color: var(--green); }
+.cl-bin { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cl-bin button { width: 100%; text-align: left; cursor: pointer; padding: 7px 9px;
+  border: 2px solid var(--ink); border-radius: 6px; background: var(--panel);
+  transition: transform .12s ease; }
+.cl-bin button:hover { transform: translate(-2px,-2px); box-shadow: 3px 3px 0 var(--ink);
+  background: var(--yellow); }
+.cl-bin b { display: block; font-size: 12px; color: var(--ink); }
+.cl-bin span { font-family: var(--font-mono); font-size: 9.5px; color: var(--ash); }
+.cl-bin i { font-style: normal; font-weight: 700; }
+.cl-bin i.ok { color: var(--green); } .cl-bin i.bad { color: var(--rust); }
+
+.cl-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 7px;
+  margin: 13px 0 9px; }
+.cl-btn { font-family: var(--font-comic); font-size: 12px; letter-spacing: 0.04em;
+  padding: 7px 11px; cursor: pointer; border: 2px solid var(--ink); border-radius: 6px;
+  background: var(--bone); color: var(--ink); box-shadow: 2px 2px 0 var(--ink);
+  transition: transform .12s ease; }
+.cl-btn:hover { transform: translate(-2px,-2px); box-shadow: 4px 4px 0 var(--ink);
+  background: var(--yellow); }
+.cl-btn.cl-play { background: var(--green); color: #FFF6E4; }
+.cl-btn kbd { font-family: var(--font-mono); font-size: 9px; margin-left: 5px;
+  padding: 1px 4px; border: 1px solid currentColor; border-radius: 3px; opacity: .7; }
+.cl-len { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px;
+  color: var(--ash); }
+.dark-sec .cl-len { color: var(--ash-light); }
+
+.cl-timeline { position: relative; border: 3px solid var(--ink); border-radius: 9px;
+  background: var(--bone); padding: 20px 0 0; overflow: hidden; cursor: crosshair;
+  user-select: none; touch-action: none; }
+.cl-ruler { position: absolute; top: 0; left: 0; right: 0; height: 18px;
+  border-bottom: 1px solid rgba(21,24,32,.18); }
+.cl-ruler span { position: absolute; top: 3px; font-family: var(--font-mono);
+  font-size: 8.5px; color: var(--ash); transform: translateX(-50%); }
+.cl-track { position: relative; height: 54px; }
+.cl-clip { position: absolute; top: 4px; bottom: 4px; border: 2px solid var(--ink);
+  border-radius: 6px; background: var(--yellow); overflow: hidden; cursor: grab;
+  display: flex; flex-direction: column; justify-content: center; padding: 0 12px; }
+.cl-clip.on { background: var(--orange); box-shadow: inset 0 0 0 2px var(--ink); }
+.cl-lab { font-family: var(--font-comic); font-size: 11.5px; letter-spacing: 0.03em;
+  color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cl-meta { font-family: var(--font-mono); font-size: 9px; color: rgba(21,24,32,.65);
+  white-space: nowrap; overflow: hidden; }
+.cl-grip { position: absolute; top: 0; bottom: 0; width: 9px; cursor: ew-resize;
+  background: rgba(21,24,32,.22); }
+.cl-grip.in { left: 0; } .cl-grip.out { right: 0; }
+.cl-grip:hover { background: var(--ink); }
+.cl-defrow { position: relative; height: 16px; border-top: 1px solid rgba(21,24,32,.18);
+  background: rgba(21,24,32,.05); }
+.cl-def { position: absolute; top: 3px; height: 10px; min-width: 3px; border-radius: 2px;
+  border: 1px solid var(--ink); }
+.cl-def.d-frozen { background: var(--rust); }
+.cl-def.d-gap { background: var(--orange); }
+.cl-def.d-rate, .cl-def.d-low_rate { background: var(--gold); }
+.cl-clean { position: absolute; left: 9px; top: 2px; font-family: var(--font-mono);
+  font-size: 9px; color: var(--green); }
+.cl-head { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--rust);
+  pointer-events: none; box-shadow: 0 0 0 1px rgba(253,246,226,.6); }
+.cl-head::before { content: ""; position: absolute; top: 0; left: -5px;
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-top: 8px solid var(--rust); }
+.cl-note { font-size: 11.5px; line-height: 1.6; color: var(--ash); margin: 12px 0 0; }
+.dark-sec .cl-note { color: var(--ash-light); }
+.cl-err { font-family: var(--font-mono); font-size: 12px; color: var(--rust); }
+
+/* ═══ Figures on the autonomy page ═══ */
+.map-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 820px) { .map-row { grid-template-columns: 1fr; } }
+.map-fig { margin: 0; border: 3px solid var(--ink); border-radius: 10px;
+  overflow: hidden; background: var(--panel); box-shadow: 6px 6px 0 var(--ink); }
+.map-fig img { width: 100%; display: block; image-rendering: pixelated;
+  border-bottom: 3px solid var(--ink); background: #CDC2A5; }
+.map-fig figcaption { padding: 9px 12px; }
+.map-fig b { display: block; font-family: var(--font-comic); font-size: 14px;
+  letter-spacing: 0.04em; color: var(--ink); }
+.map-fig span { font-family: var(--font-mono); font-size: 10px; color: var(--ash); }
+.fig-note { font-size: 12px; line-height: 1.65; color: var(--ash); margin: 12px 0 0; }
+.fig-note code { font-family: var(--font-mono); font-size: 10.5px;
+  background: rgba(21,24,32,0.06); padding: 1px 5px; border-radius: 4px; }
+
+.studio-shot { margin: 0; border: 3px solid var(--ink); border-radius: 12px;
+  overflow: hidden; background: #0B0E15; box-shadow: 8px 8px 0 var(--ink); }
+.dark-sec .studio-shot { box-shadow: 8px 8px 0 rgba(0,0,0,.8); border-color: var(--gold); }
+.studio-shot img { width: 100%; display: block; }
+.studio-shot figcaption { padding: 11px 14px; font-size: 12.5px; line-height: 1.6;
+  color: var(--ash); background: var(--panel); border-top: 3px solid var(--ink); }
+.dark-sec .studio-shot figcaption { background: #171A24; color: var(--ash-light);
+  border-top-color: var(--gold); }
+.studio-shot code { font-family: var(--font-mono); font-size: 11px;
+  background: rgba(21,24,32,0.08); padding: 1px 5px; border-radius: 4px; }
+.dark-sec .studio-shot code { background: rgba(255,255,255,0.1); }

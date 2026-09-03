@@ -344,7 +344,6 @@
 (function () {
   'use strict';
   var vids = Array.prototype.slice.call(document.querySelectorAll('video[data-lazyvid]'));
-  if (!vids.length) return;
 
   /* background high-res fetch queue — strictly one at a time */
   var hiQueue = [], hiBusy = false;
@@ -426,8 +425,9 @@
      load in parallel right away; the full files stream one at a time
      behind them. The observer only handles play/pause by visibility. */
   vids.forEach(function (v) { start(v); });
+  var io = null;
   if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
+    io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         var v = e.target;
         if (e.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
@@ -436,6 +436,17 @@
     }, { rootMargin: '400px 0px' });
     vids.forEach(function (v) { io.observe(v); });
   }
+
+  /* Clips that arrive AFTER this ran — the scene gallery builds itself from
+     assets/sim/scenes/index.json, so its videos do not exist at page load and
+     would otherwise never start. Whoever creates them calls this. */
+  window.__lazyVid = function (root) {
+    var fresh = Array.prototype.slice.call(
+      (root || document).querySelectorAll('video[data-lazyvid]'))
+      .filter(function (v) { return vids.indexOf(v) < 0; });
+    fresh.forEach(function (v) { vids.push(v); start(v); if (io) io.observe(v); });
+    return fresh.length;
+  };
 
   /* a freshly shown tab panel: start its clips immediately */
   function wantsPlay(v) {

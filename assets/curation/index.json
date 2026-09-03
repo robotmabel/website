@@ -1,0 +1,37 @@
+{
+ "generated_by": "render_curation_clips.py",
+ "episodes": [
+  {
+   "id": "ep01",
+   "task": "reach and place, left hand",
+   "fps": 15.0,
+   "frames": 135,
+   "clip": "ep01.mp4",
+   "poster": "ep01.jpg",
+   "injected": []
+  },
+  {
+   "id": "ep02",
+   "task": "bimanual handover",
+   "fps": 15.0,
+   "frames": 135,
+   "clip": "ep02.mp4",
+   "poster": "ep02.jpg",
+   "injected": [
+    "frozen",
+    "gap"
+   ]
+  },
+  {
+   "id": "ep03",
+   "task": "shelf pick, slow loop",
+   "fps": 15.0,
+   "frames": 135,
+   "clip": "ep03.mp4",
+   "poster": "ep03.jpg",
+   "injected": [
+    "rate"
+   ]
+  }
+ ]
+}

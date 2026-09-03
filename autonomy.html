@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=91999583" />
+<link rel="stylesheet" href="assets/mabel.css?v=14102312" />
 <style>
   /* Data Curation live-tool CTA */
   .studio-card { padding: clamp(28px, 4vw, 48px); }
@@ -149,78 +149,16 @@
 </section>
 
 <!-- ─── DATA STUDIO · live tool ─── -->
-<section class="dark-sec pad-y" id="studio">
-  <div class="wrap">
-    <div class="card studio-card fade-up">
-      <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · in your browser</span>
-      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Curate the data in <span class="italic accent">Data Curation.</span><img src="assets/stickers/tile.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-6deg);" loading="lazy" /></h2>
-      <p class="lede" style="margin:0 0 26px; max-width:62ch;">A dataset-quality curation studio for MABEL imitation-learning data. It ingests recorded episodes, automatically flags the defects that poison a policy — dropped frames, out-of-sync streams, frequency drops, dead motors, missing video — grades every episode, and lets you align, blade, trim, and cull non-destructively in a Final-Cut-style timeline before exporting a clean dataset in LeRobot format. The Rerun-style 3D viewer and seven synced camera feeds are still there to review every frame.</p>
-      <div class="studio-actions">
-        <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Curation ↗</a>
-        <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Trainer Studio ↗</a>
-        <a href="https://github.com/robotmabel/MABEL/tree/main/learning/data_curation" target="_blank" rel="noopener" class="btn btn-ghost">Source ↗</a>
-        <span class="studio-live"><span class="studio-dot"></span>Live demo</span>
-      </div>
-      <div class="spec" style="margin-top:24px;">
-        <span>Auto quality scoring</span><span>Sync + frequency detection</span><span>Non-destructive editing</span><span>LeRobot export</span><span>3D + 7-cam review</span>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <!-- ─── POLICIES ─── -->
 
 
 <!-- ─── INTERACTIVE ARCHITECTURE VIEWER ─── -->
-<section class="pad-y" id="arch"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">Architectures · live</span>
-    <h2 class="display-md title">See the network. <span class="italic accent">Every block.</span></h2></div>
-    <p class="lede">The exact, config-accurate diagram from the <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Trainer Studio</a> — the same graph the real training run compiles. Switch between <strong>ACT</strong>, the <strong>Diffusion Transformer</strong>, and <strong>π₀ / π₀.₅</strong>; drag, scroll to zoom, and <em>double-click any block to look inside</em> down to the individual Conv / Linear / attention atoms.</p></div>
 
-  <div class="av-shell fade-up">
-    <div class="av-tabs" id="av-tabs"></div>
-    <div class="av-desc" id="av-desc"></div>
-    <div class="av-stage" id="av-stage">
-      <span class="panel-speech" style="top:5%; left:4%; z-index:7; max-width:44%;">Peek at my brain!</span>
-      <div class="arch-toolbar" id="archToolbar"></div>
-      <div class="arch-legend" id="archLegend"></div>
-      <canvas id="archCanvas"></canvas>
-      <div class="arch-tip" id="archTip"></div>
-      <div class="av-hint">drag · scroll to zoom · double-click a block to look inside</div>
-    </div>
-  </div>
-</div></section>
 
 <!-- ─── CONTRIBUTE A TRAINING JOB ─── -->
-<section class="dark-sec pad-y" id="contribute"><div class="wrap">
-  <div class="card studio-card fade-up">
-    <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Community training · help train MABEL</span>
-    <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Queue a real <span class="italic accent">training job.</span></h2>
-    <p class="lede" style="margin:0 0 26px; max-width:64ch;">Pick an architecture above, choose one of MABEL&rsquo;s curated datasets, tune a few hyperparameters, and submit. Your job joins the <strong>community queue</strong>; once we review it, it trains on MABEL&rsquo;s GPU and the resulting policy and learning curves are published back here. No account needed — everyone can help teach the robot.</p>
 
-    <div class="cf-grid">
-      <label class="cf-field"><span>Architecture</span><output id="cf-arch" class="cf-out">…</output></label>
-      <label class="cf-field"><span>Dataset</span><select id="cf-dataset"></select></label>
-      <div class="cf-fields" id="cf-fields"></div>
-      <label class="cf-field"><span>Your name / handle</span><input id="cf-name" maxlength="40" placeholder="anon" autocomplete="off" /></label>
-      <label class="cf-field cf-wide"><span>Note <em>(optional)</em></span><input id="cf-note" maxlength="140" placeholder="what skill are you trying to teach?" autocomplete="off" /></label>
-    </div>
-
-    <div class="cf-actions">
-      <button class="btn btn-primary" id="cf-submit">Submit to the queue →</button>
-      <span class="cf-msg" id="cf-msg"></span>
-    </div>
-
-    <div class="cf-queue-wrap">
-      <div class="cf-queue-head"><span class="eyebrow" style="color:var(--bone); opacity:.8;">Community queue</span><button class="cf-refresh" id="cf-refresh">↻ refresh</button></div>
-      <div class="cf-queue" id="cf-queue"></div>
-    </div>
-
-    <div class="spec" style="margin-top:24px;">
-      <span>Owner-approved before it runs</span><span>Runs on MABEL&rsquo;s hardware</span><span>ACT · DiT · π₀ · π₀.₅</span><span>Results published back</span>
-    </div>
-  </div>
-</div></section>
 
 <!-- ─── CTA ─── -->
 <section class="pad-y"><div class="wrap-narrow" style="text-align:center;">
@@ -330,6 +268,32 @@
     </div>
   </div>
 
+  <div class="map-row fade-up" style="margin-top:clamp(26px,3.5vh,40px);">
+    <figure class="map-fig">
+      <img src="assets/maps/mabel_home.png" alt="Occupancy map of the home scene"
+           loading="lazy" />
+      <figcaption><b>Home</b><span>12.9 &times; 12.8 m &middot; 16 scans &middot; 25.5 m&sup2; swept</span></figcaption>
+    </figure>
+    <figure class="map-fig">
+      <img src="assets/maps/mabel_cafe.png" alt="Occupancy map of the cafe scene"
+           loading="lazy" />
+      <figcaption><b>Caf&eacute;</b><span>17.9 &times; 18.0 m &middot; 50 scans &middot; 58.0 m&sup2; swept</span></figcaption>
+    </figure>
+    <figure class="map-fig">
+      <img src="assets/maps/mabel_supermarket.png" alt="Occupancy map of the supermarket scene"
+           loading="lazy" />
+      <figcaption><b>Supermarket</b><span>26 &times; 26 m &middot; 110 scans &middot; 143.1 m&sup2; swept</span></figcaption>
+    </figure>
+  </div>
+  <p class="fade-up fig-note">Real grids, built by casting MABEL&rsquo;s own lidar
+    (12&nbsp;m, 720 bins) against the scene geometry and integrating log-odds at
+    <b>5&nbsp;cm</b>, slam_toolbox&rsquo;s own resolution &mdash; dark is occupied,
+    cream is swept and empty, tan was never seen, and the red track is where the
+    robot stood. <b>This is mapping with known poses, not SLAM:</b> the poses come
+    from the simulator rather than from scan matching, so it is the grid a perfect
+    front end would build. Regenerate with
+    <code>simulation/mabel_mujoco/scripts/tools/render_slam_maps.py</code>.</p>
+
   <div class="callout fade-up" style="margin-top:clamp(26px,3.5vh,40px);">
     <p><strong>We recommend the LiDAR path, and the robot already picks it.</strong> Bring-up
     listens for a <code>/scan</code> for 15 seconds. If one appears, slam_toolbox takes over the
@@ -412,6 +376,46 @@
   </div>
 </div></section>
 
+<section class="dark-sec pad-y" id="studio">
+  <div class="wrap">
+    <div class="card studio-card fade-up">
+      <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · in your browser</span>
+      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Curate the data in <span class="italic accent">Data Curation.</span><img src="assets/stickers/tile.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-6deg);" loading="lazy" /></h2>
+      <p class="lede" style="margin:0 0 26px; max-width:62ch;">A dataset-quality curation studio for MABEL imitation-learning data. It ingests recorded episodes, automatically flags the defects that poison a policy — dropped frames, out-of-sync streams, frequency drops, dead motors, missing video — grades every episode, and lets you align, blade, trim, and cull non-destructively in a Final-Cut-style timeline before exporting a clean dataset in LeRobot format. The Rerun-style 3D viewer and seven synced camera feeds are still there to review every frame.</p>
+      <div class="studio-actions">
+        <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Curation ↗</a>
+        <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Trainer Studio ↗</a>
+        <a href="https://github.com/robotmabel/MABEL/tree/main/learning/data_curation" target="_blank" rel="noopener" class="btn btn-ghost">Source ↗</a>
+        <span class="studio-live"><span class="studio-dot"></span>Live demo</span>
+      </div>
+      <div class="spec" style="margin-top:24px;">
+        <span>Auto quality scoring</span><span>Sync + frequency detection</span><span>Non-destructive editing</span><span>LeRobot export</span><span>3D + 7-cam review</span>
+      </div>
+    </div>
+
+    <figure class="studio-shot fade-up">
+      <img src="assets/studios/curation.webp" loading="lazy"
+           alt="The Data Curation studio with a dataset loaded: library, 3-D view,
+                issues panel and a filmstrip timeline" />
+      <figcaption>The real studio, with four takes loaded. Library on the left, the
+        3-D + camera review in the middle, the issue list on the right, and the
+        non-destructive timeline underneath with its ratings and mode lanes.</figcaption>
+    </figure>
+
+    <div class="sec-head fade-up" style="margin-top:clamp(34px,4.5vh,52px);">
+      <div><span class="eyebrow" style="color:var(--rust);">Try it &middot; runs in this page</span>
+        <h3 class="display-sm title" style="color:var(--bone); margin:0;">Cut three real takes.</h3></div>
+      <p class="lede" style="color:var(--ash-light);">Three episodes recorded the
+        way the collector records &mdash; one shared 15&nbsp;Hz clock, absolute joint
+        targets &mdash; with real faults left in two of them. The scanner below runs
+        the same tests the studio&rsquo;s quality engine runs, so what it finds is
+        a result, not a label. Blade with <kbd>B</kbd>, drag to reorder, drag an
+        edge to trim, <kbd>L</kbd> to rename.</p>
+    </div>
+    <div class="cur-lab fade-up" id="curationLab" style="margin-top:18px;"></div>
+  </div>
+</section>
+
 <!-- ═══ 5 · TRAINING ═══ -->
 <section class="soft-sec pad-y" id="learning"><div class="wrap">
   <div class="sec-head fade-up">
@@ -451,6 +455,77 @@
   <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:clamp(24px,3vh,36px);">
     <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn">Open the Training Studio ↗</a>
     <a href="#contribute" class="btn">Queue a run →</a>
+  </div>
+</div></section>
+
+<section class="pad-y" id="arch"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Architectures · live</span>
+    <h2 class="display-md title">See the network. <span class="italic accent">Every block.</span></h2></div>
+    <p class="lede">A <strong>graph-based architecture programming tool</strong>: you
+    wire the blocks and it <strong>compiles to real PyTorch</strong> — the same graph the
+    training run then executes, which is why this diagram and the model cannot
+    disagree. Switch between <strong>ACT</strong>, the <strong>Diffusion
+    Transformer</strong> and <strong>π<sub>0</sub> / π<sub>0.5</sub></strong>; drag,
+    scroll to zoom, and <em>double-click any block to look inside</em> down to the
+    individual Conv / Linear / attention atoms. It lives in the
+    <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Trainer
+    Studio</a> and is a <strong>work in progress</strong> — expect rough edges and the
+    occasional bug.</p></div>
+
+  <figure class="studio-shot fade-up" style="margin-bottom:clamp(20px,3vh,32px);">
+    <img src="assets/studios/trainer.webp" loading="lazy"
+         alt="The Trainer Studio: dataset list, the ACT graph on the canvas, and
+              the deployment panel" />
+    <figcaption>The Trainer Studio itself. Curated exports on the left, the graph on
+      the canvas &mdash; <code>compile</code> turns it into PyTorch and
+      <code>code</code> shows you what it wrote &mdash; and deployment to MuJoCo or
+      the real robot on the right.</figcaption>
+  </figure>
+
+  <div class="av-shell fade-up">
+    <div class="av-tabs" id="av-tabs"></div>
+    <div class="av-desc" id="av-desc"></div>
+    <div class="av-stage" id="av-stage">
+      <span class="panel-speech" style="top:5%; left:4%; z-index:7; max-width:44%;">Peek at my brain!</span>
+      <div class="arch-toolbar" id="archToolbar"></div>
+      <div class="arch-legend" id="archLegend"></div>
+      <canvas id="archCanvas"></canvas>
+      <div class="arch-tip" id="archTip"></div>
+      <div class="av-hint">drag · scroll to zoom · double-click a block to look inside</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="dark-sec pad-y" id="contribute"><div class="wrap">
+  <div class="card studio-card fade-up">
+    <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Community training · help train MABEL</span>
+    <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Queue a real <span class="italic accent">training job.</span></h2>
+    <p class="lede" style="margin:0 0 26px; max-width:64ch;">Pick an architecture above, choose one of MABEL&rsquo;s curated datasets, tune a few hyperparameters, and submit. Your job joins the <strong>community queue</strong>; once we review it, it trains on MABEL&rsquo;s GPU and the resulting policy and learning curves are published back here. No account needed — everyone can help teach the robot.</p>
+
+    <div class="cf-grid">
+      <label class="cf-field"><span>Architecture</span><output id="cf-arch" class="cf-out">…</output></label>
+      <label class="cf-field"><span>Dataset</span><select id="cf-dataset"></select></label>
+      <div class="cf-fields" id="cf-fields"></div>
+      <label class="cf-field"><span>Your name / handle</span><input id="cf-name" maxlength="40" placeholder="anon" autocomplete="off" /></label>
+      <label class="cf-field cf-wide"><span>Note <em>(optional)</em></span><input id="cf-note" maxlength="140" placeholder="what skill are you trying to teach?" autocomplete="off" /></label>
+    </div>
+
+    <div class="cf-actions">
+      <button class="btn btn-primary" id="cf-submit">Submit to the queue →</button>
+      <span class="cf-msg" id="cf-msg"></span>
+    </div>
+
+    <div class="cf-queue-wrap">
+      <p class="cl-note" style="margin:0 0 14px;"><b>Work in progress.</b> The Trainer
+      Studio and the Data Curation studio are both live and both still being polished —
+      the queue runs, the architecture editor compiles, and neither is finished.</p>
+      <div class="cf-queue-head"><span class="eyebrow" style="color:var(--bone); opacity:.8;">Community queue</span><button class="cf-refresh" id="cf-refresh">↻ refresh</button></div>
+      <div class="cf-queue" id="cf-queue"></div>
+    </div>
+
+    <div class="spec" style="margin-top:24px;">
+      <span>Owner-approved before it runs</span><span>Runs on MABEL&rsquo;s hardware</span><span>ACT · DiT · π₀ · π₀.₅</span><span>Results published back</span>
+    </div>
   </div>
 </div></section>
 
@@ -504,7 +579,8 @@
   </div>
 </footer>
 
-<script src="assets/mabel.js?v=5dc38e96"></script>
+<script src="assets/curation-lab.js"></script>
+<script src="assets/mabel.js?v=63cb2e07"></script>
 <script type="module" src="assets/arch-contribute.js"></script>
 </body>
 </html>

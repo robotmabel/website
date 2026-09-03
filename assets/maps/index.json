@@ -1,0 +1,62 @@
+{
+ "generated_by": "render_slam_maps.py",
+ "maps": [
+  {
+   "scene": "mabel_home",
+   "resolution_m": 0.05,
+   "size": [
+    258,
+    256
+   ],
+   "extent_m": [
+    12.94,
+    12.84
+   ],
+   "scans": 16,
+   "range_m": 12.0,
+   "bins": 720,
+   "free_cells": 10219,
+   "occupied_cells": 571,
+   "area_m2": 25.5,
+   "note": "mapping with KNOWN poses \u2014 the grid a perfect 2-D SLAM front end would build; poses come from the simulator, not from scan matching"
+  },
+  {
+   "scene": "mabel_cafe",
+   "resolution_m": 0.05,
+   "size": [
+    358,
+    359
+   ],
+   "extent_m": [
+    17.92,
+    17.98
+   ],
+   "scans": 50,
+   "range_m": 12.0,
+   "bins": 720,
+   "free_cells": 23191,
+   "occupied_cells": 901,
+   "area_m2": 58.0,
+   "note": "mapping with KNOWN poses \u2014 the grid a perfect 2-D SLAM front end would build; poses come from the simulator, not from scan matching"
+  },
+  {
+   "scene": "mabel_supermarket",
+   "resolution_m": 0.05,
+   "size": [
+    520,
+    520
+   ],
+   "extent_m": [
+    26.0,
+    26.0
+   ],
+   "scans": 110,
+   "range_m": 12.0,
+   "bins": 720,
+   "free_cells": 57257,
+   "occupied_cells": 2226,
+   "area_m2": 143.1,
+   "note": "mapping with KNOWN poses \u2014 the grid a perfect 2-D SLAM front end would build; poses come from the simulator, not from scan matching"
+  }
+ ]
+}
