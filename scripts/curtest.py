@@ -12,10 +12,12 @@ editor's blade / trim / delete actually change the edit.
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P = 9351
-subprocess.run(["rm", "-rf", "/tmp/cdp-cur"])
+import random
+P = 9351 + random.randrange(40)   # a fresh port per run: two
+                                # checks in flight used to collide on one profile
+subprocess.run(["rm", "-rf", f"/tmp/cdp-cur-{P}"])
 p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
-                      "--user-data-dir=/tmp/cdp-cur", "--window-size=1400,950",
+                      f"--user-data-dir=/tmp/cdp-cur-{P}", "--window-size=1400,950",
                       "--hide-scrollbars", "--use-angle=swiftshader",
                       "--enable-unsafe-swiftshader", "about:blank"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

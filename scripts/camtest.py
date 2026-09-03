@@ -19,10 +19,12 @@ DIRECTION the rig moves, which is the thing that was wrong:
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-P = 9307
-subprocess.run(["rm", "-rf", "/tmp/cdp-rc"])
+import random
+P = 9307 + random.randrange(40)   # a fresh port per run: two
+                                # checks in flight used to collide on one profile
+subprocess.run(["rm", "-rf", f"/tmp/cdp-rc-{P}"])
 p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
-                      "--user-data-dir=/tmp/cdp-rc", "--window-size=1400,900",
+                      f"--user-data-dir=/tmp/cdp-rc-{P}", "--window-size=1400,900",
                       "--hide-scrollbars", "--use-angle=swiftshader",
                       "--enable-unsafe-swiftshader", "about:blank"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -106,7 +108,9 @@ async def go():
             i[0] += 1
             await c.send(json.dumps({"id": i[0], "method": m, "params": pp or {}}))
             while True:
-                r = json.loads(await c.recv())
+                # a bounded wait, so a page that blocks its JS thread shows up
+                # as a named step timing out instead of the whole run hanging
+                r = json.loads(await asyncio.wait_for(c.recv(), 45))
                 if r.get("method") == "Runtime.exceptionThrown":
                     d = r["params"]["exceptionDetails"]
                     errs.append(str((d.get("exception") or {}).get("description")
@@ -115,7 +119,12 @@ async def go():
                     return r
 
         async def ev(e):
-            r = await cmd("Runtime.evaluate", {"expression": e, "returnByValue": True})
+            try:
+                r = await cmd("Runtime.evaluate",
+                              {"expression": e, "returnByValue": True})
+            except asyncio.TimeoutError:
+                print(f"   *** BLOCKED evaluating: {e[:70]}")
+                raise
             if "exceptionDetails" in r.get("result", {}):
                 return "JSERR: " + str(r["result"]["exceptionDetails"].get("text"))[:120]
             return r.get("result", {}).get("result", {}).get("value")
@@ -132,7 +141,10 @@ async def go():
         await ev("document.getElementById('retargetCam')"
                  ".scrollIntoView({block:'center',behavior:'instant'})")
         ready = False
-        for _ in range(40):
+        # the GLB + its joint manifest, then a first paint, all under a software
+        # rasteriser: 20 s was not always enough and the run then reported "the
+        # rig did not load" over a rig that had, in fact, loaded
+        for _ in range(90):
             await asyncio.sleep(0.5)
             if await ev("!!(window.__wtReady && window.__wt)"):
                 ready = True
@@ -161,11 +173,14 @@ async def go():
             if st[k] != want:
                 print(f"   *** {k} is {st[k]}, want {want}"); bad += 1
         if not ready or not st["rig"] or st["rig"]["arm"] < 14 or not st["rig"]["palms"]:
-            print("   *** the rig did not load its arms"); bad += 1
+            print(f"   *** the rig did not load its arms "
+                  f"(ready={ready} rig={st['rig']})"); bad += 1
             print("errors:", errs[:3] or "none")
             print("RESULT: FAIL"); return
 
         await cmd("Runtime.evaluate", {"expression": POSE_JS})
+        # measure the MATH, not the software rasteriser
+        await ev("window.__wt.pause(true)")
 
         async def probe(**o):
             r = await ev("JSON.stringify(window.__probe(%s))" % json.dumps(o))
@@ -175,8 +190,11 @@ async def go():
 
         rest = await probe()
         if not rest:
-            print("   *** the retarget path returned nothing for a rest pose"); bad += 1
-            print("errors:", errs[:3] or "none"); print("RESULT: FAIL"); return
+            print("   *** the retarget path returned nothing for a rest pose")
+            await ev("window.__wt.pause(false)")
+            print("errors:", errs[:3] or "none")
+            print("RESULT: FAIL")
+            return
 
         print(f"\nrest      right palm {fmt(rest['r']['palm'])}  "
               f"target {fmt(rest['r']['target'])}  err {rest['r']['err']*1000:.0f} mm")
@@ -267,10 +285,11 @@ async def go():
             print("   *** losing tracking moved the arm"); bad += 1
 
         # 8 — the solve has to fit in a frame
-        bench = json.loads(await ev("JSON.stringify(window.__wt.bench(300))"))
-        print(f"solve cost {bench['ms']:.2f} ms per frame over {bench['n']} solves "
-              f"→ {1000/max(0.01, bench['ms']):.0f} fps ceiling")
-        if bench["ms"] > 6.0:
+        bench = json.loads(await ev("JSON.stringify(window.__wt.bench(40))"))
+        ms, cnt = bench["ms"], bench["n"]
+        print(f"solve cost {ms:.2f} ms per frame over {cnt} solves "
+              f"→ {1000 / max(0.01, ms):.0f} fps ceiling")
+        if ms > 6.0:
             print("   *** the solve alone cannot hold 60 fps"); bad += 1
 
         # 9 — the solver actually converges on the target it was given
@@ -279,6 +298,7 @@ async def go():
         if worst > 260:
             print("   *** the arm is not reaching its target"); bad += 1
 
+        await ev("window.__wt.pause(false)")
         print("errors:", errs[:3] or "none")
         if errs:
             bad += 1

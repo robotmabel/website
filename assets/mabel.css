@@ -3534,7 +3534,13 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 @media (prefers-reduced-motion: reduce) { .nav-build:hover { animation: none; } }
 /* it lives at the very end of the bar, after the Build menu */
 .nav-links .nav-build { order: 99; }
-.mob .nav-build { width: 100%; height: 66px; margin: 6px 0 0; }
+/* On the phone sheet the star cannot stretch: clip-path scales the polygon
+   with the box, so a 100%-wide, 66px-tall star becomes a flat smear with the
+   lettering hanging off its left edge. Give it its own honest proportions and
+   centre it in the sheet. */
+.mob .nav-build { width: 214px; height: 78px; margin: 14px auto 4px;
+  display: grid; place-items: center; }
+.mob .nav-build span { font-size: 17px; }
 
 /* the star's spikes reach past the pill, so the bar needs room on the right */
 .nav:has(.nav-build) { padding-right: 12px; }
@@ -3854,3 +3860,23 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .hs-art figcaption { padding: 7px 11px; font-family: var(--font-mono);
   font-size: 10px; color: var(--ash); border-top: 2px solid var(--ink);
   background: var(--panel); }
+
+/* ── the webcam demo on a phone: compact ──────────────────────────────────
+   A 4:3 rig, a seven-row readout, a 4:3 camera, a gesture card and a
+   paragraph of notes is four screens of scrolling for one widget. On a phone
+   the two views are what matter; the numbers and the footnote are not. */
+@media (max-width: 700px) {
+  .wt-grid { gap: 10px; }
+  .wt-rig { aspect-ratio: 3 / 2; }
+  .wt-cam { aspect-ratio: 3 / 2; }
+  .wt-side { gap: 10px; }
+  .wt-panel { padding: 11px 12px; }
+  .wt-hud { display: none; }
+  .wt-priv { font-size: 10.5px; margin-top: 8px; }
+  .wt-ges { padding: 7px 10px; }
+  .wt-ges-list { font-size: 10px; }
+  .wt-note { display: none; }
+  .wt-hint { display: none; }
+  .wt-recal { font-size: 11px; padding: 7px 8px; }
+  .wt-panel-title { font-size: 13px; }
+}

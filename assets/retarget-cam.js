@@ -63,6 +63,43 @@ const MIRROR_GAZE = -1;
 
 const PL = BT.PL;
 
+/* ── SE(3) arm retargeting, following controller/mabel/teleop_engine/arm.py ──
+ *
+ * The paper does not chase the wrist with a positional sweep; it MINIMISES a
+ * cost over the arm's joints in which the wrist's full pose dominates and the
+ * elbow and posture terms resolve the redundancy. The weights below are that
+ * file's (hyperparams.ARM_W_*), and the terms are the same ones:
+ *
+ *   W_WRIST   |p_palm − p_target|²            precise wrist POSITION
+ *   W_FWD     1 − f_robot · f_operator        the palm's finger axis
+ *   W_UP      1 − n_robot · n_operator        the palm NORMAL
+ *   W_ELBOW   1 − cos∠(shoulder→elbow)        so the arm bends like the human's
+ *   W_SMOOTH  |q − q_prev|²                   temporal smoothness
+ *   W_REG     |q − q_ref|²                    posture regulariser
+ *
+ * Position and orientation together are the SE(3) term, and at 600 against 60
+ * the wrist is the priority the user asked for while the palm still carries
+ * real weight.
+ *
+ * The one structural detail worth copying exactly is where the trust region
+ * goes. The paper clips the RESULT to q_prev ± step rather than searching
+ * inside a box: solving inside the box returns a box EDGE whenever the local
+ * optimum lies outside it, and that edge flips sides every frame as the box
+ * re-centres — a stable 2-cycle, and the reason a held pose used to oscillate.
+ * Clipping the true optimum makes a static target a constant, so the arm walks
+ * to it and stops.
+ *
+ * The browser has no analytic Jacobian, so where the paper runs damped
+ * Gauss–Newton this runs projected gradient descent with a backtracking line
+ * search on the same cost. Fewer iterations, same minimum.
+ */
+const W_WRIST = 600, W_FWD = 60, W_UP = 60, W_ELBOW = 15;
+const W_SMOOTH = 2, W_REG = 0.4;
+const TRUST_STEP = 0.16;      // rad per solve (ARM_TRUST_STEP, a little looser
+                              // because this runs at frame rate, not 500 Hz)
+const SOLVE_ITERS = 5;
+const GRAD_H = 2e-3;
+
 /* ARKit operator frame → the GLB's world axes.
  *
  * Measured from the rig, not assumed: the two front swerve modules sit at
@@ -298,7 +335,6 @@ function boot(HOST) {
      thousand quaternions a second for the collector to clean up. */
   const _sq = new THREE.Quaternion(), _jq = new THREE.Quaternion();
   const _ax = new THREE.Vector3(), _a = new THREE.Vector3(), _b = new THREE.Vector3();
-  const _toTip = new THREE.Vector3(), _toGoal = new THREE.Vector3();
 
   function setJoint(j, q) {
     j.q = Math.max(j.lo, Math.min(j.hi, q));
@@ -314,30 +350,6 @@ function boot(HOST) {
        per read instead of O(subtree) per write. The renderer updates the whole
        scene once at draw time anyway. */
     j.node.matrixWorldNeedsUpdate = true;
-  }
-
-  function ikPosition(chain, tip, goal, gain, passes) {
-    if (!tip || !chain.length) return;
-    for (let it = 0; it < passes; it++) {
-      for (let i = chain.length - 1; i >= 0; i--) {
-        const j = chain[i];
-        j.node.getWorldPosition(_p);
-        tip.getWorldPosition(_e);
-        _toTip.copy(_e).sub(_p);
-        _toGoal.copy(goal).sub(_p);
-        if (_toTip.lengthSq() < 1e-8 || _toGoal.lengthSq() < 1e-8) continue;
-        _toTip.normalize(); _toGoal.normalize();
-        j.node.getWorldQuaternion(_jq);
-        _ax.copy(j.axis).applyQuaternion(_jq).normalize();
-        _a.copy(_toTip).projectOnPlane(_ax);
-        _b.copy(_toGoal).projectOnPlane(_ax);
-        if (_a.lengthSq() < 1e-8 || _b.lengthSq() < 1e-8) continue;
-        _a.normalize(); _b.normalize();
-        let ang = Math.acos(Math.max(-1, Math.min(1, _a.dot(_b))));
-        if (_a.cross(_b).dot(_ax) < 0) ang = -ang;
-        setJoint(j, j.q + ang * gain);
-      }
-    }
   }
 
   /* Point a node's own axis at a world direction, using the same damped sweep.
@@ -388,29 +400,106 @@ function boot(HOST) {
     ikDirection(chain, R.headNode, R.gazeLocal, goal, 0.85, 6);
   }
 
-  const _cq = new THREE.Quaternion(), _dq = new THREE.Quaternion();
-  function ikOrientation(chain, tip, goalQ, gain, passes) {
-    if (!tip || !goalQ || chain.length < 3) return;
-    const wrist = chain.slice(-3);
-    for (let it = 0; it < passes; it++) {
-      for (let i = wrist.length - 1; i >= 0; i--) {
-        const j = wrist[i];
-        tip.getWorldQuaternion(_cq);
-        _dq.copy(goalQ).multiply(_cq.invert());           // world error rotation
-        let w = Math.max(-1, Math.min(1, _dq.w));
-        const ang = 2 * Math.acos(w);
-        const s = Math.sqrt(Math.max(1e-12, 1 - w * w));
-        if (!(ang > 1e-4)) continue;
-        const errAxis = _a.set(_dq.x / s, _dq.y / s, _dq.z / s);
-        j.node.getWorldQuaternion(_jq);
-        const worldAxis = _ax.copy(j.axis).applyQuaternion(_jq).normalize();
-        /* only the part of the error this joint can actually undo */
-        const d = errAxis.dot(worldAxis) * (ang > Math.PI ? ang - 2 * Math.PI : ang);
-        setJoint(j, j.q + d * gain);
+  /* ── the SE(3) solve ─────────────────────────────────────────────────── */
+  const FWD_LOCAL = new THREE.Vector3(0, 0, 1);   // any two orthogonal palm axes:
+  const UP_LOCAL = new THREE.Vector3(0, 1, 0);    // the clutch makes the choice moot
+  const _sh = new THREE.Vector3(), _ep = new THREE.Vector3();
+  const _fr = new THREE.Vector3(), _ur = new THREE.Vector3();
+  const _fh = new THREE.Vector3(), _uh = new THREE.Vector3();
+  const _ed = new THREE.Vector3(), _hed = new THREE.Vector3();
+  const QW = { l: null, r: null };                // warm start per side
+  const _g = new Float64Array(8), _qt = new Float64Array(8);
+
+  /* The cost, evaluated with the chain ALREADY set to q — so a gradient
+     component only has to move one joint and put it back, instead of rewriting
+     the whole arm for every finite difference. */
+  function armCost(s, q, qPrev, hk) {
+    const ch = R.chain[s];
+    R.palm[s].getWorldPosition(_p);
+    let loss = W_WRIST * _p.distanceToSquared(hk.wrist);
+
+    if (hk.elbow && R.elbow[s]) {
+      R.elbow[s].getWorldPosition(_ep);
+      _ed.copy(_ep).sub(hk.shoulder);
+      _hed.copy(hk.elbow).sub(hk.shoulder);
+      if (_ed.lengthSq() > 1e-9 && _hed.lengthSq() > 1e-9)
+        loss += W_ELBOW * (1 - _ed.normalize().dot(_hed.normalize()));
+    }
+    if (hk.fwd) {
+      R.palm[s].getWorldQuaternion(_jq);
+      _fr.copy(FWD_LOCAL).applyQuaternion(_jq);
+      _ur.copy(UP_LOCAL).applyQuaternion(_jq);
+      loss += W_FWD * (1 - _fr.dot(hk.fwd)) + W_UP * (1 - _ur.dot(hk.up));
+    }
+    for (let i = 0; i < ch.length; i++) {
+      const d = q[i] - qPrev[i], r = q[i] - (ch[i].ref || 0);
+      loss += W_SMOOTH * d * d + W_REG * r * r;
+    }
+    return loss;
+  }
+
+  function solveArm(s, dt) {
+    const ch = R.chain[s];
+    if (!ch.length || !R.palm[s]) return;
+    const n = ch.length;
+    if (!QW[s]) QW[s] = new Float64Array(n);
+    const q = QW[s], qPrev = Float64Array.from(q);
+
+    if (!ch[0]) return;
+    ch[0].node.getWorldPosition(_sh);
+    const hk = { wrist: R.target[s], shoulder: _sh,
+                 elbow: Number.isFinite(R.elbowT[s].x) ? R.elbowT[s] : null,
+                 fwd: null, up: null };
+    if (R.wantQ[s]) {
+      hk.fwd = _fh.copy(FWD_LOCAL).applyQuaternion(R.wantQ[s]);
+      hk.up = _uh.copy(UP_LOCAL).applyQuaternion(R.wantQ[s]);
+    }
+
+    for (let i = 0; i < n; i++) setJoint(ch[i], q[i]);
+    let f0 = armCost(s, q, qPrev, hk);
+    let step = 0.35;
+
+    for (let it = 0; it < SOLVE_ITERS; it++) {
+      /* forward differences: one joint moves, the rest are already in place */
+      let gn = 0;
+      for (let i = 0; i < n; i++) {
+        const q0 = q[i];
+        setJoint(ch[i], q0 + GRAD_H);
+        q[i] = q0 + GRAD_H;
+        const fp = armCost(s, q, qPrev, hk);
+        q[i] = q0;
+        setJoint(ch[i], q0);
+        _g[i] = (fp - f0) / GRAD_H;
+        gn += _g[i] * _g[i];
       }
+      gn = Math.sqrt(gn);
+      if (!(gn > 1e-6)) break;
+
+      let moved = false;
+      for (let t = 0; t < 4; t++) {
+        for (let i = 0; i < n; i++)
+          _qt[i] = Math.max(ch[i].lo, Math.min(ch[i].hi, q[i] - step * _g[i] / gn));
+        for (let i = 0; i < n; i++) setJoint(ch[i], _qt[i]);
+        const f1 = armCost(s, _qt, qPrev, hk);
+        if (f1 < f0) {
+          for (let i = 0; i < n; i++) q[i] = _qt[i];
+          f0 = f1; moved = true; break;
+        }
+        step *= 0.4;
+      }
+      if (!moved) { for (let i = 0; i < n; i++) setJoint(ch[i], q[i]); break; }
+    }
+
+    /* TRUST REGION ON THE RESULT, not on the search — see the note above. */
+    const lim = TRUST_STEP * Math.max(0.25, Math.min(2.5, (dt || 1 / 60) * 60));
+    for (let i = 0; i < n; i++) {
+      q[i] = Math.max(qPrev[i] - lim, Math.min(qPrev[i] + lim, q[i]));
+      setJoint(ch[i], q[i]);
     }
   }
 
+  /* only used when the camera is switched OFF — during tracking a lost frame
+     HOLDS the pose (see applyFrame) rather than easing anywhere */
   function relax(side, k) {
     R.chain[side].forEach((j) => setJoint(j, j.q * (1 - k)));
     R.fingers[side].forEach((f) => {
@@ -858,8 +947,12 @@ function boot(HOST) {
   }
 
   /* ── loop ─────────────────────────────────────────────────────────── */
+  let _prevT = 0, _paused = false;
   function step(t) {
     requestAnimationFrame(step);
+    if (_paused) return;
+    const dt = _prevT ? Math.min(0.1, (t - _prevT) / 1000) : 1 / 60;
+    _prevT = t;
     if (running && poser && video.readyState >= 2 && t - lastInfer >= 1000 / INFER_HZ) {
       lastInfer = t;
       try { infer(t); } catch (e) { /* a dropped frame is not worth the loop */ }
@@ -870,10 +963,7 @@ function boot(HOST) {
       ['l', 'r'].forEach((s) => {
         if (!R.palm[s]) return;
         if (R.live) {
-          if (Number.isFinite(R.elbowT[s].x) && R.elbow[s])
-            ikPosition(R.chain[s].slice(0, 3), R.elbow[s], R.elbowT[s], 0.18, 1);
-          ikPosition(R.chain[s], R.palm[s], R.target[s], 0.45, 2);
-          ikOrientation(R.chain[s], R.palm[s], R.wantQ[s], 0.35, 1);
+          solveArm(s, dt);
           R.palm[s].getWorldPosition(_tmp);
           res += _tmp.distanceTo(R.target[s]); n++;
         }
@@ -906,20 +996,18 @@ function boot(HOST) {
      landmarks so the mapping can be checked without a camera */
   window.__wt = {
     rig: R, applyFrame, toRig, arkitToRig, BT,
+    /* Stop the render loop while a harness probes the math. Rendering a 60k-
+       triangle robot under swiftshader costs hundreds of milliseconds a frame,
+       and it starves the debugger's evaluates until they time out — which
+       looks exactly like the solver hanging, and is not. */
+    pause: function (v) { _paused = v !== false; return _paused; },
     /* solve the arms N times and report the cost, so "it feels slow" can be
        answered with a number */
     bench: function (n) {
       n = n || 200;
       const t0 = performance.now();
-      for (let k = 0; k < n; k++) {
-        ['l', 'r'].forEach((s) => {
-          if (!R.palm[s]) return;
-          if (Number.isFinite(R.elbowT[s].x) && R.elbow[s])
-            ikPosition(R.chain[s].slice(0, 3), R.elbow[s], R.elbowT[s], 0.18, 1);
-          ikPosition(R.chain[s], R.palm[s], R.target[s], 0.45, 2);
-          ikOrientation(R.chain[s], R.palm[s], R.wantQ[s], 0.35, 1);
-        });
-      }
+      for (let k = 0; k < n; k++)
+        ['l', 'r'].forEach((s) => solveArm(s, 1 / 60));
       return { n: n, ms: (performance.now() - t0) / n };
     },
     targets: function () {
@@ -938,7 +1026,10 @@ function boot(HOST) {
       if (!calib) return null;
       /* every probe starts from the rest pose, so a test measures the mapping
          and not the order the probes happened to run in */
-      ['l', 'r'].forEach((s) => R.chain[s].forEach((j) => setJoint(j, 0)));
+      ['l', 'r'].forEach((s) => {
+        R.chain[s].forEach((j) => setJoint(j, 0));
+        if (QW[s]) QW[s].fill(0);
+      });
       if (R.torso) setJoint(R.torso, 0);
       const f = BT.synthesizeFrame({ t: 0, pose: { world, vis }, hands: hands || {} },
                                    calib, 0, { refine: true, scaleShape: true, elbows: true });
@@ -947,16 +1038,20 @@ function boot(HOST) {
       R.live = true;
       applyFrame(f, world, vis);
       readBody(world, vis);
-      ['l', 'r'].forEach((s) => {
-        if (!R.palm[s]) return;
-        ikPosition(R.chain[s], R.palm[s], R.target[s], 0.6, 24);
-      });
+      /* run the solve to convergence, the way a held pose converges live */
+      for (let k = 0; k < 40; k++)
+        ['l', 'r'].forEach((s) => solveArm(s, 1 / 60));
       const g = (s) => {
         const v = new THREE.Vector3();
         R.palm[s].getWorldPosition(v);
         return { target: R.target[s].toArray(), palm: v.toArray(),
                  err: v.distanceTo(R.target[s]) };
       };
+      /* Leave the LIVE loop off. feed() is a test hook; setting R.live true
+         and walking away means the render loop starts solving both arms every
+         frame on top of whatever the harness is doing next, which starves the
+         page and makes the next probe look like a hang. */
+      R.live = false;
       let gaze = null;
       if (R.headNode && R.gazeLocal) {
         R.headNode.updateMatrixWorld(true);
