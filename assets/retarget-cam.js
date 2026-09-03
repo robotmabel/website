@@ -38,6 +38,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as BT from './bodyteleop-core.js';
 import { readGesture, SFX, fingerExtended, palmWidth } from './hand-gestures.js';
+import { operatorPalmAxesRig } from './retarget-frames.js';
 
 document.querySelectorAll('#retargetCam, [data-retarget-cam]').forEach(boot);
 
@@ -205,6 +206,7 @@ function boot(HOST) {
     elbowT: { l: new THREE.Vector3(), r: new THREE.Vector3() },
     homePalm: { l: new THREE.Vector3(), r: new THREE.Vector3() },
     wantQ: { l: null, r: null },    // commanded wrist orientation (world)
+    rawQ: { l: null, r: null },     // the same, BEFORE the per-side clutch
     offQ: { l: null, r: null },     // orientation clutch, captured at start
     dot: {}, axes: {}, ready: false, live: false
   };
@@ -401,8 +403,14 @@ function boot(HOST) {
   }
 
   /* ── the SE(3) solve ─────────────────────────────────────────────────── */
-  const FWD_LOCAL = new THREE.Vector3(0, 0, 1);   // any two orthogonal palm axes:
-  const UP_LOCAL = new THREE.Vector3(0, 1, 0);    // the clutch makes the choice moot
+  /* The palm's own axes, in the SAME order the server's _natural_frame uses:
+     columns [f, s, n] = finger axis, side, palm normal. The clutch makes the
+     absolute choice arbitrary, but the LABELS are not arbitrary — W_FWD is the
+     finger axis and W_UP is the normal, and the paper weights them separately
+     (the normal is the one it gates on feasibility). Swapping them here would
+     silently give each the other's weight. */
+  const FWD_LOCAL = new THREE.Vector3(1, 0, 0);   // local X = finger axis
+  const UP_LOCAL = new THREE.Vector3(0, 0, 1);    // local Z = palm normal
   const _sh = new THREE.Vector3(), _ep = new THREE.Vector3();
   const _fr = new THREE.Vector3(), _ur = new THREE.Vector3();
   const _fh = new THREE.Vector3(), _uh = new THREE.Vector3();
@@ -662,6 +670,8 @@ function boot(HOST) {
   const _tmp = new THREE.Vector3(), _q1 = new THREE.Quaternion();
   const _m1 = new THREE.Matrix4(), _m2 = new THREE.Matrix4();
   const _tgt = new THREE.Vector3(), _up = new THREE.Vector3();
+  const _fwdT = new THREE.Vector3(), _upT = new THREE.Vector3();
+  const _sideT = new THREE.Vector3(), _basis = new THREE.Matrix4();
 
   /* Landmark noise is a few millimetres frame to frame, and a 1.3x gain puts
      it straight onto the wrist. A deadband plus a light lag removes the shake
@@ -723,10 +733,28 @@ function boot(HOST) {
          tracked frame captures the offset between it and the robot's own
          wrist, so the hand does not snap when tracking starts — the same
          clutch a headset session uses. */
-      const wj = hand.joints && hand.joints[0];
-      if (wj && wj.localTransform) {
-        const qr = new THREE.Quaternion().setFromRotationMatrix(
-          rotArkitToRig(mRot(wj.localTransform.matrix, _m1), _m2));
+      /* THE WRIST ORIENTATION. Built the way the server builds it — the
+         anatomical palm frame from wrist / middle / index / little knuckles,
+         with the LEFT normal flipped to palmar — and mapped into rig axes as
+         VECTORS. See assets/retarget-frames.js: the previous version used
+         bodyteleop's `wristRotation`, which takes no chirality argument
+         because the server applies the flip itself, and then conjugated it as
+         M·R·Mᵀ. Measured in scripts/frametest.mjs, those are a 180° error on
+         one hand and a further 90° on both. */
+      const shape = (hand.joints || []).slice(0, 21)
+        .map(function (j) { return mTrans(j.localTransform.matrix); });
+      const ax = shape.length >= 18
+        ? operatorPalmAxesRig(shape, s === 'l' ? 'left' : 'right') : null;
+      if (ax) {
+        _fwdT.fromArray(ax.fwd).normalize();
+        _upT.fromArray(ax.up).normalize();
+        /* orthonormalise, then build the target orientation with the SAME
+           local axes the cost reads back off the robot */
+        _upT.addScaledVector(_fwdT, -_upT.dot(_fwdT)).normalize();
+        _sideT.crossVectors(_upT, _fwdT);        // s = n x f, as the server does
+        _basis.makeBasis(_fwdT, _sideT, _upT);   // columns [f, s, n]
+        const qr = new THREE.Quaternion().setFromRotationMatrix(_basis);
+        R.rawQ[s] = qr.clone();          // pre-clutch, for the chirality check
         if (!R.offQ[s] && R.palm[s]) {
           const cur = R.palm[s].getWorldQuaternion(new THREE.Quaternion());
           R.offQ[s] = qr.clone().invert().premultiply(cur);   // cur = qr * off
@@ -1013,6 +1041,15 @@ function boot(HOST) {
     targets: function () {
       return { l: R.target.l.toArray(), r: R.target.r.toArray(),
                live: R.live };
+    },
+    /* The commanded palm axes in rig world, BEFORE the per-side clutch — the
+       clutch is a different constant per hand, so comparing the two sides
+       after it would hide exactly the chirality error this exposes. */
+    palmAxes: function (s) {
+      if (!R.rawQ[s]) return null;
+      const f = FWD_LOCAL.clone().applyQuaternion(R.rawQ[s]);
+      const u = UP_LOCAL.clone().applyQuaternion(R.rawQ[s]);
+      return { fwd: f.toArray(), up: u.toArray() };
     },
     lose: function () {
       /* what the loop does when a frame carries no usable landmarks */

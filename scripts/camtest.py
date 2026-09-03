@@ -16,7 +16,7 @@ DIRECTION the rig moves, which is the thing that was wrong:
 
     python scripts/camtest.py http://localhost:8741/software.html
 """
-import asyncio, json, subprocess, sys, time, urllib.request, websockets
+import asyncio, json, math, subprocess, sys, time, urllib.request, websockets
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
@@ -84,10 +84,58 @@ window.__mkPose = function (o) {
   put(15, LW[0], LW[1], LW[2]); put(16, RW[0], RW[1], RW[2]);
   return P;
 };
+// A hand in MediaPipe WORLD coordinates (metres, +x image-right, +y DOWN,
+// +z away from the camera), built with a KNOWN orientation. `fingers` and
+// `faces` are given in that frame; `side` only decides which way round the
+// index and pinky knuckles sit, which is the sole difference between a left
+// and a right hand in the same physical pose.
+window.__mkHand = function (side, fingers, faces, at) {
+  var f = fingers || [0, -1, 0];            // default: fingers UP (mp y is down)
+  var n = faces || [0, 0, -1];              // palm toward the camera
+  var a = [f[1]*n[2]-f[2]*n[1], f[2]*n[0]-f[0]*n[2], f[0]*n[1]-f[1]*n[0]];
+  var s = side === 'left' ? -1 : 1;
+  var o = at || [0, 0, 0];
+  var P = [];
+  for (var i = 0; i < 21; i++) P.push({x: o[0], y: o[1], z: o[2]});
+  var put = function (i, al, ac, no) {
+    P[i] = {x: o[0] + f[0]*al + a[0]*ac*s + n[0]*no,
+            y: o[1] + f[1]*al + a[1]*ac*s + n[1]*no,
+            z: o[2] + f[2]*al + a[2]*ac*s + n[2]*no};
+  };
+  put(0, 0, 0, 0);
+  put(5, 0.075, 0.039, 0);
+  put(9, 0.082, 0, 0);                      // the middle knuckle DEFINES f
+  put(13, 0.079, -0.013, 0);
+  put(17, 0.072, -0.039, 0);
+  [[8,5],[12,9],[16,13],[20,17]].forEach(function (kb) {
+    var b = P[kb[1]];
+    P[kb[0]] = {x: b.x + f[0]*0.07, y: b.y + f[1]*0.07, z: b.z + f[2]*0.07};
+  });
+  [[6,5],[7,5],[10,9],[11,9],[14,13],[15,13],[18,17],[19,17]].forEach(function (kb){
+    var b = P[kb[1]];
+    P[kb[0]] = {x: b.x + f[0]*0.03, y: b.y + f[1]*0.03, z: b.z + f[2]*0.03};
+  });
+  [2,3,4].forEach(function (i, k) {
+    P[i] = {x: P[5].x + a[0]*0.02*s*(k+1), y: P[5].y + a[1]*0.02*s*(k+1),
+            z: P[5].z + a[2]*0.02*s*(k+1)};
+  });
+  return P;
+};
 window.__probe = function (o) {
   var w = window.__mkPose(o);
   var vis = w.map(function () { return 1; });
-  return window.__wt.feed(w, vis, {}, null);
+  var hands = {};
+  if (o && o.hands) {
+    ['left', 'right'].forEach(function (sd) {
+      var h = o.hands[sd];
+      if (!h) return;
+      // place it at the pose wrist so routing and placement agree
+      var wi = sd === 'left' ? 15 : 16;
+      hands[sd] = window.__mkHand(sd, h.fingers, h.faces,
+                                  [w[wi].x, w[wi].y, w[wi].z]);
+    });
+  }
+  return window.__wt.feed(w, vis, hands, null);
 };
 """
 
@@ -263,7 +311,54 @@ async def go():
             print("   *** looking down also swung the gaze sideways (axes crossed)")
             bad += 1
 
-        # 6 — ROLL. Tilting your head toward a shoulder has to reach the neck,
+        # 6 — THE WRIST ORIENTATION, which nothing here used to exercise: every
+        # probe passed hands={}, so R.wantQ stayed null and the whole palm-frame
+        # path was untested. That is how a 180-degree chirality flip shipped.
+        print()
+        both = await probe(hands={
+            "left": {"fingers": [0, -1, 0], "faces": [0, 0, -1]},
+            "right": {"fingers": [0, -1, 0], "faces": [0, 0, -1]}})
+        ax = {}
+        for sd in ("l", "r"):
+            r = await ev("JSON.stringify(window.__wt.palmAxes(%r))" % sd)
+            ax[sd] = json.loads(r) if r and not str(r).startswith("JSERR") else None
+        if not (ax["l"] and ax["r"]):
+            print("   *** no wrist orientation was produced at all"); bad += 1
+        else:
+            def ang(a, b):
+                d = sum(x * y for x, y in zip(a, b))
+                d = max(-1.0, min(1.0, d))
+                return math.degrees(math.acos(d))
+            dn = ang(ax["l"]["up"], ax["r"]["up"])
+            df = ang(ax["l"]["fwd"], ax["r"]["fwd"])
+            print(f"palms held alike  normals {dn:.1f}° apart, "
+                  f"finger axes {df:.1f}° apart")
+            print(f"   left  fwd {fmt(ax['l']['fwd'])} up {fmt(ax['l']['up'])}")
+            print(f"   right fwd {fmt(ax['r']['fwd'])} up {fmt(ax['r']['up'])}")
+            if dn > 15:
+                print("   *** the two hands disagree — the LEFT normal is not "
+                      "flipped to palmar (the server measured this at 178.6°)")
+                bad += 1
+            if df > 15:
+                print("   *** the finger axes disagree"); bad += 1
+            # fingers up, palm at the camera -> palm faces the robot's FRONT
+            if ang(ax["r"]["up"], [-1, 0, 0]) > 15:
+                print("   *** a palm facing the camera does not face the "
+                      "robot's front"); bad += 1
+            if ang(ax["r"]["fwd"], [0, 1, 0]) > 15:
+                print("   *** fingers held up do not point up on the robot")
+                bad += 1
+
+        # a 90-degree roll of the hand must be a 90-degree roll of the target
+        rolled = await probe(hands={
+            "right": {"fingers": [0, -1, 0], "faces": [1, 0, 0]}})
+        rax = json.loads(await ev("JSON.stringify(window.__wt.palmAxes('r'))"))
+        turn = ang(rax["up"], ax["r"]["up"]) if ax["r"] else 0
+        print(f"rolling the palm 90°  target turned {turn:.1f}°")
+        if not (75 < turn < 105):
+            print("   *** a 90° roll is not a 90° roll"); bad += 1
+
+        # 7 — ROLL. Tilting your head toward a shoulder has to reach the neck,
         # and aiming a direction alone cannot carry it.
         roll = await probe(head=[0.0, 0.0, 0.12])
         print(f"head roll neck roll {roll['neck']['roll']:+.2f} rad "
@@ -273,7 +368,7 @@ async def go():
         if abs(roll["gaze"][1] - rest["gaze"][1]) > 0.25:
             print("   *** a pure roll also pitched the gaze"); bad += 1
 
-        # 7 — HOLD ON LOSS. A dropped detection must freeze the arms, not
+        # 8 — HOLD ON LOSS. A dropped detection must freeze the arms, not
         # spring them back: relaxing on every lost frame is what made them
         # twitch whenever a hand left the frame.
         before = json.loads(await ev("JSON.stringify(window.__wt.targets())"))
@@ -284,7 +379,7 @@ async def go():
         if moved > 0.001:
             print("   *** losing tracking moved the arm"); bad += 1
 
-        # 8 — the solve has to fit in a frame
+        # 9 — the solve has to fit in a frame
         bench = json.loads(await ev("JSON.stringify(window.__wt.bench(40))"))
         ms, cnt = bench["ms"], bench["n"]
         print(f"solve cost {ms:.2f} ms per frame over {cnt} solves "
@@ -292,7 +387,7 @@ async def go():
         if ms > 6.0:
             print("   *** the solve alone cannot hold 60 fps"); bad += 1
 
-        # 9 — the solver actually converges on the target it was given
+        # 10 — the solver actually converges on the target it was given
         worst = max(rest["r"]["err"], up["r"]["err"], fwd["r"]["err"]) * 1000
         print(f"\nworst tracking residual {worst:.0f} mm")
         if worst > 260:
