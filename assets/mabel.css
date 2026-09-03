@@ -3773,14 +3773,35 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   color: var(--ash); }
 .dark-sec .cl-len { color: var(--ash-light); }
 
-.cl-timeline { position: relative; border: 3px solid var(--ink); border-radius: 9px;
-  background: var(--bone); padding: 20px 0 0; overflow: hidden; cursor: crosshair;
-  user-select: none; touch-action: none; }
+/* A timeline with a VIEWPORT: the strip inside can be wider than the panel and
+   scrolls, which is what zooming means. Lane labels sit outside the scroller so
+   they stay put. */
+/* NOT .cl-view — that name already belongs to the video panel above, and
+   reusing it handed the timeline a 16:10 aspect ratio and a black background.
+   The wrapper's height is the sum of its lanes, so the scroller cannot stretch
+   to fill whatever row it lands in. */
+.cl-tlwrap { display: grid; grid-template-columns: 40px 1fr; gap: 6px;
+  align-items: start; }
+.cl-lanes { display: grid; grid-template-rows: 20px 56px 56px 18px 30px;
+  gap: 0; height: 186px; box-sizing: border-box; padding: 3px 0; }
+.cl-lane-lab { display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 5px; font-family: var(--font-mono); font-size: 8.5px;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--ash); }
+.cl-lanes .cl-lane-lab:nth-child(1) { grid-row: 2; }
+.cl-lanes .cl-lane-lab:nth-child(2) { grid-row: 3; }
+.cl-lanes .cl-lane-lab:nth-child(3) { grid-row: 4; }
+.cl-lanes .cl-lane-lab:nth-child(4) { grid-row: 5; }
+.cl-scroll { overflow-x: auto; overflow-y: hidden; border: 3px solid var(--ink);
+  border-radius: 9px; background: var(--bone); height: 186px; }
+.cl-timeline { position: relative; padding: 20px 0 0; cursor: crosshair;
+  user-select: none; touch-action: pan-x; height: 180px; }
 .cl-ruler { position: absolute; top: 0; left: 0; right: 0; height: 18px;
   border-bottom: 1px solid rgba(21,24,32,.18); }
 .cl-ruler span { position: absolute; top: 3px; font-family: var(--font-mono);
   font-size: 8.5px; color: var(--ash); transform: translateX(-50%); }
-.cl-track { position: relative; height: 54px; }
+.cl-track { position: relative; height: 56px; }
+.cl-track.alt { border-top: 1px dashed rgba(21,24,32,.22);
+  background: rgba(21,24,32,.035); }
 .cl-clip { position: absolute; top: 4px; bottom: 4px; border: 2px solid var(--ink);
   border-radius: 6px; background: var(--yellow); overflow: hidden; cursor: grab;
   display: flex; flex-direction: column; justify-content: center; padding: 0 12px; }
@@ -3793,20 +3814,59 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   background: rgba(21,24,32,.22); }
 .cl-grip.in { left: 0; } .cl-grip.out { right: 0; }
 .cl-grip:hover { background: var(--ink); }
-.cl-defrow { position: relative; height: 16px; border-top: 1px solid rgba(21,24,32,.18);
+.cl-defrow { position: relative; height: 18px; border-top: 1px solid rgba(21,24,32,.18);
   background: rgba(21,24,32,.05); }
-.cl-def { position: absolute; top: 3px; height: 10px; min-width: 3px; border-radius: 2px;
+.cl-def { position: absolute; top: 4px; height: 10px; min-width: 3px; border-radius: 2px;
   border: 1px solid var(--ink); }
 .cl-def.d-frozen { background: var(--rust); }
 .cl-def.d-gap { background: var(--orange); }
 .cl-def.d-rate, .cl-def.d-low_rate { background: var(--gold); }
-.cl-clean { position: absolute; left: 9px; top: 2px; font-family: var(--font-mono);
+.cl-notes { position: relative; height: 30px; border-top: 1px solid rgba(21,24,32,.18); }
+.cl-note-chip { position: absolute; top: 4px; height: 22px; display: flex;
+  align-items: center; gap: 5px; padding: 0 8px; cursor: pointer;
+  border: 2px solid var(--ink); border-radius: 5px; background: var(--blue);
+  color: #FFF6E4; font-size: 10.5px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }
+.cl-note-chip i { font-style: normal; font-family: var(--font-mono); font-size: 8px;
+  letter-spacing: .06em; text-transform: uppercase; padding: 1px 4px;
+  border-radius: 3px; background: rgba(255,255,255,.25); }
+.cl-note-chip:hover { background: var(--rust); }
+.cl-clean { position: absolute; left: 9px; top: 3px; font-family: var(--font-mono);
   font-size: 9px; color: var(--green); }
 .cl-head { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--rust);
-  pointer-events: none; box-shadow: 0 0 0 1px rgba(253,246,226,.6); }
+  pointer-events: none; box-shadow: 0 0 0 1px rgba(253,246,226,.6); z-index: 3; }
 .cl-head::before { content: ""; position: absolute; top: 0; left: -5px;
   border-left: 6px solid transparent; border-right: 6px solid transparent;
   border-top: 8px solid var(--rust); }
+.cl-zoom { display: inline-flex; align-items: center; gap: 4px; }
+.cl-btn.sq { padding: 6px 0; font-size: 15px; line-height: 1; width: 30px;
+  text-align: center; font-family: var(--font-mono); font-weight: 700; }
+.cl-btn.sq.wide { width: auto; padding: 6px 10px; font-size: 11px;
+  font-family: var(--font-comic); letter-spacing: .05em; }
+.cl-zv { font-family: var(--font-mono); font-size: 10px; color: var(--ash);
+  min-width: 30px; text-align: center; }
+.dark-sec .cl-zv { color: var(--ash-light); }
+
+/* the label / caption dialog, in the site's hand rather than the browser's */
+.cl-ask { position: fixed; inset: 0; z-index: 500; background: rgba(21,24,32,.7);
+  display: grid; place-items: center; padding: 20px; }
+.cl-ask-in { width: min(430px, 100%); background: var(--panel);
+  border: 3px solid var(--ink); border-radius: 14px; padding: 20px;
+  box-shadow: 9px 9px 0 rgba(21,24,32,.5); }
+.cl-ask-in h5 { font-family: var(--font-comic); font-size: 17px;
+  letter-spacing: .04em; color: var(--rust); margin: 0 0 12px; }
+.cl-ask-langs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.cl-lang { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+  padding: 4px 9px; cursor: pointer; border: 2px solid var(--ink);
+  border-radius: 5px; background: var(--bone); color: var(--ink); }
+.cl-lang.on { background: var(--blue); color: #FFF6E4; }
+.cl-ask-text { width: 100%; box-sizing: border-box; font-family: var(--font-body);
+  font-size: 15px; padding: 10px 12px; border: 3px solid var(--ink);
+  border-radius: 8px; background: var(--bone); color: var(--ink); }
+.cl-ask-text:focus { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.cl-ask-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+.cl-btn.cl-ok { background: var(--green); color: #FFF6E4; }
+
 .cl-note { font-size: 11.5px; line-height: 1.6; color: var(--ash); margin: 12px 0 0; }
 .dark-sec .cl-note { color: var(--ash-light); }
 .cl-err { font-family: var(--font-mono); font-size: 12px; color: var(--rust); }

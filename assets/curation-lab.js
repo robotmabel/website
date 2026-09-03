@@ -124,8 +124,11 @@
   /* ── state ─────────────────────────────────────────────────────────────── */
   var eps = {};              // id -> full episode record
   var report = {};           // id -> analysis
-  var edl = [];              // [{ep, in, out, label, id}]
+  var edl = [];              // [{ep, in, out, label, lane, uid}]
+  var notes = [];            // [{uid, at, len, text, lang}]
   var sel = null, playhead = 0, uid = 0;
+  var zoom = 1;              // px per frame multiplier; 1 = the whole edit fits
+  var PPF = 6;               // pixels per frame at zoom 1x on a 1000 px view
 
   var el = {};
 
@@ -168,17 +171,39 @@
       '<div class="cl-bar">' +
         '<button class="cl-btn cl-play" type="button">▶ Play</button>' +
         '<button class="cl-btn" data-act="blade">Blade <kbd>B</kbd></button>' +
-        '<button class="cl-btn" data-act="del">Ripple delete <kbd>⌫</kbd></button>' +
+        '<button class="cl-btn" data-act="del">Delete <kbd>⌫</kbd></button>' +
         '<button class="cl-btn" data-act="label">Label <kbd>L</kbd></button>' +
+        '<button class="cl-btn" data-act="note">Caption <kbd>C</kbd></button>' +
         '<button class="cl-btn" data-act="scan">Re-scan</button>' +
-        '<button class="cl-btn" data-act="reset">Reset edit</button>' +
+        '<button class="cl-btn" data-act="reset">Reset</button>' +
+        '<span class="cl-zoom">' +
+          '<button class="cl-btn sq" data-act="zoomout" ' +
+            'title="Zoom out" aria-label="Zoom out">&#8211;</button>' +
+          '<b class="cl-zv">1×</b>' +
+          '<button class="cl-btn sq" data-act="zoomin" ' +
+            'title="Zoom in" aria-label="Zoom in">+</button>' +
+          '<button class="cl-btn sq wide" data-act="zoomfit" ' +
+            'title="Fit the whole edit">fit</button>' +
+        '</span>' +
         '<span class="cl-len"></span>' +
       '</div>' +
-      '<div class="cl-timeline">' +
-        '<div class="cl-ruler"></div>' +
-        '<div class="cl-track"></div>' +
-        '<div class="cl-defrow"></div>' +
-        '<div class="cl-head"></div>' +
+      '<div class="cl-tlwrap">' +
+        '<div class="cl-lanes">' +
+          '<span class="cl-lane-lab">v1</span>' +
+          '<span class="cl-lane-lab">v2</span>' +
+          '<span class="cl-lane-lab">flags</span>' +
+          '<span class="cl-lane-lab">notes</span>' +
+        '</div>' +
+        '<div class="cl-scroll">' +
+          '<div class="cl-timeline">' +
+            '<div class="cl-ruler"></div>' +
+            '<div class="cl-track" data-lane="0"></div>' +
+            '<div class="cl-track alt" data-lane="1"></div>' +
+            '<div class="cl-defrow"></div>' +
+            '<div class="cl-notes"></div>' +
+            '<div class="cl-head"></div>' +
+          '</div>' +
+        '</div>' +
       '</div>' +
       '<p class="cl-note">Non-destructive, like the studio: the timeline is an ' +
         'EDL — an ordered list of (episode, in, out) — and nothing here ever ' +
@@ -188,12 +213,13 @@
         'camera feeds and LeRobot export; both it and the Trainer Studio are ' +
         'still being polished.</p>';
 
-    ['video', 'frame', 'clipname', 'flag', 'defects', 'bin', 'track', 'ruler',
-     'defrow', 'head', 'scorev', 'len'].forEach(function (k) {
+    ['video', 'frame', 'clipname', 'flag', 'defects', 'bin', 'ruler',
+     'defrow', 'notes', 'head', 'scorev', 'len', 'zv', 'scroll'].forEach(function (k) {
       el[k] = host.querySelector('.cl-' + k);
     });
     el.play = host.querySelector('.cl-play');
     el.timeline = host.querySelector('.cl-timeline');
+    el.tracks = [].slice.call(host.querySelectorAll('.cl-track'));
 
     el.bin.innerHTML = idx.episodes.map(function (e) {
       var r = report[e.id];
@@ -211,12 +237,23 @@
   function reset() {
     edl = Object.keys(eps).map(function (id) {
       return { uid: ++uid, ep: id, in: 0, out: eps[id].frames - 1,
-               label: eps[id].task };
+               label: eps[id].task, lane: 0 };
     });
+    notes = [];
     sel = edl[0] ? edl[0].uid : null;
-    playhead = 0;
+    playhead = 0; zoom = 1;
     render();
   }
+
+  /* Frames map to pixels through ONE function, so the ruler, the clips, the
+     defect lane, the notes and the playhead cannot disagree about where a
+     frame is — which is what happens the moment two of them compute percentages
+     of different widths. */
+  function pxPerFrame() {
+    var w = el.scroll ? el.scroll.clientWidth : 900;
+    return Math.max(0.4, (w / Math.max(1, total())) * zoom);
+  }
+  function fx(f) { return f * pxPerFrame(); }
 
   var total = function () {
     return edl.reduce(function (a, c) { return a + (c.out - c.in + 1); }, 0);
@@ -233,24 +270,29 @@
 
   function render() {
     var T = Math.max(1, total());
+    var W = fx(T);
+    el.timeline.style.width = Math.max(W, el.scroll.clientWidth) + 'px';
     el.len.textContent = edl.length + ' clip' + (edl.length === 1 ? '' : 's') +
       ' · ' + T + ' frames · ' + (T / 15).toFixed(1) + ' s';
+    el.zv.textContent = zoom < 1 ? zoom.toFixed(2) + '×' : zoom.toFixed(1) + '×';
 
     var acc = 0;
-    el.track.innerHTML = edl.map(function (c) {
+    var lanes = ['', ''];
+    edl.forEach(function (c) {
       var len = c.out - c.in + 1;
-      var left = acc / T * 100, w = len / T * 100;
-      acc += len;
       var r = report[c.ep];
-      return '<div class="cl-clip' + (c.uid === sel ? ' on' : '') + '" ' +
+      lanes[c.lane || 0] +=
+        '<div class="cl-clip' + (c.uid === sel ? ' on' : '') + '" ' +
         'data-uid="' + c.uid + '" draggable="true" ' +
-        'style="left:' + left + '%;width:' + w + '%">' +
+        'style="left:' + fx(acc) + 'px;width:' + fx(len) + 'px">' +
         '<span class="cl-grip in" data-edge="in"></span>' +
         '<span class="cl-lab">' + esc(c.label) + '</span>' +
         '<span class="cl-meta">' + c.in + '–' + c.out +
           ' · ' + r.score.toFixed(2) + '</span>' +
         '<span class="cl-grip out" data-edge="out"></span></div>';
-    }).join('');
+      acc += len;
+    });
+    el.tracks.forEach(function (t, i) { t.innerHTML = lanes[i] || ''; });
 
     /* defect lanes, mapped through the edit so a trimmed-out fault disappears */
     acc = 0;
@@ -261,8 +303,8 @@
         var s = Math.max(d.start, c.in), e = Math.min(d.end, c.out);
         if (e < s) return;
         marks.push('<span class="cl-def d-' + d.type + '" ' +
-          'style="left:' + ((acc + s - c.in) / Math.max(1, total()) * 100) +
-          '%;width:' + (Math.max(1, e - s + 1) / Math.max(1, total()) * 100) + '%" ' +
+          'style="left:' + fx(acc + s - c.in) +
+          'px;width:' + Math.max(3, fx(e - s + 1)) + 'px" ' +
           'title="' + esc(d.label) + '"></span>');
       });
       acc += len;
@@ -270,10 +312,19 @@
     el.defrow.innerHTML = marks.join('') ||
       '<span class="cl-clean">no defects in the current edit</span>';
 
+    el.notes.innerHTML = notes.map(function (nt) {
+      return '<span class="cl-note-chip" data-note="' + nt.uid + '" ' +
+        'style="left:' + fx(nt.at) + 'px;width:' + Math.max(46, fx(nt.len)) + 'px">' +
+        '<i>' + esc(nt.lang) + '</i>' + esc(nt.text) + '</span>';
+    }).join('') || '<span class="cl-clean">no captions yet — press C</span>';
+
     el.ruler.innerHTML = (function () {
       var out = [];
-      for (var s = 0; s <= T / 15; s += 2)
-        out.push('<span style="left:' + (s * 15 / T * 100) + '%">' + s + 's</span>');
+      /* a tick every 1, 2, 5 or 10 s, whichever keeps them ~70 px apart */
+      var per = [1, 2, 5, 10, 20, 30].filter(function (v) {
+        return fx(v * 15) > 62; })[0] || 60;
+      for (var s = 0; s <= T / 15 + per; s += per)
+        out.push('<span style="left:' + fx(s * 15) + 'px">' + s + 's</span>');
       return out.join('');
     })();
 
@@ -301,18 +352,25 @@
         try { v.currentTime = want; } catch (e) { /* still seeking */ }
     }
     el.frame.textContent = 'frame ' + playhead + ' / ' + T;
-    el.head.style.left = (playhead / T * 100) + '%';
+    el.head.style.left = fx(playhead) + 'px';
+    /* keep the playhead in view when the timeline is wider than the window */
+    var hx = fx(playhead), vw = el.scroll.clientWidth, sl = el.scroll.scrollLeft;
+    if (hx < sl + 40) el.scroll.scrollLeft = Math.max(0, hx - 40);
+    else if (hx > sl + vw - 40) el.scroll.scrollLeft = hx - vw + 40;
   }
 
   function wire() {
     var T = function () { return Math.max(1, total()); };
+    /* one screen-x -> frame conversion, shared by scrubbing, trimming and drop */
+    function frameAt(clientX) {
+      var r = el.timeline.getBoundingClientRect();
+      return Math.round((clientX - r.left) / pxPerFrame());
+    }
 
     /* scrubbing */
     var scrubbing = false;
     function scrubTo(clientX) {
-      var r = el.timeline.getBoundingClientRect();
-      var f = Math.round((clientX - r.left) / r.width * T());
-      playhead = Math.max(0, Math.min(T() - 1, f));
+      playhead = Math.max(0, Math.min(T() - 1, frameAt(clientX)));
       var s = clipAt(playhead);
       if (s) sel = s.c.uid;
       render();
@@ -329,50 +387,64 @@
 
     /* trimming: drag a clip's edge */
     var trim = null;
-    el.track.addEventListener('pointerdown', function (e) {
-      var g = e.target.closest('.cl-grip');
-      if (!g) return;
-      e.preventDefault(); e.stopPropagation();
-      var uidv = +g.closest('.cl-clip').dataset.uid;
-      trim = { c: edl.filter(function (x) { return x.uid === uidv; })[0],
-               edge: g.dataset.edge, x0: e.clientX };
-      trim.v0 = trim.c[trim.edge];
-      el.track.setPointerCapture(e.pointerId);
-    });
-    el.track.addEventListener('pointermove', function (e) {
-      if (!trim) return;
-      var r = el.timeline.getBoundingClientRect();
-      var d = Math.round((e.clientX - trim.x0) / r.width * T());
-      var c = trim.c, n = eps[c.ep].frames;
-      if (trim.edge === 'in') c.in = Math.max(0, Math.min(c.out - 4, trim.v0 + d));
-      else c.out = Math.min(n - 1, Math.max(c.in + 4, trim.v0 + d));
-      render();
+    el.tracks.forEach(function (tr) {
+      tr.addEventListener('pointerdown', function (e) {
+        var g = e.target.closest('.cl-grip');
+        if (!g) return;
+        e.preventDefault(); e.stopPropagation();
+        var uidv = +g.closest('.cl-clip').dataset.uid;
+        trim = { c: edl.filter(function (x) { return x.uid === uidv; })[0],
+                 edge: g.dataset.edge, x0: e.clientX };
+        trim.v0 = trim.c[trim.edge];
+        tr.setPointerCapture(e.pointerId);
+      });
+      tr.addEventListener('pointermove', function (e) {
+        if (!trim) return;
+        var d = Math.round((e.clientX - trim.x0) / pxPerFrame());
+        var c = trim.c, n = eps[c.ep].frames;
+        if (trim.edge === 'in') c.in = Math.max(0, Math.min(c.out - 4, trim.v0 + d));
+        else c.out = Math.min(n - 1, Math.max(c.in + 4, trim.v0 + d));
+        render();
+      });
     });
     addEventListener('pointerup', function () { trim = null; });
 
     /* reordering: HTML5 drag on the clip body */
     var dragUid = null;
-    el.track.addEventListener('dragstart', function (e) {
-      var c = e.target.closest('.cl-clip');
-      if (!c) return;
-      dragUid = +c.dataset.uid;
-      e.dataTransfer.effectAllowed = 'move';
-      try { e.dataTransfer.setData('text/plain', String(dragUid)); } catch (x) {}
+    el.tracks.forEach(function (tr) {
+      tr.addEventListener('dragstart', function (e) {
+        var c = e.target.closest('.cl-clip');
+        if (!c) return;
+        dragUid = +c.dataset.uid;
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', String(dragUid)); } catch (x) {}
+      });
+      tr.addEventListener('dragover', function (e) { e.preventDefault(); });
+      tr.addEventListener('drop', function (e) {
+        e.preventDefault();
+        if (dragUid == null) return;
+        var at = clipAt(Math.max(0, Math.min(T() - 1, frameAt(e.clientX))));
+        var from = edl.findIndex(function (x) { return x.uid === dragUid; });
+        var to = at ? at.i : edl.length - 1;
+        var lane = +tr.dataset.lane || 0;
+        if (from >= 0) {
+          edl[from].lane = lane;                 // dropping on v2 STACKS it
+          if (to >= 0 && from !== to) {
+            var moved = edl.splice(from, 1)[0];
+            edl.splice(to, 0, moved);
+          }
+        }
+        dragUid = null; render();
+      });
     });
-    el.track.addEventListener('dragover', function (e) { e.preventDefault(); });
-    el.track.addEventListener('drop', function (e) {
-      e.preventDefault();
-      if (dragUid == null) return;
-      var r = el.timeline.getBoundingClientRect();
-      var f = Math.round((e.clientX - r.left) / r.width * T());
-      var at = clipAt(Math.max(0, Math.min(T() - 1, f)));
-      var from = edl.findIndex(function (x) { return x.uid === dragUid; });
-      var to = at ? at.i : edl.length - 1;
-      if (from >= 0 && to >= 0 && from !== to) {
-        var moved = edl.splice(from, 1)[0];
-        edl.splice(to, 0, moved);
-      }
-      dragUid = null; render();
+
+    /* click a caption to delete it — the only way to get rid of one */
+    el.notes.addEventListener('click', function (e) {
+      var chip = e.target.closest('[data-note]');
+      if (!chip) return;
+      var id = +chip.dataset.note;
+      notes = notes.filter(function (n) { return n.uid !== id; });
+      render();
     });
 
     /* the bin */
@@ -384,6 +456,53 @@
                  label: eps[id].task });
       sel = uid; render();
     });
+
+    /* A dialog in the site's own hand, because window.prompt() is a grey
+       system sheet with a blue OK button in the middle of a comic. It also
+       cannot carry a second field, and a caption needs its language. */
+    var LANGS = ['en', 'es', 'fr', 'de', 'zh', 'ja', 'ko', 'pt'];
+    function ask(title, value, lang, done) {
+      var d = document.createElement('div');
+      d.className = 'cl-ask';
+      d.innerHTML =
+        '<form class="cl-ask-in">' +
+          '<h5>' + esc(title) + '</h5>' +
+          (lang === null ? '' :
+            '<div class="cl-ask-langs">' + LANGS.map(function (L) {
+              return '<button type="button" class="cl-lang' +
+                (L === lang ? ' on' : '') + '" data-l="' + L + '">' + L +
+                '</button>'; }).join('') + '</div>') +
+          '<input class="cl-ask-text" maxlength="80" value="' +
+            esc(value || '') + '" />' +
+          '<div class="cl-ask-row">' +
+            '<button type="button" class="cl-btn" data-x="1">Cancel</button>' +
+            '<button type="submit" class="cl-btn cl-ok">Save it</button>' +
+          '</div>' +
+        '</form>';
+      document.body.appendChild(d);
+      var input = d.querySelector('.cl-ask-text');
+      var picked = lang;
+      input.focus(); input.select();
+      d.addEventListener('click', function (e) {
+        var L = e.target.closest('.cl-lang');
+        if (L) {
+          picked = L.dataset.l;
+          d.querySelectorAll('.cl-lang').forEach(function (b) {
+            b.classList.toggle('on', b === L); });
+          return;
+        }
+        if (e.target === d || e.target.closest('[data-x]')) close();
+      });
+      d.querySelector('form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var v = input.value.trim();
+        close();
+        if (v) done(v, picked);
+      });
+      function esckey(e) { if (e.key === 'Escape') close(); }
+      addEventListener('keydown', esckey);
+      function close() { removeEventListener('keydown', esckey); d.remove(); }
+    }
 
     /* the toolbar + keys */
     function act(what) {
@@ -401,11 +520,35 @@
           playhead = Math.min(playhead, Math.max(0, total() - 1));
         }
       } else if (what === 'label') {
-        var c = edl.filter(function (x) { return x.uid === sel; })[0];
-        if (c) {
-          var v = prompt('Label this clip', c.label);
-          if (v != null) c.label = v.slice(0, 60);
-        }
+        /* fall back to the clip under the playhead: after a delete the stored
+           selection can point at a uid that no longer exists, and then the
+           button silently did nothing */
+        var c = edl.filter(function (x) { return x.uid === sel; })[0] ||
+                (s && s.c) || edl[0];
+        if (c) ask('Label this clip', c.label, null, function (v) {
+          c.label = v.slice(0, 60); render();
+        });
+        return;
+      } else if (what === 'note') {
+        /* a CAPTION at the playhead: a language tag plus the line itself.
+           The studio calls these annotations; a curated dataset carries them
+           alongside the episode so a language-conditioned policy has something
+           to condition on. */
+        var here = clipAt(playhead);
+        ask('Caption at ' + (playhead / 15).toFixed(1) + ' s',
+            here ? here.c.label : '', 'en', function (v, lang) {
+          notes.push({ uid: ++uid, at: playhead,
+                       len: Math.min(45, Math.max(15, total() - playhead)),
+                       text: v.slice(0, 80), lang: lang || 'en' });
+          render();
+        });
+        return;
+      } else if (what === 'zoomin') {
+        zoom = Math.min(24, zoom * 1.6);
+      } else if (what === 'zoomout') {
+        zoom = Math.max(0.5, zoom / 1.6);
+      } else if (what === 'zoomfit') {
+        zoom = 1; el.scroll.scrollLeft = 0;
       } else if (what === 'scan') {
         Object.keys(eps).forEach(function (k) { report[k] = analyse(eps[k]); });
       } else if (what === 'reset') {
@@ -442,8 +585,12 @@
       if (r.bottom < 0 || r.top > innerHeight) return;      // not on screen
       if (/input|textarea/i.test((e.target.tagName || ''))) return;
       var k = e.key.toLowerCase();
+      if (document.querySelector('.cl-ask')) return;   // a dialog is open
       if (k === 'b') { e.preventDefault(); act('blade'); }
       else if (k === 'l') { e.preventDefault(); act('label'); }
+      else if (k === 'c') { e.preventDefault(); act('note'); }
+      else if (k === '=' || k === '+') { e.preventDefault(); act('zoomin'); }
+      else if (k === '-') { e.preventDefault(); act('zoomout'); }
       else if (e.key === 'Backspace' || e.key === 'Delete') {
         e.preventDefault(); act('del');
       } else if (e.key === 'ArrowRight') {
@@ -455,6 +602,12 @@
 
     window.__curationLab = {
       edl: function () { return edl; }, report: report, act: act,
+      notes: function () { return notes; },
+      zoom: function () { return zoom; },
+      addNote: function (at, text, lang) {
+        notes.push({ uid: ++uid, at: at, len: 30, text: text, lang: lang || 'en' });
+        render();
+      },
       analyse: analyse, eps: eps,
       seek: function (f) { playhead = f; render(); },
       total: total

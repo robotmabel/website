@@ -101,6 +101,49 @@ async def go():
         if not (n2 == n1 - 1 and t1 < t0):
             print("   *** ripple delete did not shorten the edit"); bad += 1
 
+        # the features the editor gained: zoom, a second lane, and captions
+        z0 = await ev("window.__curationLab.zoom()")
+        await ev("window.__curationLab.act('zoomin')")
+        z1 = await ev("window.__curationLab.zoom()")
+        w1 = await ev("document.querySelector('.cl-timeline').offsetWidth")
+        await ev("window.__curationLab.act('zoomout');window.__curationLab.act('zoomout')")
+        z2 = await ev("window.__curationLab.zoom()")
+        w2 = await ev("document.querySelector('.cl-timeline').offsetWidth")
+        print(f"\nzoom {z0} → {z1} → {z2}   timeline width {w1} → {w2} px")
+        if not (z1 > z0 and z2 < z1 and w1 > w2):
+            print("   *** zoom does not change the timeline width"); bad += 1
+
+        lanes = await ev("document.querySelectorAll('.cl-track').length")
+        await ev("window.__curationLab.edl()[1].lane = 1;"
+                 "window.__curationLab.act('scan')")
+        stacked = await ev("document.querySelector('.cl-track.alt')"
+                           ".querySelectorAll('.cl-clip').length")
+        print(f"lanes {lanes}, clips stacked onto v2: {stacked}")
+        if lanes < 2 or stacked < 1:
+            print("   *** clips cannot be stacked on a second lane"); bad += 1
+
+        await ev("window.__curationLab.addNote(30,'pick up the red cup','en');"
+                 "window.__curationLab.addNote(120,'tasse rouge','fr')")
+        chips = await ev("document.querySelectorAll('.cl-note-chip').length")
+        langs = json.loads(await ev(
+            "JSON.stringify(window.__curationLab.notes().map(function(n){return n.lang;}))"))
+        print(f"captions {chips} chips, languages {langs}")
+        if chips != 2 or sorted(langs) != ["en", "fr"]:
+            print("   *** captions do not reach the timeline"); bad += 1
+
+        # and no system prompt(): the dialog is the site's own
+        used_prompt = await ev("""(function(){
+            var hit=0; var real=window.prompt;
+            window.prompt=function(){hit=1;return 'x';};
+            window.__curationLab.act('label');
+            window.prompt=real;
+            return hit;})()""")
+        has_dialog = await ev("!!document.querySelector('.cl-ask')")
+        print(f"window.prompt used: {bool(used_prompt)}, comic dialog shown: {has_dialog}")
+        if used_prompt or not has_dialog:
+            print("   *** the label dialog is still the browser's"); bad += 1
+        await ev("var d=document.querySelector('.cl-ask'); if(d) d.remove();")
+
         print("errors:", errs[:3] or "none")
         if errs:
             bad += 1
