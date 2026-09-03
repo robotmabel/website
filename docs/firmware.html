@@ -57,11 +57,11 @@ pio run -e mabel_armlink -t upload    <span class="c"># ArmLink UDP↔MIT-CAN Et
       <code>firmware/openarm/include/armlink_protocol.h</code> +
       <code>hardware_bridge/docs/ARMLINK.md</code>.</li>
     <li><b>Setup tools ship as PlatformIO envs</b> — no DaMiao assistant needed:
-      <code>tool_can_scanner</code>, <code>tool_change_motor_id</code>,
-      <code>tool_set_zero_pos</code>, <code>tool_clear_faults</code>,
+      <code>tool_can_scanner</code>, <code>tool_change_id</code>,
+      <code>tool_set_zero</code>, <code>tool_clear_faults</code>,
       <code>tool_read_limits</code>, <code>tool_switch_mode</code>,
       <code>tool_teleop_cli</code>, <code>tool_sine_sweep</code>. Use
-      <code>tool_change_motor_id</code> for the one-motor-at-a-time ID
+      <code>tool_change_id</code> for the one-motor-at-a-time ID
       assignment during <a href="assembly.html#arms">arm assembly</a>.</li>
   </ul>
   <div class="note">
@@ -89,7 +89,7 @@ firmware/lift/tools/deploy.sh         <span class="c"># copies the module set + 
   </div>
 
   <h2>Hands — servo setup, no flash</h2>
-<pre><code>python firmware/orca_hand/feetech/setup/precheck.py   <span class="c"># pings servo IDs 1..17 on a chain</span></code></pre>
+<pre><code>python3 firmware/orca_hand/feetech/scripts/scan.py --model left   <span class="c"># pings servo IDs 1..17 on a chain</span></code></pre>
   <ul>
     <li>All logic is host-side Python; the Feetech servos close their own
       position loops. The wire is standard STS/SCS packets with one SYNC_WRITE
@@ -115,7 +115,7 @@ firmware/can_down.sh</code></pre>
     <li>Base Teensy answers ping at its address and echoes the UDP protocol</li>
     <li><code>tool_can_scanner</code> sees IDs 1–7 on each arm bus</li>
     <li>Lift Pico answers on USB serial; encoder counts move when the screw is turned by hand</li>
-    <li><code>precheck.py</code> reports 17/17 on each hand chain</li>
+    <li><code>scripts/scan.py --model left</code> (and <code>right</code>) reports 17/17 on each hand chain</li>
     <li>Neck: both Dynamixels respond on the U2D2; yaw motor answers on CAN</li>
   </ul>
 </main>

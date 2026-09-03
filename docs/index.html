@@ -29,25 +29,46 @@
     <tr><td>Functional DoF</td><td class="num">56</td><td>59 motors total</td></tr>
     <tr><td>Base</td><td class="num">3 modules</td><td>Delta-layout holonomic swerve — REV NEO + NEO&nbsp;550 per module, 6 × SPARK on CAN</td></tr>
     <tr><td>Lift</td><td class="num">0.635 m</td><td>Cascaded Z-column (FlexiSpot E7 Pro column), brushed DC + leadscrew, RP2040 Pico</td></tr>
-    <tr><td>Torso</td><td class="num">400 N·m</td><td>DaMiao DM-J10422P on the body CAN bus</td></tr>
+    <tr><td>Torso</td><td class="num">400 N·m peak</td><td>DaMiao DM-J10422P on the body CAN bus</td></tr>
     <tr><td>Arms</td><td class="num">2 × 7 DoF</td><td>OpenArm-derived, DaMiao quasi-direct-drive, back-drivable, one CAN bus per arm</td></tr>
     <tr><td>Hands</td><td class="num">2 × 17 DoF</td><td>Open-source ORCA hands, tendon-routed, 17 Feetech servos per hand on one 1&nbsp;MHz TTL chain</td></tr>
     <tr><td>Neck</td><td class="num">3 DoF</td><td>Yaw on CAN (DaMiao), roll + pitch on 2 × Dynamixel XC330-T181</td></tr>
     <tr><td>Sensing</td><td>—</td><td>Stereo head camera, 2 wrist cameras, 2D lidar; base depth camera and IMU optional by tier</td></tr>
-    <tr><td>Compute</td><td>—</td><td>NVIDIA Jetson (Orin Nano → AGX Thor by tier), Ubuntu 22.04 + ROS 2</td></tr>
+    <tr><td>Compute</td><td>—</td><td>NVIDIA Jetson (Orin Nano → AGX Thor by tier), Ubuntu 24.04 + ROS 2 Jazzy</td></tr>
     <tr><td>Reach</td><td class="num">0 – 2.23 m</td><td>fingertip envelope, floor to overhead (lift + arm)</td></tr>
     <tr><td>Footprint</td><td class="num">0.49 m</td><td>fits doorways and elevator cars</td></tr>
-    <tr><td>Mass</td><td class="num">≈ 62 kg</td><td>Single 24 V battery, fully untethered</td></tr>
+    <tr><td>Mass</td><td class="num">≈ 62 kg</td><td>24 V, fully untethered. The BOM buys <b>two</b> packs (line 7.03)</td></tr>
     <tr><td>Cost</td><td class="num">$8,722+</td><td>Core BOM $8,058 + perception/compute tier — see <a href="bom.html">01&nbsp;·&nbsp;BOM</a></td></tr>
   </table>
+
+  <h2>Before you order anything</h2>
+  <p>Three gaps in the parts list will stop a build if you meet them at the bench
+  instead of here. All three are tracked in <code>BOM/data/open_items.csv</code>.</p>
+  <table>
+    <tr><th>Gap</th><th>What it means for your order</th></tr>
+    <tr><td><b>The swerve line is a lump</b></td><td>REV-21-3005 is the MODULE only —
+      motors, controllers and framing are <b>not</b> included. Each module also needs a
+      NEO, a NEO 550, a SPARK Flex and a SPARK MAX, about $557 more per module.
+      Ordering the BOM line as written gets you three modules that cannot move.</td></tr>
+    <tr><td><b>Two Teensy 4.1 are missing</b></td><td>One drives the swerve base, one
+      drives both arms. Neither appears in the parts list; without them the robot has no
+      low-level control at all.</td></tr>
+    <tr><td><b>No hardware E-stop is costed</b></td><td>The safety docs describe a
+      hardware stop that de-energises the actuators independently of the host, and the
+      software E-stop (<code>hw.estop()</code>) is not that. Budget $30–80 for a switch
+      and contactor — the OpenArm harness set may already include one, unconfirmed.</td></tr>
+  </table>
+  <p>The rest of the fixed core can be ordered on day one: none of it depends on a
+  decision made later. The five deferred choices (compute, head camera, wrist cameras,
+  base depth camera, lidar) are laid out in <a href="bom.html">01&nbsp;·&nbsp;BOM</a>.</p>
 
   <h2>What you need</h2>
   <table>
     <tr><th>Requirement</th><th>Why</th></tr>
-    <tr><td>3D printers (2–3, one large-format)</td><td>Roughly a week of near-continuous printing. The base and body housings need a large-format bed (Bambu H2D / H2S class); the rest fit a standard bed. No machine shop is needed beyond the laser-cut sheet parts; no machine shop needed beyond the laser-cut/bent sheet parts, which are ordered from any fab service (drawings in the BOM)</td></tr>
-    <tr><td>Basic electronics skills</td><td>Crimping, CAN bus wiring, servo ID assignment, one custom PCB per board set (fab files provided)</td></tr>
+    <tr><td>3D printers (2–3, one large-format)</td><td>Roughly a week of near-continuous printing. The base and body housings need a large-format bed (Bambu H2D / H2S class); the rest fit a standard bed. No machine shop is needed beyond the laser-cut and bent sheet parts, which are ordered from any fab service (drawings in the BOM). Seven parts are machined rather than laser-cut — see <a href="bom.html">01&nbsp;·&nbsp;BOM</a></td></tr>
+    <tr><td>Basic electronics skills</td><td>Crimping, CAN bus wiring, servo ID assignment, one custom PCB per board set. <b>The gerbers are not released yet</b> — the boards are simple carrier and power-distribution layers, never control electronics, and BOM/data/open_items.csv tracks them as an open item</td></tr>
     <tr><td>A Mac or Linux laptop</td><td>Runs the full simulation twin and every desktop tool. ROS 2 is only required on the robot itself</td></tr>
-    <tr><td>Ubuntu 22.04 on the Jetson</td><td>ROS 2 + the hardware layer run onboard</td></tr>
+    <tr><td>Ubuntu 24.04 + ROS 2 Jazzy on the Jetson</td><td>ROS 2 + the hardware layer run onboard</td></tr>
     <tr><td>Time</td><td>Printing runs in the background; hands-on assembly is measured in evenings per module, not months</td></tr>
   </table>
 

@@ -178,13 +178,13 @@
   <div class="asm-prep fade-up" style="margin-top:26px;">
     <div data-pop data-art="printer" data-fx="BRRRT!" data-pop-title="Printer & filament" data-pop-kicker="01 · ON THE BENCH">
       <h6>Printer &amp; filament</h6>
-      <p>Plan for ≈7 days of near-continuous printing, and 2–3 printers if you want that in a week. Most parts fit a standard bed, but the base and body housings need a large-format machine (Bambu H2D / H2S). Budget 7 spools (≈2.1 kg printed): PLA/PETG white for covers and mounts, black for the high-wear ORCA hand structure.</p>
+      <p>Plan for roughly a week of near-continuous printing, and 2–3 printers if you want it done in that week — that is an <em>estimate from building it</em>, not a measured figure, so treat it as a planning number. Most parts fit a standard bed, but the base and body housings need a large-format machine (Bambu H2D / H2S class). The BOM buys <b>7 spools</b>: 4 Jade White for covers, sensor mounts and trim, 2 Black for the high-wear ORCA hand structure, 1 Light Gray for accents. It buys <b>PLA Basic</b>; the arm housings are separately specified in <b>PETG</b> at about 260 g per arm (<code>mechanical/arm_housing/</code>), which the filament line does not yet cover.</p>
     <template class="pop-more"><p>Printing is the longest single task in the build — plan for about a week of
 near-continuous running. Start the parts the day you order actuators, and do the
 electrical work while they run.</p>
 <div class="pop-stat">
-  <div><b>≈2.1 kg</b><span>printed mass</span></div>
-  <div><b>≈7 days</b><span>near-continuous</span></div>
+  <div><b>7 kg</b><span>filament bought</span></div>
+  <div><b>≈1 week</b><span>estimated print time</span></div>
   <div><b>2–3</b><span>printers recommended</span></div>
   <div><b>7</b><span>spools budgeted</span></div>
 </div>
@@ -328,7 +328,7 @@ current-limited supply catch what your attention misses.</p></template>
   <div class="asm-prep fade-up">
     <div>
       <h6>Print</h6>
-      <p>≈ 2.1 kg of PETG or ABS, ≈7 days of printing — the base and body housings need a large-format bed. Every mesh is generated from the MuJoCo model <code>mabel_full.xml</code> — never hand-edit a printed part, regenerate it.</p>
+      <p>7 spools of filament and roughly a week of printing (an estimate, not a measurement) — the base and body housings need a large-format bed. Every mesh is generated from the MuJoCo model <code>mabel_full.xml</code> — never hand-edit a printed part, regenerate it.</p>
     </div>
     <div>
       <h6>Order of operations</h6>
@@ -376,7 +376,7 @@ current-limited supply catch what your attention misses.</p></template>
     <ol class="asm-steps">
       <li><strong>Build all three swerve modules first.</strong> Each pairs a NEO for drive with a NEO 550 for steer. Build them identically and completely before any of them touches the chassis.</li>
       <li><strong>Mount them in the delta layout</strong>Three modules at 120°. Keep every bolt pattern square to the chassis plate.<span class="tip">A twisted module reads as permanent heading drift later.</span></li>
-      <li><strong>Fit the 38.1 mm wheels</strong>And turn each module through a full steer rotation by hand. Nothing should bind or tug a cable.</li>
+      <li><strong>Fit the 76.2 mm wheels</strong>And turn each module through a full steer rotation by hand. Nothing should bind or tug a cable.</li>
       <li><strong>Daisy-chain the CAN bus</strong>Across all six SPARK controllers, with a 120 Ω terminator at each end of the chain.</li>
       <li><strong>Assign CAN IDs 1–6</strong>One controller powered at a time so two devices can never answer to the same ID.</li>
       <li><strong>Seat the compute bay</strong>Teensy 4.1 for the swerve loop, Jetson Thor for everything above it.</li>
@@ -388,7 +388,7 @@ current-limited supply catch what your attention misses.</p></template>
         <dt>Drive</dt><dd>REV NEO × 3 · CAN</dd>
         <dt>Steer</dt><dd>REV NEO 550 × 3 · CAN</dd>
         <dt>Controllers</dt><dd>REV SPARK MAX / Flex × 6</dd>
-        <dt>Wheels</dt><dd>38.1 mm</dd>
+        <dt>Wheels</dt><dd>76.2 mm dia (38.1 mm radius)</dd>
         <dt>Firmware</dt><dd>Teensy 4.1 · reverse-engineered REV CAN stack</dd>
       </dl>
       <a class="asm-more" href="hardware.html#hw-base">Base hardware in depth →</a>
@@ -443,7 +443,7 @@ current-limited supply catch what your attention misses.</p></template>
       <h2 class="display-md title">Body.</h2>
       <p class="lede asm-lead">The torso that leans, and the frame that carries the arms, the neck, and the body electronics.</p>
       <div class="asm-chips">
-        <span>DaMiao DM-J10422P</span><span>400 N·m</span><span>Body CAN</span><span>Custom PCB</span><span>U2D2</span>
+        <span>DaMiao DM-J10422P</span><span>100 N·m rated · 400 N·m peak</span><span>Body CAN</span><span>Custom PCB</span><span>U2D2</span>
       </div>
     </div>
   </div>
@@ -458,7 +458,7 @@ current-limited supply catch what your attention misses.</p></template>
     <div class="asm-parts">
       <h6>Parts</h6>
       <ol>
-        <li><span class="pname">Torso Actuator<span class="pmeta">DaMiao DM-J10422P · 400 N·m · CAN</span></span></li>
+        <li><span class="pname">Torso Actuator<span class="pmeta">DaMiao DM-J10422P · 400 N·m peak · CAN</span></span></li>
         <li><span class="pname">Torso Output Shaft<span class="pmeta">Bolts to the actuator output flange</span></span></li>
         <li><span class="pname">PCB Mount<span class="pmeta">3D printed</span></span></li>
         <li><span class="pname">Custom PCB<span class="pmeta">Body power + bus routing</span></span></li>
@@ -499,7 +499,7 @@ current-limited supply catch what your attention misses.</p></template>
 
   <div class="asm-body fade-up">
     <ol class="asm-steps">
-      <li><strong>Build each arm link by link, from the shoulder out.</strong>Per arm: 2 × DM-J8009P shoulder, 2 × DM-J4340 shoulder-roll and elbow, 3 × DM-J4310 wrist.</li>
+      <li><strong>Build each arm link by link, from the shoulder out.</strong>Per arm: 2 × DM-J8009P shoulder (40 N·m peak), 2 × DM-J4340 shoulder-roll and elbow (27 N·m), 3 × DaMiao FOCGM43 wrist modules — the profile the firmware carries for them is DM-J3507 (3 N·m). Verify every motor's (p_max, v_max, t_max) in the DaMiao desktop tool first: a mismatch silently rescales every packed value on the wire.</li>
       <li><strong>Assign IDs 1–7 before each motor goes into the chain</strong>One motor powered at a time.<span class="tip">A wrong ID buried mid-arm means dismantling the arm to reach it.</span></li>
       <li><strong>Keep the arms on separate buses</strong>Left on <code>can0</code>, right on <code>can1</code>. Do not merge them onto one chain.</li>
       <li><strong>Bolt each arm to its mounting plate</strong>On the body, and route the bus down through the shoulder before the housing covers go on.</li>

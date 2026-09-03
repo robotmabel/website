@@ -29,7 +29,7 @@
     <tr><td>Base CAN</td><td>CAN, 120 Ω both ends</td><td>6 × SPARK (IDs 1–6)</td><td>Base Teensy 4.1 → Ethernet</td></tr>
     <tr><td>Arm left</td><td>CAN <code>can0</code></td><td>7 × DaMiao (IDs 1–7)</td><td rowspan="2">Arms Teensy → Ethernet</td></tr>
     <tr><td>Arm right</td><td>CAN <code>can1</code></td><td>7 × DaMiao (IDs 1–7)</td></tr>
-    <tr><td>Body CAN</td><td>CAN</td><td>Torso DM-J10422P + neck yaw DaMiao</td><td>USB-CAN dongles on the Jetson</td></tr>
+    <tr><td>Body CAN</td><td>CAN</td><td>Torso DM-J10422P + neck yaw DaMiao</td><td>the arms Teensy&rsquo;s third CAN bus (since 2026-07-28). USB-CAN dongles are the documented <em>fallback</em>, not the primary path</td></tr>
     <tr><td>Hand left</td><td>1 MHz half-duplex TTL</td><td>17 × Feetech (16 finger + wrist)</td><td>USB serial adapter (CH340)</td></tr>
     <tr><td>Hand right</td><td>1 MHz half-duplex TTL</td><td>17 × Feetech</td><td>USB serial adapter (CH340)</td></tr>
     <tr><td>Neck TTL</td><td>1 Mbaud half-duplex TTL</td><td>2 × Dynamixel XC330-T181 (roll, pitch)</td><td>U2D2 on the Jetson</td></tr>
@@ -39,14 +39,14 @@
     The two hand adapters are identical CH340s — the USB <em>serial number</em> is
     the only stable discriminator. Record each adapter's serial
     (<code>ls -l /dev/serial/by-id/</code>) and register it left/right in
-    <code>hardware_bridge/config.py</code>; the software then binds sides
+    <code>hardware_bridge/mabel_hw/config.py</code>; the software then binds sides
     correctly no matter which port they land on.
   </div>
 
   <h2>Install order</h2>
   <ol class="steps">
     <li><b>Land both custom PCBs</b> — the base board in the chassis, the body
-      board on its printed mount. Fab files ship with the CAD.</li>
+      board on its printed mount. The gerbers are NOT released yet (tracked in BOM/data/open_items.csv).</li>
     <li><b>Fan power out from the single pack.</b> The bus is 24 V with a
       24→12 V buck for the low rails, distributed through a blade-fuse box —
       fuse per the wiring guide. A 6-port 2.5 GbE switch is the onboard
@@ -105,6 +105,58 @@
     it anywhere and it reconnects. (Its serial number is hard-coded by the vendor,
     which is why identity is VID:PID here, unlike the hands.)
   </p>
+
+  <h2>Power, and the one thing that is not wired</h2>
+  <p>One 24&nbsp;V supply, one buck converter, and a 12&nbsp;V rail under it.
+  Three loads get their own line straight from the supply, and the reason is
+  the same in each case: <b>motor spikes must not reach the compute</b>.</p>
+  <table>
+    <tr><th>Load</th><th>Rail</th><th>Taps from</th></tr>
+    <tr><td>Jetson Thor</td><td>24 V</td><td>the supply, on its own line</td></tr>
+    <tr><td>Torso bus</td><td>24 V</td><td>the supply — feeds both arms and the neck yaw</td></tr>
+    <tr><td>Arms, per joint group</td><td>24 V</td><td>the torso bus: J1+J2, J3+J4, J5+J6+J7</td></tr>
+    <tr><td>Lift controller</td><td>24 V</td><td>the supply, on its own line — the biggest current spike on the robot</td></tr>
+    <tr><td>6 base motor drivers</td><td>12 V</td><td>the buck</td></tr>
+    <tr><td>Ethernet board (and both Teensies)</td><td>12 V</td><td>the buck</td></tr>
+    <tr><td>USB expansion board</td><td>12 V</td><td>the buck — ten devices; <b>never run it bus-powered</b></td></tr>
+    <tr><td>Left / right hand</td><td>12 V</td><td>the buck. Power only; data goes over USB</td></tr>
+    <tr><td>Neck Dynamixel bus</td><td>12 V</td><td>the buck. The U2D2 itself is USB-powered</td></tr>
+  </table>
+  <p>Never share a return run: Thor, the lift controller and the torso bus each
+  get their own pair. And the buck converter is a single point of failure — if
+  the hands, the base and the whole USB tree die at once, check it first.</p>
+
+  <div class="warn">
+    <p><b>There is no hardware E-stop in this guide, because there is not one in
+    the build.</b> What exists is a <em>software</em> stop —
+    <code>hw.estop()</code> on <code>/mabel/hw/base/estop</code>, lease-free and
+    bypassing arbitration by design — and that is not the same thing as a switch
+    that de-energises the actuators independently of the host. The safety notes
+    assume the hardware path; the BOM tracks the switch and contactor as an
+    uncosted open item at $30–80. Fit one before you first energise the arms.</p>
+  </div>
+
+  <h2>Things that will cost you an evening</h2>
+  <ul>
+    <li><b>The lidar browns out on a weak USB port.</b> Its adapter feeds the
+      whole unit from USB 5&nbsp;V and the motor start surges about 1.5&nbsp;A.
+      On an underpowered port the serial link goes dark the instant the motor
+      engages and only a replug revives it. Use a powered hub or a root port.</li>
+    <li><b>The two wrist cameras share one USB-2 hub</b> and cap at about
+      15&nbsp;Hz for the pair. Pin them by hub port with the udev rules in
+      <code>hardware_bridge/install/</code> (1-4.1.1 is right, 1-4.1.2 is left)
+      or they swap sides on reboot.</li>
+    <li><b>Head and base cameras go direct to Thor.</b> Everything on the hub is
+      either slow or a single wrist stream.</li>
+    <li><b>Label both ends of every cable before you power up</b>, and bind the
+      cameras and the lidar to udev by serial. On 2026-07-08 the left hand's
+      auto-claim grabbed the RPLIDAR's adapter and sprayed servo packets at the
+      lidar until it wedged; that is why there is no blind
+      <code>/dev/ttyUSB0</code> fallback anywhere in the config.</li>
+    <li><b>Every CAN chain should read about 60&nbsp;Ω across H and L</b> — two
+      120&nbsp;Ω terminators in parallel. Nothing in the repo checks this for
+      you; measure it.</li>
+  </ul>
 
   <h2>Wiring completion check</h2>
   <ul class="check">

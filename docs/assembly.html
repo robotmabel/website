@@ -38,7 +38,7 @@
     <li><b>Mount them in the delta layout</b> — three modules at 120°. Keep every
       bolt pattern square to the chassis plate: a twisted module reads as a
       permanent heading drift later.</li>
-    <li><b>Fit the wheels (38.1 mm)</b> and turn each module through a full steer
+    <li><b>Fit the wheels (76.2 mm diameter — 38.1 mm radius)</b> and turn each module through a full steer
       rotation by hand. Nothing binds; no cable tugs.</li>
     <li><b>Daisy-chain the CAN bus</b> across all six SPARK controllers with a
       120 Ω terminator at each end.</li>
@@ -67,7 +67,7 @@
   </div>
 
   <h2 id="body">Body — torso joint + frame</h2>
-  <div class="chips"><span>DaMiao DM-J10422P</span><span>400 N·m</span><span>body CAN</span><span>custom PCB</span><span>U2D2 TTL bridge</span></div>
+  <div class="chips"><span>DaMiao DM-J10422P</span><span>100 N·m rated · 400 N·m peak</span><span>body CAN</span><span>custom PCB</span><span>U2D2 TTL bridge</span></div>
   <ol class="steps">
     <li><b>Mount the torso actuator to the lift carriage.</b> It is the strongest
       joint on the robot — its torque stays disabled for this whole stage.</li>
@@ -82,7 +82,7 @@
   </ol>
 
   <h2 id="arms">Arms — 2 × 7-DoF OpenArm-derived</h2>
-  <div class="chips"><span>per arm: 2 × DM-J8009P</span><span>2 × DM-J4340</span><span>3 × DM-J4310</span><span>left = can0</span><span>right = can1</span></div>
+  <div class="chips"><span>per arm: 2 × DM-J8009P</span><span>2 × DM-J4340</span><span>3 × FOCGM43 (DM-J3507 profile)</span><span>left = can0</span><span>right = can1</span></div>
   <ol class="steps">
     <li><b>Build each arm link by link, shoulder out</b> — shoulder pair (J8009P),
       shoulder-roll + elbow (J4340), wrist triplet (J4310).</li>
@@ -99,7 +99,7 @@
   </ol>
 
   <h2 id="hands">Hands — 2 × ORCA, 17 DoF each</h2>
-  <div class="chips"><span>16 × Feetech HLS3915 + 1 × HLS3930 each</span><span>one 1 MHz TTL chain per hand</span><span>tendon-routed</span></div>
+  <div class="chips"><span>16 × Feetech HL3915M + 1 × HL3930M each</span><span>one 1 MHz TTL chain per hand</span><span>tendon-routed</span></div>
   <ol class="steps">
     <li><b>Print and assemble the ORCA hand frames</b> — the hand design is fully
       released; build to the
