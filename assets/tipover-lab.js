@@ -119,7 +119,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
     '<div class="tl-panel">' +
       '<div class="tl-row">' +
         '<label>Commanded speed<b class="tl-cmd">0.60 m/s</b></label>' +
-        '<input class="tl-slider" type="range" min="0" max="1.4" step="0.02" value="0.6" ' +
+        '<input class="tl-slider" type="range" min="0" max="2.5" step="0.05" value="0.6" ' +
                'aria-label="Commanded speed">' +
       '</div>' +
       '<div class="tl-row">' +
@@ -209,11 +209,16 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
   function popFx(word, cls) { S.fx = word; S.fxT = 1; elFx.className = 'tl-fx show ' + (cls || ''); elFx.textContent = word; }
 
-  /* ── the city that scrolls past ───────────────────────────────────── */
+  /* ── the city that scrolls past ─────────────────────────────────────
+     One strip of towers, TILED. The strip has to be drawn at every multiple
+     of its own length that lands on screen, not just once: without that, the
+     far end of the strip walks off the left edge and nothing follows it, so
+     the skyline quietly emptied out after about 20 seconds of driving. */
+  var STRIP = 3000;
   var SKY = [];
   (function seedCity() {
     var x = 0;
-    while (x < 3000) {
+    while (x < STRIP) {
       var w = 46 + Math.random() * 66, h = 70 + Math.random() * 190;
       SKY.push({ x: x, w: w, h: h, step: Math.random() > 0.55 });
       x += w + 12 + Math.random() * 26;
@@ -237,28 +242,33 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
          S.x integrates the real speed — so the city sweeps past at exactly
          v·PPM px/s on the near band, and proportionally slower on the far
          one. Faster robot, faster background, with nothing fudged. */
-      var off = (S.x * band[0] * PPM) % 3000;
+      var off = (S.x * band[0] * PPM) % STRIP;
+      if (off < 0) off += STRIP;            // driving backwards must tile too
       ctx.fillStyle = band[1];
-      SKY.forEach(function (b) {
-        var bx = b.x - off;
-        if (bx < -140 || bx > W + 140) return;
-        var scale = bi === 0 ? 0.7 : 1;
-        var h = b.h * scale, w = b.w * scale;
-        ctx.fillRect(bx, ground - h, w, h);
-        if (b.step) {                       // the deco setback
-          ctx.fillRect(bx + w * 0.18, ground - h - h * 0.16, w * 0.64, h * 0.16);
-          ctx.fillRect(bx + w * 0.42, ground - h - h * 0.28, w * 0.16, h * 0.13);
-        }
-        if (bi === 1) {                     // lit windows
-          ctx.fillStyle = 'rgba(242,201,76,0.5)';
-          for (var wy = ground - h + 12; wy < ground - 14; wy += 17) {
-            for (var wx = bx + 7; wx < bx + w - 9; wx += 14) {
-              if (((wx + wy) | 0) % 3) ctx.fillRect(wx, wy, 5, 8);
-            }
+      var tiles = Math.ceil((W + 280) / STRIP) + 1;
+      for (var t = 0; t < tiles; t++) {
+        var tx = t * STRIP - off;
+        SKY.forEach(function (b) {
+          var bx = b.x + tx;
+          if (bx < -140 || bx > W + 140) return;
+          var scale = bi === 0 ? 0.7 : 1;
+          var h = b.h * scale, w = b.w * scale;
+          ctx.fillRect(bx, ground - h, w, h);
+          if (b.step) {                       // the deco setback
+            ctx.fillRect(bx + w * 0.18, ground - h - h * 0.16, w * 0.64, h * 0.16);
+            ctx.fillRect(bx + w * 0.42, ground - h - h * 0.28, w * 0.16, h * 0.13);
           }
-          ctx.fillStyle = band[1];
-        }
-      });
+          if (bi === 1) {                     // lit windows
+            ctx.fillStyle = 'rgba(242,201,76,0.5)';
+            for (var wy = ground - h + 12; wy < ground - 14; wy += 17) {
+              for (var wx = bx + 7; wx < bx + w - 9; wx += 14) {
+                if (((wx + wy) | 0) % 3) ctx.fillRect(wx, wy, 5, 8);
+              }
+            }
+            ctx.fillStyle = band[1];
+          }
+        });
+      }
     });
   }
 
