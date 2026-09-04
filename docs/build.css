@@ -1,0 +1,477 @@
+/* Widgets ported out of the site's build page, so the wiki owns them.
+ *
+ * build.html and this manual covered the same ground — BOM, assembly, wiring,
+ * power-on, FAQ — one prettily and one thoroughly. The interactive pieces were
+ * the only thing the pretty one had that this did not: a filterable bill of
+ * materials with a cost breakdown, illustrated assembly panels, and the FAQ
+ * pop-ups. They live here now and build.html redirects.
+ *
+ * Extracted from assets/mabel.css rather than rewritten, so the two cannot
+ * disagree about what a step card looks like. The tokens they reference are
+ * already declared in docs.css.
+ */
+
+/* ─── Data table ──────────────────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.data-table th { text-align: center; padding: 12px 14px; font-family: var(--font-mono); font-size: 10px; font-weight: 500; color: var(--ash); border-bottom: 1px solid rgba(21,24,32,0.2); letter-spacing: 0.1em; text-transform: uppercase; }
+.data-table th:first-child { text-align: left; }
+.data-table td { padding: 14px 14px; border-bottom: 1px solid rgba(21,24,32,0.10); text-align: center; color: var(--ink); }
+.data-table td:first-child { text-align: left; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr.best td { background: rgba(198,48,26,0.06); }
+.data-table tr.best td:first-child { color: var(--rust); font-weight: 600; }
+.data-table .hi { color: var(--rust); font-weight: 600; }
+/* ── interactive BOM cost donut ── */
+.bom-donut { position: relative; width: min(280px, 78%); margin: 0 auto 30px; }
+.bom-donut-svg { width: 100%; height: auto; display: block; }
+.bom-seg { transition: opacity 0.25s ease, stroke-width 0.2s ease; }
+.bom-seg.dim { opacity: 0.26; }
+.bom-seg.hot { stroke-width: 17; }
+.bom-centre { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.bom-c-val { font-family: var(--font-display); font-size: clamp(24px, 3vw, 32px); letter-spacing: -0.02em; line-height: 1; color: var(--ink); transition: color 0.2s ease; }
+.bom-c-key { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ash); margin-top: 6px; text-align: center; max-width: 76%; line-height: 1.4; }
+.spec-table .row.bom-row-hot { padding-left: 8px; background: linear-gradient(90deg, rgba(198,48,26,0.07), transparent 70%); }
+/* ─── Price burst — a rough circle seal ───────────────────────────── */
+.price-seal {
+  display: inline-grid; place-items: center; text-align: center;
+  width: 132px; aspect-ratio: 1; border-radius: 50%; padding: 10px;
+  background: var(--rust); color: #FFF6E4; border: var(--line-w) solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(21,24,32,0.9); transform: rotate(6deg);
+  font-family: var(--font-comic); line-height: 1;
+}
+.price-seal b { font-size: 24px; display: block; letter-spacing: 0.02em; }
+.price-seal span { font-family: var(--font-mono); font-weight: 700; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-top: 4px; opacity: 0.9; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-scroll .data-table { min-width: 640px; }
+/* .fit — the whole table always visible, no horizontal scroll at any width:
+   the cells compress instead (used by the platform survey). */
+.table-scroll.fit { overflow: visible; }
+.table-scroll.fit .data-table { min-width: 0; width: 100%; }
+.data-table td .ok { color: var(--green); font-weight: 700; }
+.data-table td .no { color: var(--ash); }
+/* ─── Tables, comic edition — chunky ink, Bangers headers, gold "ours" row ── */
+.data-table { border: var(--line-w) solid var(--ink); border-radius: 10px; overflow: hidden;
+  box-shadow: 5px 5px 0 rgba(21,24,32,0.9); background: var(--panel); border-collapse: separate; border-spacing: 0; }
+.data-table th { background: var(--ink); color: var(--gold);
+  font-family: var(--font-comic); font-weight: 400; font-size: 14px; letter-spacing: 0.1em;
+  padding: 12px 14px; border-bottom: none; }
+.data-table td { border-bottom: 1.5px solid rgba(21,24,32,0.18); font-weight: 500; }
+.data-table tbody tr:nth-child(even) td { background: rgba(244,234,210,0.55); }
+.data-table tbody tr:hover td { background: rgba(217,161,63,0.14); }
+.data-table tr.best td { background: #F7E3AE; border-top: 3px solid var(--ink); font-weight: 700; }
+.data-table tr.best td:first-child { color: var(--rust); font-family: var(--font-comic); font-weight: 400; font-size: 16px; letter-spacing: 0.05em; }
+.dark-sec .data-table { background: rgba(253,246,226,0.04); border-color: rgba(217,161,63,0.55); box-shadow: 5px 5px 0 rgba(0,0,0,0.6); }
+.dark-sec .data-table td { color: var(--bone); border-bottom-color: rgba(244,234,210,0.12); }
+.dark-sec .data-table tbody tr:nth-child(even) td { background: rgba(253,246,226,0.05); }
+/* price seal: text properly centred in the circle */
+.price-seal { place-content: center; gap: 3px; padding: 0 !important; }
+.price-seal b { font-size: 26px; }
+.price-seal span { margin-top: 0 !important; }
+/* grids never inherit a child table's min-width */
+.bom-grid > div, .paper-grid > div, .abstract-grid > div, .anat-wrap > * { min-width: 0; }
+/* speech bubble pinned onto a panel — classic oval balloon */
+.panel-speech { position: absolute; z-index: 3; max-width: 64%;
+  background: #FFF9F0; color: var(--ink); border: 3px solid var(--ink);
+  border-radius: 50%; padding: 13px 22px; text-align: center;
+  font-family: var(--font-comic); font-size: 15px;
+  letter-spacing: 0.05em; line-height: 1.15;
+  filter: drop-shadow(2px 3px 0 rgba(21,24,32,0.45)); }
+/* tail: bottom-left by default */
+.panel-speech::before { content: ''; position: absolute; bottom: -15px; left: 22%;
+  border: 8px solid transparent; border-top: 16px solid var(--ink);
+  border-left-width: 2px; border-right-width: 12px; transform: rotate(8deg); }
+.panel-speech::after { content: ''; position: absolute; bottom: -9px; left: calc(22% + 3px);
+  border: 6px solid transparent; border-top: 12px solid #FFF9F0;
+  border-left-width: 1px; border-right-width: 9px; transform: rotate(8deg); }
+.panel-speech.tail-br::before { left: auto; right: 22%; transform: rotate(-8deg) scaleX(-1); }
+.panel-speech.tail-br::after { left: auto; right: calc(22% + 3px); transform: rotate(-8deg) scaleX(-1); }
+/* thought bubble variant */
+.panel-speech.thought { border-radius: 50%; }
+.panel-speech.thought::before, .panel-speech.thought::after { display: none; }
+.panel-speech.thought .tb { position: absolute; background: #FFF9F0; border: 2.5px solid var(--ink); border-radius: 50%; }
+/* A `.tight` table is a two-column key/value list, so it never needs the
+   640 px floor `.table-scroll` puts under a wide data table. That floor used
+   to apply on DESKTOP too, and the two SLAM tables sit in a half-width grid
+   cell — so both of them scrolled sideways and ate their own row labels
+   ("...ution", "...range used"). This is unconditional now; the media query
+   below only tunes the type. */
+.table-scroll.tight { overflow: visible; }
+.table-scroll.tight .data-table { min-width: 0; width: 100%; table-layout: fixed; }
+.table-scroll.tight .data-table td { word-break: break-word; }
+.table-scroll.tight .data-table td:first-child { width: 44%; }
+.table-scroll.tight .data-table td:last-child { text-align: right; }
+/* balloons stay small enough to clear faces at any width */
+.panel-speech { font-size: clamp(11px, 1.05vw, 15px); padding: clamp(7px,0.8vw,13px) clamp(12px,1.4vw,22px); }
+/* ─── "What you need" prep cards, comic edition ───────────────────── */
+.asm-prep { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; counter-reset: prep; }
+.asm-prep > div {
+  counter-increment: prep; position: relative;
+  background: var(--panel); border: var(--line-w) solid var(--ink);
+  border-radius: 12px; padding: 18px 16px 16px;
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.asm-prep > div::before {
+  content: "0" counter(prep); display: block;
+  font-family: var(--font-comic); font-size: 26px; line-height: 1; margin-bottom: 6px;
+}
+.asm-prep > div:nth-child(1) { transform: rotate(-0.7deg); box-shadow: 6px 6px 0 var(--orange); }
+.asm-prep > div:nth-child(2) { transform: rotate(0.5deg);  box-shadow: 6px 6px 0 var(--yellow); }
+.asm-prep > div:nth-child(3) { transform: rotate(-0.4deg); box-shadow: 6px 6px 0 var(--blue); }
+.asm-prep > div:nth-child(4) { transform: rotate(0.6deg);  box-shadow: 6px 6px 0 var(--rust); }
+.asm-prep > div:nth-child(1)::before { color: var(--orange); }
+.asm-prep > div:nth-child(2)::before { color: var(--gold-deep); }
+.asm-prep > div:nth-child(3)::before { color: var(--blue); }
+.asm-prep > div:nth-child(4)::before { color: var(--rust); }
+.asm-prep > div:hover { transform: rotate(0deg) translate(-2px,-2px); }
+.asm-prep h6 {
+  font-family: var(--font-comic); font-weight: 400; font-size: 17px;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin-bottom: 8px;
+}
+.asm-prep p { font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }
+/* ═══ BOM — the donut and the table sit on ONE line ═══
+   These rules used to live in hardware.html's inline <style> while the
+   markup lives on build.html, so the grid never applied and the chart
+   stacked above the table. Shared stylesheet = both pages get it. */
+.bom-grid { display: grid; grid-template-columns: minmax(0, 380px) 1fr;
+  gap: clamp(20px, 3vw, 44px); align-items: center; }
+.bom-grid > * { min-width: 0; }
+.bom-pie-wrap { position: relative; width: min(320px, 100%); margin: 0 auto; }
+#bomPie svg { width: 100%; height: auto; display: block; }
+.bom-centre { position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; pointer-events: none; text-align: center; }
+#bomPieVal { font-family: var(--font-display); font-size: clamp(22px, 2.4vw, 30px);
+  color: var(--rust); line-height: 1; }
+#bomPieKey { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ash); margin-top: 7px; max-width: 66%; line-height: 1.5; }
+.bom-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px;
+  border: 1.5px solid var(--ink); margin-right: 9px; vertical-align: -1px; }
+#bomRows td:first-child { font-weight: 600; }
+#bomRows { font-size: 13px; }
+#bomRows th, #bomRows td { padding: 7px 10px; }
+tr.bom-row-hot td { background: rgba(198,48,26,0.08); }
+/* ═══ Full BOM table with hover previews ═══ */
+.bt-bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  margin-bottom: 12px; }
+.bt-search { font-family: var(--font-mono); font-size: 12.5px; padding: 8px 12px;
+  border: 2px solid var(--ink); border-radius: 6px; background: var(--panel);
+  color: var(--ink); min-width: 210px; flex: 1 1 210px; }
+.bt-search:focus { outline: 3px solid var(--orange); outline-offset: 1px; }
+.bt-filters { display: flex; gap: 5px; flex-wrap: wrap; }
+.bt-filters button { font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: 0.04em; padding: 6px 10px; border: 2px solid var(--ink);
+  border-radius: 5px; background: var(--bone); color: var(--ink); cursor: pointer; }
+.bt-filters button.on { background: var(--yellow); }
+.bt-filters button:hover { transform: translateY(-1px); }
+.bt-scroll { overflow-x: auto; border: 2px solid var(--ink); border-radius: 7px;
+  box-shadow: 5px 5px 0 var(--ink); background: var(--panel); }
+.bt-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.bt-table thead th { position: sticky; top: 0; background: var(--ink); color: var(--yellow);
+  font-family: var(--font-comic); font-size: 12px; letter-spacing: 0.07em;
+  text-transform: uppercase; text-align: left; padding: 8px 10px; white-space: nowrap; }
+.bt-table th.num, .bt-table td.num { text-align: right; }
+.bt-table td { padding: 7px 10px; border-top: 1px solid rgba(21,24,32,0.12);
+  vertical-align: top; }
+.bt-table tbody tr:hover { background: rgba(240,118,46,0.13); cursor: help; }
+.bt-ref { font-family: var(--font-mono); font-size: 11px; color: var(--ash); }
+.bt-item { font-weight: 600; color: var(--ink); }
+.bt-spec { font-family: var(--font-mono); font-size: 11px; color: var(--ash); }
+.bt-ext { font-weight: 700; color: var(--rust); }
+.bt-vendor a { color: var(--blue); text-decoration: none; }
+.bt-vendor a:hover { text-decoration: underline; }
+.bt-count { margin-top: 9px; font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.05em; color: var(--ash); }
+.bt-count b { color: var(--rust); }
+.bt-preview { position: fixed; z-index: 2500; width: 230px; height: 218px;
+  pointer-events: none;
+  border: 3px solid var(--ink); border-radius: 8px; background: var(--panel);
+  box-shadow: 7px 7px 0 var(--ink); overflow: hidden; }
+.bt-pv-art { background: #F1E6C6; border-bottom: 2px solid var(--ink);
+  height: 112px; overflow: hidden; }
+.bt-pv-art svg, .bt-pv-art img { display: block; width: 100%; height: 112px;
+  object-fit: cover; }
+.bt-pv-body { padding: 8px 11px 10px; height: 102px; overflow: hidden; }
+.bt-pv-name { display: block; font-family: var(--font-comic); font-size: 16px;
+  letter-spacing: 0.03em; color: var(--ink); line-height: 1.15; }
+.bt-pv-spec { display: block; margin-top: 3px; font-family: var(--font-mono);
+  font-size: 10px; color: var(--ash); line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; }
+.bt-pv-price { display: block; margin-top: 5px; font-family: var(--font-mono);
+  font-size: 11.5px; color: var(--ink-soft); }
+.bt-pv-price b { font-family: var(--font-display); font-size: 15px; color: var(--rust); }
+.bt-item a { color: var(--ink); text-decoration: none;
+  border-bottom: 1.5px solid rgba(240,118,46,0.55); }
+.bt-item a:hover { color: var(--rust); border-bottom-color: var(--rust); }
+/* Balloons and bursts sit over playing video: give them their own layer so a
+   repaint underneath (a source swap, a decode hiccup) cannot flicker them. */
+.panel-speech, .wall-item .burst, .tele-clip .burst {
+  will-change: transform;
+  transform: translateZ(0) rotate(-2deg);
+  backface-visibility: hidden;
+}
+.panel-speech.tail-br { transform: translateZ(0) rotate(-2deg); }
+/* ═══ Assembly modules — an illustrated instruction grid ═══
+   Modelled on a technical-illustration reference sheet: uniform tiles, the
+   drawing dominant and consistent, a numbered caption underneath, and the
+   detail in small type below that. Uniform beats varied here — the reader is
+   following a procedure, and equal tiles make the sequence legible at a
+   glance. (An earlier Kirby-style span rhythm looked livelier but made the
+   drawings different sizes, which is exactly wrong for instructions.) */
+.asm-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(210px, 250px);
+  gap: clamp(14px, 2vw, 22px); align-items: start; }
+ol.asm-steps {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 14px; list-style: none; margin: 0; padding: 0; counter-reset: asmstep;
+}
+ol.asm-steps li {
+  counter-increment: asmstep; position: relative; display: flex; flex-direction: column;
+  border: 2px solid var(--ink); border-radius: 6px; background: var(--panel);
+  box-shadow: 4px 4px 0 var(--ink); padding: 0; margin: 0; overflow: hidden;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+ol.asm-steps li:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--orange); }
+/* the drawing leads and is the same size in every tile */
+.asm-art { margin: 0; border-bottom: 2px solid var(--ink); background: #F3E7C7; line-height: 0; }
+.asm-art svg { display: block; width: 100%; height: auto; aspect-ratio: 240 / 150; }
+/* caption: number + imperative, the way a plate is labelled */
+ol.asm-steps li > strong {
+  display: block; padding: 11px 12px 0 34px; position: relative;
+  font-family: var(--font-comic); font-weight: 400; font-size: 15.5px;
+  letter-spacing: 0.02em; line-height: 1.18; color: var(--ink);
+}
+ol.asm-steps li > strong::before {
+  content: counter(asmstep, decimal-leading-zero);
+  position: absolute; left: 12px; top: 11px;
+  font-family: var(--font-comic); font-size: 15px; color: var(--rust);
+}
+.asm-say { display: block; padding: 5px 12px 12px; font-size: 12.5px;
+  line-height: 1.55; color: var(--ink-soft); }
+ol.asm-steps li .tip {
+  display: block; margin: auto 12px 12px; padding: 7px 10px;
+  border: 2px solid var(--ink); border-radius: 11px; background: #FFF9F0;
+  font-family: var(--font-mono); font-size: 10px; line-height: 1.5;
+  color: var(--ash); position: relative;
+}
+ol.asm-steps li .tip::after {
+  content: ''; position: absolute; left: 16px; bottom: -9px;
+  border: 6px solid transparent; border-top: 10px solid var(--ink); border-left-width: 2px;
+}
+/* accent the tiles in a quiet four-beat so the grid is not monotone */
+ol.asm-steps li:nth-child(4n+2) { box-shadow: 4px 4px 0 var(--yellow); }
+ol.asm-steps li:nth-child(4n+3) { box-shadow: 4px 4px 0 var(--blue); }
+ol.asm-steps li:nth-child(4n) { box-shadow: 4px 4px 0 var(--rust); }
+/* the spec plate reads as the page's data panel */
+.asm-side { border: 2px solid var(--ink); border-radius: 6px; background: var(--ink);
+  box-shadow: 5px 5px 0 var(--gold); padding: 14px 15px 16px; }
+.asm-side h6 { font-family: var(--font-comic); font-size: 13px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--yellow); margin: 0 0 10px; }
+.asm-side dl { margin: 0; display: grid; grid-template-columns: 1fr; gap: 8px; }
+.asm-side dt { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.11em;
+  text-transform: uppercase; color: var(--ash-light); }
+.asm-side dd { margin: 2px 0 0; font-size: 13px; color: var(--bone); line-height: 1.4; }
+.asm-side a { color: var(--yellow); }
+/* `.table-scroll .data-table { min-width: 560px }
+
+/* and their responsive rules, still inside the queries they belong to */
+
+
+@media (prefers-reduced-motion: reduce) {
+  .burst, .caption-box, .price-seal { transform: none !important; }
+}
+
+@media (max-width: 1100px) {
+  .table-scroll.fit .data-table th { font-size: 11px; padding: 10px 8px; }
+  .table-scroll.fit .data-table td { font-size: 13px; padding: 10px 8px; }
+}
+
+@media (max-width: 760px) {
+  .table-scroll.fit .data-table th { font-size: 9px;  padding: 8px 4px; letter-spacing: 0.02em; }
+  .table-scroll.fit .data-table td { font-size: 11px; padding: 8px 4px; }
+}
+
+@media (max-width: 700px) { .table-scroll .data-table { min-width: 560px; } }
+
+@media (max-width: 700px) {
+  .panel-speech { font-size: 11px; padding: 6px 9px 5px; }
+  .adv-burst .ab-mabel { font-size: 26px; } .adv-burst .ab-sub { font-size: 12px; }
+}
+
+@media (max-width: 700px) {
+  .table-scroll.tight .data-table td { font-size: 12px; padding: 9px 10px; }
+}
+
+@media (max-width: 900px) { .asm-prep { grid-template-columns: 1fr 1fr; } }
+
+@media (max-width: 560px) { .asm-prep { grid-template-columns: 1fr; } }
+
+@media (max-width: 900px) { .bom-grid { grid-template-columns: 1fr; } }
+
+@media (max-width: 560px) { .bt-preview { display: none; } }
+
+@media (max-width: 900px) { .asm-body { grid-template-columns: 1fr; } }
+
+@media (max-width: 520px) {
+  ol.asm-steps { grid-template-columns: 1fr 1fr; gap: 10px; }
+  ol.asm-steps li > strong { font-size: 13.5px; padding-left: 30px; }
+  .asm-say { font-size: 11.5px; }
+}
+/* tokens the ported widgets reach for, copied from the site's
+   stylesheet so the two cannot disagree */
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-comic: 'Bangers', 'Arial Black', 'Impact', sans-serif;
+  --font-display: 'Limelight', 'Arial Narrow', 'Impact', sans-serif;
+  --font-mono: 'Space Mono', 'SFMono-Regular', Menlo, monospace;
+  --gold-deep: #B77E1E;
+  --line-w: 2px;
+  --orange: #E4442A;
+}
+
+/* THE WIKI'S COLUMN IS NARROWER THAN THE SITE'S. These widgets were laid out
+   against a 1200 px page and sit here in a ~62 rem measure beside a 268 px
+   sidebar, so anything with a fixed min-width runs off the right edge. */
+main .bom-pie-wrap, main .bt-wrap, main .bom-toggle { max-width: 100%; }
+main .bom-summary, main #bomTable, main .bt-table {
+  width: 100%; max-width: 100%; min-width: 0;
+}
+main .bt-scroll, main .bom-scroll { overflow-x: auto; max-width: 100%; }
+main .bt-table { font-size: 13px; }
+main .bt-table th, main .bt-table td { padding: 7px 9px; }
+
+/* THE WIKI WRITES <b>, THE SITE WROTE <strong>. Same thing said two ways, and
+   the caption lettering keyed off only one of them — so the panels arrived
+   with their headlines in body type. Appended rather than edited into the
+   extracted rules above, because that block is regenerated from mabel.css and
+   would lose it. */
+ol.asm-steps li > b {
+  display: block; font-family: var(--font-comic); font-weight: 400;
+  font-size: 17px; letter-spacing: 0.03em; line-height: 1.15;
+  padding: 10px 12px 2px; color: var(--ink);
+}
+ol.asm-steps li > b::before {
+  content: counter(asmstep, decimal-leading-zero) " ";
+  color: var(--hi); font-size: 0.82em;
+}
+/* the cost summary is a .data-table, which carries a min-width from the site's
+   stylesheet — 124 px more than this column has. It scrolls inside itself. */
+main .data-table { min-width: 0; width: 100%; }
+main .table-scroll { overflow-x: auto; max-width: 100%; }
+/* `.table-scroll .data-table { min-width: 560px }` outranks `main .data-table`,
+   which is why the first attempt at this did nothing. Match its specificity. */
+main .table-scroll .data-table,
+main .table-scroll.tight .data-table,
+main .table-scroll.fit .data-table { min-width: 0; width: 100%; }
+
+
+/* ─── Phone: tables STACK, they never scroll sideways ───────────────────────
+   These were left out of the first extraction: each sits behind a comment, and
+   the extractor classified a block by a head that still carried it, so every
+   commented @media was skipped. The BOM shipped scrolling sideways on a phone
+   in the wiki while passing on the site. */
+@media (max-width: 700px) {
+  .panel-speech { font-size: 11px; padding: 6px 9px 5px; }
+}
+@media (max-width: 620px) {
+  .bt-scroll, #bom .table-scroll { overflow-x: visible; }
+  .bt-table thead, #bomRows thead { display: none; }
+  .bt-table, .bt-table tbody, .bt-table tr, .bt-table td,
+    #bomRows, #bomRows tbody, #bomRows tr, #bomRows td { display: block; width: auto; }
+  .bt-table tr, #bomRows tr {
+      border: 2px solid var(--ink); border-radius: 6px; background: var(--bone);
+      margin: 0 0 8px; padding: 9px 11px; }
+  .bt-table td, #bomRows td {
+      border: none; padding: 2px 0; text-align: left !important;
+      display: grid; grid-template-columns: 78px 1fr; gap: 10px; align-items: baseline; }
+  .bt-table td::before, #bomRows td::before {
+      content: attr(data-l); font-family: var(--font-mono); font-size: 9.5px;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--ash); }
+  .bt-table td:not([data-l]), #bomRows td:not([data-l]) { display: block; }
+  .bt-table td.bt-item { font-size: 14px; margin-bottom: 3px; }
+  .bt-table td.bt-item::before { color: var(--orange); }
+  .bt-ext { color: var(--rust); }
+  #bomRows tr.best { background: var(--yellow); }
+  .bt-table tbody tr:hover, #bomRows tbody tr:hover { background: var(--bone); }
+  .bt-bar { gap: 8px; }
+  .bt-filters button { font-size: 10px; padding: 5px 8px; }
+}
+@media (max-width: 620px) {
+  .bt-table, #bomRows { width: 100% !important; max-width: 100% !important; table-layout: fixed; }
+  .bt-table tr, #bomRows tr { width: auto !important; max-width: 100% !important; }
+  .bt-table td, #bomRows td {
+      grid-template-columns: 74px minmax(0, 1fr) !important;
+      width: auto !important; max-width: 100% !important;
+      overflow-wrap: anywhere; word-break: break-word;
+    }
+  .bt-table td::before, #bomRows td::before { min-width: 0; }
+  #bom .table-scroll, .bt-scroll { max-width: 100%; }
+}
+@media (max-width: 620px) {
+  #bomRows, #bomRows thead, #bomRows tbody, #bomRows tr, #bomRows td, #bomRows th {
+      display: revert;
+    }
+  #bomRows { display: table !important; width: 100% !important; max-width: 100% !important;
+      table-layout: fixed; font-size: 11.5px; }
+  #bomRows thead { display: table-header-group !important; }
+  #bomRows tr { display: table-row !important; }
+  #bomRows th, #bomRows td { display: table-cell !important; padding: 6px 5px !important;
+      overflow-wrap: anywhere; }
+  #bomRows td::before, #bomRows th::before { content: none !important; }
+  #bomRows th:nth-child(1), #bomRows td:nth-child(1) { width: 54%; }
+  #bomRows th:nth-child(2), #bomRows td:nth-child(2) { width: 18%; }
+  #bomRows th:nth-child(3), #bomRows td:nth-child(3) { width: 28%; }
+  #bomRows .bom-dot { width: 7px; height: 7px; margin-right: 5px; }
+}
+@media (max-width: 620px) {
+  .data-table { font-size: 11px; }
+  .data-table th, .data-table td { padding: 6px 4px !important; }
+  .data-table td:first-child, .data-table th:first-child { max-width: 46%; }
+}
+
+/* ─── Troubleshooting FAQ pop-ups (ported from build.html) ───────────────────
+   The cards do not reuse the site's `.card`: docs.css never imports the glass
+   tokens that recipe is built on, so this is the same look written against the
+   tokens the wiki actually has. */
+.faq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px; margin: 22px 0 30px; }
+.faq-card { position: relative; text-align: left; font: inherit; cursor: pointer; width: 100%;
+  display: flex; flex-direction: column; gap: 6px;
+  background: var(--panel); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 12px; padding: 18px 18px 15px;
+  box-shadow: 5px 5px 0 rgba(21,24,32,0.85);
+  transition: transform .22s var(--ease-out), box-shadow .22s var(--ease-out); }
+.faq-card:hover { transform: translate(-3px,-3px) rotate(-0.6deg); box-shadow: 8px 8px 0 rgba(21,24,32,0.9); }
+.faq-card:focus-visible { outline: 3px solid var(--hi); outline-offset: 3px; }
+.faq-card h4 { font-family: var(--font-comic); font-size: 20px; letter-spacing: .01em;
+  margin: 0; line-height: 1.12; }
+.faq-card p { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--ink-soft); }
+.faq-card code { font-size: .88em; }
+.faq-card .faq-more { display: inline-block; margin-top: 6px; font-family: var(--font-comic);
+  font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); }
+
+.faq-overlay[hidden] { display: none; }
+.faq-overlay { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center;
+  padding: 22px; background: rgba(21,24,32,0.55);
+  background-image: radial-gradient(rgba(21,24,32,0.5) 1.4px, transparent 1.6px); background-size: 9px 9px; }
+.faq-pop { position: relative; max-width: 640px; width: 100%; max-height: 88vh; overflow-y: auto;
+  background: var(--panel); border: 4px solid var(--ink); border-radius: 18px;
+  box-shadow: 12px 12px 0 rgba(0,0,0,0.82); padding: 26px 28px 24px;
+  animation: faqPop .42s cubic-bezier(.2,1.6,.35,1) both; }
+.faq-pop h3 { font-family: var(--font-display); font-size: clamp(22px,3.4vw,31px); margin: 0 40px 14px 0;
+  line-height: 1.08; border: 0; padding: 0; }
+.faq-fig { border: 3px solid var(--ink); border-radius: 10px; overflow: hidden; margin-bottom: 16px;
+  box-shadow: 5px 5px 0 rgba(21,24,32,0.85); background: #fff; }
+.faq-fig img { width: 100%; display: block; }
+.faq-fig:empty, .faq-fig img[src=""] { display: none; }
+.faq-body p { margin: 0 0 12px; line-height: 1.55; }
+.faq-body a { color: var(--rust); font-weight: 700; }
+.faq-x { position: absolute; top: 12px; right: 12px; width: 38px; height: 38px; border-radius: 10px;
+  border: 3px solid var(--ink); background: var(--gold); font-size: 16px; font-weight: 900; cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(21,24,32,0.9); transition: transform .15s var(--ease-out); }
+.faq-x:hover { transform: translate(-1px,-1px) rotate(-4deg); }
+.faq-bang { position: absolute; top: -16px; left: -14px; font-family: var(--font-comic);
+  background: var(--orange); color: #FFF9F0; border: 3px solid var(--ink); border-radius: 50% 40% 55% 45%;
+  padding: 10px 13px; font-size: 15px; letter-spacing: .06em; transform: rotate(-8deg);
+  box-shadow: 4px 4px 0 rgba(21,24,32,0.9); animation: faqBang .5s .12s cubic-bezier(.2,1.8,.4,1) both; }
+@keyframes faqPop  { from { transform: scale(.45) rotate(-5deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+@keyframes faqBang { from { transform: scale(0) rotate(-40deg); } to { transform: scale(1) rotate(-8deg); } }
+@media (prefers-reduced-motion: reduce) { .faq-pop, .faq-bang { animation: none; } }

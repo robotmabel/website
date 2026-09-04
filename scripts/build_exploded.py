@@ -119,9 +119,21 @@ def main():
     q.save(OUT, optimize=True)
     if os.path.getsize(OUT) > 0.9 * len(a.tobytes()) / 4:
         im2.save(OUT, optimize=True)          # quantizing did not help; keep it
+    # AND A WEBP BESIDE IT, at the SAME pixel dimensions. The PNG is still
+    # ~840 kB after quantizing, and it was the single heaviest thing on
+    # hardware.html — 843 of the page's 1207 kB, in the load window, because
+    # `loading="lazy"` is advisory and Chrome fetched it anyway. WebP with
+    # alpha is about a quarter of that with no loss of resolution, which is
+    # what was actually asked for: keep it high-res, make the page fast.
+    # The page serves them through <picture>, so the PNG stays the fallback.
+    webp = os.path.splitext(OUT)[0] + ".webp"
+    im2.save(webp, "WEBP", quality=88, method=6)
+
     kb = os.path.getsize(OUT) / 1024
+    wkb = os.path.getsize(webp) / 1024
     kept = 100.0 * (np.asarray(am) > 8).mean()
-    print(f"wrote {os.path.relpath(OUT, SITE)}  {kb:.0f} kB, "
+    print(f"wrote {os.path.relpath(OUT, SITE)}  {kb:.0f} kB "
+          f"(+ {os.path.basename(webp)} {wkb:.0f} kB), "
           f"{kept:.1f}% of pixels kept")
     return 0
 

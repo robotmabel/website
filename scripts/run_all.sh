@@ -24,16 +24,19 @@ run () {
   echo "FAIL"; fail=$((fail+1)); sed 's/^/      /' <<<"$out" | tail -8
 }
 P=python3
-run structure   $P scripts/structure.py $B/index.html $B/build.html $B/software.html \
+run structure   $P scripts/structure.py $B/index.html $B/software.html \
                    $B/teleop.html $B/connect.html $B/hardware.html $B/autonomy.html \
-                   $B/anatomy.html $B/simulator.html
-run tables      $P scripts/tablescroll.py $B/index.html $B/build.html $B/software.html \
-                   $B/teleop.html $B/autonomy.html $B/hardware.html $B/connect.html
-run stickers    $P scripts/stickers.py $B/index.html $B/build.html $B/software.html \
-                   $B/teleop.html $B/connect.html $B/autonomy.html
-run popups      $P scripts/poptest.py $B/index.html $B/build.html
-run bom-hover   $P scripts/hovertest.py $B/build.html
-run bom-groups  $P scripts/bomgroup.py $B/build.html
+                   $B/anatomy.html $B/simulator.html $B/simulation.html \
+                   $B/docs/bom.html $B/docs/assembly.html $B/docs/troubleshoot.html
+run tables      $P scripts/tablescroll.py $B/index.html $B/docs/bom.html $B/software.html \
+                   $B/teleop.html $B/autonomy.html $B/hardware.html $B/connect.html \
+                   $B/simulation.html
+run stickers    $P scripts/stickers.py $B/index.html $B/software.html \
+                   $B/teleop.html $B/connect.html $B/autonomy.html $B/simulation.html
+run popups      $P scripts/poptest.py $B/index.html
+run faq-pops    $P scripts/faqtest.py $B/docs/troubleshoot.html
+run bom-hover   $P scripts/hovertest.py $B/docs/bom.html
+run bom-groups  $P scripts/bomgroup.py $B/docs/bom.html
 run films       $P scripts/filmtest.py $B/connect.html
 run palm-track  $P scripts/tracktest.py $B/software.html
 run lab-table   $P scripts/labtable.py $B/software.html
@@ -46,9 +49,9 @@ run hardware    $P scripts/hwtest.py $B/hardware.html
 run curation    $P scripts/curtest.py $B/autonomy.html
 run slam        $P scripts/slamtest.py $B/autonomy.html
 run clips       $P scripts/vidcheck.py
-run scenes      $P scripts/scenetest.py $B/software.html
+run scenes      $P scripts/scenetest.py $B/simulation.html
 run figures     $P scripts/figscale.py $B/index.html
-run panels      $P scripts/panels.py $B/build.html
+run panels      $P scripts/panels.py $B/docs/assembly.html
 run css         $P scripts/csscheck.py
 run wiki        $P scripts/wikitest.py
 run page-weight $P scripts/loadtest.py

@@ -438,6 +438,17 @@
   }
 
   function start(v) {
+    /* THE POSTER IS NOT LAZY UNLESS YOU MAKE IT LAZY. `preload="none"` holds
+       back the video bytes and says nothing about `poster`, which the browser
+       fetches the moment the element parses. The 35-tile scene gallery was
+       therefore ~600 kB of JPEG on a page whose clips all correctly waited —
+       and it moved with the gallery, so the same grid measured 628 kB on one
+       page and 1242 kB on another depending on how much idle time it got.
+       A tile that carries `data-poster` gets it here, with its clip. */
+    if (v.dataset.poster) {
+      v.poster = v.dataset.poster;
+      delete v.dataset.poster;
+    }
     if (!v.src) {
       /* low rendition first (or straight to full if no -lo exists) */
       v.src = v.dataset.lo || v.dataset.lazyvid;

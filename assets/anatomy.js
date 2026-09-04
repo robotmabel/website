@@ -125,12 +125,30 @@ function init() {
   }
 
   /* fly the camera so the module is the orbit centre, framed so the whole
-     robot still fits (sphere fit against both fov axes) */
+     robot still fits.
+     FIT THE BOX, NOT ITS BOUNDING SPHERE. MABEL is tall and thin — about
+     1.5 m high, 1.0 m across, 0.6 m deep — so the sphere radius
+     (|size|/2 ≈ 0.95 m) is a third larger than the half-height that actually
+     limits the view (0.75 m), and fitting to it pushed the camera back far
+     enough to leave the robot a small figure in the middle of its own canvas.
+     Constrain each screen axis by the extent that really reaches it: the
+     half-height vertically, and the XZ diagonal horizontally (the silhouette
+     width sweeps between w and d as you orbit in yaw, bounded by the
+     diagonal), then stand back far enough to satisfy both. */
   let tween = null;
-  function fitDist(radius) {
+  function fitBox(size) {
     const vf = (camera.fov / 2) * Math.PI / 180;
     const hf = Math.atan(Math.tan(vf) * camera.aspect);
-    return radius / Math.sin(Math.min(vf, hf)) * 1.06;
+    const halfH = size.y / 2;
+    /* the silhouette half-width sweeps between x/2 and z/2 as you orbit in
+       yaw; the XZ diagonal bounds it, and bounds the half-DEPTH too */
+    const halfW = Math.hypot(size.x, size.z) / 2;
+    /* + halfW because the distance is measured to the box's CENTRE while the
+       near face sits half a depth closer and is magnified accordingly.
+       Without it the fit frames the centre plane exactly and the near face
+       overflows: measured, the rig projected to 1.27x the frame height —
+       clipped top and bottom — from a formula that looked correct. */
+    return (Math.max(halfH / Math.tan(vf), halfW / Math.tan(hf)) + halfW) * 1.10;
   }
   function focus(key, instant) {
     const mb = moduleBox[key] || moduleBox.all;
@@ -142,12 +160,10 @@ function init() {
       const bc = moduleBox.base.getCenter(new THREE.Vector3());
       target.x = bc.x; target.z = bc.z;
     }
-    const fullR = full.getSize(new THREE.Vector3()).length() / 2;
-    const modR = mb.getSize(new THREE.Vector3()).length() / 2;
+    const fullD = fitBox(full.getSize(new THREE.Vector3()));
+    const modD = fitBox(mb.getSize(new THREE.Vector3()));
     /* zoom toward the part, but never so far in that the body is lost */
-    const dist = key === 'all'
-      ? fitDist(fullR)
-      : Math.max(fitDist(modR) * 1.35, fitDist(fullR) * 0.72);
+    const dist = key === 'all' ? fullD : Math.max(modD * 1.35, fullD * 0.72);
     /* keep the current viewing direction (or the canonical front on boot) */
     let dir;
     if (instant || !controls) {
@@ -251,4 +267,12 @@ function init() {
     } else if (controls) controls.update();
     renderer.render(scene, camera);
   });
+
+  /* A HOOK FOR MEASUREMENT. How much of its canvas the rig fills is a
+     question about the live camera, and a screenshot cannot answer it —
+     the same picture looks "about right" whether the robot fills 60% of
+     the frame or 85%. scripts/anatfill.py projects these bounds. */
+  window.__anat = { scene, camera, THREE, moduleBox,
+                    get root() { return root; },
+                    get controls() { return controls; } };
 }

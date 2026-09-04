@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#151820" />
+<link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
+<title>MABEL Simulation — the twin runs the same stack</title>
+<meta name="description" content="One stack: a compliant whole-body controller, analytic retargeting, a lift-aware tip-over motion model, and a MuJoCo twin that runs the production code at 500 Hz." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css?v=a6ec6d4d" />
+<script>document.documentElement.classList.add('js');</script>
+<script type="importmap">
+{ "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
+</script>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><img src="assets/head-icon.svg" alt="" class="nav-head" /> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+        <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
+    <a href="connect.html">Links</a>
+    <a href="index.html#paper" class="ext">Paper ↗</a>
+        <a href="docs/" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
+    <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
+    <a href="docs/" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
+    <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
+</nav>
+
+<aside class="sidenav" aria-label="Simulation section navigation">
+  <div class="sidenav-title">Simulation</div>
+  <a href="#model">One model</a><a href="#plant">The plant</a><a href="#scenes">Scenes</a><a href="#renderers">Renderers</a><a href="#simdata">Data in sim</a><a href="#rl">Reinforcement learning</a><a href="#run">Run it</a>
+</aside>
+
+<!-- ─── PAGE HERO ─── -->
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / Simulation</div>
+    <span class="eyebrow">The digital twin</span>
+    <h1 class="display-lg">A robot you can<br/>break for free.</h1>
+    <p class="lede">MABEL exists twice. One copy is aluminium and 59 motors; the other is a
+      2&nbsp;ms MuJoCo timestep, and both answer to the same controller through the same wire
+      contract. Every trajectory, every policy and every bug is cheaper to find on the second
+      one &mdash; so that is where the work starts.</p>
+    <div class="spec">
+      <span>500 Hz physics</span><span>35 environments</span><span>59 actuators</span><span>PPO + imitation</span><span>no hardware needed</span>
+    </div>
+    <div class="hero-actions" style="margin-top:22px;">
+      <a href="simulator.html" class="btn btn-primary">Drive the twin in your browser</a>
+      <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="btn btn-ghost">Control Studio &#8599;</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 1 · ONE MODEL ─── -->
+<section class="pad-y" id="model">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">One model</span>
+        <h2 class="display-md title">The twin is the <span class="italic accent">same robot.</span></h2>
+      </div>
+      <p class="lede">There is one file. <code>simulation/mabel_mujoco/models/mabel_full.xml</code>
+        is the canonical MABEL &mdash; 67 generalized coordinates, 59 actuators, 9 cameras,
+        370 sensors &mdash; and the ROS URDF, the web GLB you have been orbiting, the headset rigs
+        and the controller&rsquo;s tip-over constants are all <em>generated from it</em>. Nothing on
+        this site was modelled twice.</p>
+    </div>
+    <div class="card-grid fade-up" style="margin-top:30px;">
+      <div class="card"><span class="card-num">01</span><h3>Edit the MJCF</h3>
+        <p>Geometry, inertia, joint limits &mdash; one file, one place.</p></div>
+      <div class="card"><span class="card-num">02</span><h3>Re-run the chain</h3>
+        <p>MJCF &rarr; URDF &rarr; GLB &rarr; app rigs &rarr; mirror, in order. Each step eats the last step&rsquo;s output.</p></div>
+      <div class="card"><span class="card-num">03</span><h3>Never edit the output</h3>
+        <p>A hand-edited URDF survives until the next regeneration, then silently does not.</p></div>
+    </div>
+<div class="fade-up" style="margin-top:16px;">
+      <div class="paper-fig" style="background:var(--panel); padding: clamp(16px,3vw,34px);"><svg viewBox="0 0 880 700" role="img" aria-label="One canonical MJCF model generates every derived artifact; one RobotCommand contract flows through the controller into either the MuJoCo plant or the hardware bridge, selected by a single launch flag; state streams back to every client" style="width:100%;height:auto;display:block;">
+<defs><marker id="simArr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#151820"/></marker></defs>
+<!-- ── (a) canonical model ── -->
+<text x="30" y="38" font-family="Bangers, cursive" font-size="24" fill="#F0762E" letter-spacing="1.5">1 · THE CANONICAL MODEL</text>
+<rect x="36" y="62" width="230" height="72" rx="14" fill="rgba(21,24,32,0.85)"/>
+<rect x="30" y="56" width="230" height="72" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="4"/>
+<text x="145" y="88" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">mabel_full.xml</text>
+<text x="145" y="112" text-anchor="middle" font-family="Jost, sans-serif" font-size="14" fill="#6D6551">MuJoCo MJCF — one source of truth</text>
+<path d="M262 92 H320" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
+<g font-family="'Space Mono', monospace" font-size="13.5" fill="#151820">
+  <rect x="336" y="48" width="180" height="30" rx="9" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/><text x="426" y="68" text-anchor="middle">URDF + TF</text>
+  <rect x="336" y="84" width="180" height="30" rx="9" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/><text x="426" y="104" text-anchor="middle">meshes + GLB</text>
+  <rect x="336" y="120" width="180" height="30" rx="9" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/><text x="426" y="140" text-anchor="middle">balance params</text>
+</g>
+<text x="560" y="100" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">67 q · 59 actuators</text>
+<text x="560" y="120" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">9 cameras · 370 sensors</text>
+<!-- ── (b) one contract ── -->
+<text x="30" y="204" font-family="Bangers, cursive" font-size="24" fill="#F0762E" letter-spacing="1.5">2 · ONE COMMAND CONTRACT — EITHER PLANT</text>
+<g font-family="'Space Mono', monospace" font-size="12.5" fill="#151820">
+  <rect x="150" y="224" width="112" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="206" y="243" text-anchor="middle">VISION PRO</text>
+  <rect x="272" y="224" width="94" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="319" y="243" text-anchor="middle">IPHONE</text>
+  <rect x="376" y="224" width="70" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="411" y="243" text-anchor="middle">WEB</text>
+  <rect x="456" y="224" width="94" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="503" y="243" text-anchor="middle">POLICY</text>
+  <rect x="560" y="224" width="70" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="595" y="243" text-anchor="middle">NAV2</text>
+</g>
+<path d="M390 258 V282" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
+<rect x="216" y="294" width="360" height="64" rx="14" fill="rgba(21,24,32,0.85)"/>
+<rect x="210" y="288" width="360" height="64" rx="14" fill="#D9A13F" stroke="#151820" stroke-width="4"/>
+<text x="390" y="316" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">RobotCommand</text>
+<text x="390" y="338" text-anchor="middle" font-family="Jost, sans-serif" font-size="14" fill="#3F3524">base · body · hands</text>
+<path d="M390 358 V382" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
+<rect x="216" y="394" width="360" height="64" rx="14" fill="rgba(21,24,32,0.85)"/>
+<rect x="210" y="388" width="360" height="64" rx="14" fill="#F0762E" stroke="#151820" stroke-width="4"/>
+<text x="390" y="416" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#FFF9F0">controller</text>
+<text x="390" y="438" text-anchor="middle" font-family="Jost, sans-serif" font-size="14" fill="#FFF3E2">retarget · WBC · impedance · safe_base_step</text>
+<path d="M390 458 V482" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
+<rect x="90" y="492" width="600" height="96" rx="16" fill="none" stroke="#151820" stroke-width="3" stroke-dasharray="10 8"/>
+<rect x="122" y="516" width="240" height="52" rx="12" fill="#DDE9DC" stroke="#151820" stroke-width="3.5"/>
+<text x="242" y="538" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#151820">MuJoCo plant</text>
+<text x="242" y="558" text-anchor="middle" font-family="Jost, sans-serif" font-size="13" fill="#2E7D4F">the twin — 500 Hz</text>
+<text x="390" y="548" text-anchor="middle" font-family="Bangers, cursive" font-size="19" fill="#C6301A">OR</text>
+<rect x="418" y="516" width="240" height="52" rx="12" fill="#FFFDF0" stroke="#151820" stroke-width="3.5"/>
+<text x="538" y="538" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#151820">hardware bridge</text>
+<text x="538" y="558" text-anchor="middle" font-family="Jost, sans-serif" font-size="13" fill="#6D6551">the real robot</text>
+<g transform="rotate(-6 700 500)">
+  <rect x="622" y="480" width="156" height="40" rx="10" fill="#F0762E" stroke="#151820" stroke-width="3.5"/>
+  <text x="700" y="506" text-anchor="middle" font-family="Bangers, cursive" font-size="16" fill="#FFF9F0" letter-spacing="1">ONE LAUNCH FLAG</text>
+</g>
+<!-- state back -->
+<path d="M690 620 H120" stroke="#23577E" stroke-width="3.5" marker-end="url(#simArr2)"/>
+<defs><marker id="simArr2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#151820"/></marker></defs>
+<text x="390" y="644" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#23577E">joint state · TF · RGB-D · LiDAR · diagnostics — back to every client</text>
+<text x="390" y="684" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">34 rendered scenes · 18 still · 16 with moving actors</text>
+</svg></div>
+</div>
+  </div>
+</section>
+
+<!-- ─── 2 · THE PLANT ─── -->
+<section class="soft-sec pad-y" id="plant">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The plant</span>
+        <h2 class="display-md title">One process owns<br/><span class="italic accent">the physics.</span></h2>
+      </div>
+      <p class="lede">On the robot, <code>hardware_bridge</code> is the only thing that opens a
+        device. In simulation, <code>simulation_bridge</code> is the only thing that calls
+        <code>mj_step</code>. Same rule, same seam &mdash; which is why the teleop server, ROS,
+        the cameras and every viewer are <em>clients</em> either way, and why the launch flag
+        <code>use_sim:=true</code> is the whole difference.</p>
+    </div>
+    <div class="table-scroll fit fade-up" style="margin-top:26px;">
+      <table class="data-table">
+        <thead><tr><th style="text-align:left;">What</th><th>Real robot</th><th>Simulation</th></tr></thead>
+        <tbody>
+          <tr><td data-l="What">Owns the hardware</td><td data-l="Real robot"><code>hardware_bridge</code></td><td data-l="Simulation"><code>simulation_bridge</code></td></tr>
+          <tr><td data-l="What">Steps at</td><td data-l="Real robot">the motors&rsquo; own loops</td><td data-l="Simulation">2 ms &mdash; 500 Hz</td></tr>
+          <tr><td data-l="What">Publishes joint state</td><td data-l="Real robot">50 Hz</td><td data-l="Simulation">50 Hz</td></tr>
+          <tr><td data-l="What">Command contract</td><td data-l="Real robot"><code>RobotCommand</code></td><td data-l="Simulation"><code>RobotCommand</code></td></tr>
+          <tr><td data-l="What">Clients are told</td><td data-l="Real robot"><code>kind = "real"</code></td><td data-l="Simulation"><code>kind = "sim"</code></td></tr>
+          <tr><td data-l="What">Base velocity caps</td><td data-l="Real robot">1.0 m/s &middot; 2.0 rad/s</td><td data-l="Simulation">1.0 m/s &middot; 2.0 rad/s</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fig-cap fade-up">Sources: <code>simulation_bridge/config.py</code>,
+      <code>simulation/mabel_mujoco/models/mabel_full.xml</code> (<code>timestep="0.002"</code>).</p>
+<!-- the twin, moving: four captures straight from the MuJoCo stack -->
+    <div class="fade-up" style="margin-top:44px; display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+      <div class="strip-panel"><video data-lazyvid="assets/sim/swerve.mp4" poster="assets/sim/swerve.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Holonomic swerve — translating and spinning at once (studio nav clips)</span></div>
+      <div class="strip-panel"><video data-lazyvid="assets/sim/hands.mp4" poster="assets/sim/hands.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">ORCA hands — 17 tendon DOF each, per-finger retargeting</span></div>
+      <div class="strip-panel"><video data-lazyvid="assets/sim/lift.mp4" poster="assets/sim/lift.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Lift — 0.635 m of travel, tip-over envelope tightening as it rises</span></div>
+      <div class="strip-panel"><video data-lazyvid="assets/sim/wave.mp4" poster="assets/sim/wave.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Wave Hello — a Control Studio animation clip played on the twin</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── 3 · SCENES ─── -->
+<section class="pad-y" id="scenes">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The scene library</span>
+        <h2 class="display-md title">Thirty-five places<br/>to <span class="italic accent">get it wrong.</span></h2>
+      </div>
+      <p class="lede">A robot that only works in an empty room works in an empty room. The scene
+        library is 35 released worlds that <code>&lt;include&gt;</code> the canonical model &mdash;
+        homes, kitchens, cafes, warehouses, streets &mdash; each a registry entry in
+        <code>scenes.json</code> with its own XML, thumbnail and category. The gallery below is
+        the 34 of them that ship a render &mdash; each tile orbiting live, with its physics
+        running. Sixteen have scripted actors moving in them.</p>
+    </div>
+    <div class="spec fade-up" style="margin-top:18px;">
+      <span>9 city &amp; streets</span><span>6 home &amp; living</span><span>6 food &amp; dining</span><span>6 outdoor &amp; leisure</span><span>4 work &amp; public</span><span>3 industrial</span>
+    </div>
+<!-- ── every released scene, orbiting, with its physics running ── -->
+    <div class="fade-up" style="margin-top:clamp(30px,4vh,48px);">
+      <div class="scene-grid-wrap" id="sceneGrid"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── 4 · RENDERERS ─── -->
+<section class="soft-sec pad-y" id="renderers">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Renderers &amp; engines</span>
+        <h2 class="display-md title">Physics is the <span class="italic accent">authority.</span><br/>Pixels are negotiable.</h2>
+      </div>
+      <p class="lede">Three simulators live in the tree, and they are not competing. MuJoCo owns
+        time and contact; the other two change what the cameras see, or what steps the world,
+        without changing a single byte of the contract the apps and ROS speak.</p>
+    </div>
+    <div class="card-grid fade-up" style="margin-top:30px;">
+      <div class="card">
+        <span class="card-num">MuJoCo</span>
+        <h3>The default, and the truth</h3>
+        <p>Headless, 500 Hz, elliptic friction cone with 3 noslip iterations. This is the plant every
+          number on this site was measured against.</p>
+        <p class="dim"><code>simulation/mabel_mujoco/</code></p>
+      </div>
+      <div class="card">
+        <span class="card-num">Unity</span>
+        <h3>Photoreal sensors</h3>
+        <p>MuJoCo still steps the world; Unity (URP, Metal) renders it and simulates the cameras and
+          lidar. The prime directive is that ROS, the teleop apps and a policy cannot tell &mdash;
+          same topics, rates, intrinsics and TF.</p>
+        <p class="dim"><code>simulation/mabel_unity_sim/</code></p>
+      </div>
+      <div class="card">
+        <span class="card-num">Genesis</span>
+        <h3>A second physics backbone</h3>
+        <p>Swaps MuJoCo out for the Genesis engine while keeping every client-facing wire contract
+          byte-compatible, so the iOS, web and Vision Pro clients connect unchanged.</p>
+        <p class="dim"><code>simulation/mabel_gensis_world/</code></p>
+      </div>
+    </div>
+    <div class="callout fade-up" style="margin-top:26px;">
+      <b>Not released as a build target.</b> Unity and Genesis are working branches of the
+      simulation stack, not part of the reproduction path. Build MABEL against MuJoCo; the
+      <a href="docs/software.html">install chapter</a> covers that one.
+    </div>
+  </div>
+</section>
+
+<!-- ─── 5 · DATA IN SIM ─── -->
+<section class="pad-y" id="simdata">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Data collection in simulation</span>
+        <h2 class="display-md title">Episodes that don&rsquo;t<br/>know they&rsquo;re <span class="italic accent">fake.</span></h2>
+      </div>
+      <p class="lede">Teleoperate the twin and the collector writes exactly the file it writes on
+        hardware: one HDF5 per episode, axis 0 = frame at 15 Hz. Because the format is identical,
+        a dataset can mix simulated and real episodes, and the trainer never learns which is which.</p>
+    </div>
+    <div class="table-scroll fit fade-up" style="margin-top:26px;">
+      <table class="data-table">
+        <thead><tr><th style="text-align:left;">In every <code>episode_XXXX.h5</code></th><th style="text-align:left;">What it holds</th></tr></thead>
+        <tbody>
+          <tr><td data-l="Field">cameras</td><td data-l="Holds" style="text-align:left;">JPEG blobs, one group per camera</td></tr>
+          <tr><td data-l="Field">planar lidar</td><td data-l="Holds" style="text-align:left;">the same scan the RPLIDAR produces</td></tr>
+          <tr><td data-l="Field">per-actuator</td><td data-l="Holds" style="text-align:left;"><code>joint_pos</code> / <code>vel</code> / <code>torque</code>, all 59</td></tr>
+          <tr><td data-l="Field">generalized state</td><td data-l="Holds" style="text-align:left;"><code>qpos</code> / <code>qvel</code>, plus body poses and base twist</td></tr>
+          <tr><td data-l="Field"><code>action/ctrl</code></td><td data-l="Holds" style="text-align:left;">the training label &mdash; a 59-vector of absolute joint targets, not deltas</td></tr>
+          <tr><td data-l="Field"><code>schema_json</code></td><td data-l="Holds" style="text-align:left;">actuator names and order, camera list, units &mdash; so nothing downstream hard-codes them</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-grid fade-up" style="margin-top:30px;">
+      <div class="card"><span class="card-num">Step 2</span><h3>Collect</h3>
+        <p>Drive the twin from a headset, a phone or the browser studio. Every frame is logged.</p></div>
+      <div class="card"><span class="card-num">Step 3</span><h3>Curate</h3>
+        <p>The curation studio scores quality and drift, then exports a LeRobot v2.1 dataset &mdash;
+          the contract between curation and training.</p>
+        <p class="dim"><a href="autonomy.html#curation">The live curation lab &rarr;</a></p></div>
+      <div class="card"><span class="card-num">Step 4</span><h3>Train</h3>
+        <p>ACT, Diffusion Policy, Pi0 and Pi0.5, scoped to a camera subset and a joint group.</p>
+        <p class="dim"><a href="autonomy.html#training">The training stage &rarr;</a></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 6 · RL ─── -->
+<section class="dark-sec pad-y" id="rl">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Reinforcement learning</span>
+        <h2 class="display-md title">Learning from reward,<br/><span class="italic accent">4096 at a time.</span></h2>
+      </div>
+      <p class="lede">Imitation learning needs a human to show it. The RL track needs nobody &mdash;
+        it needs a GPU and a reward. MABEL&rsquo;s dexterous-manipulation environments run on a
+        vendored fork of <a href="https://github.com/mujocolab/mjlab" target="_blank" rel="noopener">mjlab</a>
+        (Isaac-Lab&rsquo;s manager-based API on MuJoCo-Warp), with PPO and thousands of parallel worlds
+        on one card.</p>
+    </div>
+    <div class="table-scroll fit fade-up" style="margin-top:26px;">
+      <table class="data-table">
+        <thead><tr><th style="text-align:left;">Task</th><th>DOF</th><th style="text-align:left;">What it controls</th><th style="text-align:left;">Status</th></tr></thead>
+        <tbody>
+          <tr><td data-l="Task"><code>Mjlab-Lift-Cube-Mabel</code></td><td data-l="DOF">24</td>
+              <td data-l="Controls" style="text-align:left;">right 7-DOF arm + 16-DOF ORCA hand &mdash; 78-dim observation</td>
+              <td data-l="Status" style="text-align:left;">Phase 1 &middot; built</td></tr>
+          <tr><td data-l="Task"><code>Mjlab-Lift-Box-Mabel-Bimanual</code></td><td data-l="DOF">48</td>
+              <td data-l="Controls" style="text-align:left;">both arms and both hands, wide box</td>
+              <td data-l="Status" style="text-align:left;">Phase 2 &middot; built</td></tr>
+          <tr><td data-l="Task"><code>Mjlab-Lift-Cube-Mabel-WholeBody</code></td><td data-l="DOF">74</td>
+              <td data-l="Controls" style="text-align:left;">the above plus the coupled lift and torso</td>
+              <td data-l="Status" style="text-align:left;">Phase 3 &middot; built</td></tr>
+          <tr><td data-l="Task">mobile swerve base</td><td data-l="DOF">&mdash;</td>
+              <td data-l="Controls" style="text-align:left;">floating base, whole-body mobile manipulation</td>
+              <td data-l="Status" style="text-align:left;">Phase 3b &middot; <b>not built</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-grid fade-up" style="margin-top:30px;">
+      <div class="card">
+        <span class="card-num">01</span><h3>No RL model file exists</h3>
+        <p>The environment is derived from the canonical MJCF <em>at load time</em> &mdash;
+          <code>build_manip_spec</code> prunes the lidar and tendons, deletes <code>base_root</code>
+          for a fixed pedestal, and adds grasp sites. Edit the MJCF and the change simply arrives.</p>
+      </div>
+      <div class="card">
+        <span class="card-num">02</span><h3>Training is GPU-only</h3>
+        <p>MuJoCo-Warp on macOS can build, reset, step and run the test suite, but not the PPO
+          update. A Mac is for evaluation and CI; PPO wants CUDA.</p>
+      </div>
+      <div class="card">
+        <span class="card-num">03</span><h3>Gains are tuned per group</h3>
+        <p>Position actuators throughout, arms at <code>k_p&nbsp;=&nbsp;100</code> and hands at
+          <code>k_p&nbsp;=&nbsp;2</code> &mdash; a finger tendon and a shoulder do not want the
+          same stiffness.</p>
+      </div>
+    </div>
+    <div class="fade-up" style="margin-top:26px; display:flex; gap:12px; flex-wrap:wrap;">
+      <a href="https://github.com/robotmabel/MABEL/tree/main/learning/reinforcement_learning" target="_blank" rel="noopener" class="btn btn-primary">The RL tree on GitHub &#8599;</a>
+      <a href="docs/learning.html" class="btn btn-ghost">08 &middot; Data &amp; learning &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 7 · RUN IT ─── -->
+<section class="pad-y soft-sec" id="run">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Run it</span>
+        <h2 class="display-md title">Nothing to buy,<br/><span class="italic accent">nothing to break.</span></h2>
+      </div>
+      <p class="lede">The whole stack &mdash; physics, cameras, the teleop gateway and a browser
+        control studio &mdash; comes up on a laptop with one script. Phones, headsets and browsers
+        then connect to the twin exactly as they later connect to the robot: same ports, same wire
+        contract, and the clients cannot tell which is live.</p>
+    </div>
+    <p class="lede fade-up" style="margin-top:22px;"><code>cd server &amp;&amp; ./run.sh</code> is the
+      whole twin in one command; <code>simulation_bridge</code> can also be run on its own against
+      any scene in the library. Both, with their flags and their prerequisites, are in the
+      wiki&rsquo;s install chapter.</p>
+    <div class="fade-up" style="margin-top:22px; display:flex; gap:12px; flex-wrap:wrap;">
+      <a href="simulator.html" class="btn btn-primary">Drive it in your browser</a>
+      <a href="docs/software.html" class="btn btn-ghost">05 &middot; Software install &rarr;</a>
+      <a href="software.html#ros" class="btn btn-ghost">How the ROS stack fits &rarr;</a>
+      <a href="autonomy.html" class="btn btn-ghost">What gets trained on it &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="connect.html">Community</a></div></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="docs/">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 The MABEL Authors · MIT License</span><span>Built with love · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/scene-filter.js?v=46de80c8"></script>
+<script src="assets/mabel.js?v=05171eac"></script>
+</body>
+</html>

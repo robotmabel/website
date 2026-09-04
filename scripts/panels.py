@@ -43,8 +43,19 @@ async def go():
               return Math.round(li.getBoundingClientRect().width);});
             var uniq=widths.filter(function(v,i,a){return a.indexOf(v)===i;});
             var noArt=lis.filter(function(li){return !li.querySelector('.asm-art svg');}).length;
-            var noCap=lis.filter(function(li){return !li.querySelector('strong');}).length;
-            out.push({sec:(ol.closest('section')||{}).id, n:lis.length,
+            /* <strong> on the site, <b> in the wiki — asm-art.js reads both,
+               so this must too, or every wiki panel reads as caption-less. */
+            var noCap=lis.filter(function(li){return !li.querySelector('strong, b');}).length;
+            /* NAME THE LIST BY ITS NEAREST HEADING, not by an enclosing
+               <section> id. The wiki has no <section> wrappers, so closest()
+               returned null, `sec` came back undefined, JSON.stringify DROPPED
+               THE KEY, and the check died with KeyError forty lines later —
+               a page-shape assumption surfacing as a crash, not a failure. */
+            var h=ol.previousElementSibling, name='';
+            while(h){ if(/^H[1-6]$/.test(h.tagName)){name=h.textContent.trim().slice(0,12);break;}
+                      h=h.previousElementSibling; }
+            if(!name) name=((ol.closest('section')||{}).id)||'list';
+            out.push({sec:name, n:lis.length,
                       widths:uniq.length, noArt:noArt, noCap:noCap});});
           return JSON.stringify(out);})()"""})
         d=json.loads(r["result"]["result"]["value"])

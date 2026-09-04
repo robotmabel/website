@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800&family=Space+Mono:ital,wght@0,400;0,700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="docs.css"/>
+<link rel="stylesheet" href="docs.css?v=df04dea9"/>
+<link rel="stylesheet" href="build.css?v=b1512c9f"/>
 </head>
 <body>
 <div class="wrap">
@@ -20,6 +21,17 @@
     Logs live under <code>/tmp/mabel_*.log</code> on whichever machine runs the
     stack; the cockpit tails the important ones live.
   </p>
+
+
+  <h2 id="four">The four that bite everyone</h2>
+  <p>Tap a panel for the long answer — the figure, the commands, and where in the
+  wiki it is written up.</p>
+  <div class="faq-grid">
+    <button class="faq-card" data-faq="faq-sim"><h4>Do I need hardware to start?</h4><p>No. The full stack — teleop, control, learning — runs against the MuJoCo twin on a laptop.</p><span class="faq-more">tap for more &#8599;</span></button>
+    <button class="faq-card" data-faq="faq-motor"><h4>A motor won't respond</h4><p>Check the bus is up (<code>./can_scan.sh</code>), 1 Mbit, and 120&#8201;&#937; terminated both ends.</p><span class="faq-more">tap for more &#8599;</span></button>
+    <button class="faq-card" data-faq="faq-cams"><h4>Wrist cameras swapped or slow</h4><p>They're identical — pinned by hub port. Keep both on one powered USB-3 hub at 640&#215;480.</p><span class="faq-more">tap for more &#8599;</span></button>
+    <button class="faq-card" data-faq="faq-model"><h4>App shows a different robot</h4><p>You edited the MJCF without regenerating the derived models. Re-run the pipeline, in order.</p><span class="faq-more">tap for more &#8599;</span></button>
+  </div>
 
   <h2>Connectivity</h2>
   <table>
@@ -133,6 +145,71 @@
   </ul>
 </main>
 </div>
-<script src="docs.js"></script>
+
+<!-- FAQ pop-ups: comic panels. `h_`/`img_`/`div_` are invented tags so nothing
+     inside a <template> is parsed as real markup or fetched until opened. -->
+<div class="faq-overlay" id="faq-overlay" hidden>
+  <div class="faq-pop" role="dialog" aria-modal="true" aria-labelledby="faq-pop-title">
+    <button class="faq-x" id="faq-x" aria-label="Close">&#10005;</button>
+    <span class="faq-bang" aria-hidden="true">FIX!</span>
+    <h3 id="faq-pop-title"></h3>
+    <div class="faq-fig"><img id="faq-pop-img" src="" alt=""/></div>
+    <div class="faq-body" id="faq-pop-body"></div>
+  </div>
+</div>
+<template id="faq-sim">
+  <h_>Do I need hardware to start?</h_>
+  <img_ src="../assets/paper/06_sim_architecture.jpg" alt="One canonical model drives the simulated twin and the real robot through the same gateway"></img_>
+  <div_>
+    <p><b>No — and you shouldn't start with it.</b> The entire stack runs against the
+    MuJoCo twin on a laptop: <code>cd server &amp;&amp; ./run.sh</code> boots physics, cameras,
+    the teleop gateway and a browser control studio. Phones, headsets and browsers
+    connect to the twin <em>exactly</em> as they later connect to the robot — same
+    ports, same wire contract, and the clients can't tell which is live.</p>
+    <p>Prove every motion in the twin first, then order parts. <a href="software.html">05 &#183; Software &#8594;</a></p>
+  </div_>
+</template>
+<template id="faq-motor">
+  <h_>A motor won't respond</h_>
+  <img_ src="../assets/bom/pages/mabel-wiring-guide-02.webp" alt="Wiring guide page: the CAN and serial bus layout"></img_>
+  <div_>
+    <p>Work the bus, not the motor:</p>
+    <p>&#9312; Bus up? <code>./can_up.sh</code> then <code>./can_scan.sh</code> — 1 Mbit everywhere.<br/>
+    &#9313; Termination: ~60&#8201;&#937; measured across CAN-H/L (two 120&#8201;&#937; ends in parallel).<br/>
+    &#9314; ID clash: assign IDs one device powered at a time — expect 6 on the base,
+    7 per arm, 17 per hand chain.<br/>
+    &#9315; First unreachable ID in a chain = check <em>that</em> connector; everything
+    downstream vanishes with it.</p>
+    <p><a href="electronics.html">03 &#183; Electronics &amp; wiring &#8594;</a></p>
+  </div_>
+</template>
+<template id="faq-cams">
+  <h_>Wrist cameras swapped or slow</h_>
+  <img_ src="../assets/paper/07_glass_to_glass.jpg" alt="Glass-to-glass video latency budget across the camera pipeline"></img_>
+  <div_>
+    <p>The two wrist boards are <b>identical</b>, so USB enumerates them in arrival
+    order — left becomes right after a reboot. Pin each camera by its <em>hub
+    port</em> (udev rules ship in <code>hardware_bridge/install/</code>) and keep
+    both on one <b>powered</b> USB-3 hub.</p>
+    <p>Slow or stuttering? Drop to 640&#215;480 — teleop wants latency, not pixels; the
+    measured glass-to-glass budget is dominated by encode, not resolution.</p>
+    <p><a href="operate.html">07 &#183; Operating the robot &#8594;</a></p>
+  </div_>
+</template>
+<template id="faq-model">
+  <h_>App shows a different robot</h_>
+  <img_ src="../assets/paper/04_modularity.jpg" alt="The modular robot: every artifact derives from one canonical model"></img_>
+  <div_>
+    <p>The MJCF (<code>mabel_full.xml</code>) is the <b>single source of truth</b> —
+    the URDF, the web GLB, the phone/headset rigs and the tip-over constants are all
+    <em>generated from it</em>. Edit the model and skip the regeneration, and every
+    viewer silently keeps showing the old body.</p>
+    <p>Re-run the pipeline <b>in order</b> (MJCF &#8594; URDF &#8594; GLB &#8594; rigs &#8594; mirror),
+    then re-check the CoM constants. Never hand-edit a derived file.</p>
+    <p><a href="bom.html">01 &#183; Part geometry &#8594;</a></p>
+  </div_>
+</template>
+<script src="../assets/faq-pop.js?v=25f5b81b"></script>
+<script src="docs.js?v=0efc77c8"></script>
 </body>
 </html>

@@ -305,7 +305,12 @@
   Array.prototype.forEach.call(lists, function (ol) {
     Array.prototype.forEach.call(ol.children, function (li) {
       if (li.querySelector('.asm-art')) return;
-      var strong = li.querySelector('strong');
+      /* <b> COUNTS TOO. The site's build page opens each step with <strong>
+         and the wiki's chapters open theirs with <b> — the same thing said
+         two ways. Reading only one meant the drawings appeared on one page
+         and not the other, which is how the two pages came to look like
+         different projects in the first place. */
+      var strong = li.querySelector('strong, b');
       var head = strong ? strong.textContent : '';
       var fig = document.createElement('figure');
       fig.className = 'asm-art';
@@ -316,7 +321,11 @@
       if (node && node.nodeType === 3 && node.nodeValue.trim()) {
         var say = document.createElement('span');
         say.className = 'asm-say';
-        say.textContent = node.nodeValue.trim();
+        /* the wiki writes "Assign CAN IDs 1–6, powering one at a time", so
+           the caption inherits a leading comma when the bold half ends
+           mid-sentence. Trim the joining punctuation and capitalise. */
+        var t = node.nodeValue.trim().replace(/^[,;:—–-]\s*/, '');
+        say.textContent = t.charAt(0).toUpperCase() + t.slice(1);
         li.replaceChild(say, node);
       }
       li.insertBefore(fig, li.firstChild);

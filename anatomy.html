@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=7efe1748" />
+<link rel="stylesheet" href="assets/mabel.css?v=a6ec6d4d" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -27,19 +27,20 @@
   <nav class="nav-links">
     <a href="index.html">Overview</a>
         <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">The stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
     <a href="connect.html">Links</a>
     <a href="index.html#paper" class="ext">Paper ↗</a>
-        <a href="build.html" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
+        <a href="docs/" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
     <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
-    <a href="build.html" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
+  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
+    <a href="docs/" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
     <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
 </nav>
 
@@ -112,8 +113,8 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
       </div>
       <div class="foot-col">
         <h6>Build</h6>
-        <a href="build.html#bom">Bill of materials</a>
-        <a href="build.html">Assembly guide</a>
+        <a href="docs/bom.html#explore">Bill of materials</a>
+        <a href="docs/">Assembly guide</a>
         <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">CAD files ↗</a>
         <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">URDF &amp; sim ↗</a>
       </div>
@@ -132,7 +133,7 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
   </div>
 </footer>
 
-<script src="assets/mabel.js?v=e2513327"></script>
+<script src="assets/mabel.js?v=05171eac"></script>
 <script defer src="assets/defer-module.js" data-mod="./anatomy.js?v=166d0295" data-when="#anatomyStage, #anatomy3d, .anat-stage, #robot3d"></script>
 </body>
 </html>

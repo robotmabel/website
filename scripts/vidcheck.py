@@ -33,10 +33,27 @@ p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+def is_redirect(path):
+    """A redirect stub is not a page to measure.
+
+    build.html became a meta-refresh to docs/ when it folded into the wiki.
+    Navigating to it destroys its own execution context a moment later, so a
+    Runtime.evaluate against it never answers and the check sits on its recv
+    timeout — 600 s of nothing, reported as a TimeoutError with no page named.
+    Anything that forwards is skipped by both this and loadtest.py.
+    """
+    try:
+        head = open(path, encoding="utf-8").read(4096)
+    except OSError:
+        return False
+    return 'http-equiv="refresh"' in head
+
+
 async def go():
     pages = sys.argv[1:] or ["http://localhost:8741/" + f
                              for f in sorted(os.listdir(SITE))
-                             if f.endswith(".html") and not f.startswith("_")]
+                             if f.endswith(".html") and not f.startswith("_")
+                             and not is_redirect(os.path.join(SITE, f))]
     tabs = None
     for _ in range(40):
         try:
@@ -124,10 +141,40 @@ async def go():
               var vs = [].slice.call(document.querySelectorAll('video'))
                 .filter(function (v) {
                   var r = v.getBoundingClientRect();
-                  return r.width > 4 && r.height > 4;   // never displayed
+                  if (!(r.width > 4 && r.height > 4)) return false;  // never displayed
+                  // A LIVE-STREAM TARGET IS NOT A CLIP. The webcam retargeter's
+                  // viewport is a <video> that getUserMedia writes into — it
+                  // has no src and no data-lazyvid and never will, and there is
+                  // no camera in headless Chrome. Scoring it as broken wiring
+                  // reported a defect on software.html and index.html that a
+                  // reader with a webcam does not have.
+                  return !!(v.getAttribute('src') || v.getAttribute('data-lazyvid') ||
+                            v.currentSrc || v.querySelector('source'));
                 });
               var round = 0;
-              return new Promise(function (res) {
+              return new Promise(function (res0) {
+                // A WATCHDOG, because a promise that never settles kills the
+                // whole check. Everything below runs inside setTimeout
+                // callbacks, and anything that throws in one of them stops the
+                // chain silently — res is simply never called, the CDP reply
+                // never arrives, and the run dies 600 s later on a recv
+                // timeout that names no page. software.html did exactly that,
+                // with eight clips and unthrottled timers. Report what we have
+                // instead: a stalled pass is data, a dead connection is not.
+                var done = false;
+                var res = function (v) { if (!done) { done = true; res0(v); } };
+                var snapshot = function () {
+                  return vs.map(function (v, k) {
+                    return {
+                      src: (v.currentSrc || v.getAttribute('data-lazyvid')
+                            || ('#' + k)).split('/').pop(),
+                      wired: (v.src || v.currentSrc) ? 1 : 0,
+                      ok: (v.readyState >= 2 && v.videoWidth > 0) ? 1 : 0,
+                      err: v.error ? v.error.code : 0};
+                  });
+                };
+                setTimeout(function () { res(snapshot()); },
+                           60000 + vs.length * 1500);
                 (function touch(i) {
                   if (i >= vs.length) {
                     return setTimeout(function () {
@@ -149,14 +196,7 @@ async def go():
                           setTimeout(function () { again(j + 1); }, 300);
                         })(0);
                       }
-                      res(vs.map(function (v, k) {
-                        return {
-                          src: (v.currentSrc || v.getAttribute('data-lazyvid')
-                                || ('#' + k)).split('/').pop(),
-                          wired: (v.src || v.currentSrc) ? 1 : 0,
-                          ok: (v.readyState >= 2 && v.videoWidth > 0) ? 1 : 0,
-                          err: v.error ? v.error.code : 0};
-                      }));
+                      res(snapshot());
                     }, 4500);
                   }
                   // BEHAVIOR 'instant'. The stylesheet sets

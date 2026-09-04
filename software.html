@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=7efe1748" />
+<link rel="stylesheet" href="assets/mabel.css?v=a6ec6d4d" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -27,25 +27,26 @@
   <nav class="nav-links">
     <a href="index.html">Overview</a>
         <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
-    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">The stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
     <a href="connect.html">Links</a>
     <a href="index.html#paper" class="ext">Paper ↗</a>
-        <a href="build.html" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
+        <a href="docs/" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
     <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
-    <a href="build.html" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
+  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
+    <a href="docs/" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
     <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
 </nav>
 
 <aside class="sidenav" aria-label="Software section navigation">
   <div class="sidenav-title">Software</div>
-  <a href="#ros">The stack</a><a href="#controller">Controller</a><a href="#motion">Motion model</a><a href="#retargeting">Retargeting</a><a href="#firmware">Firmware</a><a href="#calibration">Calibration</a><a href="#simulation">Simulation</a>
+  <a href="#ros">ROS stack</a><a href="#controller">Controller</a><a href="#motion">Motion model</a><a href="#retargeting">Retargeting</a><a href="#firmware">Firmware</a><a href="#calibration">Calibration</a><a href="simulation.html">Simulation &rarr;</a>
 </aside>
 
 <!-- ─── PAGE HERO ─── -->
@@ -72,7 +73,7 @@
   <div class="wrap">
     <div class="sec-head fade-up">
       <div>
-        <span class="eyebrow">The stack</span>
+        <span class="eyebrow">The ROS stack</span>
         <h2 class="display-md title">Commands in, <span class="italic accent">state out.</span><img src="assets/stickers/subwayentrance.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(6deg);" loading="lazy" /></h2>
       </div>
       <p class="lede" id="server">Teleop and autonomy publish commands; driver nodes turn them into torque and
@@ -465,7 +466,7 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
 
   <div class="fade-up" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:clamp(20px,3vh,30px);">
     <a href="https://github.com/robotmabel/MABEL/tree/main/web_gui/setup_studio" target="_blank" rel="noopener" class="btn btn-primary">Setup GUI ↗</a>
-    <a href="build.html" class="btn btn-ghost">Assembly guide →</a>
+    <a href="docs/" class="btn btn-ghost">Assembly guide →</a>
   </div>
 </div></section>
 
@@ -474,87 +475,18 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
     <div class="sec-head fade-up">
       <div>
         <span class="eyebrow">Simulation</span>
-        <h2 class="display-md title">The twin is the <span class="italic accent">same robot.</span><img src="assets/stickers/tile.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(6deg);" loading="lazy" /></h2>
+        <h2 class="display-md title">The twin is the <span class="italic accent">same robot.</span><img src="assets/stickers/tile.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:14px; transform:rotate(-7deg);" loading="lazy"/></h2>
       </div>
-      <p class="lede">One canonical model generates the URDF, the MJCF, and every derived artifact.
-        The production controller drives MuJoCo unmodified at 500 Hz across 35 released environments —
-        <code>use_sim:=true</code> is the only difference.</p>
+      <p class="lede">One canonical model generates the URDF, the MJCF and every derived artifact.
+        The production controller drives MuJoCo unmodified at 500&nbsp;Hz across 35 released
+        environments &mdash; <code>use_sim:=true</code> is the only difference. The twin has a
+        page of its own: the plant, the scene library, the renderers, simulated data collection
+        and the PPO track.</p>
     </div>
-    <div class="fade-up" style="display:flex; gap:12px; flex-wrap:wrap;">
-      <a href="simulator.html" class="btn btn-primary">Drive the twin in your browser</a>
-      <a href="index.html#play" class="btn btn-ghost">See it on the home page →</a>
+    <div class="fade-up" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;">
+      <a href="simulation.html" class="btn btn-primary">The simulation stack &rarr;</a>
+      <a href="simulator.html" class="btn btn-ghost">Drive the twin in your browser</a>
     </div>
-
-    <!-- the twin, moving: four captures straight from the MuJoCo stack -->
-    <div class="fade-up" style="margin-top:44px; display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
-      <div class="strip-panel"><video data-lazyvid="assets/sim/swerve.mp4" poster="assets/sim/swerve.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Holonomic swerve — translating and spinning at once (studio nav clips)</span></div>
-      <div class="strip-panel"><video data-lazyvid="assets/sim/hands.mp4" poster="assets/sim/hands.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">ORCA hands — 17 tendon DOF each, per-finger retargeting</span></div>
-      <div class="strip-panel"><video data-lazyvid="assets/sim/lift.mp4" poster="assets/sim/lift.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Lift — 0.635 m of travel, tip-over envelope tightening as it rises</span></div>
-      <div class="strip-panel"><video data-lazyvid="assets/sim/wave.mp4" poster="assets/sim/wave.jpg" muted loop playsinline preload="none" style="width:100%; display:block; aspect-ratio:4/3; object-fit:cover;"></video><span class="strip-cap">Wave Hello — a Control Studio animation clip played on the twin</span></div>
-    </div>
-
-
-    <!-- ── every released scene, orbiting, with its physics running ── -->
-    <div class="fade-up" style="margin-top:clamp(30px,4vh,48px);">
-      <div class="scene-grid-wrap" id="sceneGrid"></div>
-    </div>
-
-    <div class="fade-up" style="margin-top:16px;">
-      <div class="paper-fig" style="background:var(--panel); padding: clamp(16px,3vw,34px);"><svg viewBox="0 0 880 700" role="img" aria-label="One canonical MJCF model generates every derived artifact; one RobotCommand contract flows through the controller into either the MuJoCo plant or the hardware bridge, selected by a single launch flag; state streams back to every client" style="width:100%;height:auto;display:block;">
-<defs><marker id="simArr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#151820"/></marker></defs>
-<!-- ── (a) canonical model ── -->
-<text x="30" y="38" font-family="Bangers, cursive" font-size="24" fill="#F0762E" letter-spacing="1.5">1 · THE CANONICAL MODEL</text>
-<rect x="36" y="62" width="230" height="72" rx="14" fill="rgba(21,24,32,0.85)"/>
-<rect x="30" y="56" width="230" height="72" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="4"/>
-<text x="145" y="88" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">mabel_full.xml</text>
-<text x="145" y="112" text-anchor="middle" font-family="Jost, sans-serif" font-size="14" fill="#6D6551">MuJoCo MJCF — one source of truth</text>
-<path d="M262 92 H320" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
-<g font-family="'Space Mono', monospace" font-size="13.5" fill="#151820">
-  <rect x="336" y="48" width="180" height="30" rx="9" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/><text x="426" y="68" text-anchor="middle">URDF + TF</text>
-  <rect x="336" y="84" width="180" height="30" rx="9" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/><text x="426" y="104" text-anchor="middle">meshes + GLB</text>
-  <rect x="336" y="120" width="180" height="30" rx="9" fill="#F4EAD2" stroke="#151820" stroke-width="2.5"/><text x="426" y="140" text-anchor="middle">balance params</text>
-</g>
-<text x="560" y="100" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">67 q · 59 actuators</text>
-<text x="560" y="120" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">9 cameras · 370 sensors</text>
-<!-- ── (b) one contract ── -->
-<text x="30" y="204" font-family="Bangers, cursive" font-size="24" fill="#F0762E" letter-spacing="1.5">2 · ONE COMMAND CONTRACT — EITHER PLANT</text>
-<g font-family="'Space Mono', monospace" font-size="12.5" fill="#151820">
-  <rect x="150" y="224" width="112" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="206" y="243" text-anchor="middle">VISION PRO</text>
-  <rect x="272" y="224" width="94" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="319" y="243" text-anchor="middle">IPHONE</text>
-  <rect x="376" y="224" width="70" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="411" y="243" text-anchor="middle">WEB</text>
-  <rect x="456" y="224" width="94" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="503" y="243" text-anchor="middle">POLICY</text>
-  <rect x="560" y="224" width="70" height="28" rx="14" fill="#FFFDF0" stroke="#151820" stroke-width="2.5"/><text x="595" y="243" text-anchor="middle">NAV2</text>
-</g>
-<path d="M390 258 V282" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
-<rect x="216" y="294" width="360" height="64" rx="14" fill="rgba(21,24,32,0.85)"/>
-<rect x="210" y="288" width="360" height="64" rx="14" fill="#D9A13F" stroke="#151820" stroke-width="4"/>
-<text x="390" y="316" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#151820">RobotCommand</text>
-<text x="390" y="338" text-anchor="middle" font-family="Jost, sans-serif" font-size="14" fill="#3F3524">base · body · hands</text>
-<path d="M390 358 V382" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
-<rect x="216" y="394" width="360" height="64" rx="14" fill="rgba(21,24,32,0.85)"/>
-<rect x="210" y="388" width="360" height="64" rx="14" fill="#F0762E" stroke="#151820" stroke-width="4"/>
-<text x="390" y="416" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="17" fill="#FFF9F0">controller</text>
-<text x="390" y="438" text-anchor="middle" font-family="Jost, sans-serif" font-size="14" fill="#FFF3E2">retarget · WBC · impedance · safe_base_step</text>
-<path d="M390 458 V482" stroke="#151820" stroke-width="3.5" marker-end="url(#simArr)"/>
-<rect x="90" y="492" width="600" height="96" rx="16" fill="none" stroke="#151820" stroke-width="3" stroke-dasharray="10 8"/>
-<rect x="122" y="516" width="240" height="52" rx="12" fill="#DDE9DC" stroke="#151820" stroke-width="3.5"/>
-<text x="242" y="538" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#151820">MuJoCo plant</text>
-<text x="242" y="558" text-anchor="middle" font-family="Jost, sans-serif" font-size="13" fill="#2E7D4F">the twin — 500 Hz</text>
-<text x="390" y="548" text-anchor="middle" font-family="Bangers, cursive" font-size="19" fill="#C6301A">OR</text>
-<rect x="418" y="516" width="240" height="52" rx="12" fill="#FFFDF0" stroke="#151820" stroke-width="3.5"/>
-<text x="538" y="538" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="15" fill="#151820">hardware bridge</text>
-<text x="538" y="558" text-anchor="middle" font-family="Jost, sans-serif" font-size="13" fill="#6D6551">the real robot</text>
-<g transform="rotate(-6 700 500)">
-  <rect x="622" y="480" width="156" height="40" rx="10" fill="#F0762E" stroke="#151820" stroke-width="3.5"/>
-  <text x="700" y="506" text-anchor="middle" font-family="Bangers, cursive" font-size="16" fill="#FFF9F0" letter-spacing="1">ONE LAUNCH FLAG</text>
-</g>
-<!-- state back -->
-<path d="M690 620 H120" stroke="#23577E" stroke-width="3.5" marker-end="url(#simArr2)"/>
-<defs><marker id="simArr2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#151820"/></marker></defs>
-<text x="390" y="644" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#23577E">joint state · TF · RGB-D · LiDAR · diagnostics — back to every client</text>
-<text x="390" y="684" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">35 scenes · 19 static · 16 with moving actors</text>
-</svg></div>
-</div>
   </div>
 </section>
 
@@ -563,8 +495,8 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
     <div class="foot-grid">
       <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
         <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="connect.html">Community</a></div></div>
-      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a></div>
-      <div class="foot-col"><h6>Build</h6><a href="build.html#bom">Bill of materials</a><a href="build.html">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="docs/">Assembly guide</a><a href="hardware.html#model">3D model</a></div>
       <div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
     <div class="foot-bottom"><span>© 2026 The MABEL Authors · MIT License</span><span>Built with love · v1.0.0</span></div>
@@ -572,10 +504,10 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
 </footer>
 
 <script defer src="assets/defer-module.js" data-mod="./tipover-lab.js?v=c9793a6d" data-when="#tipLab"></script>
-<script src="assets/scene-filter.js?v=530d9dd9"></script>
+<script src="assets/scene-filter.js?v=46de80c8"></script>
 <script src="assets/retarget-compare.js"></script>
 <script src="assets/retarget-clips.js"></script>
-<script src="assets/mabel.js?v=e2513327"></script>
+<script src="assets/mabel.js?v=05171eac"></script>
 <script defer src="assets/defer-module.js" data-mod="./wbc-viewer.js?v=c74c2734" data-when="[data-wbc-viewer]"></script>
 <script defer src="assets/defer-module.js" data-mod="./retarget-cam.js" data-when="#retargetCam"></script>
 </body>

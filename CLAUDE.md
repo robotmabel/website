@@ -1,8 +1,20 @@
 # CLAUDE.md — the MABEL website
 
-The public site at <https://robotmabel.github.io/website/>. Static: nine HTML
-pages, one stylesheet, a folder of ES modules, and a pile of generated assets.
-Pushing to `main` deploys it.
+The public site at <https://robotmabel.github.io/website/>. Static: ten HTML
+pages plus the `docs/` wiki, one stylesheet, a folder of ES modules, and a pile
+of generated assets. Pushing to `main` deploys it.
+
+`build.html` is **a redirect now**, not a page. Its content folded into the
+wiki: the interactive BOM into `docs/bom.html#explore`, the illustrated
+assembly panels into `docs/assembly.html` (plus electronics and bring-up), and
+the FAQ pop-ups into `docs/troubleshoot.html#four`. It still maps every old
+deep link (`#bom`, `#assembly`, `#faq`, …) to the right chapter, so keep that
+map alive; link new copy at `docs/`.
+
+`simulation.html` is the twin's own page — the canonical model, the
+`simulation_bridge` plant, the 35-scene library, the Unity/Genesis branches,
+simulated data collection and the mjlab PPO track. `software.html#simulation`
+is a pointer to it, not a copy.
 
 ## Read STYLE.md first
 
@@ -64,6 +76,7 @@ in its docstring. `scripts/run_all.sh` runs the lot.
 | `pttest.py` `smtest.py` | the platform survey; the stack map's routes, clicks and hovers |
 | `acctest.py` | the accuracy lab draws what the archives measured, on one shared frame |
 | `rktest.py` | the retargeting tiles stay IN SYNC and match their own rows |
+| `faqtest.py` | the wiki's troubleshooting pop-ups open, with a figure that decoded and links that resolve |
 | `slamtest.py` | the SLAM lab maps, and the scan matcher measurably matters |
 | `vidcheck.py` | every clip on every page is WIRED — the thing that can break |
 | `wikitest.py` | `docs/` stays the site's ground and faces, and its links resolve |
@@ -139,6 +152,20 @@ discards your change.
   carry no geoms at all. Anchor on the shallowest level of the body tree that
   HAS geoms — the whole subtree is equally wrong, since 20 finger geoms outvote
   3 shoulder ones.
+* **`preload="none"` does not defer a `poster`.** It holds back the video
+  bytes and says nothing about the poster image, which the browser fetches as
+  soon as the element parses. The 35-tile scene gallery was ~600 kB of JPEG on
+  a page whose clips all correctly waited — and because it depended on how much
+  idle time the page got, the same grid measured 628 kB on one run and 1242 kB
+  on the next. Posters go in `data-poster` and are set in `start()`.
+* **A CSS block's text starts after the PREVIOUS block's closing brace,** so it
+  carries any comment written above it. An extractor that classified blocks by
+  that raw head skipped every commented `@media` — which is how the wiki
+  shipped a BOM table that scrolled sideways on a phone while the identical
+  table passed on the site.
+* **`bump_assets.py` must stamp `docs/` too.** It globbed only the root for a
+  long time, so every wiki page shipped unstamped against the very scripts it
+  depends on — the exact failure the script exists to prevent.
 * **`scenery_clear` measures distance to geom CENTRES.** A 6 m building centred
   1.1 m away reads as "1.1 m of room" while MuJoCo resolves 760 kN of
   interpenetration. Ask the physics whether the robot is embedded; do not ask a

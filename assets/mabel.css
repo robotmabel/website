@@ -1832,11 +1832,14 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   /* COMPACT, and the robot right beside the buttons. The stage used to be
      `1fr` of the full page width and `100vh - 220px` tall, so on a large screen
      it became an 880 x 700 box with a small robot floating in the middle of it
-     and a screenful of empty page underneath. Capping both dimensions and
-     letting the pair sit left keeps the composition together. */
-  .anat-wrap { display: grid; grid-template-columns: 272px minmax(0, 620px);
-    gap: clamp(16px, 2.2vw, 28px); align-items: start;
-    justify-content: start; }
+     and a screenful of empty page underneath.
+     Capping the HEIGHT is what fixed that; capping the WIDTH at 620 px as well
+     was the overcorrection — it left the stage ending mid-page with a column
+     of dead paper to its right. The stage takes the rest of the row again, and
+     the robot is kept large by fitting the camera to the rig's bounding BOX
+     rather than its bounding sphere (assets/anatomy.js). */
+  .anat-wrap { display: grid; grid-template-columns: 272px minmax(0, 1fr);
+    gap: clamp(16px, 2.2vw, 28px); align-items: start; }
   @media (max-width: 880px) { .anat-wrap { grid-template-columns: 1fr; } }
   .anat-rail { display: flex; flex-direction: column; gap: 8px; }
   .anat-rail button {

@@ -92,10 +92,21 @@ async def go():
             print("   *** a module portrait is missing"); bad += 1
 
         # scrolling actually moves the rail
+        #
+        # WAIT FOR THE SCROLL TO SETTLE, do not sleep a fixed amount. step(1)
+        # animates (the stylesheet sets scroll-behavior: smooth), and a flat
+        # 0.9 s is enough on an idle machine and not enough on a busy one —
+        # this passed every time it was run alone and failed twice in a row
+        # inside the 29-check suite, which reads exactly like a real defect.
         before = await ev("document.querySelector('.hs-rail').scrollLeft")
         await ev("window.__hwSlider.step(1)")
-        await asyncio.sleep(0.9)
-        after = await ev("document.querySelector('.hs-rail').scrollLeft")
+        after = before
+        for _ in range(24):                      # up to ~4.8 s
+            await asyncio.sleep(0.2)
+            now = await ev("document.querySelector('.hs-rail').scrollLeft")
+            if now == after and now != before:
+                break                            # moved, and stopped moving
+            after = now
         print(f"rail scrollLeft {before} → {after}")
         if not after > before + 50:
             print("   *** the next arrow does not move the rail"); bad += 1
@@ -149,6 +160,28 @@ async def go():
         print(f"#hw-sensors scrolled the rail to {moved}")
         if not moved > 200:
             print("   *** the nav deep link does not reach its card"); bad += 1
+
+        # ...AND OPEN THE MODULE. The nav lists Base / Arms / Hands as if each
+        # were a page, so a link that only slid a rail behind eight closed
+        # cards read to the reader as a link that did nothing. Scrolling was
+        # measured and passing while the feature was, in the user's words,
+        # not working — the metric was true and the wrong question.
+        print()
+        for mid in ["base", "arms", "hands", "head", "lift", "body",
+                    "sensors", "electronics"]:
+            await ev("location.hash = ''")
+            await ev(f"location.hash = '#hw-{mid}'")
+            await asyncio.sleep(0.9)
+            d = await ev("""(()=>{const sh=document.querySelector('[class*=hs-sheet]');
+              const h=document.querySelector('.hs-sheet-head h3');
+              return {open: sh ? !sh.hidden : false,
+                      title: h ? h.textContent.trim() : null};})()""")
+            ok = bool(d and d["open"] and d["title"])
+            if not ok:
+                bad += 1
+            print(f"  {'ok ' if ok else '***'} #hw-{mid:<12} "
+                  f"sheet {'open' if d and d['open'] else 'CLOSED'}  "
+                  f"{(d or {}).get('title')}")
 
         print("errors:", errs[:3] or "none")
         if errs:

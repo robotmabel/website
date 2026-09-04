@@ -67,7 +67,10 @@
           'data-group="' + esc(s.category) + '" data-mv="' + (s.dynamic ? 1 : 0) + '">' +
           '<video data-lazyvid="assets/sim/scenes/' + esc(s.clip) + '" ' +
             'data-lo="assets/sim/scenes/' + esc(s.clip_lo) + '" ' +
-            'poster="assets/sim/scenes/' + esc(s.poster) + '" ' +
+            /* data-poster, not poster: `preload="none"` does not defer a
+               poster, so 35 of them downloaded before the first tile was
+               anywhere near the viewport. mabel.js sets it in start(). */
+            'data-poster="assets/sim/scenes/' + esc(s.poster) + '" ' +
             'autoplay muted loop playsinline preload="none" ' +
             'aria-label="' + esc(s.title) + ' — the camera orbits while the ' +
             'physics runs"></video>' +

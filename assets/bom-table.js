@@ -12,6 +12,14 @@
  */
 (function () {
   'use strict';
+  /* Where assets/ lives, relative to THIS page. build.html loaded this script
+     from the site root; the wiki (docs/bom.html) loads the same file one level
+     down, and a page-relative 'assets/bom/...' would resolve to
+     docs/assets/bom/... — a silent 404 for every preview photo and for the
+     machined-parts link. Derive the prefix from the script's own URL instead. */
+  var SRC = (document.currentScript && document.currentScript.src) || '';
+  var BASE = SRC ? SRC.slice(0, SRC.lastIndexOf('/') + 1) : 'assets/';
+
   var host = document.getElementById('bomTable');
   if (!host || !window.MABEL_BOM || !window.MABEL_BOM.core) return;
 
@@ -173,7 +181,7 @@
                label: 'amazon.com', kind: 'search' };
     }
     if (v.indexOf('custom') >= 0) {
-      return { url: 'assets/bom/machined.csv', label: 'Custom part', kind: 'local' };
+      return { url: BASE + 'bom/machined.csv', label: 'Custom part', kind: 'local' };
     }
     return null;
   }
@@ -266,7 +274,7 @@
     pvRow = tr;
     /* a real photo wins if one has been dropped in; otherwise draw the class */
     var img = new Image();
-    var url = 'assets/bom/img/' + r.ref + '.jpg';
+    var url = BASE + 'bom/img/' + r.ref + '.jpg';
     pvArt.innerHTML = ART[artFor(r)]();
     img.onload = function () {
       pvArt.innerHTML = '<img src="' + url + '" alt="">';

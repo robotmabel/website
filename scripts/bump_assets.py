@@ -16,7 +16,11 @@ TRACKED = ["assets/mabel.css", "assets/mabel.js",
            "assets/comic-pop.js", "assets/tipover-lab.js",
            "assets/bom-table.js", "assets/bom-pie.js", "assets/reach-globe.js",
            "assets/wbc-viewer.js", "assets/robot-viewer.js", "assets/hero-rig.js",
-           "assets/anatomy.js", "assets/explode-viewer.js", "assets/asm-art.js", "assets/burst-variety.js", "assets/rail-loop.js", "assets/film-player.js", "assets/scene-filter.js"]
+           "assets/anatomy.js", "assets/explode-viewer.js", "assets/asm-art.js", "assets/burst-variety.js", "assets/rail-loop.js", "assets/film-player.js", "assets/scene-filter.js",
+           "assets/faq-pop.js",
+           # the wiki's own shell, and the widgets build.html handed it
+           "docs/docs.css", "docs/docs.js", "docs/build.css",
+           "docs/hub.css", "docs/hub.js"]
 
 def h(path):
     p = os.path.join(ROOT, path)
@@ -25,13 +29,28 @@ def h(path):
 def main():
     n = 0
     vers = {p: h(p) for p in TRACKED}
-    for f in glob.glob(os.path.join(ROOT, "*.html")):
+    # THE WIKI COUNTS. docs/*.html reference the same shared scripts (one level
+    # up, as ../assets/…) plus a shell of their own, and this only ever globbed
+    # the root — so every wiki page shipped unstamped and could pair with a
+    # cached older copy of the very files it depends on.
+    pages = (glob.glob(os.path.join(ROOT, "*.html")) +
+             glob.glob(os.path.join(ROOT, "docs", "*.html")))
+    for f in pages:
         s = o = open(f).read()
+        # how this page spells the path: root pages "assets/x.js",
+        # wiki pages "../assets/x.js" and their own shell as a bare name
+        indocs = os.path.dirname(f).endswith("docs")
         for path, v in vers.items():
             if not v:
                 continue
             attr = "href" if path.endswith(".css") else "src"
-            s = re.sub(r'(%s="%s)(\?v=[a-f0-9]+)?"' % (attr, re.escape(path)),
+            if indocs:
+                ref = path[len("docs/"):] if path.startswith("docs/") else "../" + path
+            else:
+                if path.startswith("docs/"):
+                    continue           # a root page never loads the wiki shell
+                ref = path
+            s = re.sub(r'(%s="%s)(\?v=[a-f0-9]+)?"' % (attr, re.escape(ref)),
                        r'\1?v=' + v + '"', s)
         if s != o:
             open(f, "w").write(s); n += 1

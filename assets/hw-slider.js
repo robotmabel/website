@@ -204,7 +204,7 @@
         }).join('') + '</ul>' +
         '<p class="hs-src">Parts, prices and links come from ' +
           '<code>BOM/data/</code> — the same source as the printed build guide. ' +
-          '<a href="build.html#bom">Full bill of materials →</a></p>';
+          '<a href="docs/bom.html#explore">Full bill of materials →</a></p>';
       sheet.hidden = false;
       document.body.style.overflow = 'hidden';
       sheet.querySelector('.hs-close').focus();
@@ -226,7 +226,11 @@
       if (e.key === 'Escape' && !sheet.hidden) close();
     });
 
-    /* deep links from the nav still work: #hw-hands scrolls to that card */
+    /* Deep links from the nav OPEN THE MODULE, they do not merely scroll to it.
+       The nav lists "Base", "Arms", "Hands" as if each were a page, so landing
+       on a rail scrolled to a card — one of eight, still closed — reads as the
+       link having done nothing at all. #hw-base now opens the base's sheet:
+       the portrait, the specs, the full parts list with prices. */
     function jump() {
       var id = (location.hash || '').replace(/^#hw-/, '');
       var i = mods.findIndex(function (m) { return m.id === id; });
@@ -238,6 +242,7 @@
       rail.scrollTo({ left: Math.max(0, c.offsetLeft - (rail.clientWidth - c.offsetWidth) / 2),
                       behavior: 'smooth' });
       host.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      open(mods[i]);
     }
     addEventListener('hashchange', jump);
     if (/^#hw-/.test(location.hash)) setTimeout(jump, 350);

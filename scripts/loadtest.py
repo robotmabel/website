@@ -58,9 +58,14 @@ async def measure(c, cmd, ev, url, base):
         if done_at and time.time() > done_at:
             break
         if done_at is None and time.time() - t0 > 0.25:
-            # poll on EVERY pass, not only when the event stream goes quiet: a
-            # busy page never goes quiet, so the timeout branch alone never
-            # noticed that the page had finished
+            # POLLING readyState IS A SAMPLE, AND A SAMPLE CAN BE LATE. Each
+            # pass blocks up to 0.5 s on recv, so the cutoff could be noticed
+            # well after the page really finished — and anything deferred that
+            # started in that gap was counted as load cost. anatomy.html read
+            # 158 kB alone and 2437 kB in the suite, the same page, because its
+            # 1.87 MB rig landed inside the gap. Page.loadEventFired below is
+            # the authoritative moment; this poll is now only a fallback for a
+            # page whose load event we somehow missed.
             if await ev("document.readyState === 'complete'"):
                 # 1.2 s of grace, because we now DROP anything that started
                 # after this moment — the window only has to be long enough for
@@ -71,6 +76,8 @@ async def measure(c, cmd, ev, url, base):
         except asyncio.TimeoutError:
             continue
         m = r.get("method")
+        if m == "Page.loadEventFired" and done_at is None:
+            done_at = time.time() + 1.2
         if m == "Network.requestWillBeSent" and done_at is not None:
             # STARTED AFTER THE LOAD EVENT — deliberately deferred work (the
             # hero rig, a 3-D viewer) that the reader never waits for. Counting
@@ -97,9 +104,31 @@ async def measure(c, cmd, ev, url, base):
     return list(seen.values()), timing
 
 
+def pages_url(pg):
+    """Accept a bare filename or a full URL, as the page list does."""
+    return pg if pg.startswith("http") else "http://localhost:8741/" + pg
+
+
+def is_redirect(path):
+    """A redirect stub is not a page to measure.
+
+    build.html became a meta-refresh to docs/ when it folded into the wiki.
+    Navigating to it destroys its own execution context a moment later, so a
+    Runtime.evaluate against it never answers and the check sits on its recv
+    timeout — 600 s of nothing, reported as a TimeoutError with no page named.
+    Anything that forwards is skipped by both this and loadtest.py.
+    """
+    try:
+        head = open(path, encoding="utf-8").read(4096)
+    except OSError:
+        return False
+    return 'http-equiv="refresh"' in head
+
+
 async def go():
     pages = sys.argv[1:] or [f for f in sorted(os.listdir(SITE))
-                             if f.endswith(".html") and not f.startswith("_")]
+                             if f.endswith(".html") and not f.startswith("_")
+                             and not is_redirect(os.path.join(SITE, f))]
     tabs = None
     for _ in range(40):
         try:
@@ -126,6 +155,18 @@ async def go():
             return r.get("result", {}).get("result", {}).get("value")
 
         await cmd("Page.enable"); await cmd("Runtime.enable")
+
+        # WARM THE BROWSER BEFORE MEASURING ANYTHING. The first navigation in a
+        # fresh Chrome behaves differently from every one after it: on the
+        # first, `loading="lazy"` images below the fold are fetched anyway
+        # (the lazy decision is made against a layout that has not settled),
+        # so whichever page happened to sort first read hundreds of kB heavier
+        # than itself. hardware.html measured 1028 kB cold and 183 kB warm —
+        # the same bytes, the same file, a different position in the list.
+        # One throwaway navigation costs a second and makes page 1 comparable
+        # to page 9.
+        await cmd("Page.navigate", {"url": pages_url(pages[0])})
+        await asyncio.sleep(2.5)
         for pg in pages:
             # SETTLE BETWEEN PAGES. Every page starts deferred work after its
             # load event — a 3-D viewer, the hero rig — and navigating straight

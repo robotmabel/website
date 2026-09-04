@@ -93,6 +93,12 @@ nav.side {
     max-width: 100%;
   }
   main table { display: block; overflow-x: auto; }
+  /* …but a table should not NEED that scroll. What forced it was a single
+     unbreakable <code> path: `simulation/mabel_mujoco/assets/meshes/` has no
+     break opportunity, so it set the column's min-content width and the whole
+     table ran 80 px past a 390 px screen. Paths may break anywhere on a
+     phone; prose still breaks on spaces. */
+  main td code, main th code { overflow-wrap: anywhere; word-break: break-word; }
 }
 
 /* ── sidebar ───────────────────────────────────────────────────────────── */

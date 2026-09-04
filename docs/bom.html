@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800&family=Space+Mono:ital,wght@0,400;0,700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="docs.css"/>
+<link rel="stylesheet" href="docs.css?v=df04dea9"/>
+<link rel="stylesheet" href="build.css?v=b1512c9f"/>
 </head>
 <body>
 <div class="wrap">
@@ -24,14 +25,13 @@
 
   <h2>Downloads</h2>
   <div class="files">
-    <a href="../assets/bom/mabel_bom.pdf">mabel_bom.pdf<small>full bill of materials, per-vendor</small></a>
     <a href="../assets/bom/MABEL_Build_Guide.pdf">MABEL_Build_Guide.pdf<small>illustrated mechanical assembly</small></a>
     <a href="../assets/bom/MABEL_Wiring_Guide.pdf">MABEL_Wiring_Guide.pdf<small>harness, buses, pinouts</small></a>
-    <a href="../assets/bom/core.csv">core.csv<small>the shared core list (49 lines)</small></a>
-    <a href="../assets/bom/choices.csv">choices.csv<small>perception + compute options</small></a>
-    <a href="../assets/bom/machined.csv">machined.csv<small>laser-cut / bent sheet parts</small></a>
-    <a href="../assets/bom/taobao.csv">taobao.csv<small>CNY-quoted lines (DaMiao et al.)</small></a>
   </div>
+  <p class="dim">The parts list itself is <a href="#explore">below, live</a> —
+  searchable, filterable by tier, with a vendor link per line. The raw CSVs it
+  is generated from live in
+  <a href="https://github.com/robotmabel/MABEL/tree/main/BOM/data"><code>BOM/data/</code></a>.</p>
 
   <h2>Core BOM — $8,058.29, every build</h2>
   <p>49 lines, identical across tiers. By section:</p>
@@ -47,6 +47,72 @@
     <tr><td>3D printed material</td><td class="num">160.93</td><td class="num">2.0%</td><td>Filament for every printed part</td></tr>
     <tr class="total"><td>Core total</td><td class="num">8,058.29</td><td class="num">100%</td><td>as-quoted 31 Jul 2026</td></tr>
   </table>
+
+
+  <h2 id="explore">Explore the bill</h2>
+  <p>The same numbers as the table above, arranged so you can see where the
+  money actually goes. Hover a slice or a row and the components inside it
+  appear underneath; switch between grouping by module and by kind of part.</p>
+
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The breakdown</span>
+        <h2 class="display-md title">Where the money <span class="italic accent">goes.</span></h2>
+      </div>
+      <p class="lede">Eight subsystems make up the core bill. Hover a slice — or a row — and the
+        actual components inside it appear below.</p>
+    </div>
+    <div class="bom-toggle fade-up" id="bomGroupToggle">
+      <button class="on" type="button" data-group="module">By module</button>
+      <button type="button" data-group="type">By type</button>
+    </div>
+    <div class="bom-grid fade-up">
+      <div class="bom-pie-wrap">
+        <div id="bomPie"></div>
+        <div class="bom-centre"><span id="bomPieVal"></span><span id="bomPieKey"></span></div>
+      </div>
+      <div>
+        <div class="table-scroll">
+          <table class="data-table" id="bomRows">
+            <thead><tr><th style="text-align:left;">Subsystem</th><th>Share</th><th style="text-align:right;">Cost</th></tr></thead>
+            <tbody>
+            <tr data-sec="Mobile base"><td data-l="Subsystem"><span class="bom-dot" style="background:#C6301A"></span>Mobile base</td><td data-l="Share">28%</td><td data-l="Cost" style="text-align:right;">$2,272</td></tr>
+            <tr data-sec="Body / torso"><td data-l="Subsystem"><span class="bom-dot" style="background:#D9A13F"></span>Body / torso</td><td data-l="Share">11%</td><td data-l="Cost" style="text-align:right;">$889</td></tr>
+            <tr data-sec="Arms - both"><td data-l="Subsystem"><span class="bom-dot" style="background:#23577E"></span>Arms - both</td><td data-l="Share">33%</td><td data-l="Cost" style="text-align:right;">$2,622</td></tr>
+            <tr data-sec="Hands - both"><td data-l="Subsystem"><span class="bom-dot" style="background:#2E7D4F"></span>Hands - both</td><td data-l="Share">15%</td><td data-l="Cost" style="text-align:right;">$1,195</td></tr>
+            <tr data-sec="Neck / head"><td data-l="Subsystem"><span class="bom-dot" style="background:#8B5A3C"></span>Neck / head</td><td data-l="Share">3%</td><td data-l="Cost" style="text-align:right;">$235</td></tr>
+            <tr data-sec="Structural hardware"><td data-l="Subsystem"><span class="bom-dot" style="background:#B77E1E"></span>Structural hardware</td><td data-l="Share">2%</td><td data-l="Cost" style="text-align:right;">$184</td></tr>
+            <tr data-sec="Electronics, power & cabling"><td data-l="Subsystem"><span class="bom-dot" style="background:#93220F"></span>Electronics, power & cabling</td><td data-l="Share">6%</td><td data-l="Cost" style="text-align:right;">$500</td></tr>
+            <tr data-sec="3D printed material"><td data-l="Subsystem"><span class="bom-dot" style="background:#151820"></span>3D printed material</td><td data-l="Share">2%</td><td data-l="Cost" style="text-align:right;">$161</td></tr>
+            <tr class="best"><td>Core total</td><td></td><td class="hi" style="text-align:right;">$8,058</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="bomParts"></div>
+      </div>
+    </div>
+    <div class="fade-up" style="margin-top:clamp(30px,4vh,46px);">
+      <div class="sec-head" style="margin-bottom:14px;">
+        <div>
+          <span class="eyebrow">Every line</span>
+          <h3 class="display-sm" style="margin:0;">All 49 parts.</h3>
+        </div>
+        <p class="lede" style="font-size:14px;">Search it, filter by subsystem, and hover any
+          row for a preview. Prices are as paid on 31 July 2026.</p>
+      </div>
+      <div id="bomTable"></div>
+    </div>
+
+    <div class="callout fade-up" style="margin-top:clamp(28px,4vh,44px);">
+      <p><strong>Prices move.</strong>NVIDIA raised every Jetson price 33–101% on 22 July 2026 —
+      the identical robot went from $12,969 to $14,968 overnight. Compute is a choice here, not a
+      component: the bill treats it that way.</p>
+    </div>
+    
+  
+  <p class="faint">Both views are generated from <code>BOM/data/core.csv</code> and
+  <code>BOM/data/choices.csv</code> &mdash; the same two files the tables above
+  are built from, so they cannot disagree.</p>
 
   <h2>The six choices — pick a tier</h2>
   <p>
@@ -113,6 +179,9 @@
   </p>
 </main>
 </div>
-<script src="docs.js"></script>
+<script src="../assets/bom/bom_data.js"></script>
+<script src="../assets/bom-pie.js?v=7d9d9176"></script>
+<script src="../assets/bom-table.js?v=7d2a4988"></script>
+<script src="docs.js?v=0efc77c8"></script>
 </body>
 </html>

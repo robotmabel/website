@@ -59,7 +59,7 @@ const NAV = [
     <div class="foot">
       <a class="sbtn" href="../index.html">&#8592; The project site</a>
       <a href="https://github.com/robotmabel/MABEL">robotmabel/MABEL &#8599;</a>
-      <a href="../build.html#bom">Interactive BOM &#8599;</a>
+      <a href="bom.html#explore">Interactive BOM &#8599;</a>
       <p>Build it, break it, tell us which step was wrong.</p>
     </div>`;
   const wrap = document.querySelector(".wrap");

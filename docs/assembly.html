@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800&family=Space+Mono:ital,wght@0,400;0,700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="docs.css"/>
+<link rel="stylesheet" href="docs.css?v=df04dea9"/>
+<link rel="stylesheet" href="build.css?v=b1512c9f"/>
 </head>
 <body>
 <div class="wrap">
@@ -32,7 +33,7 @@
 
   <h2 id="base">Base — 3-module delta swerve</h2>
   <div class="chips"><span>3 × REV swerve</span><span>NEO + NEO 550 each</span><span>6 × SPARK on CAN</span><span>120 Ω both ends</span><span>Teensy 4.1</span></div>
-  <ol class="steps">
+  <ol class="steps asm-steps">
     <li><b>Build all three swerve modules first,</b> identically and completely,
       before any touches the chassis. Each pairs a NEO (drive) with a NEO 550 (steer).</li>
     <li><b>Mount them in the delta layout</b> — three modules at 120°. Keep every
@@ -50,7 +51,7 @@
 
   <h2 id="lift">Lift — 0.635 m Z-column</h2>
   <div class="chips"><span>cascaded stages</span><span>brushed DC + leadscrew</span><span>BTS7960 H-bridge</span><span>RP2040 Pico</span><span>quadrature encoder</span></div>
-  <ol class="steps">
+  <ol class="steps asm-steps">
     <li><b>Assemble the telescoping stages dry</b> — no motor, no leadscrew. The
       column must slide through full travel by hand with no stiction at any height.</li>
     <li><b>Fit the leadscrew and actuator,</b> then turn the screw by hand end to
@@ -68,7 +69,7 @@
 
   <h2 id="body">Body — torso joint + frame</h2>
   <div class="chips"><span>DaMiao DM-J10422P</span><span>100 N·m rated · 400 N·m peak</span><span>body CAN</span><span>custom PCB</span><span>U2D2 TTL bridge</span></div>
-  <ol class="steps">
+  <ol class="steps asm-steps">
     <li><b>Mount the torso actuator to the lift carriage.</b> It is the strongest
       joint on the robot — its torque stays disabled for this whole stage.</li>
     <li><b>Bolt the torso output shaft</b> to the actuator's output flange;
@@ -83,7 +84,7 @@
 
   <h2 id="arms">Arms — 2 × 7-DoF OpenArm-derived</h2>
   <div class="chips"><span>per arm: 2 × DM-J8009P</span><span>2 × DM-J4340</span><span>3 × FOCGM43 (DM-J3507 profile)</span><span>left = can0</span><span>right = can1</span></div>
-  <ol class="steps">
+  <ol class="steps asm-steps">
     <li><b>Build each arm link by link, shoulder out</b> — shoulder pair (J8009P),
       shoulder-roll + elbow (J4340), wrist triplet (J4310).</li>
     <li><b>Assign IDs 1–7 before each motor enters the chain,</b> one motor powered
@@ -100,7 +101,7 @@
 
   <h2 id="hands">Hands — 2 × ORCA, 17 DoF each</h2>
   <div class="chips"><span>16 × Feetech HL3915M + 1 × HL3930M each</span><span>one 1 MHz TTL chain per hand</span><span>tendon-routed</span></div>
-  <ol class="steps">
+  <ol class="steps asm-steps">
     <li><b>Print and assemble the ORCA hand frames</b> — the hand design is fully
       released; build to the
       <a href="https://www.orcahand.com">ORCA documentation</a>.</li>
@@ -122,7 +123,7 @@
 
   <h2 id="head">Head — 3-DoF neck + stereo eyes</h2>
   <div class="chips"><span>yaw: DaMiao on body CAN</span><span>roll+pitch: 2 × XC330-T181</span><span>TTL 1 Mbaud via U2D2</span><span>stereo head camera</span></div>
-  <ol class="steps">
+  <ol class="steps asm-steps">
     <li><b>Mount the neck yaw actuator</b> to the neck plate fitted in the body stage.</li>
     <li><b>Bolt the printed neck output shaft</b> to the yaw output.</li>
     <li><b>Set the two Dynamixel IDs on the bench,</b> then fit them into the
@@ -146,6 +147,7 @@
   <a href="electronics.html">03 · Electronics &amp; wiring</a>.</p>
 </main>
 </div>
-<script src="docs.js"></script>
+<script src="docs.js?v=0efc77c8"></script>
+<script src="../assets/asm-art.js?v=347cd4d2"></script>
 </body>
 </html>
