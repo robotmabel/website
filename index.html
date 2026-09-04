@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=0f398646" />
+<link rel="stylesheet" href="assets/mabel.css?v=64401cce" />
 <script>document.documentElement.classList.add('js');</script>
 <script>
 /* The rig used to be preloaded here with <link rel="preload" as="fetch">.
@@ -503,10 +503,12 @@ is already a training demonstration — no separate recording rig.</p></template
       <p class="caption-box" style="margin-bottom:22px;">Envelope · measured</p>
       <figure class="panel-frame reach-env" style="padding:clamp(12px,1.6vw,18px); margin:0;">
         <div class="env-svg" data-inline-src="assets/reach-envelope.svg" role="img" aria-label="MABEL's fingertip reach envelope, front and side, at the bottom, middle and top of the lift stroke"></div><noscript><img src="assets/reach-envelope.svg" alt="MABEL's fingertip reach envelope, front and side, at the bottom, middle and top of the lift stroke" /></noscript>
-        <figcaption>Where the fingertip can actually go, at three lift heights.
-          Rejection-sampled forward kinematics over the arm&rsquo;s own joint
-          limits &mdash; 24,000 samples per height, from the same MuJoCo model
-          the robot is built to.</figcaption>
+        <figcaption>Where the fingertip can actually go. <b>Blue</b> is the arm alone,
+          lift down; <b>green</b> is the same arm over the whole 0.635&nbsp;m stroke
+          &mdash; the gap between them is what the lift buys. Rejection-sampled
+          forward kinematics over the arm&rsquo;s own joint limits, 24,000 samples
+          per height, from the same MuJoCo model the robot is built to; the torso
+          range is read from its joint limits.</figcaption>
       </figure>
       </div>
 </div>

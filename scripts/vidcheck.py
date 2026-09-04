@@ -55,7 +55,7 @@ async def go():
             i[0] += 1
             await c.send(json.dumps({"id": i[0], "method": m, "params": pp or {}}))
             while True:
-                r = json.loads(await asyncio.wait_for(c.recv(), 300))
+                r = json.loads(await asyncio.wait_for(c.recv(), 600))
                 if r.get("id") == i[0]:
                     return r
 
@@ -146,7 +146,7 @@ async def go():
                           if (j >= left.length) return touch(vs.length);
                           left[j].scrollIntoView({block: 'center',
                             inline: 'center', behavior: 'instant'});
-                          setTimeout(function () { again(j + 1); }, 420);
+                          setTimeout(function () { again(j + 1); }, 300);
                         })(0);
                       }
                       res(vs.map(function (v, k) {
@@ -157,7 +157,7 @@ async def go():
                           ok: (v.readyState >= 2 && v.videoWidth > 0) ? 1 : 0,
                           err: v.error ? v.error.code : 0};
                       }));
-                    }, 6000);
+                    }, 4500);
                   }
                   // BEHAVIOR 'instant'. The stylesheet sets
                   // `scroll-behavior: smooth`, so the default ANIMATES — the
