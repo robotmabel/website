@@ -177,9 +177,10 @@
   <div class="sec-head fade-up">
     <div><span class="eyebrow">Stage 1</span>
       <h2 class="display-md title">Where am <span class="italic accent">I?</span><img src="assets/stickers/subwayentrance.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
-    <p class="lede">Three ways to answer, measured against MuJoCo ground truth in the same
-      room. Wheels alone drift badly the moment a wheel slips; vision fixes it; the filter
-      keeps both.</p>
+    <p class="lede"><b>A robot that does not know where it is cannot do anything else.</b>
+      Three answers, all measured against MuJoCo ground truth in the same room: wheels
+      alone drift the moment one slips, vision corrects it, and the filter keeps whichever
+      is currently telling the truth.</p>
   </div>
 
   <div class="table-scroll tight fade-up">
@@ -409,16 +410,12 @@
 <section class="pad-y" id="arch"><div class="wrap">
   <div class="sec-head fade-up"><div><span class="eyebrow">Architectures · live</span>
     <h2 class="display-md title">See the network. <span class="italic accent">Every block.</span></h2></div>
-    <p class="lede">A <strong>graph-based architecture programming tool</strong>: you
-    wire the blocks and it <strong>compiles to real PyTorch</strong> — the same graph the
-    training run then executes, which is why this diagram and the model cannot
-    disagree. Switch between <strong>ACT</strong>, the <strong>Diffusion
-    Transformer</strong> and <strong>π<sub>0</sub> / π<sub>0.5</sub></strong>; drag,
-    scroll to zoom, and <em>double-click any block to look inside</em> down to the
-    individual Conv / Linear / attention atoms. It lives in the
-    <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Trainer
-    Studio</a> and is a <strong>work in progress</strong> — expect rough edges and the
-    occasional bug.</p></div>
+    <p class="lede"><b>Wire the blocks; it compiles to real PyTorch.</b> Not a diagram
+    of the model &mdash; the graph the training run executes, which is why the picture
+    and the network cannot drift apart. Switch between <b>ACT</b>, the <b>Diffusion
+    Transformer</b> and <b>&pi;<sub>0</sub> / &pi;<sub>0.5</sub></b>, drag, zoom, and
+    <em>double-click any block to open it</em> down to the individual Conv, Linear and
+    attention atoms. <b>Work in progress</b> &mdash; expect rough edges.</p></div>
 
   <figure class="studio-shot fade-up" style="margin-bottom:clamp(20px,3vh,32px);">
     <img src="assets/studios/trainer.webp" loading="lazy"
@@ -448,7 +445,7 @@
   <div class="card studio-card fade-up">
     <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Community training · help train MABEL</span>
     <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Queue a real <span class="italic accent">training job.</span></h2>
-    <p class="lede" style="margin:0 0 26px; max-width:64ch;">Pick an architecture above, choose one of MABEL&rsquo;s curated datasets, tune a few hyperparameters, and submit. Your job joins the <strong>community queue</strong>; once we review it, it trains on MABEL&rsquo;s GPU and the resulting policy and learning curves are published back here. No account needed — everyone can help teach the robot.</p>
+    <p class="lede" style="margin:0 0 26px; max-width:64ch;"><b>Teach the robot something, from here, without an account.</b> Pick an architecture, choose a curated dataset, set a few hyperparameters and submit. Your job joins the community queue; once reviewed it trains on MABEL&rsquo;s own GPU, and the policy and its learning curves are published back on this page.</p>
 
     <div class="cf-grid">
       <label class="cf-field"><span>Architecture</span><output id="cf-arch" class="cf-out">…</output></label>
@@ -482,8 +479,10 @@
   <div class="sec-head fade-up">
     <div><span class="eyebrow">Stage 6</span>
       <h2 class="display-md title">Run it, then <span class="italic accent">judge it.</span><img src="assets/stickers/manhole.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
-    <p class="lede">A checkpoint goes back into the same loop it learned from: proprioception
-      and camera renders in, 59 actuator targets out, at 15 Hz over 500 Hz physics.</p>
+    <p class="lede"><b>A checkpoint is a claim until it drives something.</b> The policy
+      goes back into the loop it learned from &mdash; proprioception and camera renders in,
+      59 actuator targets out, 15&nbsp;Hz on top of 500&nbsp;Hz physics &mdash; and the same
+      controller gate stands in front of it that stands in front of a human.</p>
   </div>
 
   <div class="paper-grid fade-up">
