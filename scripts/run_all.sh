@@ -5,12 +5,23 @@ set -u
 B="${1:-http://localhost:8741}"
 cd "$(dirname "$0")/.."
 pass=0; fail=0
+ok () {
+  grep -q "RESULT: PASS" <<<"$1" || grep -qE "TOTAL (OVERLAPS|SCROLLING TABLES): 0" <<<"$1"
+}
+# ONE RETRY, and it is not papering over anything. Every check drives its own
+# headless Chrome, and back to back a launch occasionally loses the race for a
+# debugging port or a profile lock — the failure then reads "the widget never
+# initialised" or "list index out of range", never anything about the site.
+# Four checks failed that way in one run and all four passed alone. A real
+# failure fails twice.
 run () {
   printf '── %-14s ' "$1"; shift
   out=$("$@" 2>&1)
-  if grep -q "RESULT: PASS" <<<"$out"; then echo "PASS"; pass=$((pass+1))
-  elif grep -qE "TOTAL (OVERLAPS|SCROLLING TABLES): 0" <<<"$out"; then echo "PASS"; pass=$((pass+1))
-  else echo "FAIL"; fail=$((fail+1)); sed 's/^/      /' <<<"$out" | tail -8; fi
+  if ok "$out"; then echo "PASS"; pass=$((pass+1)); return; fi
+  sleep 2
+  out=$("$@" 2>&1)
+  if ok "$out"; then echo "PASS (on retry)"; pass=$((pass+1)); return; fi
+  echo "FAIL"; fail=$((fail+1)); sed 's/^/      /' <<<"$out" | tail -8
 }
 P=python3
 run structure   $P scripts/structure.py $B/index.html $B/build.html $B/software.html \

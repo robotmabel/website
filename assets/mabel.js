@@ -481,9 +481,34 @@
     vids.forEach(function (v) { if (wantsPlay(v)) start(v); });
   }
 
-  /* Clips that arrive AFTER this ran — the scene gallery builds itself from
-     assets/sim/scenes/index.json, so its videos do not exist at page load and
-     would otherwise never start. Whoever creates them calls this. */
+  /* CLIPS THAT ARRIVE LATER PICK THEMSELVES UP. Widgets that build from JSON
+     used to have to call __lazyVid by hand, and a widget whose script ran
+     BEFORE this one found `window.__lazyVid` undefined, skipped the call
+     behind its own `if` guard, and its clips never loaded — silently, because
+     a missing optional call reports nothing. The accuracy lab did exactly
+     that. A MutationObserver means no widget has to remember. */
+  if ('MutationObserver' in window) {
+    new MutationObserver(function (recs) {
+      var found = [];
+      recs.forEach(function (r) {
+        [].forEach.call(r.addedNodes, function (n) {
+          if (n.nodeType !== 1) return;
+          if (n.matches && n.matches('video[data-lazyvid]')) found.push(n);
+          if (n.querySelectorAll) {
+            [].push.apply(found, n.querySelectorAll('video[data-lazyvid]'));
+          }
+        });
+      });
+      found.forEach(function (v) {
+        if (vids.indexOf(v) >= 0) return;
+        vids.push(v);
+        if (io) io.observe(v); else if (wantsPlay(v)) start(v);
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+
+  /* Still callable explicitly — the scene gallery does, and an explicit call
+     is cheap and unambiguous. */
   window.__lazyVid = function (root) {
     var fresh = Array.prototype.slice.call(
       (root || document).querySelectorAll('video[data-lazyvid]'))
