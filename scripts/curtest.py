@@ -57,6 +57,15 @@ async def go():
         await cmd("Page.enable"); await cmd("Runtime.enable")
         await cmd("Network.setCacheDisabled", {"cacheDisabled": True})
         await cmd("Page.navigate", {"url": url})
+        # The 3-D modules are deferred until their canvas nears the viewport
+        # (assets/defer-module.js), so a check that waits for their test hook
+        # waits forever. Ask for them — but RETRY, because right after
+        # Page.navigate the loader script has not run yet and the hook it
+        # installs does not exist.
+        for _ in range(40):
+            if await ev("!!(window.__loadDeferred && window.__loadDeferred())"):
+                break
+            await asyncio.sleep(0.15)
         for _ in range(50):
             await asyncio.sleep(0.4)
             if await ev("!!window.__curationLab"):

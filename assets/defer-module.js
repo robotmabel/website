@@ -36,12 +36,29 @@
     import(url).catch(function (e) { console.error('[defer-module]', mod, e); });
   }
 
+  /* A TEST HOOK, and a deep link. Two callers legitimately need the module
+     before anyone has scrolled: a check that reads `window.__tipLab`, and a
+     visitor who arrives on `#tipLab` directly. Without this, deferring the
+     module also defers every test hook the checks depend on, and they time out
+     waiting for a global that will never appear. */
+  var pending = (window.__deferred = window.__deferred || []);
+  var loaded = false;
+  var once = function () { if (!loaded) { loaded = true; go(); } };
+  pending.push(once);
+  window.__loadDeferred = function () {
+    pending.forEach(function (f) { f(); });
+    return pending.length;
+  };
+  if (sel && location.hash && sel.split(',').some(function (s2) {
+    return s2.trim() === location.hash;
+  })) { once(); return; }
+
   if (!el || !('IntersectionObserver' in window)) {
-    go();
+    once();
   } else {
     var io = new IntersectionObserver(function (entries) {
       for (var i = 0; i < entries.length; i++) {
-        if (entries[i].isIntersecting) { io.disconnect(); go(); return; }
+        if (entries[i].isIntersecting) { io.disconnect(); once(); return; }
       }
     }, { rootMargin: '600px 0px' });
     io.observe(el);
