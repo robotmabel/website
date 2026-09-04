@@ -4455,8 +4455,14 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .env-svg     { aspect-ratio: 760 / 400; }
 .callout-svg > svg, .frames-svg > svg, .env-svg > svg { width: 100%; height: auto; }
 /* the exploded CAD drawing: a cutout, so it sits on the page's own ground */
+/* THE EXPLODED DRAWING KEEPS ITS ASPECT AND FITS THE SCREEN. `width: 100%`
+   from the rule above plus a stamped height attribute stretched it; and at
+   1054x1427 it is taller than most viewports, so it needs a HEIGHT cap as well
+   as a width one. `object-fit: contain` guarantees the ratio whatever the box
+   does. */
 .callout-fig img { border: 0; background: transparent; box-shadow: none;
-  max-width: 780px; }
+  width: auto; max-width: min(100%, 640px); height: auto;
+  max-height: 78vh; object-fit: contain; margin: 0 auto; }
 /* the experiment replay beside the plot of what it measured */
 .al-clip { margin: 0 0 11px; border: 2px solid var(--ink); border-radius: 10px;
   overflow: hidden; background: #0B0E15; }
@@ -4525,3 +4531,40 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
     font-weight: 500; flex: none; }
   .pt-table .pt-name::before { content: none; }
 }
+/* the webcam widget's host reserves its space before the module fills it —
+   otherwise the page jumps, and an empty box is also a box the
+   IntersectionObserver can see */
+[data-retarget-cam], #retargetCam { display: block; min-height: 320px; }
+
+/* ── operator → robot frames: the real photo, three tight steps ─────────
+   This replaced a drawn diagram whose three cards carried nine lines of
+   small captions. The photograph is the paper's own annotated frame figure —
+   it shows the six triads on the actual robot and operator, which no stick
+   figure can — and the steps beside it are one line each. */
+.fr2 { display: grid; grid-template-columns: 1.35fr 1fr; gap: clamp(14px,2vw,26px);
+  align-items: start; padding: clamp(14px,2vw,22px); }
+@media (max-width: 820px) { .fr2 { grid-template-columns: 1fr; } }
+.fr2-photo img { display: block; width: 100%; height: auto; border-radius: 10px;
+  border: 2.5px solid var(--ink); }
+.fr2-photo figcaption { font-family: var(--font-mono); font-size: 10.5px;
+  line-height: 1.55; color: var(--ash); margin-top: 8px; }
+.fr2-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px;
+  counter-reset: fr; }
+.fr2-steps li { counter-increment: fr; position: relative;
+  padding: 9px 12px 10px 38px; border: 2.5px solid var(--ink);
+  border-radius: 10px; background: var(--bone); font-size: 13px; line-height: 1.45; }
+.fr2-steps li::before { content: counter(fr); position: absolute; left: 10px;
+  top: 9px; width: 19px; height: 19px; border-radius: 50%; background: var(--pop);
+  border: 2px solid var(--ink); display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; }
+.fr2-steps b { display: inline; font-family: var(--font-body); font-weight: 700;
+  color: var(--ink); }
+.fr2-steps i { display: block; font-style: normal; font-size: 11px;
+  color: var(--ash); margin-top: 3px; }
+.fr2-steps code { display: block; font-size: 11px; margin-top: 4px;
+  color: var(--rust); }
+.fr2-bite { margin: 0 clamp(14px,2vw,22px) clamp(14px,2vw,20px);
+  padding: 10px 13px; border-radius: 9px; background: #FFF0CC;
+  border: 2.5px solid var(--ink); font-size: 12.5px; line-height: 1.5; }
+.fr2-bite b { color: var(--hi); font-family: var(--font-comic); font-size: 14px;
+  letter-spacing: .03em; }

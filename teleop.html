@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=c5583fd6" />
+<link rel="stylesheet" href="assets/mabel.css?v=0f398646" />
 <link rel="stylesheet" href="assets/teleop-app.css?v=20260630-balldrag" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
@@ -42,7 +42,7 @@
         <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">The stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
     <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#data">Data</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html#learning">Learning</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
     <a href="connect.html">Links</a>
     <a href="index.html#paper" class="ext">Paper ↗</a>
         <a href="build.html" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
@@ -304,8 +304,6 @@
     <figure class="tele-clip"><video muted loop playsinline preload="none" poster="assets/wild/v-avp.jpg" data-lo="assets/wild/v-avp-lo.mp4" data-lazyvid="assets/wild/v-avp.mp4" aria-label="Operator in a Vision Pro; the real robot mirrors both arms"></video><span class="burst sm" aria-hidden="true">Sync!</span><figcaption>The operator moves — the real robot moves with them</figcaption></figure>
     <figure class="tele-clip"><video muted loop playsinline preload="none" poster="assets/wild/d-vp3.jpg" data-lo="assets/wild/d-vp3-lo.mp4" data-lazyvid="assets/wild/d-vp3.mp4" aria-label="Full-mirror Vision Pro session"></video><figcaption>Full mirror — 27 joints per hand at 60 Hz</figcaption></figure>
   </div>
-  <div class="reveal-media media-frame sim-dark fade-up" style="aspect-ratio:1120/680; margin-bottom:34px;"><video muted loop playsinline preload="none" poster="assets/wild/d-teleop.jpg" data-lo="assets/wild/d-teleop-lo.mp4" data-lazyvid="assets/wild/d-teleop.mp4" aria-label="Apple Vision Pro teleoperation"></video><span class="sim-cap"><span class="dot"></span>Apple Vision Pro · mirror-mode session</span></div>
-
   <div class="appgal-wrap fade-up">
     <span class="appgal-hint"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h24M20 2l5 4-5 4"/></svg>Swipe through all five tabs · real captures</span>
     <div class="appgal vp">
@@ -379,12 +377,31 @@
       <div id="reachGlobe"></div>
     </div>
         <figure class="frames-fig fade-up">
-      <div class="frames-svg" data-inline-src="assets/frames-figure.svg" role="img" aria-label="How an operator's frame becomes the robot's: a shoulder-centre clutch, one axis permutation, and a per-axis gain"></div><noscript><img src="assets/frames-figure.svg" alt="How an operator's frame becomes the robot's: a shoulder-centre clutch, one axis permutation, and a per-axis gain" /></noscript>
-      <figcaption>Your body and MABEL's do not agree about which way is forward,
-        how long an arm is, or how wide a torso should be. Three steps reconcile
-        them, and none of them is learned &mdash; the clutch is your own shoulder
-        width, the permutation is one matrix, and the gain is six numbers in
-        <code>config.py</code>.</figcaption>
+      <div class="fr2">
+        <div class="fr2-photo">
+          <img src="assets/teleop/frames-photo.jpg" loading="lazy" width="1131" height="750"
+               alt="The operator in a Vision Pro beside MABEL. Six coordinate triads are drawn on the pair — the head frame on each, and a wrist frame on each hand — with dashed lines pairing the operator's to the robot's." />
+          <figcaption>The frames the headset reports, and where they land. Head,
+            both wrists, both elbows &mdash; paired, not copied.</figcaption>
+        </div>
+        <ol class="fr2-steps">
+          <li><b>Clutch</b> Anchor at your shoulders, scale by your own span.
+            <i>a tall and a short operator drive it the same</i></li>
+          <li><b>Permute</b> One matrix, det&nbsp;=&nbsp;+1.
+            <code>x&#8202;=&#8202;z<sub>a</sub> &nbsp; y&#8202;=&#8202;y<sub>a</sub> &nbsp; z&#8202;=&#8202;&#8722;x<sub>a</sub></code>
+            <i>so your left hand stays your left</i></li>
+          <li><b>Gain</b> &times;1.3 forward, &times;1.3 left, &times;1.4 up.
+            <i>the lift, torso and base carry the long reaches</i></li>
+        </ol>
+      </div>
+      <p class="fr2-bite"><b>The one that bites:</b> a palm frame built from anatomy is
+        chirality-mirrored &mdash; palmar on the right hand, dorsal on the left. The robot's is
+        palmar on both, so the left one is flipped first. Cost of forgetting, measured:
+        178.6&deg;.</p>
+      <figcaption>Your body and MABEL's do not agree about which way is forward, how long an
+        arm is, or how wide a torso should be. Three steps reconcile them, and none is
+        learned &mdash; the clutch is your own shoulder width, the permutation is one matrix,
+        and the gain is six numbers in <code>config.py</code>.</figcaption>
     </figure>
 
 <div class="lat-bars fade-up" id="latencyBars"></div>

@@ -43,12 +43,22 @@
       var url = new URL(mod, tag.src).href;
       import(url).catch(function (e) { console.error('[defer-module]', mod, e); });
     };
+    /* DOMContentLoaded, NOT load. Waiting for `load` means waiting for every
+       image and every lazy clip on the page — on index.html that is twenty
+       videos, and the widget the reader was told to try sat empty until they
+       all finished. DCL fires around 200 ms on every page here, which is late
+       enough to be off the parse path and early enough that nobody notices.
+       The timeout is a floor, not a hope: idle callbacks can be starved. */
+    var fired = false;
     var idle = function () {
-      if (window.requestIdleCallback) requestIdleCallback(run, { timeout: 1500 });
-      else setTimeout(run, 120);
+      if (fired) return;
+      fired = true;
+      if (window.requestIdleCallback) requestIdleCallback(run, { timeout: 800 });
+      else setTimeout(run, 60);
     };
-    if (document.readyState === 'complete') idle();
-    else addEventListener('load', idle, { once: true });
+    setTimeout(idle, 2500);                       // never later than this
+    if (document.readyState !== 'loading') idle();
+    else addEventListener('DOMContentLoaded', idle, { once: true });
   }
 
   /* A TEST HOOK, and a deep link. Two callers legitimately need the module
@@ -68,6 +78,19 @@
     return s2.trim() === location.hash;
   })) { once(); return; }
 
+  /* AN EMPTY HOST HAS NO BOX, AND A BOX IS WHAT THE OBSERVER WATCHES. The
+     webcam widget's host is <div data-retarget-cam></div> — zero height until
+     the very module we are deferring fills it, which is circular: the observer
+     may never report a zero-area rect as intersecting, so the module never
+     runs, so the div stays empty. Watch the nearest ancestor that has a box. */
+  var watch = el;
+  while (watch && watch !== document.body) {
+    var r = watch.getBoundingClientRect();
+    if (r.height > 4 && r.width > 4) break;
+    watch = watch.parentElement;
+  }
+  if (!watch) watch = el;
+
   if (!el || !('IntersectionObserver' in window)) {
     once();
   } else {
@@ -76,6 +99,6 @@
         if (entries[i].isIntersecting) { io.disconnect(); once(); return; }
       }
     }, { rootMargin: '600px 0px' });
-    io.observe(el);
+    io.observe(watch);
   }
 })();

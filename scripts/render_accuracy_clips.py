@@ -138,7 +138,12 @@ def render(name, d, tip_body, trail_rgba, title, every=None):
     cam = mujoco.MjvCamera(); mujoco.mjv_defaultCamera(cam)
     cam.lookat[:] = centre
     cam.distance = max(1.35, min(2.1, reach * 1.9 + 0.9))
-    cam.azimuth, cam.elevation = 196, -8
+    # AZIMUTH 16, NOT 196 — the robot was showing its back. MuJoCo puts the
+    # eye at lookat − d·(cos az, sin az, sin el) and looks along that vector,
+    # and MABEL's forward is −X, so the camera sees the FRONT only when
+    # cos(az) > 0. At 196 it sat behind the robot looking at the back of its
+    # head; 16 is the same three-quarter view from the other side.
+    cam.azimuth, cam.elevation = 16, -8
     opt = H.clean_option()
 
     tmp = tempfile.mkdtemp(prefix=f"acc_{name}_")
