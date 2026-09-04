@@ -4467,3 +4467,35 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 /* the scatter is 230 px of drawing; do not let it stretch to the panel */
 .al-plot { max-width: 100%; }
 .al-panel .al-plot:has(svg[viewBox^="0 0 230"]) { max-width: 288px; margin: 0 auto; }
+
+/* ── the retargeting table on a phone ───────────────────────────────────
+   Eight columns want 720 px and a phone has 312. Scrolling it sideways is
+   what tablescroll.py exists to catch, so below 720 px it TRANSPOSES: each
+   method becomes a card, each axis a labelled row inside it. Same numbers,
+   read down a column instead of across one. */
+@media (max-width: 720px) {
+  .rc2-scroll { overflow: visible; }
+  /* min-width:720px is what actually forces the scroll; the display change
+     alone leaves it in place and the check still measures 720 in 312. */
+  .rc2-table { min-width: 0 !important; width: 100% !important; }
+  .rc2-table, .rc2-table tbody, .rc2-table tr, .rc2-table td, .rc2-table th {
+    display: block; width: auto; }
+  .rc2-table thead { display: none; }
+  .rc2-table tbody { display: grid; gap: 10px; }
+  .rc2-table tr { border: 2.5px solid var(--ink); border-radius: 11px;
+    background: var(--panel); padding: 9px 11px 10px; }
+  .rc2-table .rc2-axis { border: 0; padding: 0 0 6px;
+    border-bottom: 1.5px solid rgba(21,24,32,.16); margin-bottom: 5px; }
+  .rc2-table .rc2-axis b { font-size: 14px; }
+  .rc2-table .rc2-v { display: flex; justify-content: space-between;
+    align-items: baseline; padding: 3px 0; border: 0;
+    font-family: var(--font-mono); font-size: 12.5px; text-align: right; }
+  /* the method name comes from the column header, carried by JS into
+     data-label — a CSS-only transpose has no way to know it */
+  .rc2-table .rc2-v::before { content: attr(data-label); text-align: left;
+    font-family: var(--font-body); font-size: 12px; color: var(--ash);
+    font-weight: 500; }
+  .rc2-table .rc2-v.ours { background: rgba(255,206,10,.16);
+    border-radius: 6px; padding-inline: 6px; }
+  .rc2-table .rc2-v.ours::before { color: var(--ink); font-weight: 700; }
+}

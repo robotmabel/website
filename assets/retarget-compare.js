@@ -139,8 +139,12 @@
               : ax.higher === false ? ' · lower wins' : ' · not a ranking') +
             '</i></th>' +
           vals.map(function (v, i) {
+            /* data-label carries the column header into the cell so the
+               phone layout can transpose the table in CSS — a stacked table
+               otherwise loses which method each number belongs to */
             return '<td class="rc2-v ' + (rank[i] || '') +
-              (mids[i] === 'ours' ? ' ours' : '') + '">' +
+              (mids[i] === 'ours' ? ' ours' : '') + '" data-label="' +
+              esc(D.methods[i].name) + '">' +
               (isFinite(v) ? v.toFixed(dp) : '—') + '</td>';
           }).join('') + '</tr>';
       }).join('');
