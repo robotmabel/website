@@ -4568,3 +4568,58 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   border: 2.5px solid var(--ink); font-size: 12.5px; line-height: 1.5; }
 .fr2-bite b { color: var(--hi); font-family: var(--font-comic); font-size: 14px;
   letter-spacing: .03em; }
+
+/* ── the live SLAM lab ──────────────────────────────────────────────────── */
+.sl { border: 3px solid var(--ink); border-radius: 14px; background: var(--panel);
+  box-shadow: 8px 8px 0 var(--ink); padding: clamp(16px,2.4vw,26px); }
+.dark-sec .sl { box-shadow: 8px 8px 0 rgba(0,0,0,.8); border-color: var(--gold); }
+.sl-kick { font-family: var(--font-comic); font-size: 12px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--hi); }
+.sl-title { font-family: var(--font-display); font-size: clamp(22px,3.2vw,32px);
+  margin: 4px 0 6px; color: var(--ink); }
+.sl-say { font-size: 13px; line-height: 1.6; color: var(--ink-soft);
+  margin: 0 0 14px; max-width: 76ch; }
+.sl-say em { font-style: italic; color: var(--ink); }
+.sl-stage { position: relative; border: 2.5px solid var(--ink); border-radius: 11px;
+  overflow: hidden; background: #0B0E15; }
+.sl-canvas { display: block; width: 100%; height: auto; }
+.sl-hud { position: absolute; top: 9px; right: 10px; display: flex; gap: 12px;
+  font-family: var(--font-mono); font-size: 10.5px; color: rgba(255,249,240,.6);
+  background: rgba(11,14,21,.72); padding: 5px 10px; border-radius: 7px; }
+.sl-hud b { color: var(--pop); font-size: 12px; }
+.sl-keys { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 5px;
+  align-items: center; }
+.sl-k { width: 24px; height: 24px; display: grid; place-items: center;
+  border: 2px solid rgba(255,249,240,.4); border-radius: 6px;
+  font-family: var(--font-mono); font-size: 12px; color: rgba(255,249,240,.6); }
+.sl-k.on { background: var(--pop); color: var(--ink); border-color: var(--pop); }
+.sl-keys i { font-style: normal; font-family: var(--font-mono); font-size: 10px;
+  color: rgba(255,249,240,.45); margin-left: 6px; }
+.sl-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  margin-top: 12px; }
+.sl-btn { font-family: var(--font-comic); font-size: 12px; letter-spacing: .04em;
+  padding: 7px 14px; border-radius: 20px; border: 2.5px solid var(--ink);
+  background: var(--pop); color: var(--ink); cursor: pointer; }
+.sl-btn:hover { transform: translateY(-1px); }
+.sl-tog { font-family: var(--font-mono); font-size: 11px; color: var(--ink);
+  display: inline-flex; align-items: center; gap: 6px; }
+.sl-note { font-size: 11.5px; color: var(--ash); flex: 1 1 260px; }
+@media (max-width: 700px) { .sl-keys { display: none; } }
+
+/* ── a stage's "open the studio" pair: screenshot + button ─────────────── */
+.stg-open { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(14px,2vw,26px);
+  align-items: center; margin-top: clamp(18px,2.6vh,28px);
+  border: 3px solid var(--ink); border-radius: 14px; background: var(--panel);
+  box-shadow: 8px 8px 0 var(--ink); padding: clamp(14px,2vw,20px); }
+.dark-sec .stg-open { box-shadow: 8px 8px 0 rgba(0,0,0,.8); border-color: var(--gold);
+  background: rgba(255,249,240,.05); }
+@media (max-width: 760px) { .stg-open { grid-template-columns: 1fr; } }
+.stg-open img { display: block; width: 100%; height: auto; border-radius: 9px;
+  border: 2.5px solid var(--ink); }
+.stg-open h4 { font-family: var(--font-comic); font-size: clamp(19px,2.4vw,25px);
+  letter-spacing: .03em; margin: 0 0 7px; color: var(--ink); }
+.dark-sec .stg-open h4 { color: var(--bone); }
+.stg-open p { font-size: 13px; line-height: 1.6; color: var(--ink-soft);
+  margin: 0 0 13px; }
+.dark-sec .stg-open p { color: var(--ash-light, #B9AF98); }
+.stg-open .btn { margin: 0; }

@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=64401cce" />
+<link rel="stylesheet" href="assets/mabel.css?v=c81522ce" />
 <style>
   /* Data Curation live-tool CTA */
   .studio-card { padding: clamp(28px, 4vw, 48px); }
@@ -225,10 +225,14 @@
   <div class="sec-head fade-up">
     <div><span class="eyebrow">Stage 2</span>
       <h2 class="display-md title">Two ways to build a <span class="italic accent">map.</span><img src="assets/stickers/watertower.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
-    <p class="lede">A GPU visual stack and a CPU LiDAR stack, both publishing the same
-      <code>map → odom</code>. Never run both — and on the real robot you do not have to
-      choose, because the bring-up decides for you.</p>
+    <p class="lede"><b>Drive it yourself and watch the map appear.</b> MABEL builds
+      its own floor plan from a 360-point LiDAR — no beacons, no prior map, no
+      markers on the walls. Two stacks do it: a GPU visual one and a CPU LiDAR one,
+      both publishing the same <code>map → odom</code>. The tool below is the CPU
+      one, ported to run in this page.</p>
   </div>
+
+  <div class="sl fade-up" id="slamLab" style="margin-bottom:clamp(26px,3.5vh,40px);"></div>
 
   <div class="paper-grid fade-up">
     <div>
@@ -315,32 +319,21 @@
   <div class="sec-head fade-up">
     <div><span class="eyebrow">Stage 3</span>
       <h2 class="display-md title">Every session is a <span class="italic accent">demonstration.</span><img src="assets/stickers/bodega.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
-    <p class="lede">Teleoperate and you are recording. One shared 15 Hz clock indexes seven
-      cameras, 59 joints, LiDAR and the operator's own targets into one episode file.</p>
+    <p class="lede"><b>You do not collect data. You drive the robot, and the data is
+      already collected.</b> One 15&nbsp;Hz clock indexes seven cameras, 59 joints, the
+      LiDAR and the operator&rsquo;s own targets into a single frame-aligned file &mdash;
+      about <b>38&nbsp;MB a minute</b>, against 1.5&nbsp;GB a minute per camera for a raw
+      bag. The label a policy learns is <code>action/ctrl</code>: the absolute joint
+      target that was sent, not a delta.</p>
   </div>
 
-  <div class="tenets fade-up">
-    <div class="tenet"><b>WHAT</b><h5>One file per episode</h5>
-      <p>HDF5, frame-indexed: JPEG colour, 16-bit depth in millimetres, a 360-point scan,
-      joint position / velocity / torque, and the operator's palm targets and grasp.</p></div>
-    <div class="tenet"><b>LABEL</b><h5>Absolute joint targets</h5>
-      <p><code>action/ctrl</code> is the command sent to all 59 actuators — absolute, not a
-      delta. That is what a policy learns to produce.</p></div>
-    <div class="tenet"><b>SIZE</b><h5>≈38 MB per minute</h5>
-      <p>Against roughly 1.5 GB per minute per camera for a raw bag. Images are about 96% of
-      it, which is why the format matters.</p></div>
-    <div class="tenet"><b>RAW</b><h5>Bags are still there</h5>
-      <p>An opt-in rosbag recorder captures 52 topics byte-for-byte for debugging. The
-      curation studio does not read them.</p></div>
-  </div>
-
-  <div class="callout fade-up" style="margin-top:clamp(24px,3vh,36px);">
-    <p><strong>Where this is honest about itself.</strong> The simulation collector is complete.
-    On hardware, the working recorder is a standalone ROS node driven by the app's own
-    "start collecting" button — it was verified end to end in July 2026, but with synthetic
-    actions on a static robot, and the curation engine correctly scored that data as frozen.
-    The tidier <code>collect_real.py</code> harness is still a stub with TODO hooks. Most
-    collected data today is simulated.</p>
+  <div class="callout fade-up">
+    <p><strong>Where this is honest about itself.</strong> The simulation collector is
+    complete. On hardware, the working recorder is a standalone ROS node driven by the
+    app&rsquo;s own &ldquo;start collecting&rdquo; button &mdash; verified end to end in
+    July 2026, but with synthetic actions on a static robot, and the curation engine
+    correctly scored that data as frozen. The tidier <code>collect_real.py</code> harness
+    is still a stub. Most collected data today is simulated.</p>
   </div>
 </div></section>
 
@@ -349,111 +342,67 @@
   <div class="sec-head fade-up">
     <div><span class="eyebrow">Stage 4</span>
       <h2 class="display-md title">Cut it like <span class="italic accent">film.</span><img src="assets/stickers/tile.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
-    <p class="lede">A non-linear editor for demonstrations. Blade, ripple-delete, merge and
-      reorder on a timeline — and the source files are never touched.</p>
+    <p class="lede"><b>Bad demonstrations poison a policy, and you cannot see them by
+      watching.</b> The curation studio scores every episode against the failures that
+      actually matter &mdash; frozen joints, dropped frames, a camera that went black,
+      control lag between action and observation &mdash; then lets you blade, trim and
+      reorder on a timeline that never touches the source file. Cut three real takes
+      here, faults and all.</p>
   </div>
 
-  <div class="card-grid fade-up">
-    <div class="card"><div class="card-num">EDL</div><h4>Nothing is destroyed</h4>
-      <p>A project is an ordered list of <em>(episode, start, end)</em> segments. Saving
-      materialises a <strong>new</strong> episode file, slicing every stream including the JPEG
-      blobs and rebasing time to stay monotonic. Roughly 1.4 s for a typical cut.</p></div>
-    <div class="card"><div class="card-num">QC</div><h4>It finds what you would miss</h4>
-      <p>Because everything shares one clock there is nothing to re-sync — so the engine hunts
-      the failures that matter instead: control lag between action and observation
-      (cross-correlated, correctable and gated at export), timing gaps against the episode's own
-      cadence, frozen joints, zero torque, NaNs and black cameras.</p></div>
-    <div class="card"><div class="card-num">OUT</div><h4>LeRobot v2.1</h4>
-      <p>Exports <code>observation.state</code> from measured joint positions,
-      <code>action</code> from the commanded targets, and one MP4 per camera — the layout the
-      trainer reads. A headless <code>curate_export</code> does the same from a shell and
-      writes a per-episode quality report beside it.</p></div>
-  </div>
+  <div class="cur-lab fade-up" id="curationLab"></div>
 
-  <div class="fade-up" style="text-align:center; margin-top:clamp(24px,3vh,36px);">
-    <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn">Open the Data Studio ↗</a>
+  <div class="stg-open fade-up">
+    <img src="assets/studio/curation.jpg" loading="lazy" width="1200" height="685"
+         alt="The Data Curation studio with a dataset loaded: episode library, 3-D view, the issues panel, and a filmstrip timeline" />
+    <div>
+      <h4>The full studio has the rest</h4>
+      <p>The 3-D scene view, all seven camera feeds side by side, batch quality
+        scoring across a whole dataset, and LeRobot v2.1 export. It runs in a
+        browser too &mdash; this page carries the timeline and the detector, not the
+        review room.</p>
+      <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Curation &#8599;</a>
+      <a href="https://github.com/robotmabel/MABEL/tree/main/learning/data_curation" target="_blank" rel="noopener" class="btn btn-ghost">Source &#8599;</a>
+    </div>
   </div>
 </div></section>
-
-<section class="dark-sec pad-y" id="studio">
-  <div class="wrap">
-    <div class="card studio-card fade-up">
-      <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · in your browser</span>
-      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Curate the data in <span class="italic accent">Data Curation.</span><img src="assets/stickers/tile.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-6deg);" loading="lazy" /></h2>
-      <p class="lede" style="margin:0 0 26px; max-width:62ch;">A dataset-quality curation studio for MABEL imitation-learning data. It ingests recorded episodes, automatically flags the defects that poison a policy — dropped frames, out-of-sync streams, frequency drops, dead motors, missing video — grades every episode, and lets you align, blade, trim, and cull non-destructively in a Final-Cut-style timeline before exporting a clean dataset in LeRobot format. The Rerun-style 3D viewer and seven synced camera feeds are still there to review every frame.</p>
-      <div class="studio-actions">
-        <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Curation ↗</a>
-        <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Trainer Studio ↗</a>
-        <a href="https://github.com/robotmabel/MABEL/tree/main/learning/data_curation" target="_blank" rel="noopener" class="btn btn-ghost">Source ↗</a>
-        <span class="studio-live"><span class="studio-dot"></span>Live demo</span>
-      </div>
-      <div class="spec" style="margin-top:24px;">
-        <span>Auto quality scoring</span><span>Sync + frequency detection</span><span>Non-destructive editing</span><span>LeRobot export</span><span>3D + 7-cam review</span>
-      </div>
-    </div>
-
-    <figure class="studio-shot fade-up">
-      <img src="assets/studios/curation.webp" loading="lazy"
-           alt="The Data Curation studio with a dataset loaded: library, 3-D view,
-                issues panel and a filmstrip timeline" />
-      <figcaption>The real studio, with four takes loaded. Library on the left, the
-        3-D + camera review in the middle, the issue list on the right, and the
-        non-destructive timeline underneath with its ratings and mode lanes.</figcaption>
-    </figure>
-
-    <div class="sec-head fade-up" style="margin-top:clamp(34px,4.5vh,52px);">
-      <div><span class="eyebrow" style="color:var(--rust);">Try it &middot; runs in this page</span>
-        <h3 class="display-sm title" style="color:var(--bone); margin:0;">Cut three real takes.</h3></div>
-      <p class="lede" style="color:var(--ash-light);">Three episodes recorded the
-        way the collector records &mdash; one shared 15&nbsp;Hz clock, absolute joint
-        targets &mdash; with real faults left in two of them. The scanner below runs
-        the same tests the studio&rsquo;s quality engine runs, so what it finds is
-        a result, not a label. Blade with <kbd>B</kbd>, drag to reorder, drag an
-        edge to trim, <kbd>L</kbd> to rename.</p>
-    </div>
-    <div class="cur-lab fade-up" id="curationLab" style="margin-top:18px;"></div>
-  </div>
-</section>
 
 <!-- ═══ 5 · TRAINING ═══ -->
 <section class="soft-sec pad-y" id="learning"><div class="wrap">
   <div class="sec-head fade-up">
     <div><span class="eyebrow">Stage 5</span>
       <h2 class="display-md title">Four policies, one <span class="italic accent">trainer.</span><img src="assets/stickers/empirestate.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
-    <p class="lede">Pick an architecture, pick which cameras and joints it sees, and queue a
-      run. The scope is a real slice of the dataset, not a mask applied in the loop.</p>
+    <p class="lede"><b>Pick an architecture, pick what the robot is allowed to see, queue
+      the run.</b> Scope is a real slice of the dataset &mdash; whole body, one arm, both
+      hands, the base &mdash; not a mask applied in the loop, and it scatters back onto all
+      59 actuators at inference. ACT (52&nbsp;M) and the diffusion policy (296&nbsp;M) both
+      train on the robot&rsquo;s own Jetson; on curated data ACT went from L1 0.464 to
+      <b>0.135</b> train and 0.572 to <b>0.136</b> validation.</p>
   </div>
 
   <div class="table-scroll fade-up">
     <table class="data-table compact">
       <thead><tr><th style="text-align:left;">Architecture</th><th>Decoder</th><th>Chunk</th><th>Status</th></tr></thead>
       <tbody>
-        <tr><td data-l="Architecture"><strong>ACT</strong> — action chunking transformer</td><td data-l="Decoder">transformer + CVAE</td><td data-l="Chunk">100</td><td data-l="Status" class="hi">trains, resumes, evaluates</td></tr>
-        <tr><td data-l="Architecture"><strong>DiT</strong> — diffusion transformer</td><td data-l="Decoder">diffusion, 10 steps</td><td data-l="Chunk">16</td><td data-l="Status" class="hi">trains, resumes, evaluates</td></tr>
-        <tr><td data-l="Architecture"><strong>π₀</strong> — vision-language-action</td><td data-l="Decoder">flow matching</td><td data-l="Chunk">50</td><td data-l="Status">launches; needs a gated licence</td></tr>
-        <tr><td data-l="Architecture"><strong>π₀.₅</strong> — VLA with co-training</td><td data-l="Decoder">flow matching</td><td data-l="Chunk">50</td><td data-l="Status">launches; needs a gated licence</td></tr>
+        <tr><td data-l="Architecture"><strong>ACT</strong> &mdash; action chunking transformer</td><td data-l="Decoder">transformer + CVAE</td><td data-l="Chunk">100</td><td data-l="Status" class="hi">trains, resumes, evaluates</td></tr>
+        <tr><td data-l="Architecture"><strong>DiT</strong> &mdash; diffusion transformer</td><td data-l="Decoder">diffusion, 10 steps</td><td data-l="Chunk">16</td><td data-l="Status" class="hi">trains, resumes, evaluates</td></tr>
+        <tr><td data-l="Architecture"><strong>&pi;&#8320;</strong> &mdash; vision-language-action</td><td data-l="Decoder">flow matching</td><td data-l="Chunk">50</td><td data-l="Status">launches; needs a gated licence</td></tr>
+        <tr><td data-l="Architecture"><strong>&pi;&#8320;.&#8325;</strong> &mdash; VLA with co-training</td><td data-l="Decoder">flow matching</td><td data-l="Chunk">50</td><td data-l="Status">launches; needs a gated licence</td></tr>
       </tbody>
     </table>
   </div>
 
-  <div class="tenets fade-up" style="margin-top:clamp(24px,3vh,36px);">
-    <div class="tenet"><b>SCOPE</b><h5>Choose the body</h5>
-      <p>Whole body, upper body, one arm, both hands, the base — the selection builds a real
-      sliced dataset and a scatter map back onto all 59 actuators.</p></div>
-    <div class="tenet"><b>TRUTH</b><h5>The filesystem is the database</h5>
-      <p>Every run is a directory with its manifest, config, log, metrics and checkpoints. A
-      run survives a database wipe; the registry rebuilds by scanning.</p></div>
-    <div class="tenet"><b>PROOF</b><h5>Measured, on hardware</h5>
-      <p>ACT (52 M parameters) and the diffusion policy (296 M) both train on the Jetson.
-      On real curated data ACT went from L1 0.464 to 0.135 train, 0.572 to 0.136 validation.</p></div>
-    <div class="tenet"><b>YOURS</b><h5>Queue one yourself</h5>
-      <p>The community queue takes an architecture, a dataset and hyperparameters, clamps them
-      to published ranges, and waits for approval before anything touches the GPU.</p></div>
-  </div>
-
-  <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:clamp(24px,3vh,36px);">
-    <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn">Open the Training Studio ↗</a>
-    <a href="#contribute" class="btn">Queue a run →</a>
+  <div class="stg-open fade-up">
+    <img src="assets/studio/training.jpg" loading="lazy" width="1200" height="685"
+         alt="The Trainer Studio: run list, live loss curves, checkpoint browser and the scope picker" />
+    <div>
+      <h4>Watch a run, not a log file</h4>
+      <p>Live loss curves, the checkpoint browser, the scope picker, and every run as
+        a directory on disk with its manifest, config and metrics beside it &mdash; a
+        run survives a database wipe, because the filesystem <em>is</em> the database.</p>
+      <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open the Trainer Studio &#8599;</a>
+      <a href="#contribute" class="btn btn-ghost">Queue a run &rarr;</a>
+    </div>
   </div>
 </div></section>
 
@@ -625,6 +574,7 @@
 
 <script src="assets/curation-lab.js"></script>
 <script src="assets/mabel.js?v=e2513327"></script>
+<script src="assets/slam-lab.js"></script>
 <script defer src="assets/defer-module.js" data-mod="./arch-contribute.js" data-when="#archCanvas, #arch"></script>
 </body>
 </html>

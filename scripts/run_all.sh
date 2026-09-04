@@ -44,6 +44,8 @@ run gestures    node scripts/gesturetest.mjs
 run retargeter  $P scripts/sync_bodyteleop.py --check
 run hardware    $P scripts/hwtest.py $B/hardware.html
 run curation    $P scripts/curtest.py $B/autonomy.html
+run slam        $P scripts/slamtest.py $B/autonomy.html
+run clips       $P scripts/vidcheck.py
 run scenes      $P scripts/scenetest.py $B/software.html
 run figures     $P scripts/figscale.py $B/index.html
 run panels      $P scripts/panels.py $B/build.html
