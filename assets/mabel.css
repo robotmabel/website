@@ -3550,7 +3550,13 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
    border away — you cannot stroke a clipped edge. */
 .nav-build { position: relative; display: inline-grid; place-items: center;
   width: 186px; height: 66px; margin: -10px 2px -10px 8px; flex: 0 0 auto;
-  text-decoration: none; isolation: isolate; }
+  text-decoration: none; isolation: isolate;
+  /* NOT 0.72. `.nav-links a` dims every link in the bar so the active one
+     reads as active, and the starburst is an <a> in that bar — so the one
+     thing on the page allowed to shout was rendering its cab yellow at 72%
+     over cream, which lands on a faded #FED946. .nav-cta two rules over
+     already carries this exact override; this one was missed. */
+  opacity: 1 !important; }
 .nav-build::before, .nav-build::after { content: ""; position: absolute;
   inset: 0; clip-path: polygon(50.0% 0.0%, 60.4% 14.5%, 77.0% 7.9%, 78.0% 25.8%,
     95.5% 29.2%, 86.6% 44.7%, 99.5% 57.1%, 83.7% 65.4%, 87.8% 82.7%, 70.0% 81.1%,
@@ -3565,7 +3571,7 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   font-size: 15px; line-height: 1.02; letter-spacing: 0.03em; color: var(--ink);
   text-align: center; transform: rotate(-4deg); pointer-events: none;
   text-shadow: 0 1px 0 rgba(255,255,255,.5); }
-.nav-build:hover::after { background: #FFE04C; }
+.nav-build:hover::after { background: #FFDD33; }
 .nav-build:hover { animation: buildPop 0.5s ease; }
 .nav-build:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px;
   border-radius: 6px; }
