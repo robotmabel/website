@@ -85,9 +85,28 @@ Generated, never drawn by hand, and never a screenshot of a PDF:
 * occupancy maps → `render_slam_maps.py`
 * curation episodes → `render_curation_clips.py`
 * the tip-over table → `exp_tipover_web.py`
+* the labelled callout → `render_callout.py` (leader lines PROJECTED, not placed)
+* the reach envelope → `render_reach_plot.py`
+* the accuracy panels → `build_accuracy.py` + `render_accuracy_clips.py`
+* the retargeting tiles → `retargeting_ablation/render_compare.py`
+* the exploded CAD → `build_exploded.py` (the paper's drawing, background cut)
 
 Each writes into `assets/` and each is re-runnable. A figure that cannot be
 regenerated is a figure that will go stale silently.
+
+**Set figures in the site's own type.** An SVG referenced from an `<img>`
+renders in a restricted mode that cannot fetch a webfont, so `Bangers` falls
+through to the generic `cursive` — a serif, in a page set in a comic face.
+Inline it instead:
+
+```html
+<div class="env-svg" data-inline-src="assets/reach-envelope.svg"
+     role="img" aria-label="…"></div>
+<noscript><img src="assets/reach-envelope.svg" alt="…" /></noscript>
+```
+
+A `<div>`, not an `<img data-inline>` — the browser starts fetching an `img`
+before the script runs, and the figure comes down twice.
 
 ## Claims
 
@@ -99,6 +118,25 @@ released yet, the page says so rather than promising it.
 
 ```bash
 python3 -m http.server 8741      # from website/
-./scripts/run_all.sh             # 19 checks, all must pass
+./scripts/run_all.sh             # every check, all must pass
 python3 scripts/bump_assets.py   # cache-bust the ?v= stamps
+python3 scripts/loadtest.py      # what a cold visitor downloads, per page
 ```
+
+## Weight
+
+Nothing heavy loads at parse time, and that is a rule rather than a
+preference — the front page was once 8.6 MB with first paint at 42 seconds.
+
+* a `<video>` gets `preload="none"`, a `poster`, and `data-lazyvid` /
+  `data-lo`. The IntersectionObserver in `mabel.js` starts it 400 px early and
+  upgrades it to full quality on an idle frame after `load`. Never call
+  `start()` yourself.
+* a three.js viewer loads through `assets/defer-module.js`, keyed to the
+  element it draws into.
+* an image is saved at the size it is displayed. The marquee posters were
+  900 px files in a 393 px card.
+
+Budget: **700 kB gzipped** and 90 requests per page, checked by
+`scripts/loadtest.py`. index.html has a documented exception for the hero rig,
+which arrives after the load event.

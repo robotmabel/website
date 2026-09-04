@@ -23,9 +23,17 @@ The short version:
 
 ```bash
 python3 -m http.server 8741        # from website/, then open localhost:8741
-./scripts/run_all.sh               # all 19 checks — must be green before a push
+./scripts/run_all.sh               # every check — must be green before a push
 python3 scripts/bump_assets.py     # rewrite the ?v= cache-busting stamps
+python3 scripts/loadtest.py        # what a cold visitor downloads, per page
 ```
+
+**Nothing heavy loads at parse time.** Clips start when the
+IntersectionObserver says they are near; three.js and the 1.87 MB GLB come in
+through `assets/defer-module.js` when the canvas they draw into approaches; the
+hero rig waits for an idle frame after `load`. index.html was 8.6 MB with
+DOMContentLoaded at 42 s before that, and is 3.3 MB at 207 ms after. If you add
+a `<video>` or a 3-D viewer, wire it the same way and re-run `loadtest.py`.
 
 `bump_assets.py` is not optional. A verified fix that appears to do nothing is
 almost always a stale `?v=` stamp.
@@ -51,6 +59,11 @@ in its docstring. `scripts/run_all.sh` runs the lot.
 | `curtest.py` | the curation lab: the defects it finds are the ones really in the data |
 | `scenetest.py` | the scene gallery matches its manifest |
 | `figscale.py` `panels.py` `artcheck.py` | figures that outgrow the type scale; instruction panels |
+| `csscheck.py` | dangling selector lists, and a bare rule on a **utility class** |
+| `loadtest.py` | page weight and first paint, per page, gzip-aware |
+| `pttest.py` `smtest.py` | the platform survey; the stack map's routes, clicks and hovers |
+| `acctest.py` | the accuracy lab draws what the archives measured, on one shared frame |
+| `rktest.py` | the retargeting tiles stay IN SYNC and match their own rows |
 
 Each takes its own debugger port and profile — they used to collide and one
 would die mid-run, which looked like a real failure.
@@ -67,6 +80,13 @@ would die mid-run, which looked like a real failure.
 | `assets/data/hw-modules.json` | `scripts/build_hw_modules.py` (from `BOM/data/*.csv`) |
 | `assets/bodyteleop-core.js` | `scripts/sync_bodyteleop.py` (from the Control Studio) |
 | `assets/mabel_rig.glb`, `mabel_joints.json` | `mabel_ws/.../urdf_to_glb.py` |
+| `assets/hw/exploded.png` | `scripts/build_exploded.py` (cuts the paper's CAD out of its white) |
+| `assets/hw/callout.{svg,png,json}` | `simulation/.../render_callout.py` |
+| `assets/reach-envelope.svg` | `simulation/.../render_reach_plot.py` |
+| `assets/data/accuracy.json` | `scripts/build_accuracy.py` (from `experiments/*/data/`) |
+| `assets/accuracy/*` | `scripts/render_accuracy_clips.py` |
+| `assets/retarget/*` | `controller/experiments/retargeting_ablation/render_compare.py` |
+| `assets/data/platforms.json` | `scripts/build_platforms.py` |
 
 The robot's geometry chain is MJCF → URDF → GLB → app rigs; see the repo root
 `CLAUDE.md`. Editing a derived file means the next regeneration silently
@@ -92,6 +112,34 @@ discards your change.
   upside down, because it printed the number without gating on it.
 * **Headless Chrome throttles `requestAnimationFrame`.** Test physics through
   pure step functions, not by watching a loop.
+* **A single-word container class WILL collide with a utility class.** `.sm`
+  was the stack map's card *and* the burst's size modifier, so every small
+  starburst got a cream box, a border and a drop shadow. Third time (`.rc-`,
+  `.cl-view`, `.sm`); `csscheck.py` fails on it now.
+* **`document.currentScript` is null inside a module.** A module-typed loader
+  that reads its own `data-` attributes gets `null` and silently loads nothing.
+  Use a classic script — which also re-executes per tag, where a module URL
+  runs once however many tags reference it.
+* **An SVG in an `<img>` cannot fetch a webfont.** It renders in a restricted
+  mode, so `font-family: Bangers` falls to the generic `cursive` — a serif, in
+  a comic-set page. Inline the SVG (`assets/inline-svg.js`) with a
+  `<div data-inline-src>`; an `<img>` would download the file a second time.
+* **Setting `<video>.src` resets the element.** It drops to `readyState 0`,
+  paints BLACK, and ignores a `currentTime` set before metadata arrives. One
+  element per clip, and seek only when scrubbing — 15 seeks a second through
+  long-GOP video is a black panel. Encode scrubbable clips all-intra (`-g 1`).
+* **A camera you reconstruct by hand is one sign error from a point
+  reflection.** Parts near the axis project correctly and parts far from it
+  land mirrored, so the drawing looks 80% right. Ask `mjv_updateScene` for the
+  camera the renderer actually used.
+* **`body.xpos` is the frame ORIGIN, not where the part looks.** The wrists
+  carry no geoms at all. Anchor on the shallowest level of the body tree that
+  HAS geoms — the whole subtree is equally wrong, since 20 finger geoms outvote
+  3 shoulder ones.
+* **`scenery_clear` measures distance to geom CENTRES.** A 6 m building centred
+  1.1 m away reads as "1.1 m of room" while MuJoCo resolves 760 kN of
+  interpenetration. Ask the physics whether the robot is embedded; do not ask a
+  proxy.
 
 ## Claims
 

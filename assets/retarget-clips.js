@@ -57,7 +57,10 @@
         '<span class="rk-kick">Watch it · EgoDex, replayed</span>' +
         '<h3 class="rk-title">The same reach, seven ways.</h3>' +
         '<p class="rk-say">Every tile is the same operator, the same frame, ' +
-          'the same instant — only the map differs. ' + esc(D.note) + '</p>' +
+          'the same instant — only the map differs. And every clip is the ' +
+          'same run its number was scored on, snapshotted from that run ' +
+          'rather than re-simulated, so what you watch and what the table ' +
+          'above says cannot disagree.</p>' +
       '</div>' +
       '<div class="rk-bar">' +
         '<div class="rk-tasks">' +
