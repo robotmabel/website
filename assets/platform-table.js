@@ -104,15 +104,20 @@
               : '<b>' + esc(r.name) + '</b>') +
             '<i>' + r.year + ' · ' + esc(r.focus) + '</i>' +
             (r.note ? '<em>' + esc(r.note) + '</em>' : '') + '</td>' +
-          '<td>' + esc(r.base) +
+          /* data-label carries the column header into the cell so the phone
+             layout can turn each row into a card — a CSS-only stack has no
+             way to know which column a number came from */
+          '<td data-label="Base">' + esc(r.base) +
             (r.holo === true ? ' <span class="pt-y">holo</span>' : '') + '</td>' +
-          '<td class="pt-n">' + esc(r.arms) + '</td>' +
-          '<td class="pt-n' + (r.hand > 1 ? ' hi' : '') + '">' + r.hand + '</td>' +
-          '<td class="pt-n' + (r.neck >= 1 ? ' hi' : '') + '">' + r.neck + '</td>' +
-          '<td>' + esc(r.lift) + '</td>' +
-          '<td class="pt-n' + (r.cost != null && r.cost < 10 ? ' hi' : '') + '">' +
-            money(r.cost) + '</td>' +
-          '<td>' + (r.open ? '<span class="pt-open">open</span>'
+          '<td class="pt-n" data-label="Arms">' + esc(r.arms) + '</td>' +
+          '<td class="pt-n' + (r.hand > 1 ? ' hi' : '') +
+            '" data-label="Hand DOF">' + r.hand + '</td>' +
+          '<td class="pt-n' + (r.neck >= 1 ? ' hi' : '') +
+            '" data-label="Neck">' + r.neck + '</td>' +
+          '<td data-label="Lift / torso">' + esc(r.lift) + '</td>' +
+          '<td class="pt-n' + (r.cost != null && r.cost < 10 ? ' hi' : '') +
+            '" data-label="Cost">' + money(r.cost) + '</td>' +
+          '<td data-label="Licence">' + (r.open ? '<span class="pt-open">open</span>'
                            : '<span class="pt-closed">closed</span>') + '</td>' +
         '</tr>';
       }).join('');

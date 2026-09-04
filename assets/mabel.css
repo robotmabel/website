@@ -4499,3 +4499,29 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
     border-radius: 6px; padding-inline: 6px; }
   .rc2-table .rc2-v.ours::before { color: var(--ink); font-weight: 700; }
 }
+
+/* ── the platform survey on a phone ─────────────────────────────────────
+   Eight columns want 620 px; a phone has 312. Each platform becomes a card
+   with its attributes as labelled rows — same data, read down instead of
+   across. `min-width` is what actually forces the scroll, so clear it. */
+@media (max-width: 720px) {
+  .pt-scroll { overflow: visible; }
+  .pt-table { min-width: 0 !important; width: 100% !important; }
+  .pt-table, .pt-table tbody, .pt-table tr, .pt-table td, .pt-table th {
+    display: block; width: auto; }
+  .pt-table thead { display: none; }
+  .pt-table tbody { display: grid; gap: 9px; }
+  .pt-table tr { border: 2.5px solid var(--ink); border-radius: 11px;
+    background: var(--panel); padding: 10px 12px 11px; }
+  .pt-table tr.ours { border-color: var(--hi); border-width: 3px;
+    box-shadow: 4px 4px 0 rgba(228,68,42,.24); }
+  .pt-table .pt-name { border: 0; padding: 0 0 7px;
+    border-bottom: 1.5px solid rgba(21,24,32,.16); margin-bottom: 6px; }
+  .pt-table td { display: flex; justify-content: space-between; gap: 12px;
+    align-items: baseline; padding: 3px 0; border: 0; text-align: right;
+    font-family: var(--font-mono); font-size: 12px; }
+  .pt-table td::before { content: attr(data-label); text-align: left;
+    font-family: var(--font-body); font-size: 12px; color: var(--ash);
+    font-weight: 500; flex: none; }
+  .pt-table .pt-name::before { content: none; }
+}
