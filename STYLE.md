@@ -108,6 +108,20 @@ Inline it instead:
 A `<div>`, not an `<img data-inline>` — the browser starts fetching an `img`
 before the script runs, and the figure comes down twice.
 
+## The wiki
+
+`docs/` is the same publication, not a sibling. Same ground (`--bone`), same
+faces (Limelight headings, Bangers section rules, Jost body, Space Mono data),
+same 3 px ink borders and hard offset shadows. It was a dark manual with its own
+accent colours for a while and nobody noticed, because each page looked
+internally consistent — `scripts/wikitest.py` measures it now.
+
+What it does **not** share is the marketing. No hero, no starbursts, no
+persuasion: a build manual earns attention by being correct and fast to scan.
+Every rule in `docs/docs.css` serves density and hierarchy — short measure, real
+tables, numbered steps you can hold a place in, and commands you can copy
+without reading a paragraph first.
+
 ## Claims
 
 Every number on the site comes from a file in the repo, and the page says

@@ -64,6 +64,9 @@ in its docstring. `scripts/run_all.sh` runs the lot.
 | `pttest.py` `smtest.py` | the platform survey; the stack map's routes, clicks and hovers |
 | `acctest.py` | the accuracy lab draws what the archives measured, on one shared frame |
 | `rktest.py` | the retargeting tiles stay IN SYNC and match their own rows |
+| `slamtest.py` | the SLAM lab maps, and the scan matcher measurably matters |
+| `vidcheck.py` | every clip on every page is WIRED — the thing that can break |
+| `wikitest.py` | `docs/` stays the site's ground and faces, and its links resolve |
 
 Each takes its own debugger port and profile — they used to collide and one
 would die mid-run, which looked like a real failure.

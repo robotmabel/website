@@ -50,6 +50,7 @@ run scenes      $P scripts/scenetest.py $B/software.html
 run figures     $P scripts/figscale.py $B/index.html
 run panels      $P scripts/panels.py $B/build.html
 run css         $P scripts/csscheck.py
+run wiki        $P scripts/wikitest.py
 run page-weight $P scripts/loadtest.py
 run platforms   $P scripts/pttest.py $B/index.html
 run stack-map   $P scripts/smtest.py $B/index.html
