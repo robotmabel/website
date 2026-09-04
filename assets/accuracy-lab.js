@@ -40,13 +40,34 @@
   var COND = { pd: '#6D6551', gff: '#23577E', gff_stiff: '#7A3E8F',
                gff_fric_stiff: '#2E7D4F' };
 
-  fetch('assets/data/accuracy.json')
-    .then(function (r) { return r.json(); })
+  Promise.all([
+    fetch('assets/data/accuracy.json').then(function (r) { return r.json(); }),
+    /* the clips are a nicety: if they have not been rendered the panels still
+       work, so a missing index must not take the measurements down with it */
+    fetch('assets/accuracy/index.json')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; })
+  ])
+    .then(function (both) { both[0].clips = (both[1] || {}).clips || {}; return both[0]; })
     .then(build)
     .catch(function (e) {
       host.innerHTML = '<p class="al-err">Could not load the measurements.</p>';
       console.error('[accuracy-lab]', e);
     });
+
+  /* THE ROBOT DOING IT, next to the plot of what it did. A scatter of
+     landings is meaningless if you have never seen the schedule that produced
+     them. These are replays of the same archived trials — see
+     scripts/render_accuracy_clips.py. */
+  function clipTile(D, key) {
+    var c = (D.clips || {})[key];
+    if (!c) return '';
+    return '<figure class="al-clip">' +
+      '<video muted loop playsinline preload="none" ' +
+        'poster="assets/accuracy/' + esc(c.poster) + '" ' +
+        'data-lazyvid="assets/accuracy/' + esc(c.clip) + '"></video>' +
+      '<figcaption>' + esc(c.title) + '</figcaption></figure>';
+  }
 
   function build(D) {
     var station = 'home';
@@ -73,6 +94,7 @@
                      esc(s.name) + '">' + esc(pretty(s.name)) + '</button>';
             }).join('') +
           '</div>' +
+          clipTile(D, 'stations') +
           '<div class="al-plot" data-role="scatter"></div>' +
           '<div class="al-read" data-role="repread"></div>' +
         '</div>' +
@@ -88,6 +110,7 @@
                      '">' + esc(p) + '</button>';
             }).join('') +
           '</div>' +
+          clipTile(D, 'path') +
           '<div class="al-plot" data-role="err"></div>' +
           '<div class="al-legend" data-role="conds"></div>' +
         '</div>' +
@@ -104,7 +127,7 @@
     /* ── the scatter ──────────────────────────────────────────────────── */
     function drawScatter() {
       var s = D.stations.filter(function (x) { return x.name === station; })[0];
-      var S = 300, C = S / 2, k = (S / 2 - 16) / LIM;      // mm → px
+      var S = 230, C = S / 2, k = (S / 2 - 14) / LIM;      // mm → px
       var g = ['<svg viewBox="0 0 ' + S + ' ' + S + '" class="al-svg" role="img" ' +
                'aria-label="Landing scatter at ' + esc(pretty(station)) + '">'];
 
@@ -161,7 +184,7 @@
     /* ── the error curves ─────────────────────────────────────────────── */
     function drawErr() {
       var cs = D.paths[pathName];
-      var W = 460, H = 280, L = 46, R = 12, T = 14, B = 34;
+      var W = 430, H = 215, L = 42, R = 10, T = 12, B = 30;
       var lo = 1e9, hi = 0;
       cs.forEach(function (c) {
         c.lo.forEach(function (v) { lo = Math.min(lo, v); });
@@ -264,6 +287,7 @@
 
     drawScatter();
     drawErr();
+    if (window.__lazyVid) window.__lazyVid(host);
 
     window.__accuracyLab = {
       data: D, limit: LIM,

@@ -4454,3 +4454,16 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .frames-svg  { aspect-ratio: 1180 / 520; }
 .env-svg     { aspect-ratio: 760 / 400; }
 .callout-svg > svg, .frames-svg > svg, .env-svg > svg { width: 100%; height: auto; }
+/* the exploded CAD drawing: a cutout, so it sits on the page's own ground */
+.callout-fig img { border: 0; background: transparent; box-shadow: none;
+  max-width: 780px; }
+/* the experiment replay beside the plot of what it measured */
+.al-clip { margin: 0 0 11px; border: 2px solid var(--ink); border-radius: 10px;
+  overflow: hidden; background: #0B0E15; }
+.al-clip video { display: block; width: 100%; aspect-ratio: 16/11;
+  object-fit: cover; }
+.al-clip figcaption { padding: 6px 10px 7px; font-family: var(--font-mono);
+  font-size: 10px; color: var(--ash-light, #B9AF98); background: var(--ink); }
+/* the scatter is 230 px of drawing; do not let it stretch to the panel */
+.al-plot { max-width: 100%; }
+.al-panel .al-plot:has(svg[viewBox^="0 0 230"]) { max-width: 288px; margin: 0 auto; }
