@@ -338,6 +338,17 @@ section { position: relative; }
 .hero-tag { font-size: clamp(16px, 1.3vw, 19px); color: var(--ink-soft); max-width: 52ch; line-height: 1.5; margin-bottom: 14px; }
 .hero-authors { font-family: var(--font-mono); font-size: 12px; color: var(--ash); letter-spacing: 0.04em; margin-bottom: 32px; }
 .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+/* The build CTA gets its own line and its own size: it is the one thing on
+   the home page a reader is meant to DO, and sitting fourth in a row of four
+   equal buttons it read as a footnote to "GitHub". Not --pop, though — the
+   nav starburst is the single --pop on this screen and stays that way. */
+.hero-build { margin-top: 14px; }
+.btn-xl { font-size: 21px; letter-spacing: 0.09em; padding: 17px 34px 15px;
+  border-radius: 13px; border-width: 3px; box-shadow: 6px 6px 0 var(--ink); }
+.btn-xl:hover { box-shadow: 9px 9px 0 var(--ink); }
+@media (max-width: 560px) {
+  .btn-xl { font-size: 18px; padding: 14px 24px 12px; }
+}
 .hero-coord-row { position: absolute; top: clamp(80px, 12vh, 120px); left: var(--gutter); right: var(--gutter); display: flex; justify-content: space-between; z-index: 2; gap: 24px; }
 .hero-coord { font-family: var(--font-mono); font-size: 11px; color: var(--ash); letter-spacing: 0.04em; line-height: 1.7; }
 .hero-coord b { color: var(--ink-soft); font-weight: 700; }
