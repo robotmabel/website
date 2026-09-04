@@ -81,6 +81,21 @@ async def main():
                      .map(function(t){return {mod:t.dataset.mod,
                        when:t.dataset.when,
                        hit:!!document.querySelector(t.dataset.when)};})})"""))
+            # A HOST THAT NEVER FILLS. The front page's "Be the operator"
+            # section shipped as a heading, a paragraph and an empty div for a
+            # while: its loader pointed at an id the page does not use. The
+            # element was there, the anchors were fine, the tags balanced —
+            # and the widget the reader was told to try was not built. So ask
+            # the deferred modules to load and then check the hosts are full.
+            await ev("window.__loadDeferred && window.__loadDeferred()")
+            await asyncio.sleep(3.0)
+            empty = json.loads(await ev("""JSON.stringify(
+              [].slice.call(document.querySelectorAll('script[data-when]'))
+                .map(function(t){
+                  var e = document.querySelector(t.dataset.when);
+                  return (e && e.children.length === 0 && !e.querySelector('canvas'))
+                    ? t.dataset.mod.split('?')[0] : null;})
+                .filter(Boolean))"""))
             ids = set(live["ids"])
             dang = sorted({a for a in live["hrefs"] if a and a not in ids})
             # A DEFERRED MODULE POINTED AT NOTHING LOADS IMMEDIATELY, which is
@@ -94,8 +109,10 @@ async def main():
                 "tags OK" if not bad else "TAGS " + ",".join(bad),
                 "anchors OK" if not dang else "DANGLING " + str(dang),
                 ("defer OK (%d)" % len(live.get("defer", [])))
-                if not miss else "DEFER TARGET MISSING " + str(miss)))
-            bad_total += len(bad) + len(dang) + len(miss)
+                if not (miss or empty) else
+                ("DEFER TARGET MISSING " + str(miss) if miss else "")
+                + ("HOST NEVER FILLED " + str(empty) if empty else "")))
+            bad_total += len(bad) + len(dang) + len(miss) + len(empty)
     print("RESULT:", "PASS" if bad_total == 0 else "FAIL")
 
 

@@ -1,16 +1,25 @@
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
-P = 9291 + random.randrange(60)  # a port and profile per run:
-                             # two checks in flight collided and one died; subprocess.run(["rm","-rf",f"/tmp/cdp-pn-{P}"])
+# A PORT AND A PROFILE PER RUN. The comment that used to live here said
+# exactly that — and it had SWALLOWED the rm onto its own line, so the cleanup
+# never ran and the profile stayed the fixed "/tmp/cdp-pn". Chrome then refused
+# to start against a profile another run still held, /json returned nothing,
+# and the failure surfaced as `UnboundLocalError: tabs` forty seconds later.
+P = 9291 + random.randrange(60)
+PROF = f"/tmp/cdp-pn-{P}"
+subprocess.run(["rm", "-rf", PROF])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
-  "--user-data-dir=/tmp/cdp-pn","--window-size=1440,900","--hide-scrollbars",
+  f"--user-data-dir={PROF}","--window-size=1440,900","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 async def go():
+    tabs=None
     for _ in range(40):
         try: tabs=json.load(urllib.request.urlopen(f"http://127.0.0.1:{P}/json")); break
         except Exception: time.sleep(0.4)
+    if not tabs:
+        print(f"chrome never answered on :{P}\n\nRESULT: FAIL"); return
     ws=[t for t in tabs if t["type"]=="page"][0]["webSocketDebuggerUrl"]
     async with websockets.connect(ws, max_size=None) as c:
         i=[0]

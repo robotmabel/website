@@ -43,6 +43,7 @@ p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
 
 async def measure(c, cmd, ev, url, base):
     seen = {}
+    started_late = set()
     await cmd("Network.enable")
     await cmd("Network.setCacheDisabled", {"cacheDisabled": True})
     await cmd("Page.navigate", {"url": url})
@@ -61,12 +62,21 @@ async def measure(c, cmd, ev, url, base):
             # busy page never goes quiet, so the timeout branch alone never
             # noticed that the page had finished
             if await ev("document.readyState === 'complete'"):
-                done_at = time.time() + 0.4       # grace for in-flight finishes
+                # 1.2 s of grace, because we now DROP anything that started
+                # after this moment — the window only has to be long enough for
+                # requests already in flight to report their sizes.
+                done_at = time.time() + 1.2
         try:
             r = json.loads(await asyncio.wait_for(c.recv(), 0.5))
         except asyncio.TimeoutError:
             continue
         m = r.get("method")
+        if m == "Network.requestWillBeSent" and done_at is not None:
+            # STARTED AFTER THE LOAD EVENT — deliberately deferred work (the
+            # hero rig, a 3-D viewer) that the reader never waits for. Counting
+            # it made the budget depend on how long the grace window happened
+            # to be, so the same page measured 105 kB and 3.4 MB on two runs.
+            started_late.add(r["params"]["requestId"])
         if m == "Network.responseReceived":
             pr = r["params"]
             seen[pr["requestId"]] = {
@@ -82,6 +92,8 @@ async def measure(c, cmd, ev, url, base):
         "(function(){var n=performance.getEntriesByType('navigation')[0];"
         "return n ? {dcl:Math.round(n.domContentLoadedEventEnd),"
         "load:Math.round(n.loadEventEnd)} : null;})()")
+    for rid in started_late:
+        seen.pop(rid, None)
     return list(seen.values()), timing
 
 
@@ -115,6 +127,13 @@ async def go():
 
         await cmd("Page.enable"); await cmd("Runtime.enable")
         for pg in pages:
+            # SETTLE BETWEEN PAGES. Every page starts deferred work after its
+            # load event — a 3-D viewer, the hero rig — and navigating straight
+            # to the next page leaves those in flight, so their bytes land in
+            # the NEXT page's total. Measured: hardware.html alone is 97 kB and
+            # was reported as 1194 kB when it followed anatomy.html in a batch.
+            await cmd("Page.navigate", {"url": "about:blank"})
+            await asyncio.sleep(1.2)
             reqs, timing = await measure(
                 c, cmd, ev, f"http://localhost:8741/{pg}", pg)
             kb = sum(r["bytes"] for r in reqs) / 1024

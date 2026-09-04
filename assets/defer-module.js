@@ -31,9 +31,24 @@
   var el = sel ? document.querySelector(sel) : null;
 
   function go() {
-    /* resolved against this file's own directory, like the module form was */
-    var url = new URL(mod, tag.src).href;
-    import(url).catch(function (e) { console.error('[defer-module]', mod, e); });
+    /* NEVER IN THE CRITICAL PATH. Intersection alone is not enough: on
+       hardware.html the viewer is the second section, so the 600 px margin
+       fires it during the initial layout and three.js plus the 1.87 MB GLB
+       land BEFORE the load event — 3.4 MB, which is the thing this file
+       exists to prevent. Waiting for load (and then an idle frame) costs a
+       visible viewer about a second and takes it off the critical path
+       entirely. */
+    var run = function () {
+      /* resolved against this file's own directory, like the module form was */
+      var url = new URL(mod, tag.src).href;
+      import(url).catch(function (e) { console.error('[defer-module]', mod, e); });
+    };
+    var idle = function () {
+      if (window.requestIdleCallback) requestIdleCallback(run, { timeout: 1500 });
+      else setTimeout(run, 120);
+    };
+    if (document.readyState === 'complete') idle();
+    else addEventListener('load', idle, { once: true });
   }
 
   /* A TEST HOOK, and a deep link. Two callers legitimately need the module

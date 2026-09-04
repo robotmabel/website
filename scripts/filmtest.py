@@ -6,7 +6,7 @@ import random
 P = 9301 + random.randrange(60)  # a port and profile per run:
                              # two checks in flight collided and one died; subprocess.run(["rm","-rf",f"/tmp/cdp-fp-{P}"])
 p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
-  "--user-data-dir=/tmp/cdp-fp","--window-size=1400,900","--hide-scrollbars",
+  f"--user-data-dir=/tmp/cdp-fp-{P}","--window-size=1400,900","--hide-scrollbars",
   "--autoplay-policy=no-user-gesture-required",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
