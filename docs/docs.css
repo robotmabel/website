@@ -56,6 +56,17 @@ body {
 
 /* ── frame ─────────────────────────────────────────────────────────────── */
 .wrap { display: flex; min-height: 100vh; }
+
+/* declared BEFORE the media query that reveals it: two rules of equal
+   specificity, so whichever comes last wins, and this one losing meant the
+   Chapters button was invisible on a phone and the nav could not be opened. */
+#navtoggle {
+  display: none; background: transparent; border: 2px solid rgba(244,234,210,0.4);
+  color: var(--bone); font-family: var(--comic); font-size: 14px;
+  letter-spacing: 0.06em; padding: 6px 13px; border-radius: 8px;
+  cursor: pointer; margin-top: 12px;
+}
+#navtoggle:hover { border-color: var(--pop); color: var(--pop); }
 main { flex: 1; min-width: 0; padding: 40px 52px 96px; max-width: 62rem; margin: 0 auto; }
 
 /* THE SIDEBAR IS THE DARK HALF. The site alternates cream sections with ink
@@ -72,39 +83,93 @@ nav.side {
   nav.side .tree { display: none; }
   nav.side.open .tree { display: block; }
   #navtoggle { display: inline-block; }
-  main { padding: 26px 18px 70px; }
+  main { padding: 26px 16px 70px; }
+  /* AT 390 px THE CONTENT OVERFLOWED BY 8 px. Everything wide here carries a
+     max-width in rem, which stops being a cap once the viewport is narrower
+     than the rem figure — the element then takes its own intrinsic width. A
+     hard 100% ceiling is what actually bounds them. */
+  main table, main pre, main figure, main .files, main .chips,
+  main .note, main .warn, main .stop, main p, main ul, main ol {
+    max-width: 100%;
+  }
+  main table { display: block; overflow-x: auto; }
 }
-#navtoggle {
-  display: none; background: transparent; border: 2px solid rgba(244,234,210,0.4);
-  color: var(--bone); font-family: var(--mono); font-size: 11px;
-  padding: 5px 11px; border-radius: 7px; cursor: pointer; margin-top: 10px;
-  letter-spacing: 0.06em;
-}
-#navtoggle:hover { border-color: var(--pop); color: var(--pop); }
 
 /* ── sidebar ───────────────────────────────────────────────────────────── */
-.side .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.side .brand img { width: 28px; height: 28px; }
-.side .brand b { font-family: var(--display); font-weight: 400; font-size: 21px;
-  letter-spacing: 0.06em; color: var(--bone); }
-.side .brand span { display: block; color: var(--ash-light); font-family: var(--mono);
-  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
-.side .tree { list-style: none; margin: 20px 0 0; padding: 0; }
+.side .brand { display: flex; align-items: center; gap: 11px; text-decoration: none;
+  padding-bottom: 15px; border-bottom: 2px solid rgba(217,161,63,0.45); }
+.side .brand img { width: 34px; height: 34px; flex: none; }
+.side .brand b { display: block; font-family: var(--display); font-weight: 400;
+  font-size: 23px; letter-spacing: 0.07em; color: var(--bone); line-height: 1; }
+.side .brand i { display: block; font-style: normal; color: var(--gold);
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.16em;
+  text-transform: uppercase; margin-top: 5px; }
+
+/* HOW FAR THROUGH THE BUILD. A manual is read over days and the first thing a
+   reader wants on coming back is their place in it. */
+.side .prog { display: flex; align-items: center; gap: 9px; margin: 14px 0 4px; }
+.side .prog-bar { flex: 1; height: 7px; border: 2px solid rgba(244,234,210,0.32);
+  border-radius: 999px; overflow: hidden; }
+.side .prog-bar i { display: block; height: 100%; background: var(--pop); }
+.side .prog span { font-family: var(--mono); font-size: 10.5px; color: var(--bone);
+  letter-spacing: 0.04em; }
+.side .prog em { font-style: normal; color: var(--ash-light); }
+
+.side .tree { list-style: none; margin: 16px 0 0; padding: 0; }
 .side .tree li { margin: 1px 0; }
+
+/* the phase headings — Plan / Build / Run / Extend */
+.side .tree li.ph {
+  font-family: var(--comic); font-size: 13px; letter-spacing: 0.1em;
+  color: var(--gold); text-transform: uppercase;
+  margin: 16px 0 5px; padding: 0 10px;
+  display: flex; align-items: center; gap: 9px;
+}
+.side .tree li.ph::after { content: ""; flex: 1; height: 2px;
+  background: rgba(217,161,63,0.34); }
+.side .tree li.ph:first-child { margin-top: 4px; }
+
 .side .tree a {
   display: flex; gap: 10px; align-items: baseline; padding: 7px 10px;
-  border-radius: 8px; text-decoration: none; color: rgba(244,234,210,0.72);
-  font-size: 14.5px; line-height: 1.3; transition: background .12s, color .12s;
+  border: 2px solid transparent; border-radius: 9px; text-decoration: none;
+  color: rgba(244,234,210,0.74); font-size: 14.5px; line-height: 1.3;
+  transition: transform .12s, background .12s, color .12s;
 }
-.side .tree a .n { font-family: var(--mono); font-size: 11px; color: var(--ash-light); }
-.side .tree a:hover { background: rgba(244,234,210,0.09); color: var(--bone); }
-.side .tree a.here { background: var(--hi); color: #FFF9F0; }
+.side .tree a .n { font-family: var(--mono); font-size: 11px;
+  color: var(--ash-light); flex: none; }
+.side .tree a .t { min-width: 0; }
+.side .tree a:hover { background: rgba(244,234,210,0.09); color: var(--bone);
+  transform: translateX(2px); }
+
+/* THE CURRENT CHAPTER IS A STICKER, not a flat fill — the same ink border and
+   hard offset shadow every button on the site carries. */
+.side .tree a.here {
+  background: var(--hi); color: #FFF9F0; font-weight: 600;
+  border-color: var(--ink); box-shadow: 3px 3px 0 rgba(0,0,0,0.55);
+  transform: translateX(0);
+}
 .side .tree a.here .n { color: var(--pop); }
-.side .foot { margin-top: 24px; padding-top: 15px;
-  border-top: 1px solid rgba(244,234,210,0.18);
-  font-size: 12.5px; color: var(--ash-light); }
-.side .foot a { color: rgba(244,234,210,0.75); text-decoration: none; }
+.side .tree a.here:hover { transform: translateX(0); background: var(--hi); }
+
+.side .foot { margin-top: 26px; padding-top: 16px;
+  border-top: 2px solid rgba(244,234,210,0.18);
+  font-size: 12.5px; color: var(--ash-light); display: grid; gap: 7px; }
+.side .foot a { color: rgba(244,234,210,0.75); text-decoration: none;
+  font-family: var(--mono); font-size: 11.5px; }
 .side .foot a:hover { color: var(--pop); }
+.side .foot p { margin: 8px 0 0; font-size: 11.5px; line-height: 1.5;
+  color: var(--ash-light); max-width: none; }
+
+/* the one button in here: back to the site it belongs to */
+.side .foot a.sbtn {
+  display: block; text-align: center; font-family: var(--comic);
+  font-size: 13px; letter-spacing: 0.05em; color: var(--ink);
+  background: var(--pop); border: 2.5px solid var(--ink); border-radius: 9px;
+  padding: 8px 10px; box-shadow: 3px 3px 0 rgba(0,0,0,0.5); margin-bottom: 4px;
+  transition: transform .12s, box-shadow .12s;
+}
+.side .foot a.sbtn:hover { color: var(--ink); transform: translate(-1px,-1px);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.55); }
 
 /* ── content type ──────────────────────────────────────────────────────── */
 h1 {

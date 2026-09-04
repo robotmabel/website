@@ -3,17 +3,22 @@
    page carries only its content and this script injects the sidebar,
    active state, prev/next links, and copy buttons on code blocks. */
 
+/* file, number, title, and which PHASE of the build it belongs to.
+   Ten flat items is a list you read; four labelled phases is a shape you can
+   hold in your head, and a build manual is read over days rather than in one
+   sitting. The phases are the real order of work: you cannot wire a frame you
+   have not printed, and you cannot calibrate a robot with no firmware. */
 const NAV = [
-  ["index.html",        "00", "Overview"],
-  ["bom.html",          "01", "Bill of materials"],
-  ["assembly.html",     "02", "Mechanical assembly"],
-  ["electronics.html",  "03", "Electronics & wiring"],
-  ["firmware.html",     "04", "Firmware"],
-  ["software.html",     "05", "Software install"],
-  ["bringup.html",      "06", "Bring-up & calibration"],
-  ["operate.html",      "07", "Operating the robot"],
-  ["learning.html",     "08", "Data & learning"],
-  ["troubleshoot.html", "09", "Troubleshooting"],
+  ["index.html",        "00", "Overview",              "Plan"],
+  ["bom.html",          "01", "Bill of materials",     "Plan"],
+  ["assembly.html",     "02", "Mechanical assembly",   "Build"],
+  ["electronics.html",  "03", "Electronics & wiring",  "Build"],
+  ["firmware.html",     "04", "Firmware",              "Build"],
+  ["software.html",     "05", "Software install",      "Run"],
+  ["bringup.html",      "06", "Bring-up & calibration", "Run"],
+  ["operate.html",      "07", "Operating the robot",   "Run"],
+  ["learning.html",     "08", "Data & learning",       "Extend"],
+  ["troubleshoot.html", "09", "Troubleshooting",       "Extend"],
 ];
 
 (function () {
@@ -23,20 +28,36 @@ const NAV = [
   /* sidebar */
   const side = document.createElement("nav");
   side.className = "side";
+  /* the chapter list, broken at each phase change */
+  let phase = null;
+  const items = NAV.map(([f, n, t, ph]) => {
+    const head = ph !== phase ? `<li class="ph">${ph}</li>` : "";
+    phase = ph;
+    return head + `<li><a href="${f}" class="${f === here ? "here" : ""}">
+      <span class="n">${n}</span><span class="t">${t}</span></a></li>`;
+  }).join("");
+
+  /* WHERE AM I IN THE BUILD. A manual is read over days, and the one thing a
+     reader wants on returning to it is how far through they are. */
+  const pos = idx < 0 ? 0 : idx + 1;
+  const pct = Math.round((pos / NAV.length) * 100);
+
   side.innerHTML = `
     <a class="brand" href="../index.html">
       <img src="../assets/logo.svg" alt="" />
-      <span><b>MABEL</b><br/><span>replication docs</span></span>
+      <span><b>MABEL</b><i>Replication docs</i></span>
     </a>
-    <button id="navtoggle">chapters ▾</button>
-    <ul class="tree">
-      ${NAV.map(([f, n, t]) =>
-        `<li><a href="${f}" class="${f === here ? "here" : ""}">
-           <span class="n">${n}</span>${t}</a></li>`).join("")}
-    </ul>
+    <div class="prog" title="chapter ${pos} of ${NAV.length}">
+      <div class="prog-bar"><i style="width:${pct}%"></i></div>
+      <span>${String(pos).padStart(2, "0")} <em>of</em> ${NAV.length}</span>
+    </div>
+    <button id="navtoggle">Chapters &#9662;</button>
+    <ul class="tree">${items}</ul>
     <div class="foot">
-      <a href="https://github.com/robotmabel/MABEL">robotmabel/MABEL ↗</a><br/>
-      <a href="../index.html">project site ↗</a>
+      <a class="sbtn" href="../index.html">&#8592; The project site</a>
+      <a href="https://github.com/robotmabel/MABEL">robotmabel/MABEL &#8599;</a>
+      <a href="../build.html#bom">Interactive BOM &#8599;</a>
+      <p>Build it, break it, tell us which step was wrong.</p>
     </div>`;
   const wrap = document.querySelector(".wrap");
   wrap.insertBefore(side, wrap.firstChild);
