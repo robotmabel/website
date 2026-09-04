@@ -87,11 +87,16 @@ async def go():
                 if await ev("document.readyState === 'complete'"):
                     break
             await asyncio.sleep(0.5)
+            hub = pg.endswith("/docs/") or pg.endswith("/index.html")
             got = await ev("""(function(){
               var cs = getComputedStyle(document.body);
               var h1 = document.querySelector('h1');
               var side = document.querySelector('nav.side');
               return {
+                hub: !!document.querySelector('.hub-nav'),
+                shelf: document.querySelectorAll('.sh').length,
+                slot: !!document.querySelector('.sh-add'),
+                edit: !!document.querySelector('.editpage'),
                 bg: cs.backgroundColor,
                 body: cs.fontFamily.split(',')[0].replace(/["']/g,''),
                 h1: h1 ? getComputedStyle(h1).fontFamily.split(',')[0]
@@ -109,12 +114,24 @@ async def go():
                 fail.append(f"ground {got['bg']}")
             if got["body"] != WANT_BODY:
                 fail.append(f"body face {got['body']}")
-            if got["h1"] != WANT_H1:
+            if got["h1"] and got["h1"] != WANT_H1:
                 fail.append(f"h1 face {got['h1']}")
-            if got["side"] and got["side"] != WANT_INK:
-                fail.append(f"sidebar {got['side']}")
-            if not got["here"]:
-                fail.append("no page is marked current in the nav")
+            if got["hub"]:
+                # THE COMMUNITY HUB has no sidebar and no "here" — it is the
+                # front page, not a chapter. What it must have is a shelf and
+                # the empty slot, because the slot IS the contribution path.
+                if got["shelf"] < 2:
+                    fail.append(f"the shelf built {got['shelf']} cards")
+                if not got["slot"]:
+                    fail.append("the empty slot is missing — nothing invites a "
+                                "first outside entry")
+            else:
+                if got["side"] and got["side"] != WANT_INK:
+                    fail.append(f"sidebar {got['side']}")
+                if not got["here"]:
+                    fail.append("no page is marked current in the nav")
+                if not got["edit"]:
+                    fail.append("no 'edit this page' link — the hub promises one")
             if got["bleed"] > 2:
                 fail.append(f"{got['bleed']}px of horizontal bleed")
             # a manual whose links do not resolve is worse than no manual

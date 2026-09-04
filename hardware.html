@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=a611471f" />
+<link rel="stylesheet" href="assets/mabel.css?v=7efe1748" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -73,9 +73,9 @@
       <span>56 functional DOF · 59 motors</span><span>2 × 7-DOF arms</span><span>2 × 17-DOF ORCA hands</span><span>3-module swerve base</span><span>$8,722 – $15,129 BOM</span>
     </div>
     <div style="margin-top:22px; display:flex; gap:14px; flex-wrap:wrap;">
-      <a class="btn btn-primary" href="docs/">Replication wiki</a>
+      <a class="btn btn-primary" href="docs/">The wiki &amp; community</a>
       <a class="btn btn-ghost" href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a>
-      <a class="btn btn-ghost" href="https://app.notion.com/p/3932403b2611812bafeaf63a6afdb42d" target="_blank" rel="noopener">Notion ↗</a>
+      <a class="btn btn-ghost" href="docs/">The wiki &amp; community</a>
     </div>
   </div>
 </section>
@@ -97,7 +97,11 @@
       <div class="viewer-3d has-rig" id="robot3d">
       <span class="panel-speech tail-br" style="top:5%; left:4%; z-index:7; max-width:46%;">Drag me around!</span>
         <canvas id="robotCanvas"></canvas>
-        <div class="ph viewer-loading"><div class="ph-label">Loading MABEL · articulated URDF</div></div>
+        <div class="ph viewer-loading"><div class="ph-label boot-label"><b>MABEL RIG v1.0</b>
+MESHOPT DECODER ..... <i>OK</i>
+mabel_rig.glb ....... <i>1.87 MB</i>
+JOINT MANIFEST ...... <i>59</i>
+LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</span></div></div>
         <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
         </button>

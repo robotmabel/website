@@ -4,116 +4,147 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#F4EAD2"/>
-<title>Overview — MABEL replication docs</title>
-<meta name="description" content="Technical documentation for building the MABEL mobile bimanual robot: BOM, assembly, wiring, firmware, software, bring-up."/>
+<title>MABEL — build it, share it</title>
+<meta name="description" content="The MABEL community: the full build manual, and the place people share what they built with it — hardware, simulation scenes, skills and tools."/>
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800&family=Space+Mono:ital,wght@0,400;0,700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="docs.css"/>
+<link rel="stylesheet" href="hub.css"/>
 </head>
-<body>
-<div class="wrap">
-<main>
-  <h1><span class="n">00</span>Overview</h1>
-  <p class="lead">
-    Everything needed to build, wire, flash, and operate a MABEL — an open-source
-    mobile bimanual robot. This is the replication manual: parts, steps, commands,
-    and checks, in build order. The <a href="../index.html">project site</a> covers
-    what the robot can do; this covers how to make one.
-  </p>
+<body class="hub">
 
-  <h2>The robot, in numbers</h2>
-  <table>
-    <tr><th>Item</th><th>Value</th><th>Detail</th></tr>
-    <tr><td>Functional DoF</td><td class="num">56</td><td>59 motors total</td></tr>
-    <tr><td>Base</td><td class="num">3 modules</td><td>Delta-layout holonomic swerve — REV NEO + NEO&nbsp;550 per module, 6 × SPARK on CAN</td></tr>
-    <tr><td>Lift</td><td class="num">0.635 m</td><td>Cascaded Z-column (FlexiSpot E7 Pro column), brushed DC + leadscrew, RP2040 Pico</td></tr>
-    <tr><td>Torso</td><td class="num">400 N·m peak</td><td>DaMiao DM-J10422P on the body CAN bus</td></tr>
-    <tr><td>Arms</td><td class="num">2 × 7 DoF</td><td>OpenArm-derived, DaMiao quasi-direct-drive, back-drivable, one CAN bus per arm</td></tr>
-    <tr><td>Hands</td><td class="num">2 × 17 DoF</td><td>Open-source ORCA hands, tendon-routed, 17 Feetech servos per hand on one 1&nbsp;MHz TTL chain</td></tr>
-    <tr><td>Neck</td><td class="num">3 DoF</td><td>Yaw on CAN (DaMiao), roll + pitch on 2 × Dynamixel XC330-T181</td></tr>
-    <tr><td>Sensing</td><td>—</td><td>Stereo head camera, 2 wrist cameras, 2D lidar; base depth camera and IMU optional by tier</td></tr>
-    <tr><td>Compute</td><td>—</td><td>NVIDIA Jetson (Orin Nano → AGX Thor by tier), Ubuntu 24.04 + ROS 2 Jazzy</td></tr>
-    <tr><td>Reach</td><td class="num">0 – 2.23 m</td><td>fingertip envelope, floor to overhead (lift + arm)</td></tr>
-    <tr><td>Footprint</td><td class="num">0.49 m</td><td>fits doorways and elevator cars</td></tr>
-    <tr><td>Mass</td><td class="num">≈ 62 kg</td><td>24 V, fully untethered. The BOM buys <b>two</b> packs (line 7.03)</td></tr>
-    <tr><td>Cost</td><td class="num">$8,722+</td><td>Core BOM $8,058 + perception/compute tier — see <a href="bom.html">01&nbsp;·&nbsp;BOM</a></td></tr>
-  </table>
+<header class="hub-nav">
+  <a class="hub-logo" href="index.html"><img src="../assets/logo.svg" alt=""/><b>MABEL</b><span>community</span></a>
+  <nav>
+    <a href="#manual">The manual</a>
+    <a href="#showcase">Showcase</a>
+    <a href="#challenges">Challenges</a>
+    <a href="#contribute">Contribute</a>
+    <a href="../index.html" class="hub-out">Project site &#8599;</a>
+  </nav>
+</header>
 
-  <h2>Before you order anything</h2>
-  <p>Three gaps in the parts list will stop a build if you meet them at the bench
-  instead of here. All three are tracked in <code>BOM/data/open_items.csv</code>.</p>
-  <table>
-    <tr><th>Gap</th><th>What it means for your order</th></tr>
-    <tr><td><b>The swerve line is a lump</b></td><td>REV-21-3005 is the MODULE only —
-      motors, controllers and framing are <b>not</b> included. Each module also needs a
-      NEO, a NEO 550, a SPARK Flex and a SPARK MAX, about $557 more per module.
-      Ordering the BOM line as written gets you three modules that cannot move.</td></tr>
-    <tr><td><b>Two Teensy 4.1 are missing</b></td><td>One drives the swerve base, one
-      drives both arms. Neither appears in the parts list; without them the robot has no
-      low-level control at all.</td></tr>
-    <tr><td><b>No hardware E-stop is costed</b></td><td>The safety docs describe a
-      hardware stop that de-energises the actuators independently of the host, and the
-      software E-stop (<code>hw.estop()</code>) is not that. Budget $30–80 for a switch
-      and contactor — the OpenArm harness set may already include one, unconfirmed.</td></tr>
-  </table>
-  <p>The rest of the fixed core can be ordered on day one: none of it depends on a
-  decision made later. The five deferred choices (compute, head camera, wrist cameras,
-  base depth camera, lidar) are laid out in <a href="bom.html">01&nbsp;·&nbsp;BOM</a>.</p>
-
-  <h2>What you need</h2>
-  <table>
-    <tr><th>Requirement</th><th>Why</th></tr>
-    <tr><td>3D printers (2–3, one large-format)</td><td>Roughly a week of near-continuous printing. The base and body housings need a large-format bed (Bambu H2D / H2S class); the rest fit a standard bed. No machine shop is needed beyond the laser-cut and bent sheet parts, which are ordered from any fab service (drawings in the BOM). Seven parts are machined rather than laser-cut — see <a href="bom.html">01&nbsp;·&nbsp;BOM</a></td></tr>
-    <tr><td>Basic electronics skills</td><td>Crimping, CAN bus wiring, servo ID assignment, one custom PCB per board set. <b>The gerbers are not released yet</b> — the boards are simple carrier and power-distribution layers, never control electronics, and BOM/data/open_items.csv tracks them as an open item</td></tr>
-    <tr><td>A Mac or Linux laptop</td><td>Runs the full simulation twin and every desktop tool. ROS 2 is only required on the robot itself</td></tr>
-    <tr><td>Ubuntu 24.04 + ROS 2 Jazzy on the Jetson</td><td>ROS 2 + the hardware layer run onboard</td></tr>
-    <tr><td>Time</td><td>Printing runs in the background; hands-on assembly is measured in evenings per module, not months</td></tr>
-  </table>
-
-  <div class="note">
-    You can do everything up to real hardware on a laptop alone. Build the
-    simulation stack first (<a href="software.html">05 · Software</a>), drive the
-    digital twin, and only then order parts — every motion you'll ever command
-    can be proven in the twin before a single motor exists.
+<!-- ═══ BOOT ═══ -->
+<section class="hub-hero">
+  <div class="hub-hero-in">
+    <pre class="boot" id="boot" aria-label="Boot readout"></pre>
+    <div class="hub-say">
+      <h1>Build one.<br/><span>Then show us.</span></h1>
+      <p>This manual is not a product page. It is the whole robot &mdash; bill of
+        materials, printed parts, wiring, PCBs, firmware, ROS, simulation,
+        calibration, teleoperation, learning, and the bugs that will bite you
+        &mdash; written so a stranger can reproduce it. <b>And it is meant to be
+        written by more than one of us.</b> Every chapter takes pull requests;
+        so does the shelf below.</p>
+      <div class="hub-cta">
+        <a class="hb hb-go" href="overview.html">Start the build &rarr;</a>
+        <a class="hb" href="#contribute">Add yours</a>
+      </div>
+    </div>
   </div>
+</section>
 
-  <h2>Build order</h2>
-  <ol class="steps">
-    <li><b><a href="bom.html">01 · Bill of materials.</a></b> Pick a tier, order everything, start the printer.</li>
-    <li><b><a href="assembly.html">02 · Mechanical assembly.</a></b> Base → lift → body → arms → hands → head. Each module is built and checked before the next stacks on.</li>
-    <li><b><a href="electronics.html">03 · Electronics &amp; wiring.</a></b> Land the PCBs, run the CAN/TTL/USB buses, connect sensing, power from one pack.</li>
-    <li><b><a href="firmware.html">04 · Firmware.</a></b> Flash the base Teensy, arms Teensy, lift Pico; assign every servo ID.</li>
-    <li><b><a href="software.html">05 · Software.</a></b> Sim stack on the laptop; ROS 2 workspace + hardware layer on the Jetson.</li>
-    <li><b><a href="bringup.html">06 · Bring-up &amp; calibration.</a></b> First power-on limp, bus-by-bus enumeration, zeros, limits, CoM check.</li>
-    <li><b><a href="operate.html">07 · Operate.</a></b> Teleop from a browser, iPhone, or Vision Pro; the terminal cockpit; the safety model.</li>
-    <li><b><a href="learning.html">08 · Data &amp; learning.</a></b> Record episodes, curate, train, deploy policies.</li>
-  </ol>
+<!-- ═══ FOUR THINGS ANYONE CAN BRING ═══ -->
+<section class="hub-band" id="showcase">
+  <div class="hub-wrap">
+    <h2 class="hub-h">Four things anyone can bring</h2>
+    <p class="hub-sub">You do not need the whole robot to contribute. One arm counts.
+      A scene counts. Fifty clean demonstrations count.</p>
+    <div class="kinds" id="kinds"></div>
+  </div>
+</section>
 
-  <h2>The golden rules</h2>
-  <ul>
-    <li><b>Simulate first.</b> Prove every motion in the twin before running it on hardware.</li>
-    <li><b>One source of truth.</b> The MuJoCo MJCF defines the body; the URDF, viewers, and app rigs are all generated from it.</li>
-    <li><b>Power up current-limited, always.</b> First energization of any bus goes through a current-limited supply.</li>
-    <li><b>Know your stop.</b> Identify the e-stop path before energizing anything (<a href="operate.html#safety">safety model</a>).</li>
-  </ul>
+<!-- ═══ THE SHELF ═══ -->
+<section class="hub-band alt">
+  <div class="hub-wrap">
+    <div class="shelf-head">
+      <h2 class="hub-h">The shelf</h2>
+      <div class="shelf-filters" id="shelfFilters"></div>
+    </div>
+    <div class="shelf" id="shelf"></div>
+    <p class="shelf-note" id="shelfNote"></p>
+  </div>
+</section>
 
-  <h2>Source layout</h2>
-  <p>Everything lives in one repository —
-  <a href="https://github.com/robotmabel/MABEL">robotmabel/MABEL</a>:</p>
-  <table>
-    <tr><th>Path</th><th>Contents</th></tr>
-    <tr><td><code>simulation/mabel_mujoco/</code></td><td>The canonical robot model (MJCF) + scenes — the single source of truth</td></tr>
-    <tr><td><code>hardware_bridge/</code></td><td>The hardware abstraction layer (HAL) — the one process that owns every device</td></tr>
-    <tr><td><code>firmware/</code></td><td>Per-MCU firmware: swerve base, arms link, lift, ORCA hands, head</td></tr>
-    <tr><td><code>controller/</code></td><td>The <code>mabel</code> control library: retargeting, whole-body control, safety gates</td></tr>
-    <tr><td><code>server/</code></td><td>The teleop gateway: one wire contract for every client, sim and real</td></tr>
-    <tr><td><code>mabel_ws/</code></td><td>ROS 2 workspace (bring-up, description, SLAM, Nav2)</td></tr>
-    <tr><td><code>web_gui/</code></td><td>Browser studios: control centers, data curation, trainer</td></tr>
-  </table>
-</main>
-</div>
-<script src="docs.js"></script>
+<!-- ═══ CHALLENGES ═══ -->
+<section class="hub-band" id="challenges">
+  <div class="hub-wrap">
+    <h2 class="hub-h">Open challenges</h2>
+    <p class="hub-sub">Not competitions &mdash; the three things the project most
+      needs from someone who is not us.</p>
+    <div class="chal" id="chal"></div>
+  </div>
+</section>
+
+<!-- ═══ THE MANUAL ═══ -->
+<section class="hub-band alt" id="manual">
+  <div class="hub-wrap">
+    <h2 class="hub-h">The manual, in build order</h2>
+    <p class="hub-sub">Ten chapters. You cannot wire a frame you have not printed,
+      so they run in the order the work does.</p>
+    <div class="chapters" id="chapters"></div>
+  </div>
+</section>
+
+<!-- ═══ CONTRIBUTE ═══ -->
+<section class="hub-band" id="contribute">
+  <div class="hub-wrap">
+    <h2 class="hub-h">How to put something here</h2>
+    <div class="contrib">
+      <div>
+        <h3>One file. One pull request. No account.</h3>
+        <p>Everything on the shelf is an object in
+          <code>website/docs/data/community.json</code>. Add yours, open a PR,
+          and it appears. Nothing else needs touching &mdash; no build step, no
+          CMS, no invitation.</p>
+        <pre><code>{
+  "kind":  "build",          <span class="c">// build | scene | skill | part | tool</span>
+  "title": "MABEL #7, Lisbon",
+  "who":   "your name or handle",
+  "url":   "https://...",    <span class="c">// repo, thread, video, anything</span>
+  "shot":  "https://...",    <span class="c">// optional image</span>
+  "stage": "wiring",         <span class="c">// planning | printing | wiring | running | shipped</span>
+  "blurb": "One or two sentences. What is it, what is different about it.",
+  "tags":  ["hardware", "swerve"]
+}</code></pre>
+        <p class="faint">Builds in progress are welcome and wanted. A half-wired
+          chassis with a note saying which step was wrong is more useful to the
+          next person than a finished photograph.</p>
+      </div>
+      <div>
+        <h3>Fixing the manual counts too</h3>
+        <p>If a step was wrong, a part was missing, or a command did not run,
+          that is the highest-value contribution there is &mdash; every chapter has
+          an <b>Edit this page</b> link at the foot that opens the file on GitHub.</p>
+        <ul class="check">
+          <li>A wrong torque, a missing washer, a bolt length that does not fit</li>
+          <li>A command that needs a flag on your distro</li>
+          <li>A part that is out of stock, with the substitute that worked</li>
+          <li>A photograph of the step you got stuck on</li>
+        </ul>
+        <div class="hub-cta">
+          <a class="hb hb-go" href="https://github.com/robotmabel/MABEL/blob/main/website/docs/data/community.json" target="_blank" rel="noopener">Edit the registry &#8599;</a>
+          <a class="hb" href="https://github.com/robotmabel/MABEL/issues" target="_blank" rel="noopener">Open an issue &#8599;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="hub-foot">
+  <div class="hub-wrap">
+    <b>MABEL</b>
+    <span>Open hardware, open software, open from day one &mdash; MIT.</span>
+    <nav>
+      <a href="overview.html">The manual</a>
+      <a href="../index.html">Project site</a>
+      <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub &#8599;</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="hub.js"></script>
 </body>
 </html>

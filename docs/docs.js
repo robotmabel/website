@@ -9,7 +9,7 @@
    sitting. The phases are the real order of work: you cannot wire a frame you
    have not printed, and you cannot calibrate a robot with no firmware. */
 const NAV = [
-  ["index.html",        "00", "Overview",              "Plan"],
+  ["overview.html",     "00", "Overview",              "Plan"],
   ["bom.html",          "01", "Bill of materials",     "Plan"],
   ["assembly.html",     "02", "Mechanical assembly",   "Build"],
   ["electronics.html",  "03", "Electronics & wiring",  "Build"],
@@ -23,6 +23,9 @@ const NAV = [
 
 (function () {
   const here = location.pathname.split("/").pop() || "index.html";
+  /* index.html is the COMMUNITY HUB, not a chapter. It builds its own header,
+     so the chapter shell must not wrap it in a sidebar it does not want. */
+  if (here === "index.html" || here === "") return;
   const idx = NAV.findIndex(([f]) => f === here);
 
   /* sidebar */
@@ -75,6 +78,22 @@ const NAV = [
     };
     pn.innerHTML = mk(idx - 1, "prev", "previous") + mk(idx + 1, "next", "next");
     document.querySelector("main").appendChild(pn);
+  }
+
+  /* EDIT THIS PAGE. The hub promises this link exists, so it has to exist on
+     every chapter — a manual that asks for corrections and gives you nowhere
+     to put them is asking for nothing. */
+  {
+    const ed = document.createElement("p");
+    ed.className = "editpage";
+    ed.innerHTML =
+      `Found a step that was wrong? ` +
+      `<a href="https://github.com/robotmabel/MABEL/edit/main/website/docs/${here}"` +
+      ` target="_blank" rel="noopener">Edit this page &#8599;</a>` +
+      ` &nbsp;·&nbsp; <a href="https://github.com/robotmabel/MABEL/issues/new"` +
+      ` target="_blank" rel="noopener">Open an issue &#8599;</a>` +
+      ` &nbsp;·&nbsp; <a href="index.html">Community &rarr;</a>`;
+    document.querySelector("main").appendChild(ed);
   }
 
   /* copy buttons */

@@ -1,0 +1,233 @@
+/* The community hub — the docs' tokens, arranged as a shelf rather than a book.
+ *
+ * Structure borrowed from the sharing platforms that work (MakerWorld, and The
+ * Flock's feed): a boot/hero that states the deal, four cards naming the kinds
+ * of contribution, a filterable shelf, open challenges, then the manual itself.
+ *
+ * What is NOT borrowed: fabricated activity. Those sites are full because they
+ * are full. This one is not yet, and the empty slot says so — a grid padded
+ * with people who do not exist is the one thing that makes a real community
+ * impossible to start.
+ */
+
+body.hub { background: var(--bone); }
+body.hub .wrap { display: block; }
+.hub-wrap { max-width: 1120px; margin: 0 auto; padding: 0 clamp(18px, 4vw, 40px); }
+
+/* ── nav ───────────────────────────────────────────────────────────────── */
+.hub-nav {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  padding: 12px clamp(18px, 4vw, 40px);
+  background: var(--ink); border-bottom: 3px solid var(--ink);
+}
+.hub-logo { display: flex; align-items: baseline; gap: 9px; text-decoration: none; }
+.hub-logo img { width: 26px; height: 26px; align-self: center; }
+.hub-logo b { font-family: var(--display); font-weight: 400; font-size: 21px;
+  letter-spacing: 0.06em; color: var(--bone); }
+.hub-logo span { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--gold); }
+.hub-nav nav { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.hub-nav nav a {
+  font-family: var(--comic); font-size: 14px; letter-spacing: 0.05em;
+  color: rgba(244,234,210,0.8); text-decoration: none;
+  padding: 6px 12px; border-radius: 8px; border: 2px solid transparent;
+}
+.hub-nav nav a:hover { color: var(--pop); border-color: rgba(255,206,10,0.4); }
+.hub-nav nav a.hub-out { color: var(--ink); background: var(--pop);
+  border-color: var(--ink); box-shadow: 3px 3px 0 rgba(0,0,0,0.45); }
+.hub-nav nav a.hub-out:hover { color: var(--ink); }
+
+/* ── hero + boot ───────────────────────────────────────────────────────── */
+.hub-hero { background: var(--ink); padding: clamp(28px,5vh,56px) 0 clamp(34px,6vh,64px);
+  border-bottom: 3px solid var(--ink); }
+.hub-hero-in { max-width: 1120px; margin: 0 auto;
+  padding: 0 clamp(18px, 4vw, 40px);
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(22px, 4vw, 52px); align-items: center; }
+@media (max-width: 900px) { .hub-hero-in { grid-template-columns: 1fr; } }
+
+/* THE BOOT READOUT. A power-on self-test is the right register for a manual:
+   it is a joke, and the checks it prints are the actual inventory of what the
+   manual covers, so the scope lands before a sentence is read. */
+.boot {
+  font-family: var(--mono); font-size: clamp(10.5px, 1.15vw, 13px);
+  line-height: 1.75; color: #C9C2B0; background: #0B0E15;
+  border: 3px solid var(--gold); border-radius: 12px;
+  box-shadow: 7px 7px 0 rgba(217,161,63,0.22);
+  padding: 18px 20px; margin: 0; min-height: 300px; white-space: pre;
+  overflow-x: auto;
+}
+.boot .hd { color: var(--pop); }
+.boot .v1 { color: var(--gold); }
+.boot .v2 { color: var(--hi); }
+.boot .bl { color: var(--pop); }
+.boot .cur { animation: blink 1.05s steps(1) infinite; color: var(--pop); }
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .boot .cur { animation: none; } }
+
+.hub-say h1 { font-family: var(--display); font-weight: 400;
+  font-size: clamp(38px, 6vw, 74px); line-height: 1.0; letter-spacing: 0.01em;
+  color: var(--bone); margin: 0 0 16px; }
+.hub-say h1 span { color: var(--hi); }
+.hub-say p { color: rgba(244,234,210,0.82); font-size: 16px; line-height: 1.66;
+  max-width: 44rem; margin: 0 0 22px; }
+.hub-say p b { color: var(--pop); }
+
+.hub-cta { display: flex; gap: 11px; flex-wrap: wrap; }
+.hb {
+  font-family: var(--comic); font-size: 16px; letter-spacing: 0.05em;
+  text-decoration: none; color: var(--bone);
+  border: 2.5px solid rgba(244,234,210,0.5); border-radius: 10px;
+  padding: 10px 20px; transition: transform .12s, box-shadow .12s;
+}
+.hb:hover { color: var(--pop); border-color: var(--pop); transform: translate(-1px,-1px); }
+.hb-go { background: var(--hi); color: #FFF9F0; border-color: var(--ink);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.5); }
+.hb-go:hover { color: #FFF9F0; background: var(--hi-deep); border-color: var(--ink);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.55); }
+
+/* ── bands ─────────────────────────────────────────────────────────────── */
+.hub-band { padding: clamp(34px,6vh,64px) 0; }
+.hub-band.alt { background: var(--paper); border-top: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink); }
+.hub-h { font-family: var(--comic); font-weight: 400;
+  font-size: clamp(26px, 3.6vw, 40px); letter-spacing: 0.035em;
+  margin: 0 0 8px; color: var(--ink); }
+.hub-h::after { content: ""; display: block; width: 62px; height: 5px;
+  background: var(--hi); margin-top: 10px; }
+.hub-sub { color: var(--ink-soft); font-size: 15.5px; max-width: 52rem;
+  margin: 14px 0 26px; }
+
+/* ── the four kinds ────────────────────────────────────────────────────── */
+.kinds { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px,1fr));
+  gap: 14px; }
+.kind { display: block; text-decoration: none; color: var(--ink);
+  background: var(--panel); border: 3px solid var(--ink); border-radius: 13px;
+  padding: 16px 18px 18px; box-shadow: 6px 6px 0 rgba(21,24,32,0.15);
+  position: relative; transition: transform .13s, box-shadow .13s; }
+.kind:hover { transform: translate(-3px,-3px); box-shadow: 9px 9px 0 var(--ink);
+  color: var(--ink); }
+.kind b { font-family: var(--comic); font-size: 23px; letter-spacing: 0.04em;
+  display: block; }
+.kind .kn { position: absolute; top: 14px; right: 16px; font-family: var(--mono);
+  font-size: 12px; font-weight: 700; color: #FFF9F0; background: var(--ink);
+  border-radius: 999px; padding: 2px 9px; }
+.kind p { font-size: 14px; line-height: 1.5; margin: 6px 0 8px; color: var(--ink-soft); }
+.kind em { font-style: normal; font-family: var(--mono); font-size: 11px;
+  line-height: 1.55; color: var(--ash); display: block; }
+.kind.k-build { border-bottom-width: 7px; border-bottom-color: var(--hi); }
+.kind.k-scene { border-bottom-width: 7px; border-bottom-color: var(--blue); }
+.kind.k-skill { border-bottom-width: 7px; border-bottom-color: var(--green); }
+.kind.k-part  { border-bottom-width: 7px; border-bottom-color: var(--gold); }
+
+/* ── the shelf ─────────────────────────────────────────────────────────── */
+.shelf-head { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end;
+  justify-content: space-between; margin-bottom: 20px; }
+.shelf-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.sf { font-family: var(--mono); font-size: 11.5px; padding: 6px 13px;
+  border: 2.5px solid var(--ink); border-radius: 999px; background: transparent;
+  color: var(--ink); cursor: pointer; }
+.sf:hover { background: rgba(21,24,32,0.07); }
+.sf.on { background: var(--ink); color: var(--pop); }
+
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(258px,1fr));
+  gap: 16px; }
+.sh { display: flex; flex-direction: column; text-decoration: none; color: var(--ink);
+  background: var(--panel); border: 3px solid var(--ink); border-radius: 13px;
+  overflow: hidden; box-shadow: 6px 6px 0 rgba(21,24,32,0.15);
+  transition: transform .13s, box-shadow .13s; }
+.sh:hover { transform: translate(-3px,-3px); box-shadow: 9px 9px 0 var(--ink);
+  color: var(--ink); }
+.sh-img { aspect-ratio: 16/10; background: var(--ink); overflow: hidden; }
+.sh-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sh-none { display: grid; place-items: center; background: var(--paper-2, #E0D0A6); }
+.sh-none span { font-family: var(--comic); font-size: 26px; color: var(--ash);
+  letter-spacing: 0.06em; }
+.sh-body { padding: 13px 15px 15px; display: flex; flex-direction: column; gap: 5px;
+  flex: 1; }
+.sh-kind { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--hi); }
+.sh-stage { position: absolute; }
+.sh-body { position: relative; }
+.sh-body .sh-stage { position: absolute; top: 13px; right: 14px;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.06em;
+  border: 2px solid var(--ink); border-radius: 999px; padding: 1px 8px;
+  background: var(--pop); color: var(--ink); }
+.st-planning { background: var(--paper-2, #E0D0A6) !important; }
+.st-printing { background: var(--yellow) !important; }
+.st-wiring   { background: var(--gold) !important; }
+.st-running  { background: var(--green) !important; color: #FFF9F0 !important; }
+.st-shipped  { background: var(--hi) !important; color: #FFF9F0 !important; }
+.sh b { font-family: var(--sans); font-weight: 700; font-size: 16px; line-height: 1.25; }
+.sh p { font-size: 13.5px; line-height: 1.5; color: var(--ink-soft); margin: 0;
+  max-width: none; }
+.sh-who { font-family: var(--mono); font-size: 11px; color: var(--ash); margin-top: auto;
+  padding-top: 8px; }
+.sh-who i { font-style: normal; color: var(--ash-light); }
+.sh-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.sh-tags i { font-style: normal; font-family: var(--mono); font-size: 9.5px;
+  border: 1.5px solid var(--line-firm); border-radius: 999px; padding: 1px 7px;
+  color: var(--ash); }
+.sh.ours { border-color: var(--ash); }
+.sh.ours .sh-kind { color: var(--ash); }
+
+/* the empty slot: dashed, and honest about being empty */
+.sh-add { border-style: dashed; border-color: var(--hi); background: transparent;
+  box-shadow: none; }
+.sh-add:hover { box-shadow: 6px 6px 0 rgba(228,68,42,0.28); }
+.sh-add .sh-img { background: transparent; border-bottom: 3px dashed var(--hi); }
+.sh-add .sh-none span { color: var(--hi); font-size: 46px; }
+.sh-add .sh-kind, .sh-add .sh-who { color: var(--hi); }
+.shelf-note { font-size: 14px; color: var(--ink-soft); margin-top: 20px;
+  max-width: 56rem; }
+
+/* ── challenges ────────────────────────────────────────────────────────── */
+.chal { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+  gap: 16px; }
+.ch { background: var(--panel); border: 3px solid var(--ink); border-radius: 13px;
+  padding: 18px 20px 20px; box-shadow: 6px 6px 0 rgba(21,24,32,0.15);
+  position: relative; }
+.ch-n { position: absolute; top: -14px; left: 18px; font-family: var(--comic);
+  font-size: 15px; background: var(--pop); border: 2.5px solid var(--ink);
+  border-radius: 8px; padding: 2px 9px; }
+.ch b { font-family: var(--comic); font-size: 21px; letter-spacing: 0.03em;
+  display: block; margin: 6px 0 8px; }
+.ch-goal { font-size: 14.5px; line-height: 1.55; margin: 0 0 8px; max-width: none; }
+.ch-why { font-size: 13px; line-height: 1.6; color: var(--ash); margin: 0 0 12px;
+  max-width: none; }
+.ch a { font-family: var(--mono); font-size: 12px; }
+
+/* ── chapters ──────────────────────────────────────────────────────────── */
+.chapters { display: grid; grid-template-columns: repeat(auto-fill, minmax(238px,1fr));
+  gap: 12px; }
+.chap { display: block; text-decoration: none; color: var(--ink);
+  background: var(--panel); border: 2.5px solid var(--ink); border-radius: 11px;
+  padding: 13px 15px 15px; box-shadow: 5px 5px 0 rgba(21,24,32,0.13);
+  transition: transform .12s, box-shadow .12s; }
+.chap:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--ink);
+  color: var(--ink); }
+.chap .cn { font-family: var(--mono); font-size: 11px; color: var(--hi); }
+.chap b { display: block; font-size: 15.5px; margin: 2px 0 4px; }
+.chap p { font-size: 12.5px; line-height: 1.5; color: var(--ash); margin: 0;
+  max-width: none; }
+
+/* ── contribute ────────────────────────────────────────────────────────── */
+.contrib { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr));
+  gap: clamp(20px,3vw,40px); }
+.contrib h3 { font-family: var(--comic); font-size: 22px; letter-spacing: 0.03em;
+  margin: 0 0 8px; }
+.contrib pre { max-width: none; }
+
+/* ── foot ──────────────────────────────────────────────────────────────── */
+.hub-foot { background: var(--ink); color: var(--bone); padding: 26px 0;
+  border-top: 3px solid var(--ink); }
+.hub-foot .hub-wrap { display: flex; gap: 16px; align-items: baseline;
+  flex-wrap: wrap; }
+.hub-foot b { font-family: var(--display); font-weight: 400; font-size: 20px;
+  letter-spacing: 0.06em; }
+.hub-foot span { font-size: 13px; color: var(--ash-light); }
+.hub-foot nav { margin-left: auto; display: flex; gap: 16px; flex-wrap: wrap; }
+.hub-foot nav a { color: rgba(244,234,210,0.78); font-family: var(--mono);
+  font-size: 12px; text-decoration: none; }
+.hub-foot nav a:hover { color: var(--pop); }

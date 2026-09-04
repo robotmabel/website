@@ -4655,3 +4655,23 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   border: 2px solid var(--ink); border-radius: 5px; color: #FFF9F0; }
 .fr2-ax.x { background: #E4442A; } .fr2-ax.y { background: #2E7D4F; }
 .fr2-ax.z { background: #23577E; }
+
+/* ── the boot readout: a loading state that is worth watching ────────────
+   Borrowed from the docs hub, which borrowed it from every machine that has
+   ever had to tell you it was thinking. A spinner says "wait"; a power-on
+   self-test says what is being loaded and roughly how much of it there is,
+   which for a 1.87 MB rig is the more honest answer. */
+.ph-label.boot-label {
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.85;
+  letter-spacing: 0.02em; white-space: pre; text-align: left;
+  color: #C9C2B0; background: rgba(11,14,21,0.9);
+  border: 2px solid rgba(217,161,63,0.55); border-radius: 9px;
+  padding: 12px 15px; text-transform: none;
+}
+.ph-label.boot-label b { color: var(--pop); font-weight: 400; }
+.ph-label.boot-label i { font-style: normal; color: var(--gold); }
+.ph-label.boot-label u { text-decoration: none; color: var(--hi); }
+.ph-label.boot-label .cur { animation: bootBlink 1.05s steps(1) infinite;
+  color: var(--pop); }
+@keyframes bootBlink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .boot-label .cur { animation: none; } }

@@ -1,0 +1,81 @@
+{
+  "_readme": [
+    "THE COMMUNITY REGISTRY. One file, one pull request — that is the whole",
+    "contribution path. Add an object to `entries` and open a PR against",
+    "website/docs/data/community.json; nothing else needs touching and no",
+    "account is required anywhere.",
+    "",
+    "Fields: kind (build|scene|skill|part|tool), title, who, url, blurb, tags,",
+    "stage (planning|printing|wiring|running|shipped), and optionally shot",
+    "(a path under website/assets/ or an absolute URL) and date (YYYY-MM).",
+    "",
+    "Everything below is from the reference build and is MARKED AS SUCH. There",
+    "are no outside entries yet — the page says so rather than inventing any.",
+    "Yours is the first."
+  ],
+  "seeded": "2026-09",
+  "entries": [
+    {
+      "kind": "build", "title": "MABEL v1.0 — the reference build", "who": "the MABEL authors",
+      "url": "overview.html", "shot": "../assets/wild/hero-photo.jpg",
+      "stage": "shipped", "date": "2026-07", "ours": true,
+      "blurb": "56 DoF, 59 motors, $8,722 of parts, assembled in a weekend. Every number in this manual was measured on this robot.",
+      "tags": ["hardware", "full build"]
+    },
+    {
+      "kind": "part", "title": "3-module swerve base", "who": "the MABEL authors",
+      "url": "assembly.html", "shot": "../assets/hw/base.png",
+      "stage": "shipped", "ours": true,
+      "blurb": "Delta-layout holonomic base on REV MAXSwerve. Translates in any direction without turning first — the reason the arrow keys strafe.",
+      "tags": ["mechanical", "CAN"]
+    },
+    {
+      "kind": "part", "title": "ORCA hand, 17 DoF", "who": "ORCA + the MABEL authors",
+      "url": "assembly.html", "shot": "../assets/hw/hands.png",
+      "stage": "shipped", "ours": true,
+      "blurb": "Open-source tendon hand, 16 Feetech servos and a wrist on one TTL chain. Printed, not machined.",
+      "tags": ["mechanical", "hands"]
+    },
+    {
+      "kind": "scene", "title": "40 simulation scenes", "who": "the MABEL authors",
+      "url": "../software.html#simulation", "shot": "../assets/sim/scenes/mabel_home.jpg",
+      "stage": "shipped", "ours": true,
+      "blurb": "Homes, cafés, warehouses and four New York streets with scripted traffic. Each one is an MJCF you can drop a policy into.",
+      "tags": ["simulation", "MuJoCo"]
+    },
+    {
+      "kind": "skill", "title": "ACT, DiT, π₀ and π₀.₅", "who": "the MABEL authors",
+      "url": "learning.html", "shot": "../assets/studio/training.jpg",
+      "stage": "running", "ours": true,
+      "blurb": "Four policy architectures behind one trainer. ACT and the diffusion policy train on the robot's own Jetson.",
+      "tags": ["learning", "policies"]
+    },
+    {
+      "kind": "tool", "title": "Data Curation studio", "who": "the MABEL authors",
+      "url": "learning.html", "shot": "../assets/studio/curation.jpg",
+      "stage": "running", "ours": true,
+      "blurb": "Score a dataset, blade the bad takes on a timeline, export LeRobot v2.1. Runs in a browser.",
+      "tags": ["tools", "data"]
+    }
+  ],
+  "challenges": [
+    {
+      "title": "Build the base, post the video",
+      "goal": "Three swerve modules, one chassis, driving under its own power.",
+      "why": "It is the first subassembly that MOVES, and the first place the manual is likely to be wrong. Every build that gets here makes chapter 02 better.",
+      "chapter": "assembly.html", "tag": "hardware", "open": true
+    },
+    {
+      "title": "A scene we have not thought of",
+      "goal": "One MJCF the robot can be dropped into — your kitchen, your lab, your loading bay.",
+      "why": "Forty scenes is not a lot of world. A scene is a single XML file and a PR.",
+      "chapter": "../software.html#simulation", "tag": "simulation", "open": true
+    },
+    {
+      "title": "Teach it something with your own hands",
+      "goal": "Fifty clean demonstrations of one task, curated and exported.",
+      "why": "The bottleneck is not the model, it is the data. Fifty good episodes of anything is a real contribution.",
+      "chapter": "learning.html", "tag": "learning", "open": true
+    }
+  ]
+}
