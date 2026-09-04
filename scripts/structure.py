@@ -7,8 +7,10 @@ gallery build their sections from JSON at runtime, so their ids do not exist in
 the file — and a source-only check called every one of them dangling while the
 links worked perfectly in a browser.
 """
-import asyncio, json, re, subprocess, sys, time, urllib.request, urllib.parse
+import asyncio, json, os, re, subprocess, sys, time, urllib.request, urllib.parse
 import websockets
+
+SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 TAGS = ('section', 'div', 'figure', 'ol', 'li', 'p', 'table', 'video')
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -50,7 +52,12 @@ async def main():
         await cmd("Page.enable"); await cmd("Runtime.enable")
         await cmd("Network.setCacheDisabled", {"cacheDisabled": True})
 
-        for page in sys.argv[1:]:
+        # A CHECK THAT PASSES WITH NO INPUTS IS NOT A CHECK. Run bare, this
+        # used to print "RESULT: PASS" having examined nothing at all.
+        pages = sys.argv[1:] or [
+            "http://localhost:8741/" + f for f in sorted(os.listdir(SITE))
+            if f.endswith(".html") and not f.startswith("_")]
+        for page in pages:
             h = urllib.request.urlopen(page, timeout=25).read().decode()
             bad = []
             for t in TAGS:
@@ -69,15 +76,26 @@ async def main():
               ids: [].slice.call(document.querySelectorAll('[id]'))
                      .map(function(e){return e.id;}),
               hrefs: [].slice.call(document.querySelectorAll('a[href^="#"]'))
-                     .map(function(a){return a.getAttribute('href').slice(1);})})"""))
+                     .map(function(a){return a.getAttribute('href').slice(1);}),
+              defer: [].slice.call(document.querySelectorAll('script[data-when]'))
+                     .map(function(t){return {mod:t.dataset.mod,
+                       when:t.dataset.when,
+                       hit:!!document.querySelector(t.dataset.when)};})})"""))
             ids = set(live["ids"])
             dang = sorted({a for a in live["hrefs"] if a and a not in ids})
+            # A DEFERRED MODULE POINTED AT NOTHING LOADS IMMEDIATELY, which is
+            # the opposite of what it is for: a null target means "nothing to
+            # wait for", so index.html pulled 1.24 MB of three.js for a widget
+            # that was not on the page. Silent, and exactly backwards.
+            miss = [d["when"] for d in live.get("defer", []) if not d["hit"]]
             name = page.rsplit("/", 1)[-1]
-            print("%-14s %-28s %s" % (
+            print("%-14s %-28s %-26s %s" % (
                 name,
                 "tags OK" if not bad else "TAGS " + ",".join(bad),
-                "anchors OK" if not dang else "DANGLING " + str(dang)))
-            bad_total += len(bad) + len(dang)
+                "anchors OK" if not dang else "DANGLING " + str(dang),
+                ("defer OK (%d)" % len(live.get("defer", [])))
+                if not miss else "DEFER TARGET MISSING " + str(miss)))
+            bad_total += len(bad) + len(dang) + len(miss)
     print("RESULT:", "PASS" if bad_total == 0 else "FAIL")
 
 
