@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=c81522ce" />
+<link rel="stylesheet" href="assets/mabel.css?v=442bcf01" />
 <style>
   /* Data Curation live-tool CTA */
   .studio-card { padding: clamp(28px, 4vw, 48px); }
@@ -393,6 +393,34 @@
     </table>
   </div>
 
+
+  <div class="sec-head fade-up" style="margin-top:clamp(30px,4vh,46px);">
+    <div><span class="eyebrow">Architectures &middot; live</span>
+      <h3 class="display-sm title" style="margin:0;">See the network. <span class="italic accent">Every block.</span></h3></div>
+    <p class="lede"><b>Wire the blocks; it compiles to real PyTorch.</b> Not a diagram
+    of the model &mdash; the graph the training run executes, which is why the picture
+    and the network cannot drift apart. Switch between <b>ACT</b>, the <b>Diffusion
+    Transformer</b> and <b>&pi;<sub>0</sub> / &pi;<sub>0.5</sub></b>, drag, zoom, and
+    <em>double-click any block to open it</em> down to the individual Conv, Linear and
+    attention atoms. <b>Work in progress</b> &mdash; expect rough edges.</p>
+  </div>
+
+
+  
+
+  <div class="av-shell fade-up">
+    <div class="av-tabs" id="av-tabs"></div>
+    <div class="av-desc" id="av-desc"></div>
+    <div class="av-stage" id="av-stage">
+      <span class="panel-speech" style="top:5%; left:4%; z-index:7; max-width:44%;">Peek at my brain!</span>
+      <div class="arch-toolbar" id="archToolbar"></div>
+      <div class="arch-legend" id="archLegend"></div>
+      <canvas id="archCanvas"></canvas>
+      <div class="arch-tip" id="archTip"></div>
+      <div class="av-hint">drag · scroll to zoom · double-click a block to look inside</div>
+    </div>
+  </div>
+
   <div class="stg-open fade-up">
     <img src="assets/studio/training.jpg" loading="lazy" width="1200" height="685"
          alt="The Trainer Studio: run list, live loss curves, checkpoint browser and the scope picker" />
@@ -407,39 +435,7 @@
   </div>
 </div></section>
 
-<section class="pad-y" id="arch"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">Architectures · live</span>
-    <h2 class="display-md title">See the network. <span class="italic accent">Every block.</span></h2></div>
-    <p class="lede"><b>Wire the blocks; it compiles to real PyTorch.</b> Not a diagram
-    of the model &mdash; the graph the training run executes, which is why the picture
-    and the network cannot drift apart. Switch between <b>ACT</b>, the <b>Diffusion
-    Transformer</b> and <b>&pi;<sub>0</sub> / &pi;<sub>0.5</sub></b>, drag, zoom, and
-    <em>double-click any block to open it</em> down to the individual Conv, Linear and
-    attention atoms. <b>Work in progress</b> &mdash; expect rough edges.</p></div>
 
-  <figure class="studio-shot fade-up" style="margin-bottom:clamp(20px,3vh,32px);">
-    <img src="assets/studios/trainer.webp" loading="lazy"
-         alt="The Trainer Studio: dataset list, the ACT graph on the canvas, and
-              the deployment panel" />
-    <figcaption>The Trainer Studio itself. Curated exports on the left, the graph on
-      the canvas &mdash; <code>compile</code> turns it into PyTorch and
-      <code>code</code> shows you what it wrote &mdash; and deployment to MuJoCo or
-      the real robot on the right.</figcaption>
-  </figure>
-
-  <div class="av-shell fade-up">
-    <div class="av-tabs" id="av-tabs"></div>
-    <div class="av-desc" id="av-desc"></div>
-    <div class="av-stage" id="av-stage">
-      <span class="panel-speech" style="top:5%; left:4%; z-index:7; max-width:44%;">Peek at my brain!</span>
-      <div class="arch-toolbar" id="archToolbar"></div>
-      <div class="arch-legend" id="archLegend"></div>
-      <canvas id="archCanvas"></canvas>
-      <div class="arch-tip" id="archTip"></div>
-      <div class="av-hint">drag · scroll to zoom · double-click a block to look inside</div>
-    </div>
-  </div>
-</div></section>
 
 <section class="dark-sec pad-y" id="contribute"><div class="wrap">
   <div class="card studio-card fade-up">
@@ -574,6 +570,6 @@
 <script src="assets/curation-lab.js"></script>
 <script src="assets/mabel.js?v=e2513327"></script>
 <script src="assets/slam-lab.js"></script>
-<script defer src="assets/defer-module.js" data-mod="./arch-contribute.js" data-when="#archCanvas, #arch"></script>
+<script defer src="assets/defer-module.js" data-mod="./arch-contribute.js" data-when="#archCanvas"></script>
 </body>
 </html>

@@ -93,7 +93,9 @@ async def main():
               [].slice.call(document.querySelectorAll('script[data-when]'))
                 .map(function(t){
                   var e = document.querySelector(t.dataset.when);
-                  return (e && e.children.length === 0 && !e.querySelector('canvas'))
+                  var filled = e && (e.children.length > 0
+                    || e.tagName === 'CANVAS' || !!e.querySelector('canvas'));
+                  return (e && !filled)
                     ? t.dataset.mod.split('?')[0] : null;})
                 .filter(Boolean))"""))
             ids = set(live["ids"])

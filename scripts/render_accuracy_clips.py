@@ -129,8 +129,14 @@ def render(name, d, tip_body, trail_rgba, title, every=None):
     data.qpos[adr] = q[0, col]
     mujoco.mj_forward(model, data)
     lo, hi = pts.min(axis=0), pts.max(axis=0)
-    centre = np.array([(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2,
-                       max(0.95, (lo[2] + hi[2]) / 2)])
+    # AIM BETWEEN THE ROBOT AND THE WORK, not at the work. Centring on the
+    # fingertip sweep alone put the robot off to one side of every frame,
+    # because the sweep is out in front of it by most of an arm's length.
+    chas = data.body("mabel_chassis").xpos.copy()
+    sweep = np.array([(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2,
+                      (lo[2] + hi[2]) / 2])
+    centre = np.array([(chas[0] + sweep[0]) / 2, (chas[1] + sweep[1]) / 2,
+                       max(0.95, sweep[2])])
     reach = float(np.linalg.norm(hi - lo))
     print(f"     fingertip sweeps {reach:.2f} m")
 

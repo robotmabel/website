@@ -12,7 +12,11 @@
  * matching without a back end and is worth seeing. The robot runs
  * slam_toolbox (2-D) and cuVSLAM (visual) and both close loops.
  *
- * Controls: ← → drive, ↑ ↓ or W/S turn. Held keys integrate at 60 Hz.
+ * Controls match the robot's own motion model. The base is a THREE-MODULE
+ * SWERVE and it is holonomic — it can translate in any direction without
+ * turning first — so the arrow keys translate (↑↓ forward and back, ←→
+ * STRAFE) and W/S rotate. Mapping the arrows to "drive and turn" would have
+ * been a differential base, which MABEL is not.
  *
  * Everything here is O(beams) per frame: 360 ray-segment intersections
  * against ~40 wall segments, and a Bresenham walk per beam. That is a few
@@ -57,10 +61,24 @@
   var BEAMS = 240, RANGE = 12.0, FOV = Math.PI * 2;
 
   /* ── state ─────────────────────────────────────────────────────────── */
+  /* Box–Muller, so the noise is Gaussian rather than the flat rand() that a
+     first cut reaches for — a uniform error has no tails, and the tails are
+     what a scan matcher is actually there to catch. */
+  var spare = null;
+  function gauss() {
+    if (spare !== null) { var v = spare; spare = null; return v; }
+    var u, v2, s2;
+    do { u = Math.random() * 2 - 1; v2 = Math.random() * 2 - 1;
+         s2 = u * u + v2 * v2; } while (!s2 || s2 >= 1);
+    var m = Math.sqrt(-2 * Math.log(s2) / s2);
+    spare = v2 * m;
+    return u * m;
+  }
+
   var S = {
     x: 9.0, y: 1.3, th: 0,          // true pose
     ex: 9.0, ey: 1.3, eth: 0,       // estimated pose (what the map is built on)
-    v: 0, w: 0, keys: {},
+    vx: 0, vy: 0, w: 0, keys: {},
     trail: [], truth: [],
     scan: new Float32Array(BEAMS),
     matched: 0, drift: 0, cells: 0, frames: 0, on: true
@@ -80,9 +98,18 @@
     }
     return best;
   }
+  /* RANGE NOISE AND DROPOUTS. A noiseless scan makes the whole problem
+     trivial and the map comes out looking like a CAD trace, which teaches the
+     wrong thing. sigma = 1.5 cm is about what an RPLiDAR gives at these
+     ranges; roughly one beam in 300 returns nothing at all. */
+  var SIGMA = 0.015, DROP = 0.0035;
   function scan(px, py, pth, out) {
     for (var i = 0; i < BEAMS; i++) {
-      out[i] = cast(px, py, pth + (i / BEAMS) * FOV);
+      var r = cast(px, py, pth + (i / BEAMS) * FOV);
+      if (r < RANGE - 1e-3) {
+        r = Math.random() < DROP ? RANGE : Math.max(0.05, r + gauss() * SIGMA);
+      }
+      out[i] = r;
     }
     return out;
   }
@@ -157,17 +184,20 @@
       '<h3 class="sl-title">Drive it. Watch the map appear.</h3>' +
       '<p class="sl-say">A simulated 240-beam scan, a log-odds occupancy grid ' +
         'and a correlative scan matcher — the same three pieces slam_toolbox ' +
-        'runs on the robot. The floor plan is hidden from you <em>and</em> from ' +
-        'the mapper: everything you see is inferred from ranges.</p>' +
+        'runs on the robot. <b>Left is the room as it really is</b> — the robot ' +
+        'never sees that. <b>Right is everything it has:</b> a grid it inferred ' +
+        'from noisy ranges and a pose it estimated. Compare them.</p>' +
     '</div>' +
     '<div class="sl-stage">' +
-      '<canvas class="sl-canvas" width="1080" height="560"></canvas>' +
+      '<canvas class="sl-canvas" width="1240" height="430"></canvas>' +
       '<div class="sl-keys" aria-hidden="true">' +
         '<span class="sl-k" data-k="ArrowUp">↑</span>' +
         '<span class="sl-k" data-k="ArrowLeft">←</span>' +
         '<span class="sl-k" data-k="ArrowDown">↓</span>' +
         '<span class="sl-k" data-k="ArrowRight">→</span>' +
-        '<i>drive · ← → turn · W/S also</i>' +
+        '<span class="sl-k sl-k-w" data-k="w">W</span>' +
+        '<span class="sl-k sl-k-w" data-k="s">S</span>' +
+        '<i>arrows translate — the base is holonomic · W/S rotate</i>' +
       '</div>' +
       '<div class="sl-hud">' +
         '<span><b class="sl-cov">0</b>% mapped</span>' +
@@ -201,7 +231,8 @@
     S.keys[e.key] = down;
     e.preventDefault();
     host.querySelectorAll('[data-k]').forEach(function (n) {
-      n.classList.toggle('on', !!S.keys[n.dataset.k]);
+      var k = n.dataset.k;
+      n.classList.toggle('on', !!(S.keys[k] || S.keys[k.toUpperCase()]));
     });
   }
   addEventListener('keydown', function (e) { key(e, true); }, { passive: false });
@@ -216,27 +247,40 @@
     if (r.bottom < -200 || r.top > innerHeight + 200) return;   // off screen
 
     var K = S.keys;
-    var drive = (K.ArrowUp ? 1 : 0) - (K.ArrowDown ? 1 : 0);
-    var turn = (K.ArrowLeft ? 1 : 0) - (K.ArrowRight ? 1 : 0)
-             + (K.w || K.W ? 1 : 0) - (K.s || K.S ? 1 : 0);
-    S.v += (drive * 1.15 - S.v) * Math.min(1, dt * 6);
-    S.w += (turn * 1.5 - S.w) * Math.min(1, dt * 8);
+    /* HOLONOMIC, because the base is. Forward/back on ↑↓, STRAFE on ←→,
+       rotate on W/S — three independent velocities, which is exactly what a
+       three-module swerve gives you and what the wire protocol carries. */
+    var fwd = (K.ArrowUp ? 1 : 0) - (K.ArrowDown ? 1 : 0);
+    var lat = (K.ArrowLeft ? 1 : 0) - (K.ArrowRight ? 1 : 0);
+    var turn = (K.w || K.W ? 1 : 0) - (K.s || K.S ? 1 : 0);
+    S.vx += (fwd * 1.15 - S.vx) * Math.min(1, dt * 6);
+    S.vy += (lat * 1.0 - S.vy) * Math.min(1, dt * 6);
+    S.w += (turn * 1.6 - S.w) * Math.min(1, dt * 8);
 
-    /* true motion, and the ODOMETRY the robot thinks it made — the same
-       command with a systematic scale error and a little noise, which is what
-       wheel odometry on a real base gives you */
-    var ds = S.v * dt, dth = S.w * dt;
-    var nx = S.x + Math.cos(S.th + dth / 2) * ds;
-    var ny = S.y + Math.sin(S.th + dth / 2) * ds;
-    if (cast(S.x, S.y, Math.atan2(ny - S.y, nx - S.x)) > 0.34 || ds === 0) {
+    /* body-frame velocity into the world */
+    var dth = S.w * dt;
+    var c = Math.cos(S.th + dth / 2), sn = Math.sin(S.th + dth / 2);
+    var dxb = S.vx * dt, dyb = S.vy * dt;
+    var nx = S.x + c * dxb - sn * dyb;
+    var ny = S.y + sn * dxb + c * dyb;
+    var step = Math.hypot(nx - S.x, ny - S.y);
+    if (step < 1e-6 || cast(S.x, S.y, Math.atan2(ny - S.y, nx - S.x)) > 0.34) {
       S.x = nx; S.y = ny;
     }
     S.th += dth;
-    var odoS = ds * 1.035 + (Math.random() - 0.5) * Math.abs(ds) * 0.06;
-    var odoT = dth * 1.03 + (Math.random() - 0.5) * Math.abs(dth) * 0.08;
-    S.ex += Math.cos(S.eth + odoT / 2) * odoS;
-    S.ey += Math.sin(S.eth + odoT / 2) * odoS;
-    S.eth += odoT;
+
+    /* THE ODOMETRY THE ROBOT THINKS IT MADE. A systematic scale error plus
+       per-step noise, which is what wheel odometry on a real base gives you —
+       and on a swerve the lateral channel is the worse of the two, because a
+       strafing module scrubs. This is the error the scan matcher has to undo;
+       without it the demonstration has nothing to demonstrate. */
+    var oX = dxb * 1.04 + gauss() * Math.abs(dxb) * 0.10 + gauss() * 0.0008;
+    var oY = dyb * 1.07 + gauss() * Math.abs(dyb) * 0.16 + gauss() * 0.0008;
+    var oT = dth * 1.03 + gauss() * Math.abs(dth) * 0.09 + gauss() * 0.0006;
+    var ec = Math.cos(S.eth + oT / 2), es = Math.sin(S.eth + oT / 2);
+    S.ex += ec * oX - es * oY;
+    S.ey += es * oX + ec * oY;
+    S.eth += oT;
 
     scan(S.x, S.y, S.th, S.scan);
     if (cbMatch.checked && (S.frames & 1) === 0) {
@@ -265,7 +309,13 @@
     elHz.textContent = Math.round(fps);
   }
 
-  /* ── drawing ───────────────────────────────────────────────────────── */
+  /* ── drawing ───────────────────────────────────────────────────────────
+     TWO PANELS, SIDE BY SIDE. Left is the world as it really is — the floor
+     plan, the true pose, the beams actually cast. Right is everything the
+     robot has: an occupancy grid it inferred and a pose it estimated. Putting
+     them next to each other is the entire lesson; a single panel showing only
+     the map cannot tell you whether the map is any good, and a single panel
+     showing only the truth is not SLAM at all. */
   var img = ctx.createImageData(GW, GH);
   var buf = document.createElement('canvas');
   buf.width = GW; buf.height = GH;
@@ -274,51 +324,91 @@
   function draw() {
     var w = cv.width, h = cv.height;
     ctx.fillStyle = '#0B0E15'; ctx.fillRect(0, 0, w, h);
-    var sc = Math.min(w / 18.4, h / 9.4), ox = (w - 18 * sc) / 2, oy = (h - 9 * sc) / 2;
 
-    /* the grid, as an image */
+    var GAP = 14, PW = (w - GAP * 3) / 2, PH = h - 44;
+    var sc = Math.min(PW / 18.6, PH / 9.6);
+    var pw = 18 * sc, ph = 9 * sc;
+    var L = { ox: GAP + (PW - pw) / 2, oy: 34 + (PH - ph) / 2 };
+    var R = { ox: GAP * 2 + PW + (PW - pw) / 2, oy: 34 + (PH - ph) / 2 };
+
+    function label(p, t, sub) {
+      /* measure the TITLE in the title's own font. Measuring it after the
+         switch measured the subtitle font instead and the two overlapped. */
+      ctx.textAlign = 'left';
+      ctx.font = '600 12px Jost, system-ui, sans-serif';
+      var tw = ctx.measureText(t).width;
+      ctx.fillStyle = '#FFF9F0';
+      ctx.fillText(t, p.ox, 22);
+      ctx.font = '10px "Space Mono", ui-monospace, monospace';
+      ctx.fillStyle = 'rgba(255,249,240,0.42)';
+      ctx.fillText(sub, p.ox + tw + 12, 22);
+    }
+    var X = function (p, x) { return p.ox + x * sc; };
+    var Y = function (p, y) { return p.oy + y * sc; };
+
+    /* ── left: the world, top down ─────────────────────────────────── */
+    label(L, 'THE ROOM', 'ground truth · the robot never sees this');
+    ctx.fillStyle = 'rgba(244,234,210,0.06)';
+    ctx.fillRect(L.ox, L.oy, pw, ph);
+    ctx.strokeStyle = '#F4EAD2'; ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (var i = 0; i < W.length; i++) {
+      ctx.moveTo(X(L, W[i][0]), Y(L, W[i][1]));
+      ctx.lineTo(X(L, W[i][2]), Y(L, W[i][3]));
+    }
+    ctx.stroke();
+
+    /* the beams actually cast, from the TRUE pose */
+    ctx.strokeStyle = 'rgba(255,206,10,0.16)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (var b2 = 0; b2 < BEAMS; b2 += 4) {
+      var a2 = S.th + (b2 / BEAMS) * FOV, r2 = S.scan[b2];
+      ctx.moveTo(X(L, S.x), Y(L, S.y));
+      ctx.lineTo(X(L, S.x + Math.cos(a2) * r2), Y(L, S.y + Math.sin(a2) * r2));
+    }
+    ctx.stroke();
+
+    var trace = function (p, pts, col, wd) {
+      if (pts.length < 2) return;
+      ctx.strokeStyle = col; ctx.lineWidth = wd; ctx.beginPath();
+      ctx.moveTo(X(p, pts[0][0]), Y(p, pts[0][1]));
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(X(p, pts[i][0]), Y(p, pts[i][1]));
+      ctx.stroke();
+    };
+    trace(L, S.truth, 'rgba(46,125,79,0.75)', 2);
+
+    var robot = function (p, x, y, th, col) {
+      ctx.fillStyle = col; ctx.strokeStyle = '#FFF9F0'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(X(p, x), Y(p, y), 6.5, 0, 7); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#FFCE0A'; ctx.lineWidth = 3; ctx.beginPath();
+      ctx.moveTo(X(p, x), Y(p, y));
+      ctx.lineTo(X(p, x + Math.cos(th) * 0.5), Y(p, y + Math.sin(th) * 0.5));
+      ctx.stroke();
+    };
+    robot(L, S.x, S.y, S.th, '#2E7D4F');
+
+    /* ── right: the map it built ───────────────────────────────────── */
+    label(R, 'THE MAP IT BUILT', 'log-odds occupancy · from ranges alone');
+    ctx.fillStyle = 'rgba(255,255,255,0.03)';
+    ctx.fillRect(R.ox, R.oy, pw, ph);
     var d = img.data;
-    for (var i = 0, p = 0; i < logodds.length; i++, p += 4) {
-      var v = logodds[i];
-      if (v > 0.6) { d[p] = 21; d[p + 1] = 24; d[p + 2] = 32; d[p + 3] = 255; }
-      else if (v < -0.6) { d[p] = 244; d[p + 1] = 234; d[p + 2] = 210; d[p + 3] = 235; }
-      else { d[p + 3] = 0; }
+    for (var k = 0, p4 = 0; k < logodds.length; k++, p4 += 4) {
+      var v = logodds[k];
+      if (v > 0.6) { d[p4] = 244; d[p4 + 1] = 234; d[p4 + 2] = 210; d[p4 + 3] = 255; }
+      else if (v < -0.6) { d[p4] = 90; d[p4 + 1] = 96; d[p4 + 2] = 112; d[p4 + 3] = 150; }
+      else { d[p4 + 3] = 0; }
     }
     bctx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(buf, ox, oy, 18 * sc, 9 * sc);
+    ctx.drawImage(buf, R.ox, R.oy, pw, ph);
     ctx.imageSmoothingEnabled = true;
+    trace(R, S.trail, '#E4442A', 2);
+    robot(R, S.ex, S.ey, S.eth, '#E4442A');
 
-    var X = function (x) { return ox + x * sc; }, Y = function (y) { return oy + y * sc; };
-
-    /* the live scan, from the ESTIMATED pose — this is what the mapper sees */
-    ctx.strokeStyle = 'rgba(255,206,10,0.22)'; ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (var b = 0; b < BEAMS; b += 3) {
-      var a = S.eth + (b / BEAMS) * FOV, r = S.scan[b];
-      ctx.moveTo(X(S.ex), Y(S.ey));
-      ctx.lineTo(X(S.ex + Math.cos(a) * r), Y(S.ey + Math.sin(a) * r));
-    }
-    ctx.stroke();
-
-    /* the path it thinks it took, and the one it did */
-    var line = function (pts, col, wd) {
-      if (pts.length < 2) return;
-      ctx.strokeStyle = col; ctx.lineWidth = wd; ctx.beginPath();
-      ctx.moveTo(X(pts[0][0]), Y(pts[0][1]));
-      for (var i = 1; i < pts.length; i++) ctx.lineTo(X(pts[i][0]), Y(pts[i][1]));
-      ctx.stroke();
-    };
-    line(S.truth, 'rgba(46,125,79,0.55)', 2);
-    line(S.trail, '#E4442A', 2);
-
-    /* the robot */
-    ctx.fillStyle = '#E4442A'; ctx.strokeStyle = '#FFF9F0'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(X(S.ex), Y(S.ey), 7, 0, 7); ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = '#FFCE0A'; ctx.lineWidth = 3; ctx.beginPath();
-    ctx.moveTo(X(S.ex), Y(S.ey));
-    ctx.lineTo(X(S.ex + Math.cos(S.eth) * 0.55), Y(S.ey + Math.sin(S.eth) * 0.55));
-    ctx.stroke();
+    /* the frames, so the two panels read as a pair */
+    ctx.strokeStyle = 'rgba(255,249,240,0.22)'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(L.ox, L.oy, pw, ph);
+    ctx.strokeRect(R.ox, R.oy, pw, ph);
   }
 
   requestAnimationFrame(tick);

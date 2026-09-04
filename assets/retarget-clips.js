@@ -59,8 +59,8 @@
         '<p class="rk-say">Every tile is the same operator, the same frame, ' +
           'the same instant — only the map differs. And every clip is the ' +
           'same run its number was scored on, snapshotted from that run ' +
-          'rather than re-simulated, so what you watch and what the table ' +
-          'above says cannot disagree.</p>' +
+          'rather than re-simulated, so what you watch and the numbers ' +
+          'below cannot disagree.</p>' +
       '</div>' +
       '<div class="rk-bar">' +
         '<div class="rk-tasks">' +
@@ -81,7 +81,7 @@
       '<p class="rk-src">Motion: ' + esc(D.dataset) + '. Rendered by <code>' +
         esc(D.generated_by) + '</code>. Green sphere: where the operator put ' +
         'the wrist. Orange: where the robot got it. The gap between them is ' +
-        'the placement error the table reports.</p>';
+        'the placement error the table below reports.</p>';
 
     var grid = host.querySelector('.rk-grid');
     var vids = [];
@@ -100,7 +100,13 @@
         return '<figure class="rk-tile' + (m.id === 'ours' ? ' ours' : '') +
           '" data-m="' + esc(m.id) + '">' +
           '<div class="rk-vwrap">' +
-            '<video muted loop playsinline preload="metadata" ' +
+            /* AUTOPLAY, and preload="auto". With preload="metadata" the tiles
+               sat on their posters: the file was never fetched, so the play()
+               in sync() had nothing to start and the grid read as seven
+               screenshots. They are ~90 kB each and the whole grid is under a
+               megabyte, which is what makes eager loading defensible here —
+               the section exists to be watched. */
+            '<video muted loop playsinline autoplay preload="auto" ' +
               'poster="assets/retarget/' + esc(c.poster) + '" ' +
               'src="assets/retarget/' + esc(c.clip) + '"></video>' +
             '<span class="rk-rank">' + (i + 1) + '</span>' +
