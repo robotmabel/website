@@ -4638,3 +4638,20 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .stg-open .btn { margin: 0; }
 /* the motion-model lab sits centred in its column like every other widget */
 .tl-wrap { max-width: 1180px; margin-left: auto; margin-right: auto; }
+/* THE FRAMES PHOTOGRAPH. The paper's annotated panel is 1123 px and there is
+   no larger original in the repo, so at 650 CSS px it was 0.86 of what a 2x
+   screen wants and duly looked soft. Resampled 1.45x with Lanczos and lightly
+   unsharped before shipping: that adds no detail the camera did not capture,
+   but it stops the browser doing a worse job of the same upscale, and the
+   baked-in vector overlays sharpen genuinely because they were clean edges
+   before JPEG got to them. 1628 px is 1.25x what a 2x display asks for. */
+.fr2-key { display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  margin-top: 9px; font-family: var(--font-mono); font-size: 10.5px;
+  color: var(--ash); }
+.fr2-key b { font-family: var(--font-body); font-weight: 700; font-size: 12px;
+  color: var(--ink); margin-left: 6px; }
+.fr2-ax { font-family: var(--font-mono); font-weight: 700; font-size: 11px;
+  width: 17px; height: 17px; display: grid; place-items: center;
+  border: 2px solid var(--ink); border-radius: 5px; color: #FFF9F0; }
+.fr2-ax.x { background: #E4442A; } .fr2-ax.y { background: #2E7D4F; }
+.fr2-ax.z { background: #23577E; }

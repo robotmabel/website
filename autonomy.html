@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=442bcf01" />
+<link rel="stylesheet" href="assets/mabel.css?v=a611471f" />
 <style>
   /* Data Curation live-tool CTA */
   .studio-card { padding: clamp(28px, 4vw, 48px); }
@@ -234,6 +234,20 @@
   </div>
 
   <div class="sl fade-up" id="slamLab" style="margin-bottom:clamp(26px,3.5vh,40px);"></div>
+
+  <div class="callout fade-up" style="margin-bottom:clamp(22px,3vh,32px);">
+    <p><strong>And it can do this without you.</strong> MABEL runs a Yamauchi-style
+    <strong>frontier explorer</strong>: it watches the live occupancy grid, finds the
+    cells where known-free space touches unknown, clusters them, scores each cluster by
+    travel cost less an information-gain bonus, and sends the best one to Nav2 as a
+    <code>NavigateToPose</code> goal. Unreachable goals are blacklisted so it never loops
+    on one, and when several cycles in a row turn up nothing it latches
+    <code>exploration_complete</code> and returns home. It is deliberately SLAM-agnostic
+    &mdash; its only inputs are <code>/map</code> and the
+    <code>map&nbsp;&rarr;&nbsp;base_link</code> transform, so it works behind either
+    stack below.
+    <a href="https://github.com/robotmabel/MABEL/blob/main/mabel_ws/src/mabel_navigation/mabel_navigation/frontier_explorer.py" target="_blank" rel="noopener">Read the node &#8599;</a></p>
+  </div>
 
   <div class="paper-grid fade-up">
     <div>
