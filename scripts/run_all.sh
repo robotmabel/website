@@ -26,13 +26,14 @@ run () {
 P=python3
 run structure   $P scripts/structure.py $B/index.html $B/software.html \
                    $B/teleop.html $B/connect.html $B/hardware.html $B/autonomy.html \
-                   $B/anatomy.html $B/simulator.html $B/simulation.html \
+                   $B/anatomy.html $B/simulator.html $B/simulation.html $B/harness.html \
                    $B/docs/bom.html $B/docs/assembly.html $B/docs/troubleshoot.html
 run tables      $P scripts/tablescroll.py $B/index.html $B/docs/bom.html $B/software.html \
                    $B/teleop.html $B/autonomy.html $B/hardware.html $B/connect.html \
-                   $B/simulation.html
+                   $B/simulation.html $B/harness.html
 run stickers    $P scripts/stickers.py $B/index.html $B/software.html \
-                   $B/teleop.html $B/connect.html $B/autonomy.html $B/simulation.html
+                   $B/teleop.html $B/connect.html $B/autonomy.html $B/simulation.html \
+                   $B/harness.html
 run popups      $P scripts/poptest.py $B/index.html
 run faq-pops    $P scripts/faqtest.py $B/docs/troubleshoot.html
 run bom-hover   $P scripts/hovertest.py $B/docs/bom.html
@@ -53,6 +54,8 @@ run scenes      $P scripts/scenetest.py $B/simulation.html
 run figures     $P scripts/figscale.py $B/index.html
 run panels      $P scripts/panels.py $B/docs/assembly.html
 run css         $P scripts/csscheck.py
+run harness     $P scripts/hxtest.py $B/harness.html
+run harness-gen $P scripts/build_harness.py --check
 run wiki        $P scripts/wikitest.py
 run page-weight $P scripts/loadtest.py
 run platforms   $P scripts/pttest.py $B/index.html

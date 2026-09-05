@@ -153,7 +153,13 @@ async def go():
 try:
     code = asyncio.run(go())
 finally:
+    # Chrome does not always exit on SIGTERM inside the deadline, and a
+    # TimeoutExpired here printed a traceback AFTER the verdict — noise that
+    # looks like a failed check and could hide a real one.
     p.terminate()
-    p.wait(timeout=10)          # rm races a still-running Chrome otherwise
+    try:
+        p.wait(timeout=10)      # rm races a still-running Chrome otherwise
+    except subprocess.TimeoutExpired:
+        p.kill()
     subprocess.run(["rm", "-rf", PROF])
 sys.exit(code)

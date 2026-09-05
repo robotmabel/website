@@ -1003,8 +1003,13 @@ section[id], .sub-block[id] { scroll-margin-top: 92px; }
 /* A deco skyline (stepped setbacks + a Chrysler-style spire) is baked in
    as an inline-SVG border band, so every page gets the skyline with zero
    HTML changes. */
-footer { background: var(--ink); color: var(--ash-light); padding: 0 0 24px; position: relative; }
-footer::before {
+/* body > footer, NOT a bare `footer`. The bare selector claimed EVERY <footer>
+   element on the page, so the first widget to use one semantically — the
+   harness command cards — got a 150 px Art Deco skyline baked into the bottom
+   of each card. Same failure as the class-name collisions in CLAUDE.md, but
+   with an element name, which no amount of prefixing protects you from. */
+body > footer { background: var(--ink); color: var(--ash-light); padding: 0 0 24px; position: relative; }
+body > footer::before {
   content: ''; display: block; height: clamp(84px, 11vw, 150px); margin-bottom: clamp(36px, 5vh, 60px);
   background-color: var(--bone);
   background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%201600%20190'%20preserveAspectRatio%3D'none'%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M%200%20190%20L%200%20150%20L%2020%20150%20L%2020%20128%20L%2048%20128%20L%2052%20128%20L%2056%20128%20L%2056%20112%20L%2054%20112%20L%2054%20106%20L%2061%2098%20L%2068%20106%20L%2068%20112%20L%2066%20112%20L%2066%20128%20L%2070%20128%20L%2076%20128%20L%2076%20150%20L%2092%20150%20L%2092%20108%20L%20100%20108%20L%20100%2096%20L%20122%2096%20L%20122%20108%20L%20130%20108%20L%20130%20150%20L%20146%20150%20L%20146%20132%20L%20178%20132%20L%20182%20132%20L%20186%20132%20L%20186%20116%20L%20184%20116%20L%20184%20110%20L%20191%20102%20L%20198%20110%20L%20198%20116%20L%20196%20116%20L%20196%20132%20L%20200%20132%20L%20206%20132%20L%20206%20150%20L%20220%20150%20L%20220%20122%20L%20232%20122%20L%20232%2076%20L%20235%2076%20L%20235%2064%20L%20238%2064%20L%20238%2076%20L%20246%2076%20L%20249%2052%20L%20252%2076%20L%20260%2076%20L%20260%2064%20L%20263%2064%20L%20263%2076%20L%20266%2076%20L%20266%20122%20L%20280%20122%20L%20280%20150%20L%20294%20150%20L%20294%20118%20L%20306%20118%20L%20306%20104%20L%20326%20104%20L%20326%20118%20L%20336%20118%20L%20336%20150%20L%20350%20150%20L%20350%20128%20L%20362%20128%20L%20362%2096%20L%20362%2096%20Q%20364%2077%20387.5%2074%20L%20368%2084%20Q%20370%2067%20387.5%2064%20L%20374%2074%20Q%20376%2058%20387.5%2055%20L%20379%2064%20Q%20381%2050%20387.5%2047%20L%20383%2055%20Q%20385%2043%20387.5%2040%20L%20386%2047%20Q%20388%2037%20387.5%2034%20L%20388%2026%20L%20388%206%20L%20392%206%20L%20392%2026%20L%20392.5%2034%20Q%20392%2037%20394%2047%20L%20392.5%2040%20Q%20395%2043%20397%2055%20L%20392.5%2047%20Q%20399%2050%20401%2064%20L%20392.5%2055%20Q%20404%2058%20406%2074%20L%20392.5%2064%20Q%20410%2067%20412%2084%20L%20392.5%2074%20Q%20416%2077%20418%2096%20L%20418%2096%20L%20418%20128%20L%20432%20128%20L%20432%20150%20L%20446%20150%20L%20446%20126%20L%20476%20126%20L%20480%20126%20L%20484%20126%20L%20484%20110%20L%20482%20110%20L%20482%20104%20L%20489%2096%20L%20496%20104%20L%20496%20110%20L%20494%20110%20L%20494%20126%20L%20498%20126%20L%20504%20126%20L%20504%20150%20L%20520%20150%20L%20520%20100%20L%20528%20100%20L%20528%2088%20L%20552%2088%20L%20552%20100%20L%20560%20100%20L%20560%20150%20L%20576%20150%20L%20576%20132%20L%20592%20132%20L%20592%20112%20L%20604%20112%20L%20604%2094%20L%20614%2094%20L%20614%2042%20L%20622%2042%20L%20622%2032%20L%20628%2032%20L%20628%2024%20L%20633%2024%20L%20633%2012%20L%20630%2012%20L%20630%200%20L%20636%200%20L%20636%2012%20L%20633%2012%20L%20633%2024%20L%20638%2024%20L%20638%2032%20L%20644%2032%20L%20644%2042%20L%20652%2042%20L%20652%2094%20L%20662%2094%20L%20662%20112%20L%20674%20112%20L%20674%20132%20L%20690%20132%20L%20690%20150%20L%20704%20150%20L%20704%20130%20L%20734%20130%20L%20738%20130%20L%20742%20130%20L%20742%20114%20L%20740%20114%20L%20740%20108%20L%20747%20100%20L%20754%20108%20L%20754%20114%20L%20752%20114%20L%20752%20130%20L%20756%20130%20L%20762%20130%20L%20762%20150%20L%20776%20150%20L%20776%20134%20L%20790%20134%20L%20790%2092%20Q%20785%2082%20793%2076%20Q%20799%2070%20802%2064%20L%20804%2064%20L%20804%2052%20L%20808%2052%20L%20808%2064%20L%20810%2064%20Q%20813%2070%20819%2076%20Q%20827%2082%20822%2092%20L%20822%20134%20L%20836%20134%20L%20836%20150%20L%20850%20150%20L%20850%20134%20L%20880%20134%20L%20880%20118%20L%20906%20118%20L%20906%20150%20L%20920%20150%20L%20920%20138%20L%20996%20138%20L%20996%2074%20L%201002%2074%20L%201002%2066%20L%201034%2066%20L%201034%2074%20L%201040%2074%20L%201040%20138%20L%201246%20138%20L%201246%2074%20L%201252%2074%20L%201252%2066%20L%201284%2066%20L%201284%2074%20L%201290%2074%20L%201290%20138%20L%201364%20138%20L%201364%20150%20L%201378%20150%20L%201378%20128%20L%201406%20128%20L%201410%20128%20L%201414%20128%20L%201414%20112%20L%201412%20112%20L%201412%20106%20L%201419%2098%20L%201426%20106%20L%201426%20112%20L%201424%20112%20L%201424%20128%20L%201428%20128%20L%201434%20128%20L%201434%20150%20L%201450%20150%20L%201450%20106%20L%201458%20106%20L%201458%2094%20L%201480%2094%20L%201480%20106%20L%201488%20106%20L%201488%20150%20L%201504%20150%20L%201504%20134%20L%201536%20134%20L%201536%20150%20L%201600%20150%20L%201600%20190%20Z%20M%201003.0%20132%20L%201003.0%2096%20Q%201009.5%2082%201016.0%2096%20L%201016.0%20132%20ZM%201020.0%20132%20L%201020.0%2096%20Q%201026.5%2082%201033.0%2096%20L%201033.0%20132%20ZM%201253.0%20132%20L%201253.0%2096%20Q%201259.5%2082%201266.0%2096%20L%201266.0%20132%20ZM%201270.0%20132%20L%201270.0%2096%20Q%201276.5%2082%201283.0%2096%20L%201283.0%20132%20Z%22%20fill%3D%22%23151820%22%2F%3E%3Cpath%20d%3D%22M%20920%20138%20Q%20962%20132%201018%2068%20M%201018%2068%20Q%201143%20128%201268%2068%20M%201268%2068%20Q%201326%20132%201364%20138%22%20fill%3D%22none%22%20stroke%3D%22%23151820%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M%201043%2079%20L%201043%20138%20M%201068%2087%20L%201068%20138%20M%201093%2093%20L%201093%20138%20M%201118%2097%20L%201118%20138%20M%201143%2098%20L%201143%20138%20M%201168%2097%20L%201168%20138%20M%201193%2093%20L%201193%20138%20M%201218%2087%20L%201218%20138%20M%201243%2079%20L%201243%20138%20%22%20fill%3D%22none%22%20stroke%3D%22%23151820%22%20stroke-width%3D%221.8%22%2F%3E%3C%2Fsvg%3E");
@@ -4695,3 +4700,75 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   color: var(--pop); }
 @keyframes bootBlink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .boot-label .cur { animation: none; } }
+
+/* ═══ The AI harness surface (harness.html) ══════════════════════════════════
+   A browser for 25 commands. The cards are built from assets/data/harness.json,
+   which is generated from the repo's own command registry — see
+   assets/harness-surface.js for why the list is not typed here. */
+.ahx-bar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 14px; }
+.ahx-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.ahx-filters button {
+  font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.05em;
+  padding: 8px 14px 7px; border-radius: 9px; cursor: pointer; font-weight: 400;
+  background: var(--panel); color: var(--ink); border: var(--line-w) solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(21,24,32,0.9);
+  transition: transform 0.18s var(--ease-out), background 0.2s ease, box-shadow 0.18s var(--ease-out);
+}
+.ahx-filters button:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 rgba(21,24,32,0.9); }
+.ahx-filters button.on { background: var(--orange); color: #FFF9F0; }
+.ahx-n { font-family: var(--font-mono); font-size: 10.5px; opacity: 0.7; }
+.ahx-search { flex: 1 1 200px; min-width: 180px; display: block; }
+.ahx-search input {
+  width: 100%; font: inherit; font-size: 14px; padding: 9px 13px;
+  background: var(--panel); color: var(--ink);
+  border: var(--line-w) solid var(--ink); border-radius: 9px;
+  box-shadow: 3px 3px 0 rgba(21,24,32,0.9);
+}
+.ahx-search input:focus-visible { outline: 3px solid var(--hi); outline-offset: 2px; }
+.ahx-vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.ahx-blurb { font-size: 14px; color: var(--ink-soft); margin: 0 0 18px; min-height: 1.5em; }
+
+.ahx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 14px; }
+@media (max-width: 560px) { .ahx-grid { grid-template-columns: 1fr; } }
+.ahx-card {
+  display: flex; flex-direction: column; gap: 9px;
+  background: var(--panel); color: var(--ink);
+  border: var(--line-w) solid var(--ink); border-radius: 12px; padding: 16px 17px 13px;
+  box-shadow: 5px 5px 0 rgba(21,24,32,0.85);
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
+}
+.ahx-card:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 rgba(21,24,32,0.9); }
+.ahx-card header { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.ahx-card h3 { font-family: var(--font-mono); font-size: 15px; font-weight: 700;
+  margin: 0; letter-spacing: -0.01em; flex: 1 1 auto; }
+.ahx-slash { color: var(--orange); }
+.ahx-args { font-weight: 400; font-size: 12.5px; color: var(--ash); }
+.ahx-card p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
+.ahx-card code { font-size: 0.87em; }
+.ahx-note { border-left: 3px solid var(--gold); padding-left: 10px;
+  font-size: 13px !important; color: var(--ash) !important; }
+.ahx-card footer { margin-top: auto; padding-top: 8px; font-family: var(--font-mono);
+  font-size: 10.5px; letter-spacing: 0.04em; color: var(--ash); }
+.ahx-reads { text-transform: uppercase; opacity: 0.65; }
+
+.ahx-badge { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 3px 7px 2px; border-radius: 5px;
+  border: 1.5px solid var(--ink); white-space: nowrap; flex: 0 0 auto; }
+.ahx-badge.read  { background: rgba(35,87,126,0.13); color: var(--blue); }
+.ahx-badge.probe { background: rgba(46,125,79,0.14); color: var(--green); }
+.ahx-badge.write { background: rgba(217,161,63,0.22); color: var(--gold-deep); }
+.ahx-badge.act   { background: var(--orange); color: #FFF9F0; }
+.ahx-badge.st    { background: var(--yellow); color: var(--ink); }
+
+.ahx-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px; margin-top: 22px; }
+.ahx-legend > div { display: flex; gap: 10px; align-items: flex-start; }
+.ahx-legend p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink-soft); }
+.ahx-none, .ahx-err { font-size: 14px; color: var(--ash); margin: 18px 0 0; }
+.ahx-stamp { font-family: var(--font-mono); font-size: 10.5px; color: var(--ash);
+  letter-spacing: 0.04em; margin-top: 16px; }
+
+/* the gate table — two columns, and the second is the point */
+.ahx-gates td:first-child { font-family: var(--font-mono); font-size: 12.5px; }

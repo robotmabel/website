@@ -11,6 +11,12 @@ the FAQ pop-ups into `docs/troubleshoot.html#four`. It still maps every old
 deep link (`#bom`, `#assembly`, `#faq`, …) to the right chapter, so keep that
 map alive; link new copy at `docs/`.
 
+`harness.html` is the AI harness's page — the resident `/mabel-*` command
+surface, the registry behind it, and the gates. **Its command cards are
+generated**: `assets/data/harness.json` comes from `scripts/build_harness.py`,
+which reads `claude_harness/data/commands.yaml` in the repo root. Never type a
+command into the page; edit the registry and re-run the script.
+
 `simulation.html` is the twin's own page — the canonical model, the
 `simulation_bridge` plant, the 35-scene library, the Unity/Genesis branches,
 simulated data collection and the mjlab PPO track. `software.html#simulation`
@@ -80,6 +86,8 @@ in its docstring. `scripts/run_all.sh` runs the lot.
 | `slamtest.py` | the SLAM lab maps, and the scan matcher measurably matters |
 | `vidcheck.py` | every clip on every page is WIRED — the thing that can break |
 | `wikitest.py` | `docs/` stays the site's ground and faces, and its links resolve |
+| `hxtest.py` | the harness page renders exactly the registry's commands, and its filters, search and badges work |
+| `build_harness.py --check` | the page's data has drifted from the repo's command registry |
 
 Each takes its own debugger port and profile — they used to collide and one
 would die mid-run, which looked like a real failure.
@@ -103,6 +111,8 @@ would die mid-run, which looked like a real failure.
 | `assets/accuracy/*` | `scripts/render_accuracy_clips.py` |
 | `assets/retarget/*` | `controller/experiments/retargeting_ablation/render_compare.py` |
 | `assets/data/platforms.json` | `scripts/build_platforms.py` |
+| `assets/data/harness.json` | `scripts/build_harness.py` (from `claude_harness/data/commands.yaml`) |
+| `assets/hw/exploded.{png,webp}` | `scripts/build_exploded.py` |
 
 The robot's geometry chain is MJCF → URDF → GLB → app rigs; see the repo root
 `CLAUDE.md`. Editing a derived file means the next regeneration silently
@@ -128,6 +138,11 @@ discards your change.
   upside down, because it printed the number without gating on it.
 * **Headless Chrome throttles `requestAnimationFrame`.** Test physics through
   pure step functions, not by watching a loop.
+* **A bare ELEMENT selector collides too, and no prefix saves you.** `footer::before`
+  painted the site's 150 px Art Deco skyline into every `<footer>` on the page —
+  so the first widget to use one semantically got a skyline baked into the
+  bottom of each of its cards. It is `body > footer` now. Class prefixes do not
+  protect against this; only scoping does.
 * **A single-word container class WILL collide with a utility class.** `.sm`
   was the stack map's card *and* the burst's size modifier, so every small
   starburst got a cream box, a border and a drop shadow. Third time (`.rc-`,
