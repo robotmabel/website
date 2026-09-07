@@ -11,6 +11,7 @@ import asyncio, base64, json, subprocess, sys, time, urllib.request, websockets
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import os, random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 P = 9331 + random.randrange(60)   # a fresh port per run, so two
 prof = f"/tmp/cdp-shot-{P}"      # screenshots in a row do not collide
 url = sys.argv[1]
@@ -31,6 +32,7 @@ p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
                       "--use-angle=swiftshader", "--enable-unsafe-swiftshader",
                       "about:blank"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 
 
 async def go():

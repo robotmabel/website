@@ -8,6 +8,7 @@ opens an episode; the trainer opens its architecture graph — and then captures
     python scripts/studio_shots.py
 """
 import asyncio, base64, json, os, subprocess, sys, time, urllib.request, websockets
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -48,6 +49,7 @@ async def shoot(job, W=1800, H=1125):
                           "--use-angle=swiftshader", "--enable-unsafe-swiftshader",
                           "about:blank"],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
     try:
         for _ in range(40):
             try:

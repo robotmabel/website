@@ -1,6 +1,7 @@
 import asyncio, json, subprocess, sys, time, urllib.request, websockets, base64
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 P = 9275 + random.randrange(60)  # a port and profile per run:
                              # two checks in flight collided and one died
 prof = f"/tmp/cdp-bt-{P}"; subprocess.run(["rm","-rf",prof])
@@ -8,6 +9,7 @@ p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   f"--user-data-dir={prof}","--window-size=1440,950","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 async def go():
     for _ in range(40):
         try: tabs=json.load(urllib.request.urlopen(f"http://127.0.0.1:{P}/json")); break

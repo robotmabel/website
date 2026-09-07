@@ -1,6 +1,7 @@
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 # A PORT AND A PROFILE PER RUN. The comment that used to live here said
 # exactly that — and it had SWALLOWED the rm onto its own line, so the cleanup
 # never ran and the profile stayed the fixed "/tmp/cdp-pn". Chrome then refused
@@ -13,6 +14,7 @@ p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   f"--user-data-dir={PROF}","--window-size=1440,900","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 async def go():
     tabs=None
     for _ in range(40):

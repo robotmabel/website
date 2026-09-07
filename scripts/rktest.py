@@ -16,6 +16,7 @@ Two things can go wrong here and neither looks broken:
     python scripts/rktest.py http://localhost:8741/software.html
 """
 import asyncio, json, os, random, subprocess, sys, time, urllib.request, websockets
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -28,6 +29,7 @@ p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
                       "--use-angle=swiftshader", "--enable-unsafe-swiftshader",
                       "about:blank"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 
 
 async def go():

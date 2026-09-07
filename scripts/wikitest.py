@@ -12,6 +12,7 @@ the SITE'S faces, and must not reintroduce a palette of its own.
     python scripts/wikitest.py [url ...]
 """
 import asyncio, json, os, random, re, subprocess, sys, time, urllib.request, websockets
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +35,7 @@ p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
                       f"--user-data-dir={PROF}", "--window-size=1400,1000",
                       "--hide-scrollbars", "about:blank"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 
 
 async def go():

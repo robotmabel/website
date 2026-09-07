@@ -25,6 +25,7 @@ appear here without existing.
     python scripts/hxtest.py [url]
 """
 import asyncio, json, os, random, subprocess, sys, time, urllib.request, websockets
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -38,6 +39,7 @@ p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
                       f"--user-data-dir={PROF}", "--window-size=1440,1000",
                       "--hide-scrollbars", "about:blank"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 
 URL = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8741/harness.html"
 

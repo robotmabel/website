@@ -3,6 +3,7 @@ distances — the widget must not invent numbers."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets, math, base64
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 P = 9271 + random.randrange(60)  # a port and profile per run:
                              # two checks in flight collided and one died
 prof = f"/tmp/cdp-globe-{P}"; subprocess.run(["rm","-rf",prof])
@@ -10,6 +11,7 @@ p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   f"--user-data-dir={prof}","--window-size=1400,950","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 NYC=(40.71,-74.01)
 REF={"Shanghai":(31.23,121.47),"London":(51.51,-0.13),"Tokyo":(35.68,139.69),
      "Sydney":(-33.87,151.21),"Toronto":(43.65,-79.38)}

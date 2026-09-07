@@ -4,6 +4,7 @@ every width (viewBox SVGs scale; nothing should clip)."""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 P = 9303 + random.randrange(60)  # a port and profile per run:
                              # two checks in flight collided and one died
 async def run(url, width):
@@ -14,6 +15,7 @@ async def run(url, width):
       f"--user-data-dir=/tmp/cdp-fs-{P}",f"--window-size={width},900","--hide-scrollbars",
       "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
     try:
         tabs = None
         for _ in range(60):

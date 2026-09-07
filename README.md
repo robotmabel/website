@@ -19,7 +19,6 @@ Before pushing:
 
 ```bash
 python3 -m http.server 8741      # from website/
-./scripts/run_all.sh             # 19 checks, all must pass
+./scripts/run_all.sh             # 32 checks, all must pass
 python3 scripts/bump_assets.py   # cache-bust the ?v= stamps
 ```
-

@@ -10,6 +10,7 @@ of the panel), and checks the deployed-gains number on screen against the JSON.
     python scripts/acctest.py http://localhost:8741/hardware.html
 """
 import asyncio, json, random, subprocess, sys, time, urllib.request, websockets
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 P = 9631 + random.randrange(40)
@@ -19,6 +20,7 @@ p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
                       "--hide-scrollbars", "--use-angle=swiftshader",
                       "--enable-unsafe-swiftshader", "about:blank"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 
 
 async def go():
@@ -100,6 +102,16 @@ async def go():
         # <svg> so the figure gets the page's webfonts, so "is the img loaded"
         # is the wrong question — it measures the rendered box and the number
         # of leader lines actually drawn instead.
+        #
+        # SCROLL TO IT AND LET IT SETTLE. This measured the moment the accuracy
+        # lab initialised, which is a different moment from "the figure below
+        # it has a box" — the figure is lazy, so on a run where the lab came up
+        # fast the check read 0x0 and called a perfectly good drawing missing.
+        # The <img> now carries width/height so it reserves its box before it
+        # loads, and this asks the question where a reader would see it.
+        await ev("var f=document.querySelector('.callout-fig');"
+                 "f && f.scrollIntoView({block:'center', behavior:'instant'})")
+        await asyncio.sleep(1.2)
         cw = await ev("(function(){var f=document.querySelector('.callout-fig');"
                       "if(!f) return null; var g=f.querySelector('svg,img');"
                       "if(!g) return null; var r=g.getBoundingClientRect();"

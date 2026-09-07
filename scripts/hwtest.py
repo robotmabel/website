@@ -12,6 +12,7 @@ import asyncio, json, subprocess, sys, time, urllib.request, websockets
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 P = 9341 + random.randrange(40)   # a fresh port per run: two
                                 # checks in flight used to collide on one profile
 subprocess.run(["rm", "-rf", f"/tmp/cdp-hw-{P}"])
@@ -20,6 +21,7 @@ p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
                       "--hide-scrollbars", "--use-angle=swiftshader",
                       "--enable-unsafe-swiftshader", "about:blank"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 
 
 async def go():

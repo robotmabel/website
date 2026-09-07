@@ -2,6 +2,7 @@
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 P = 9267 + random.randrange(60)  # a port and profile per run:
                              # two checks in flight collided and one died
 prof = f"/tmp/cdp-st-{P}"; subprocess.run(["rm","-rf",prof])
@@ -9,6 +10,7 @@ p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
   f"--user-data-dir={prof}","--window-size=1440,1000","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 CHECK = """(function(){
   // Collect the RECTANGLE OF EVERY LINE OF TEXT via Range, not elementFromPoint:
   // a point over a section's blank padding still resolves to that section,

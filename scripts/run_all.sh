@@ -4,6 +4,14 @@
 set -u
 B="${1:-http://localhost:8741}"
 cd "$(dirname "$0")/.."
+
+# SWEEP FIRST. Every check now tears down its own Chrome and profile on any
+# exit path it can observe (scripts/_chrome.py), but SIGKILL runs no handler —
+# so a hard-killed run still strands a 30-150 MB profile under /tmp. One
+# working day of runs left 115 of them, 5.5 GB, with no Chrome alive to own
+# any of them. This is the floor: anything stale that nothing is using.
+python3 scripts/_chrome.py 2>/dev/null || true
+
 pass=0; fail=0
 ok () {
   grep -q "RESULT: PASS" <<<"$1" || grep -qE "TOTAL (OVERLAPS|SCROLLING TABLES): 0" <<<"$1"

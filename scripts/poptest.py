@@ -6,6 +6,7 @@ overlay opened, the title is right, the URL did not change, and Escape closes.""
 import asyncio, json, subprocess, sys, time, urllib.request, websockets
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 PORT = 9253 + random.randrange(60)  # its own port and profile:
                                 # two checks in flight collided and one died
 prof = f"/tmp/cdp-poptest-{PORT}"; subprocess.run(["rm","-rf",prof])
@@ -13,6 +14,7 @@ p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={PORT}",
   f"--user-data-dir={prof}","--window-size=1400,950","--hide-scrollbars",
   "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 async def run(url):
     for _ in range(40):
         try: tabs=json.load(urllib.request.urlopen(f"http://127.0.0.1:{PORT}/json")); break

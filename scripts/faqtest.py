@@ -22,6 +22,7 @@ demands a 200.
     python scripts/faqtest.py http://localhost:8741/docs/troubleshoot.html
 """
 import asyncio, json, random, subprocess, sys, time, urllib.parse, urllib.request, websockets
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 P = 9601 + random.randrange(60)   # its own port AND profile: two checks in
@@ -31,6 +32,7 @@ p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
                       f"--user-data-dir={PROF}", "--window-size=1400,1000",
                       "--hide-scrollbars", "about:blank"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
 
 URL = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8741/docs/troubleshoot.html"
 

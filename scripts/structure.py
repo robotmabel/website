@@ -15,6 +15,7 @@ SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAGS = ('section', 'div', 'figure', 'ol', 'li', 'p', 'table', 'video')
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 import random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 P = 9381 + random.randrange(40)   # a fresh port per run: two
                                 # checks in flight used to collide on one profile
 subprocess.run(["rm", "-rf", f"/tmp/cdp-struct-{P}"])
@@ -23,6 +24,7 @@ proc = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}
                          "--hide-scrollbars", "--use-angle=swiftshader",
                          "--enable-unsafe-swiftshader", "about:blank"],
                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(proc)   # kill Chrome + rm its profile on ANY exit
 
 
 async def main():
