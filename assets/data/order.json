@@ -1,0 +1,1031 @@
+{
+ "generated_by": "website/scripts/build_order.py",
+ "price_date": "31 July 2026",
+ "currency": "usd",
+ "api": "https://order.mabelrobot.duckdns.org",
+ "deposit_fraction": 0.1,
+ "kit_factor": 0.6,
+ "tiers": [
+  {
+   "id": "assembled",
+   "name": "Assembled & tested",
+   "short": "Assembled",
+   "lead": "Built, calibrated and burn-in tested in about a week",
+   "blurb": "Arrives calibrated. Drive it the day the crate opens."
+  },
+  {
+   "id": "kit",
+   "name": "Parts kit",
+   "short": "Kit",
+   "lead": "Every part in the box; builds in about a week",
+   "blurb": "Cut, printed and flashed. You assemble with the illustrated guide."
+  }
+ ],
+ "steps": [
+  {
+   "id": "robot",
+   "num": 1,
+   "title": "Robot",
+   "help": "Which body.",
+   "options": [
+    {
+     "id": "complete",
+     "name": "MABEL, complete",
+     "tag": "The whole robot",
+     "spec": "Holonomic swerve base · 0.635 m lift · torso · two 7-DOF arms · 3-DOF head",
+     "blurb": "Everything in the paper: drives, lifts, reaches from the floor to a top shelf.",
+     "image": "assets/hw/body-sm.png",
+     "has": [
+      "base",
+      "lift",
+      "upper"
+     ],
+     "default": true,
+     "price": {
+      "assembled": 21400,
+      "kit": 12840
+     }
+    },
+    {
+     "id": "fixed",
+     "name": "Fixed height",
+     "tag": "No lift",
+     "spec": "Swerve base · fixed column · torso · two arms · head",
+     "blurb": "The same mobile manipulator with a fixed column instead of the lift. Table-height work only.",
+     "image": "assets/hw/arms-sm.png",
+     "has": [
+      "base",
+      "upper"
+     ],
+     "price": {
+      "assembled": 20300,
+      "kit": 12180
+     }
+    },
+    {
+     "id": "upper",
+     "name": "Upper body only",
+     "tag": "Bench-mounted",
+     "spec": "Torso · two 7-DOF arms · 3-DOF head · bench fixture",
+     "blurb": "Bimanual manipulation on a desk or a cart of your own. No base, no lift.",
+     "image": "assets/hw/head-sm.png",
+     "has": [
+      "upper"
+     ],
+     "price": {
+      "assembled": 12900,
+      "kit": 7740
+     }
+    },
+    {
+     "id": "base",
+     "name": "Mobile base only",
+     "tag": "Just the platform",
+     "spec": "Three REV swerve modules · batteries · network spine · compute tray",
+     "blurb": "A holonomic platform for your own payload. Wrist, head and hand options do not apply.",
+     "image": "assets/hw/base-sm.png",
+     "has": [
+      "base"
+     ],
+     "price": {
+      "assembled": 7500,
+      "kit": 4500
+     }
+    }
+   ]
+  },
+  {
+   "id": "compute",
+   "num": 2,
+   "title": "Compute",
+   "help": "What runs on board.",
+   "options": [
+    {
+     "id": "pi5",
+     "name": "Raspberry Pi 5, 16 GB",
+     "spec": "Teleop, data collection and the studios. Policies run off-board.",
+     "default": true,
+     "price": {
+      "assembled": 0,
+      "kit": 0
+     }
+    },
+    {
+     "id": "orin_nano",
+     "name": "NVIDIA Jetson Orin Nano Super",
+     "spec": "8 GB · 67 TOPS. Small on-board policies.",
+     "price": {
+      "assembled": 600,
+      "kit": 600
+     }
+    },
+    {
+     "id": "orin_nx16",
+     "name": "NVIDIA Jetson Orin NX 16 GB",
+     "spec": "157 TOPS. The recommended build: policy, SLAM and every camera resident at once.",
+     "tag": "Recommended",
+     "price": {
+      "assembled": 1700,
+      "kit": 1700
+     }
+    },
+    {
+     "id": "agx_orin",
+     "name": "NVIDIA Jetson AGX Orin 64 GB",
+     "spec": "275 TOPS, 60 W. Includes the larger battery pack the board needs.",
+     "price": {
+      "assembled": 4900,
+      "kit": 4900
+     }
+    },
+    {
+     "id": "agx_thor",
+     "name": "NVIDIA Jetson AGX Thor",
+     "spec": "128 GB · 2070 TFLOPS. VLA-class models on the robot. Larger pack included.",
+     "price": {
+      "assembled": 7900,
+      "kit": 7900
+     }
+    }
+   ]
+  },
+  {
+   "id": "sensors",
+   "num": 3,
+   "title": "Sensors",
+   "help": "What it sees.",
+   "groups": [
+    {
+     "id": "wrist",
+     "title": "Wrist cameras",
+     "requires": "upper",
+     "note": "One per arm.",
+     "options": [
+      {
+       "id": "wrist_std",
+       "name": "Global-shutter 720p pair",
+       "spec": "1280×720 at 60 fps, 170° fisheye. The standard wrist view.",
+       "price": {
+        "assembled": 0,
+        "kit": 0
+       },
+       "default": true
+      },
+      {
+       "id": "wrist_1200",
+       "name": "Global-shutter 1200p pair",
+       "spec": "1600×1200 at 90 fps on the same board. The fine detail a manipulation policy learns from.",
+       "price": {
+        "assembled": 150,
+        "kit": 150
+       },
+       "tag": "Recommended"
+      },
+      {
+       "id": "wrist_d405",
+       "name": "Intel RealSense D405 pair",
+       "spec": "Adds metric depth from 7 to 50 cm at the wrist.",
+       "price": {
+        "assembled": 900,
+        "kit": 900
+       }
+      }
+     ]
+    },
+    {
+     "id": "head",
+     "title": "Head camera",
+     "requires": "upper",
+     "options": [
+      {
+       "id": "head_std",
+       "name": "Synchronised stereo 1200p",
+       "spec": "3200×1200 at 60 fps, 112° field of view. Matching runs on the host.",
+       "price": {
+        "assembled": 0,
+        "kit": 0
+       },
+       "default": true
+      },
+      {
+       "id": "head_d435i",
+       "name": "Intel RealSense D435i",
+       "spec": "On-board depth and an IMU.",
+       "price": {
+        "assembled": 500,
+        "kit": 500
+       }
+      },
+      {
+       "id": "head_zed",
+       "name": "Stereolabs ZED Mini",
+       "spec": "On-board depth engine and visual-inertial odometry.",
+       "price": {
+        "assembled": 700,
+        "kit": 700
+       }
+      }
+     ]
+    },
+    {
+     "id": "lidar",
+     "title": "2-D lidar",
+     "requires": "base",
+     "note": "Nav2 maps and plans from the scan.",
+     "options": [
+      {
+       "id": "lidar_none",
+       "name": "No lidar",
+       "spec": "Drive by teleop only.",
+       "price": {
+        "assembled": 0,
+        "kit": 0
+       },
+       "default": true
+      },
+      {
+       "id": "lidar_ld19",
+       "name": "youyeetoo LD19",
+       "spec": "Direct time-of-flight, 12 m, 10 Hz. Enough for SLAM at walking pace.",
+       "price": {
+        "assembled": 250,
+        "kit": 250
+       }
+      },
+      {
+       "id": "lidar_c1",
+       "name": "Slamtec RPLIDAR C1",
+       "spec": "Direct time-of-flight, 12 m, 5 kHz sample rate.",
+       "price": {
+        "assembled": 300,
+        "kit": 300
+       },
+       "tag": "Recommended"
+      },
+      {
+       "id": "lidar_a2m12",
+       "name": "Slamtec RPLIDAR A2M12",
+       "spec": "16 kHz sample rate for fast rotation.",
+       "price": {
+        "assembled": 500,
+        "kit": 500
+       }
+      }
+     ]
+    },
+    {
+     "id": "basecam",
+     "title": "Base camera",
+     "requires": "base",
+     "note": "3-D obstacle detection for navigation: overhangs, table edges, low clutter.",
+     "options": [
+      {
+       "id": "basecam_none",
+       "name": "None",
+       "spec": "Rely on the lidar's single plane.",
+       "price": {
+        "assembled": 0,
+        "kit": 0
+       },
+       "default": true
+      },
+      {
+       "id": "basecam_d435i",
+       "name": "Intel RealSense D435i at the base",
+       "spec": "Feeds the Nav2 costmap with a point cloud.",
+       "price": {
+        "assembled": 650,
+        "kit": 650
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "effector",
+   "num": 4,
+   "title": "End effector",
+   "help": "What it holds with.",
+   "requires": "upper",
+   "options": [
+    {
+     "id": "ee_none",
+     "name": "No end effector",
+     "spec": "Bare wrist flanges. Fit your own.",
+     "image": "assets/hw/arms-sm.png",
+     "price": {
+      "assembled": 0,
+      "kit": 0
+     }
+    },
+    {
+     "id": "ee_openarm",
+     "name": "OpenArm 2.0 gripper pair",
+     "spec": "Two-finger parallel gripper, 30 N, built-in RGB camera, swappable fingers.",
+     "image": "assets/hw/arms-sm.png",
+     "price": {
+      "assembled": 1900,
+      "kit": 1140
+     }
+    },
+    {
+     "id": "ee_orca",
+     "name": "ORCA hands pair",
+     "spec": "Two 17-DOF tendon-driven hands built from the open ETH design. The standard MABEL.",
+     "image": "assets/hw/hands-sm.png",
+     "default": true,
+     "tag": "Standard",
+     "price": {
+      "assembled": 3600,
+      "kit": 2160
+     }
+    },
+    {
+     "id": "ee_gripette",
+     "name": "Pollen Robotics Gripette pair",
+     "spec": "The robot-side twin of the Grabette handheld recorder, for UMI-style data collection.",
+     "image": "assets/hw/arms-sm.png",
+     "price": {
+      "assembled": 2400,
+      "kit": 1440
+     }
+    }
+   ]
+  }
+ ],
+ "groups": [
+  "Mobile base",
+  "Body / torso",
+  "Arms - both",
+  "Hands - both",
+  "Neck / head",
+  "Structural hardware",
+  "Electronics, power & cabling",
+  "3D printed material",
+  "Compute",
+  "Sensors"
+ ],
+ "parts": [
+  {
+   "sku": "P-1.01",
+   "ref": "1.01",
+   "name": "REV Swerve Drive Module",
+   "spec": "REV-21-3005",
+   "group": "Mobile base",
+   "made": false,
+   "price": 915,
+   "note": ""
+  },
+  {
+   "sku": "P-1.02",
+   "ref": "1.02",
+   "name": "Base sheet metal, lower",
+   "spec": "Custom laser-cut",
+   "group": "Mobile base",
+   "made": true,
+   "price": 105,
+   "note": ""
+  },
+  {
+   "sku": "P-1.03",
+   "ref": "1.03",
+   "name": "Base sheet metal, upper",
+   "spec": "Custom laser-cut",
+   "group": "Mobile base",
+   "made": true,
+   "price": 395,
+   "note": ""
+  },
+  {
+   "sku": "P-2.01",
+   "ref": "2.01",
+   "name": "FlexiSpot E7 Pro lift column",
+   "spec": "CBR4830MD-E7WS",
+   "group": "Body / torso",
+   "made": false,
+   "price": 540,
+   "note": ""
+  },
+  {
+   "sku": "P-2.02",
+   "ref": "2.02",
+   "name": "Lift-to-torso adapter",
+   "spec": "Custom machined",
+   "group": "Body / torso",
+   "made": true,
+   "price": 120,
+   "note": ""
+  },
+  {
+   "sku": "P-2.03",
+   "ref": "2.03",
+   "name": "Torso output plate",
+   "spec": "Custom machined",
+   "group": "Body / torso",
+   "made": true,
+   "price": 115,
+   "note": ""
+  },
+  {
+   "sku": "P-2.04",
+   "ref": "2.04",
+   "name": "Body bottom plate",
+   "spec": "Custom machined",
+   "group": "Body / torso",
+   "made": true,
+   "price": 68,
+   "note": ""
+  },
+  {
+   "sku": "P-2.05",
+   "ref": "2.05",
+   "name": "Arm mounting plate",
+   "spec": "Custom machined",
+   "group": "Body / torso",
+   "made": true,
+   "price": 27,
+   "note": ""
+  },
+  {
+   "sku": "P-2.06",
+   "ref": "2.06",
+   "name": "Neck mounting plate",
+   "spec": "Custom machined",
+   "group": "Body / torso",
+   "made": true,
+   "price": 59,
+   "note": ""
+  },
+  {
+   "sku": "P-2.07",
+   "ref": "2.07",
+   "name": "DAMIAO DM10422P torso actuator",
+   "spec": "Hollow-shaft planetary, dual inductive encoder",
+   "group": "Body / torso",
+   "made": false,
+   "price": 390,
+   "note": ""
+  },
+  {
+   "sku": "P-3.01",
+   "ref": "3.01",
+   "name": "DAMIAO FOCGM43 joint module",
+   "spec": "MIT-mode BLDC, dual encoder, geared",
+   "group": "Arms - both",
+   "made": false,
+   "price": 120,
+   "note": ""
+  },
+  {
+   "sku": "P-3.02",
+   "ref": "3.02",
+   "name": "DAMIAO DM4340 joint motor",
+   "spec": "Geared, dual encoder, 9 N.m rated",
+   "group": "Arms - both",
+   "made": false,
+   "price": 175,
+   "note": ""
+  },
+  {
+   "sku": "P-3.03",
+   "ref": "3.03",
+   "name": "DAMIAO DM8009P joint module",
+   "spec": "MIT-mode BLDC module, V4, 40 N.m",
+   "group": "Arms - both",
+   "made": false,
+   "price": 370,
+   "note": ""
+  },
+  {
+   "sku": "P-3.04",
+   "ref": "3.04",
+   "name": "OpenArm structural set",
+   "spec": "CNC 7075 aluminium + sheet steel",
+   "group": "Arms - both",
+   "made": false,
+   "price": 525,
+   "note": "Sold as the dual-arm set."
+  },
+  {
+   "sku": "P-3.05",
+   "ref": "3.05",
+   "name": "Arm harness set",
+   "spec": "Harness + hub + e-stop + power adapter board + PSU",
+   "group": "Arms - both",
+   "made": false,
+   "price": 170,
+   "note": ""
+  },
+  {
+   "sku": "P-4.01",
+   "ref": "4.01",
+   "name": "Feetech HL3915M servo",
+   "spec": "HL-3915-C001, 12 V, 14 kg-cm, dual-shaft, steel gear, TTL",
+   "group": "Hands - both",
+   "made": false,
+   "price": 46,
+   "note": ""
+  },
+  {
+   "sku": "P-4.02",
+   "ref": "4.02",
+   "name": "Feetech HL3930M servo",
+   "spec": "HL-3930-C001, 12 V, 35 kg-cm, metal case, dual-shaft, TTL",
+   "group": "Hands - both",
+   "made": false,
+   "price": 70,
+   "note": ""
+  },
+  {
+   "sku": "P-4.03",
+   "ref": "4.03",
+   "name": "ST/SC bus servo driver board",
+   "spec": "USB-UART TTL debug board",
+   "group": "Hands - both",
+   "made": false,
+   "price": 6,
+   "note": ""
+  },
+  {
+   "sku": "P-4.04",
+   "ref": "4.04",
+   "name": "Bus servo power distribution board",
+   "spec": "5264 terminal splitter",
+   "group": "Hands - both",
+   "made": false,
+   "price": 4,
+   "note": ""
+  },
+  {
+   "sku": "P-5.01",
+   "ref": "5.01",
+   "name": "Robotis Dynamixel 2XL430-W250-T",
+   "spec": "Dual-axis smart servo",
+   "group": "Neck / head",
+   "made": false,
+   "price": 205,
+   "note": ""
+  },
+  {
+   "sku": "P-5.02",
+   "ref": "5.02",
+   "name": "DAMIAO FOCGM43 neck actuator",
+   "spec": "MIT-mode BLDC, dual encoder",
+   "group": "Neck / head",
+   "made": false,
+   "price": 120,
+   "note": ""
+  },
+  {
+   "sku": "P-6.01",
+   "ref": "6.01",
+   "name": "Aluminium extrusion, cut lengths",
+   "spec": "2x2 in: 15x2, 17x2, 4.75x3, 8x2; 2x4 in: 10x1, 12.5x2",
+   "group": "Structural hardware",
+   "made": false,
+   "price": 140,
+   "note": ""
+  },
+  {
+   "sku": "P-6.02",
+   "ref": "6.02",
+   "name": "Extrusion 90 degree corner brackets",
+   "spec": "1010-series, T-slot",
+   "group": "Structural hardware",
+   "made": false,
+   "price": 37,
+   "note": ""
+  },
+  {
+   "sku": "P-6.03",
+   "ref": "6.03",
+   "name": "Extrusion angled plates",
+   "spec": "BLCCLOY 20-set, 1010-series",
+   "group": "Structural hardware",
+   "made": false,
+   "price": 29,
+   "note": ""
+  },
+  {
+   "sku": "P-6.04",
+   "ref": "6.04",
+   "name": "Metric screw assortment",
+   "spec": "Mixed M3-M6",
+   "group": "Structural hardware",
+   "made": false,
+   "price": 19,
+   "note": ""
+  },
+  {
+   "sku": "P-6.05",
+   "ref": "6.05",
+   "name": "Imperial screw assortment",
+   "spec": "For lift column and extrusion",
+   "group": "Structural hardware",
+   "made": false,
+   "price": 13,
+   "note": ""
+  },
+  {
+   "sku": "P-6.06",
+   "ref": "6.06",
+   "name": "Neodymium magnets",
+   "spec": "Panel retention",
+   "group": "Structural hardware",
+   "made": false,
+   "price": 17,
+   "note": ""
+  },
+  {
+   "sku": "P-7.01",
+   "ref": "7.01",
+   "name": "SODOLA 6-port 2.5 GbE switch",
+   "spec": "4x 2.5G-BaseT, 2x 10G SFP+, managed",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 68,
+   "note": ""
+  },
+  {
+   "sku": "P-7.02",
+   "ref": "7.02",
+   "name": "USB expansion board",
+   "spec": "Powered multi-port hub",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 105,
+   "note": ""
+  },
+  {
+   "sku": "P-7.03",
+   "ref": "7.03",
+   "name": "Battery",
+   "spec": "Main pack",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 64,
+   "note": ""
+  },
+  {
+   "sku": "P-7.04",
+   "ref": "7.04",
+   "name": "Ethernet twinax cable",
+   "spec": "SFP+ direct-attach",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 63,
+   "note": ""
+  },
+  {
+   "sku": "P-7.05",
+   "ref": "7.05",
+   "name": "Wi-Fi antenna cable",
+   "spec": "Pigtail extension",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 25,
+   "note": ""
+  },
+  {
+   "sku": "P-7.06",
+   "ref": "7.06",
+   "name": "Power cable, 6XT",
+   "spec": "Main DC run",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 34,
+   "note": ""
+  },
+  {
+   "sku": "P-7.07",
+   "ref": "7.07",
+   "name": "Buck converter 24 V to 12 V",
+   "spec": "Step-down regulator",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 26,
+   "note": ""
+  },
+  {
+   "sku": "P-7.08",
+   "ref": "7.08",
+   "name": "Speaker + USB sound card",
+   "spec": "8 ohm 5 W, Jetson/Pi",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 27,
+   "note": ""
+  },
+  {
+   "sku": "P-7.09",
+   "ref": "7.09",
+   "name": "Power cord extension",
+   "spec": "AC mains",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 23,
+   "note": ""
+  },
+  {
+   "sku": "P-7.10",
+   "ref": "7.10",
+   "name": "Fuse box",
+   "spec": "Blade-fuse distribution",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 22,
+   "note": ""
+  },
+  {
+   "sku": "P-7.11",
+   "ref": "7.11",
+   "name": "Raspberry Pi Pico",
+   "spec": "Auxiliary MCU (lift)",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 22,
+   "note": ""
+  },
+  {
+   "sku": "P-7.12",
+   "ref": "7.12",
+   "name": "Motor driver",
+   "spec": "BTS7960 auxiliary DC drive (lift)",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 14,
+   "note": ""
+  },
+  {
+   "sku": "P-7.13",
+   "ref": "7.13",
+   "name": "USB-C to USB-A cable",
+   "spec": "Head cam, hands x2, base cam",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 10,
+   "note": ""
+  },
+  {
+   "sku": "P-7.14",
+   "ref": "7.14",
+   "name": "Ethernet patch cable",
+   "spec": "Upper body + mobile base",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 10,
+   "note": ""
+  },
+  {
+   "sku": "P-7.15",
+   "ref": "7.15",
+   "name": "Protective sleeving, 1/2 in",
+   "spec": "Harness loom",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 13,
+   "note": ""
+  },
+  {
+   "sku": "P-7.16",
+   "ref": "7.16",
+   "name": "Protective sleeving, 1/4 in",
+   "spec": "Harness loom",
+   "group": "Electronics, power & cabling",
+   "made": false,
+   "price": 13,
+   "note": ""
+  },
+  {
+   "sku": "P-9.1-1",
+   "ref": "9.1",
+   "name": "NVIDIA Jetson Orin Nano Super Dev Kit",
+   "spec": "8 GB, 67 TOPS, carrier also accepts Orin NX modules",
+   "group": "Compute",
+   "made": false,
+   "price": 450,
+   "note": ""
+  },
+  {
+   "sku": "P-9.1-2",
+   "ref": "9.1",
+   "name": "NVIDIA Jetson Orin NX 8 GB + carrier",
+   "spec": "8 GB, 117 TOPS, module $649 + ~$250 carrier (est.)",
+   "group": "Compute",
+   "made": false,
+   "price": 1010,
+   "note": ""
+  },
+  {
+   "sku": "P-9.1-3",
+   "ref": "9.1",
+   "name": "NVIDIA Jetson Orin NX 16 GB + carrier",
+   "spec": "16 GB, 157 TOPS, module $999 + ~$250 carrier (est.)",
+   "group": "Compute",
+   "made": false,
+   "price": 1400,
+   "note": ""
+  },
+  {
+   "sku": "P-9.1-4",
+   "ref": "9.1",
+   "name": "NVIDIA Jetson AGX Orin 64 GB Dev Kit",
+   "spec": "64 GB, 275 TOPS, emulates every Orin module, 60 W",
+   "group": "Compute",
+   "made": false,
+   "price": 3920,
+   "note": ""
+  },
+  {
+   "sku": "P-9.1-5",
+   "ref": "9.1",
+   "name": "NVIDIA Jetson AGX Thor Developer Kit",
+   "spec": "128 GB, 2070 TFLOPS",
+   "group": "Compute",
+   "made": false,
+   "price": 6160,
+   "note": ""
+  },
+  {
+   "sku": "P-9.2-6",
+   "ref": "9.2",
+   "name": "MMlove AR0144 GS-720P-60fps",
+   "spec": "1280x720 @ 60, global shutter, 170 deg fisheye, no depth",
+   "group": "Sensors",
+   "made": false,
+   "price": 64,
+   "note": "Each."
+  },
+  {
+   "sku": "P-9.2-7",
+   "ref": "9.2",
+   "name": "MMlove AR0144 GS-1200P-90fps",
+   "spec": "1600x1200 @ 90, global shutter, same board, higher rate",
+   "group": "Sensors",
+   "made": false,
+   "price": 110,
+   "note": "Each."
+  },
+  {
+   "sku": "P-9.2-8",
+   "ref": "9.2",
+   "name": "Intel RealSense D405",
+   "spec": "1280x720 @ 90, global shutter, metric depth 7-50 cm",
+   "group": "Sensors",
+   "made": false,
+   "price": 375,
+   "note": "Each."
+  },
+  {
+   "sku": "P-9.3-9",
+   "ref": "9.3",
+   "name": "MMlove 1200P stereo, 112 deg HFOV",
+   "spec": "3200x1200 @ 60, global shutter, synced pair, host-side matching",
+   "group": "Sensors",
+   "made": false,
+   "price": 130,
+   "note": ""
+  },
+  {
+   "sku": "P-9.3-10",
+   "ref": "9.3",
+   "name": "Intel RealSense D435i",
+   "spec": "1280x720 @ 90, rolling shutter, depth + IMU",
+   "group": "Sensors",
+   "made": false,
+   "price": 420,
+   "note": ""
+  },
+  {
+   "sku": "P-9.3-11",
+   "ref": "9.3",
+   "name": "Stereolabs ZED Mini",
+   "spec": "1280x720 @ 60, rolling shutter, on-board depth engine + VIO",
+   "group": "Sensors",
+   "made": false,
+   "price": 520,
+   "note": ""
+  },
+  {
+   "sku": "P-9.5-12",
+   "ref": "9.5",
+   "name": "youyeetoo FHL-LD19",
+   "spec": "DTOF, 12 m, 10 Hz, 4.5 kHz, 30 klux, 50 g, ROS 2 SDK (est.)",
+   "group": "Sensors",
+   "made": false,
+   "price": 90,
+   "note": ""
+  },
+  {
+   "sku": "P-9.5-13",
+   "ref": "9.5",
+   "name": "Slamtec RPLIDAR C1",
+   "spec": "DTOF, 12 m, 8-12 Hz, 5 kHz, 40 klux, 110 g (est.)",
+   "group": "Sensors",
+   "made": false,
+   "price": 130,
+   "note": ""
+  },
+  {
+   "sku": "P-9.5-14",
+   "ref": "9.5",
+   "name": "youyeetoo FHL-LD19 Plus",
+   "spec": "DTOF, 25 m, 60 klux, IP5X, drop-in LD19 replacement (est.)",
+   "group": "Sensors",
+   "made": false,
+   "price": 130,
+   "note": ""
+  },
+  {
+   "sku": "P-9.5-15",
+   "ref": "9.5",
+   "name": "Slamtec RPLIDAR A2M12",
+   "spec": "Triangulation, 12 m, 5-15 Hz, 16 kHz, 190 g - the original spec",
+   "group": "Sensors",
+   "made": false,
+   "price": 300,
+   "note": ""
+  },
+  {
+   "sku": "P-PI5",
+   "ref": "",
+   "name": "Raspberry Pi 5, 16 GB, with NVMe and cooler",
+   "spec": "The standard compute tray.",
+   "group": "Compute",
+   "made": true,
+   "price": 200,
+   "note": ""
+  },
+  {
+   "sku": "P-TEENSY",
+   "ref": "",
+   "name": "Teensy 4.1, flashed",
+   "spec": "One runs the base, one runs arms, torso and neck at 500 Hz.",
+   "group": "Electronics, power & cabling",
+   "made": true,
+   "price": 56,
+   "note": ""
+  },
+  {
+   "sku": "P-ESTOP",
+   "ref": "",
+   "name": "Hardware E-stop kit",
+   "spec": "Switch and contactor that de-energise every actuator independently of the host.",
+   "group": "Electronics, power & cabling",
+   "made": true,
+   "price": 75,
+   "note": ""
+  },
+  {
+   "sku": "P-HANDKIT",
+   "ref": "",
+   "name": "ORCA hand structural kit, one hand",
+   "spec": "Printed frame, tendon, bearings, tensioners and fingertip pads. Servos not included.",
+   "group": "Hands - both",
+   "made": true,
+   "price": 450,
+   "note": ""
+  },
+  {
+   "sku": "P-HAND",
+   "ref": "",
+   "name": "ORCA hand, one, assembled and tuned",
+   "spec": "17 servos, frame, tendons, calibrated. Left or right.",
+   "group": "Hands - both",
+   "made": true,
+   "price": 1810,
+   "note": ""
+  },
+  {
+   "sku": "P-ARM",
+   "ref": "",
+   "name": "Arm, one side, assembled",
+   "spec": "Seven DAMIAO actuators on the OpenArm structure, harnessed and calibrated.",
+   "group": "Arms - both",
+   "made": true,
+   "price": 3020,
+   "note": ""
+  },
+  {
+   "sku": "P-SHELLS",
+   "ref": "",
+   "name": "Printed shell and cover set",
+   "spec": "Every cover on the robot, in the standard jade white.",
+   "group": "3D printed material",
+   "made": true,
+   "price": 345,
+   "note": ""
+  },
+  {
+   "sku": "P-MOUNTS",
+   "ref": "",
+   "name": "Printed sensor mount set",
+   "spec": "Wrist, head, lidar and base-camera mounts.",
+   "group": "3D printed material",
+   "made": true,
+   "price": 76,
+   "note": ""
+  }
+ ]
+}

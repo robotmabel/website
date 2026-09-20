@@ -17,6 +17,17 @@ generated**: `assets/data/harness.json` comes from `scripts/build_harness.py`,
 which reads `claude_harness/data/commands.yaml` in the repo root. Never type a
 command into the page; edit the registry and re-run the script.
 
+`order.html` is the store: three ways to get a robot (build / kit / assembled),
+an Apple-style four-step configurator (body, compute, sensors, end effector), the
+spare-parts list, a cart, accounts and Stripe checkout. **Every price is
+generated**: `assets/data/order.json` comes from `scripts/build_order.py`, which
+prices the BOM (`BOM/data/*.csv`) with the margin rule in that script and writes
+the internal margin table to `commerce/pricing_report.md`. Never type a price
+into the page. The page's pricing (`assets/order-pricing.js`) mirrors the
+server's (`commerce/pricing.py`); `commerce/tests/test_pricing_parity.py` keeps
+them identical, and the checkout server on the VPS re-prices every cart. See
+`commerce/README.md` for connecting Stripe.
+
 `simulation.html` is the twin's own page — the canonical model, the
 `simulation_bridge` plant, the 35-scene library, the Unity/Genesis branches,
 simulated data collection and the mjlab PPO track. `software.html#simulation`
@@ -88,6 +99,8 @@ in its docstring. `scripts/run_all.sh` runs the lot.
 | `wikitest.py` | `docs/` stays the site's ground and faces, and its links resolve |
 | `hxtest.py` | the harness page renders exactly the registry's commands, and its filters, search and badges work |
 | `build_harness.py --check` | the page's data has drifted from the repo's command registry |
+| `ordertest.py` | the store: DOM totals equal the SERVER's pricing, gating hides what does not fit, the cart and deposit maths, a loud failure when checkout is unreachable, and the PHONE layout — no overflow at 390/360, 44 px tap targets, the sticky bar and dock never overlap |
+| `build_order.py --check` | the catalog has drifted from the pricing rule |
 
 Each takes its own debugger port and profile — they used to collide and one
 would die mid-run, which looked like a real failure.
@@ -112,6 +125,7 @@ would die mid-run, which looked like a real failure.
 | `assets/retarget/*` | `controller/experiments/retargeting_ablation/render_compare.py` |
 | `assets/data/platforms.json` | `scripts/build_platforms.py` |
 | `assets/data/harness.json` | `scripts/build_harness.py` (from `claude_harness/data/commands.yaml`) |
+| `assets/data/order.json` | `scripts/build_order.py` (from `BOM/data/*.csv` + `BOM/generated/bom_summary.json`) |
 | `assets/hw/exploded.{png,webp}` | `scripts/build_exploded.py` |
 
 The robot's geometry chain is MJCF → URDF → GLB → app rigs; see the repo root
@@ -181,6 +195,16 @@ discards your change.
 * **`bump_assets.py` must stamp `docs/` too.** It globbed only the root for a
   long time, so every wiki page shipped unstamped against the very scripts it
   depends on — the exact failure the script exists to prevent.
+* **A toast sits on top of a button and eats the tap.** The "Added to cart"
+  toast landed exactly on the cart drawer's deposit control on a phone, so the
+  tap that followed hit the toast. Toasts are `pointer-events: none` and live at
+  the top of the screen now, and opening the drawer is its own confirmation.
+  Found by `ordertest.py`, which taps through the input pipeline rather than
+  calling `.click()`.
+* **A check that scrolls smoothly clicks the wrong thing.** `html { scroll-behavior:
+  smooth }` means a click computed right after `scrollIntoView` lands on
+  whatever is sliding under it. `ordertest.py` injects `scroll-behavior: auto`
+  for the run; 21 of its checks failed for this reason before that line existed.
 * **`scenery_clear` measures distance to geom CENTRES.** A 6 m building centred
   1.1 m away reads as "1.1 m of room" while MuJoCo resolves 760 kN of
   interpenetration. Ask the physics whether the robot is embedded; do not ask a
