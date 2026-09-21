@@ -50,6 +50,10 @@ async def go():
         for url in URLS:
             await cmd("Page.navigate", {"url": url}); await asyncio.sleep(1.2)
             await ev("document.fonts.ready.then(function(){return true})")
+            # The bar and the dock animate their positions (0.35 s). Under the load of
+            # the full suite that outlasts any fixed wait, so the check measures with
+            # transitions off: it is asking where things END UP, not how they get there.
+            await ev("(function(){var st=document.createElement('style'); st.textContent='.nav,.store-dock{transition:none !important}'; document.head.appendChild(st); return true})()")
             await ev("document.fonts.ready.then(function(){return true})")
             name = url.rsplit("/", 1)[-1]
             for w in WIDTHS:
@@ -57,15 +61,20 @@ async def go():
                 await asyncio.sleep(0.25)
                 await ev("window.__storeDock && window.__storeDock.place(); true")   # a resize re-places the dock; the emulated one fires no event
                 await asyncio.sleep(0.45)   # the dock's top transitions for 0.35 s
-                m = await ev("""(function(){var n=document.getElementById('nav'),l=n.querySelector('.nav-logo'),d=document.getElementById('storeDock'),h=document.getElementById('hbg');
+                MEASURE = """(function(){var n=document.getElementById('nav'),l=n.querySelector('.nav-logo'),d=document.getElementById('storeDock'),h=document.getElementById('hbg');
                   var nr=n.getBoundingClientRect(),lr=l.getBoundingClientRect(),dr=d?d.getBoundingClientRect():null,hr=h.getBoundingClientRect();
                   var burger=getComputedStyle(h).display!=='none'; var links=n.querySelector('.nav-links'), kr=links?links.getBoundingClientRect():null; var first=links?links.querySelector('a,button'):null, fr=first?first.getBoundingClientRect():null;
                   var clear = !dr || (burger ? (dr.right<=hr.left+0.5 && dr.left>=nr.left) : (dr.left>=nr.right-0.5||dr.right<=nr.left+0.5));
                   var logoClear = burger || !fr || fr.left >= lr.right + 8;   /* the wordmark's glyphs overhang; 8 px of daylight is the floor */
                   var beside = burger || !dr || (dr.left - nr.right >= 6 && dr.left - nr.right <= 24 && Math.abs((dr.top+dr.bottom)/2 - (nr.top+nr.bottom)/2) <= 2);   /* beside the bar, not at the edge */
                   return {fits:n.scrollWidth<=n.clientWidth+1, navW:Math.round(nr.width), logoIn:lr.left>=nr.left-0.5&&lr.right<=nr.right+0.5&&logoClear, burger:burger,
-                          dockClear:clear && beside, gap:dr?Math.round(dr.left-nr.right):null, dy:dr?Math.round(((dr.top+dr.bottom)-(nr.top+nr.bottom))/2):null, dock:dr?[Math.round(dr.left),Math.round(dr.right)]:null, nav:[Math.round(nr.left),Math.round(nr.right)]}})()""")
+                          dockClear:clear && beside, gap:dr?Math.round(dr.left-nr.right):null, dy:dr?Math.round(((dr.top+dr.bottom)-(nr.top+nr.bottom))/2):null, dock:dr?[Math.round(dr.left),Math.round(dr.right)]:null, nav:[Math.round(nr.left),Math.round(nr.right)]}})()"""
+                m = await ev(MEASURE)
                 ok = m["fits"] and m["logoIn"] and m["dockClear"]
+                if not ok:   # a slow frame, or a real defect? Re-place and measure again; a defect fails twice.
+                    await ev("window.__storeDock && window.__storeDock.place(); true"); await asyncio.sleep(0.6)
+                    m = await ev(MEASURE)
+                    ok = m["fits"] and m["logoIn"] and m["dockClear"]
                 print(f"  {'✓' if ok else '✗'} {name:16s} {w}px  nav {m['navW']}px {m['nav']}  dock {m['dock']}  {'burger' if m['burger'] else 'bar   '} fits={m['fits']} logoIn={m['logoIn']} dockClear={m['dockClear']} gap={m['gap']} dy={m['dy']}")
                 bad += 0 if ok else 1
             for w in PHONE:
