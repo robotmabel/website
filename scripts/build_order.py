@@ -254,11 +254,9 @@ def main(check=False):
               "Electronics, power & cabling", "3D printed material", "Compute", "Sensors"]
 
     # ── the page's other sections, as data: what's in the box, delivery, the
-    #    comparison tables. Specs come from assets/data/hw-modules.json (rendered
-    #    from the MJCF and the BOM) so the chart never drifts from the hardware page.
+    #    gallery. The lift stroke comes from assets/data/hw-modules.json (rendered
+    #    from the MJCF and the BOM) so the caption never drifts from the hardware page.
     hw = {m["id"]: dict(m["specs"]) for m in json.loads((SITE / "assets" / "data" / "hw-modules.json").read_text())["modules"]}
-    span = hw["arms"]["Reach"].split("fingertip")[0].strip().replace("0 – ", "")
-    foot = hw["base"]["Footprint"]
     stroke = hw["lift"]["Stroke"].split(" (")[0]
     box = {
         "assembled": [
@@ -283,36 +281,10 @@ def main(check=False):
         ],
     }
     delivery = [
-        {"t": "Parts kit", "s": "Ships in about a week by tracked courier, in one crate and a few boxes.", "k": "~1 week"},
-        {"t": "Assembled robot", "s": "Built, calibrated and burn-in tested in about a week, then crated freight. Freight is quoted after checkout.", "k": "~1 week + freight"},
+        {"t": "Parts kit", "s": "Ships in about two weeks by tracked courier, in one crate and a few boxes.", "k": "~2 weeks"},
+        {"t": "Assembled robot", "s": "Built, calibrated and burn-in tested, then crated freight; ships in about a month. Freight is quoted after checkout.", "k": "~1 month + freight"},
         {"t": "Spare parts", "s": "A few days by courier. Pass-through parts follow their vendor's stock.", "k": "days"},
     ]
-    def rp(r, t):
-        return f"${r['price'][t]:,}" + ("" if r["id"] == "base" else " + hands")
-    compare = {
-        "cols": [r["name"] for r in robots], "ids": [r["id"] for r in robots],
-        "rows": [
-            ["Arms", "2 × 7-DOF, " + hw["arms"]["Rate"].split(",")[0], "2 × 7-DOF", "2 × 7-DOF", "—"],
-            ["Hands", "ORCA 17-DOF pair, or grippers", "ORCA pair, or grippers", "ORCA pair, or grippers", "—"],
-            ["Head", "3-DOF, stereo camera", "3-DOF, stereo camera", "3-DOF, stereo camera", "—"],
-            ["Lift", stroke + " stroke", "Fixed column", "Bench fixture", "—"],
-            ["Base", "3-module holonomic swerve", "3-module holonomic swerve", "—", "3-module holonomic swerve"],
-            ["Fingertip span", span, span, span, "—"],
-            ["Footprint", foot, foot, "Bench", foot],
-            ["Compute", "Pi 5 to AGX Thor", "Pi 5 to AGX Thor", "Pi 5 to AGX Thor", "Pi 5 to AGX Thor"],
-            ["Sensors", "Wrist, head, lidar, base camera", "Wrist, head, lidar, base camera", "Wrist, head", "Lidar, base camera"],
-            ["Assembled", *[rp(r, "assembled") for r in robots]],
-            ["Kit", *[rp(r, "kit") for r in robots]],
-        ],
-        "ways": {"cols": ["Build from source", "Parts kit", "Assembled & tested"], "rows": [
-            ["What you get", "The plans, the BOM, the software", "Every part, cut, printed and flashed", "A calibrated, tested robot"],
-            ["Your time", "About a week, plus sourcing", "About a week", "None"],
-            ["Calibration", "You", "You, with the guide", "Done"],
-            ["Burn-in", "—", "—", "Done"],
-            ["Warranty", "—", "12 months on parts we make", "12 months"],
-            ["Price", "$0 · $8,722–$15,129 in parts", "From $15,000", "From $25,000"],
-        ]},
-    }
     gallery = [
         {"src": "assets/wild/hero-photo.jpg", "cap": "MABEL v1.0, as built", "key": "photo"},
         {"src": "assets/hw/body.png", "cap": "Torso, arms and head", "key": "body"},
@@ -327,14 +299,14 @@ def main(check=False):
     ]
     catalog = {
         "generated_by": "website/scripts/build_order.py", "price_date": summary["price_date"],
-        "box": box, "delivery": delivery, "compare": compare, "gallery": gallery,
+        "box": box, "delivery": delivery, "gallery": gallery,
         "currency": "usd", "api": API, "deposit_fraction": DEPOSIT, "kit_factor": KIT_FACTOR,
         "tiers": [
             {"id": "assembled", "name": "Assembled & tested", "short": "Assembled",
-             "lead": "Built, calibrated and burn-in tested in about a week",
+             "lead": "Built, calibrated and burn-in tested; ships in about a month",
              "blurb": "Arrives calibrated. Drive it the day the crate opens."},
             {"id": "kit", "name": "Parts kit", "short": "Kit",
-             "lead": "Every part in the box; builds in about a week",
+             "lead": "Ships in about two weeks; builds in about a week",
              "blurb": "Cut, printed and flashed. You assemble with the illustrated guide."},
         ],
         "steps": [

@@ -15,8 +15,7 @@ Two passes, desktop (1400×950) and phone (390×844, touch), and in each:
   * the share link in the URL opens the page fully picked (the link a buyer
     is sent), and the bar then offers Add to cart at $25,000;
   * the gallery follows the pick and its arrows and dots work;
-  * what's in the box switches with the tier; delivery has three tiles; the
-    comparison has one column per body plus the three ways;
+  * what's in the box switches with the tier; delivery has three tiles;
   * the parts grid shows a preview, expands to every SKU, filters by tab and
     search, and adds to the cart from one tap;
   * the cart: quantities, remove, deposit, a loud failure when checkout is
@@ -25,7 +24,6 @@ Two passes, desktop (1400×950) and phone (390×844, touch), and in each:
 Phone-only:
   * no horizontal overflow at 390 and 360, with the drawer and sheet open;
   * every interactive element in the store's widgets is at least 44 px tall;
-  * the comparison shows two columns and its picker switches the body;
   * the sticky bar rides the configurator only, and never overlaps the dock.
 `--shots DIR` saves a viewport screenshot of each state to look at.
 """
@@ -219,10 +217,6 @@ async def go():
             await click("#boxTabs button:nth-child(2)")
             check(await ev("document.querySelectorAll('#boxGrid .box-tile').length") == len(CAT["box"]["kit"]), "…and switches to the kit")
             check(await ev("document.querySelectorAll('#dlvGrid .dlv-tile').length") == 3, "three delivery tiles")
-            cmp = await ev("[document.querySelectorAll('#cmpTable thead th').length, document.querySelectorAll('#cmpTable tbody tr').length, document.querySelectorAll('#ways .ways-col').length]")
-            check(cmp == [5, len(CAT["compare"]["rows"]), 3], f"the comparison has a column per body and the three ways: {cmp}")
-            await ev("document.getElementById('compare').scrollIntoView({behavior:'instant'}); true"); await asyncio.sleep(0.2)
-            await shot(f"{tag}-compare")
 
             # ── parts ──
             pn = await ev("[document.querySelectorAll('.parts-card').length, document.getElementById('partsMoreWrap').hidden]")
@@ -310,7 +304,7 @@ async def go():
                 ah = await ev("[document.querySelector('.acct-card').getBoundingClientRect().height, window.innerHeight]")
                 check(ah[0] <= ah[1], f"the account card fits the viewport: {ah}")
                 await ev("window.__order.closeAcct(); true")
-                small = await ev("""Array.from(document.querySelectorAll('#buySteps button, #buyGallery button:not(.buy-dots button), #box button, #compare select, #parts button, #cart button, #acct button, #acct input, .buy-bar button')).filter(function(e){var b=e.getBoundingClientRect(); return b.width>0 && b.height>0 && b.height<44}).map(function(e){return (e.className||e.tagName)+' '+Math.round(e.getBoundingClientRect().height)})""")
+                small = await ev("""Array.from(document.querySelectorAll('#buySteps button, #buyGallery button:not(.buy-dots button), #box button, #parts button, #cart button, #acct button, #acct input, .buy-bar button')).filter(function(e){var b=e.getBoundingClientRect(); return b.width>0 && b.height>0 && b.height<44}).map(function(e){return (e.className||e.tagName)+' '+Math.round(e.getBoundingClientRect().height)})""")
                 check(not small, f"every interactive element is ≥ 44 px tall (short: {small[:6]})")
                 dots = await ev("Array.from(document.querySelectorAll('.buy-dots button')).map(function(b){return b.getBoundingClientRect().height})")
                 check(dots and min(dots) >= 28, f"the gallery dots have a 28 px hit area (the arrows are the 44 px control): {min(dots) if dots else None}")
@@ -321,15 +315,6 @@ async def go():
                 await ev("window.scrollTo({top: document.documentElement.scrollHeight, behavior: 'instant'}); true"); await asyncio.sleep(0.5)
                 fb = await ev("[document.getElementById('buyBar').classList.contains('is-on'), document.getElementById('buyBar').getBoundingClientRect().top, window.innerHeight]")
                 check(not fb[0] and fb[1] >= fb[2] - 0.5, f"past the configurator the bar leaves the screen: {fb}")
-                await ev("document.getElementById('compare').scrollIntoView({behavior:'instant'}); true"); await asyncio.sleep(0.2)
-                vis = await ev("Array.from(document.querySelectorAll('#cmpTable thead th')).filter(function(t){return getComputedStyle(t).display!=='none'}).map(function(t){return t.textContent})")
-                check(len(vis) == 2 and vis[1] == CAT["compare"]["cols"][0], f"on a phone the comparison shows the label column and one body: {vis}")
-                await ev("var s=document.getElementById('cmpSel'); s.value='4'; s.dispatchEvent(new Event('change')); true")
-                vis2 = await ev("Array.from(document.querySelectorAll('#cmpTable thead th')).filter(function(t){return getComputedStyle(t).display!=='none'}).map(function(t){return t.textContent})")
-                check(vis2[1] == CAT["compare"]["cols"][3], f"…and the picker switches it: {vis2}")
-                tw = await ev("[document.getElementById('cmpTable').scrollWidth, document.getElementById('cmpTable').clientWidth]")
-                check(tw[0] <= tw[1] + 1, f"the comparison table does not scroll sideways: {tw}")
-                await shot(f"{tag}-compare-picker")
                 check(await ev("getComputedStyle(document.getElementById('ordToast')).pointerEvents") == "none", "the toast never intercepts a tap")
                 await cmd("Emulation.setDeviceMetricsOverride", {"width": 360, "height": 780, "deviceScaleFactor": 2, "mobile": True})
                 await asyncio.sleep(0.3)

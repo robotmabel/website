@@ -80,13 +80,13 @@
  "delivery": [
   {
    "t": "Parts kit",
-   "s": "Ships in about a week by tracked courier, in one crate and a few boxes.",
-   "k": "~1 week"
+   "s": "Ships in about two weeks by tracked courier, in one crate and a few boxes.",
+   "k": "~2 weeks"
   },
   {
    "t": "Assembled robot",
-   "s": "Built, calibrated and burn-in tested in about a week, then crated freight. Freight is quoted after checkout.",
-   "k": "~1 week + freight"
+   "s": "Built, calibrated and burn-in tested, then crated freight; ships in about a month. Freight is quoted after checkout.",
+   "k": "~1 month + freight"
   },
   {
    "t": "Spare parts",
@@ -94,144 +94,6 @@
    "k": "days"
   }
  ],
- "compare": {
-  "cols": [
-   "MABEL, complete",
-   "Fixed height",
-   "Upper body only",
-   "Mobile base only"
-  ],
-  "ids": [
-   "complete",
-   "fixed",
-   "upper",
-   "base"
-  ],
-  "rows": [
-   [
-    "Arms",
-    "2 × 7-DOF, 500 Hz",
-    "2 × 7-DOF",
-    "2 × 7-DOF",
-    "—"
-   ],
-   [
-    "Hands",
-    "ORCA 17-DOF pair, or grippers",
-    "ORCA pair, or grippers",
-    "ORCA pair, or grippers",
-    "—"
-   ],
-   [
-    "Head",
-    "3-DOF, stereo camera",
-    "3-DOF, stereo camera",
-    "3-DOF, stereo camera",
-    "—"
-   ],
-   [
-    "Lift",
-    "0.635 m stroke",
-    "Fixed column",
-    "Bench fixture",
-    "—"
-   ],
-   [
-    "Base",
-    "3-module holonomic swerve",
-    "3-module holonomic swerve",
-    "—",
-    "3-module holonomic swerve"
-   ],
-   [
-    "Fingertip span",
-    "2.23 m",
-    "2.23 m",
-    "2.23 m",
-    "—"
-   ],
-   [
-    "Footprint",
-    "0.49 m across",
-    "0.49 m across",
-    "Bench",
-    "0.49 m across"
-   ],
-   [
-    "Compute",
-    "Pi 5 to AGX Thor",
-    "Pi 5 to AGX Thor",
-    "Pi 5 to AGX Thor",
-    "Pi 5 to AGX Thor"
-   ],
-   [
-    "Sensors",
-    "Wrist, head, lidar, base camera",
-    "Wrist, head, lidar, base camera",
-    "Wrist, head",
-    "Lidar, base camera"
-   ],
-   [
-    "Assembled",
-    "$21,400 + hands",
-    "$20,300 + hands",
-    "$12,900 + hands",
-    "$7,500"
-   ],
-   [
-    "Kit",
-    "$12,840 + hands",
-    "$12,180 + hands",
-    "$7,740 + hands",
-    "$4,500"
-   ]
-  ],
-  "ways": {
-   "cols": [
-    "Build from source",
-    "Parts kit",
-    "Assembled & tested"
-   ],
-   "rows": [
-    [
-     "What you get",
-     "The plans, the BOM, the software",
-     "Every part, cut, printed and flashed",
-     "A calibrated, tested robot"
-    ],
-    [
-     "Your time",
-     "About a week, plus sourcing",
-     "About a week",
-     "None"
-    ],
-    [
-     "Calibration",
-     "You",
-     "You, with the guide",
-     "Done"
-    ],
-    [
-     "Burn-in",
-     "—",
-     "—",
-     "Done"
-    ],
-    [
-     "Warranty",
-     "—",
-     "12 months on parts we make",
-     "12 months"
-    ],
-    [
-     "Price",
-     "$0 · $8,722–$15,129 in parts",
-     "From $15,000",
-     "From $25,000"
-    ]
-   ]
-  }
- },
  "gallery": [
   {
    "src": "assets/wild/hero-photo.jpg",
@@ -293,14 +155,14 @@
    "id": "assembled",
    "name": "Assembled & tested",
    "short": "Assembled",
-   "lead": "Built, calibrated and burn-in tested in about a week",
+   "lead": "Built, calibrated and burn-in tested; ships in about a month",
    "blurb": "Arrives calibrated. Drive it the day the crate opens."
   },
   {
    "id": "kit",
    "name": "Parts kit",
    "short": "Kit",
-   "lead": "Every part in the box; builds in about a week",
+   "lead": "Ships in about two weeks; builds in about a week",
    "blurb": "Cut, printed and flashed. You assemble with the illustrated guide."
   }
  ],

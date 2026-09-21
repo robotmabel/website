@@ -206,27 +206,6 @@
       g.appendChild(d);
     });
   }
-  var cmpShow = 1;
-  function renderCompare() {
-    var c = cat.compare, t = $('cmpTable'), sel = $('cmpSel');
-    var html = '<thead><tr><th></th>' + c.cols.map(function (h, i) { return '<th class="' + (i + 1 === cmpShow ? 'is-shown' : '') + '">' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>';
-    c.rows.forEach(function (r) {
-      var priceRow = r[0] === 'Assembled' || r[0] === 'Kit';
-      html += '<tr><td>' + esc(r[0]) + '</td>' + r.slice(1).map(function (v, i) { return '<td class="' + (i + 1 === cmpShow ? 'is-shown ' : '') + (priceRow ? 'is-price' : '') + '">' + esc(v) + '</td>'; }).join('') + '</tr>';
-    });
-    t.innerHTML = html + '</tbody>';
-    if (!sel.options.length) {
-      c.cols.forEach(function (h, i) { var o = document.createElement('option'); o.value = String(i + 1); o.textContent = h; sel.appendChild(o); });
-      sel.addEventListener('change', function () { cmpShow = +sel.value; renderCompare(); });
-    }
-    sel.value = String(cmpShow);
-    var w = $('ways'); w.innerHTML = '';
-    c.ways.cols.forEach(function (h, i) {
-      var col = document.createElement('div'); col.className = 'ways-col' + (i === 2 ? ' is-lead' : '');
-      col.innerHTML = '<h4>' + esc(h) + '</h4><dl>' + c.ways.rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[i + 1]) + '</dd>'; }).join('') + '</dl>';
-      w.appendChild(col);
-    });
-  }
 
   /* ── parts & accessories ───────────────────────────────────────────────── */
   var partsGroup = 'All', partsQ = '', partsAll = false, PREVIEW = 8;
@@ -472,7 +451,7 @@
     if (!api) api = c.api || '';
     pick = {};
     try { decode(new URLSearchParams(location.search).get('c')); } catch (e) {}
-    loadCart(); wire(); renderDots(); goSlide(0); renderSteps(); renderBox(); renderDelivery(); renderCompare(); renderTabs(); renderParts(); renderCart(); renderAcct();
+    loadCart(); wire(); renderDots(); goSlide(0); renderSteps(); renderBox(); renderDelivery(); renderTabs(); renderParts(); renderCart(); renderAcct();
     $('partsNote').textContent = 'List prices from the bill of materials priced ' + c.price_date + ', computed by scripts/build_order.py. Pass-through parts follow their vendor’s pricing and may move; parts we make are priced by us. ' + c.parts.length + ' parts.';
     afterCheckout();
     if (api) fetch(api + '/api/health').then(function (r) { return r.json(); }).then(function (h) { otp = h.otp || otp; renderAcct(); }).catch(function () {});

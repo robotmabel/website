@@ -21,12 +21,12 @@
      chosen option, and no motion the shopper did not ask for. ── */
   .buy-page .sidenav { display: none !important; }
   .buy-main { padding-top: clamp(84px, 9vh, 104px); }
-  .buy-head { padding: 18px clamp(20px, 3vw, 48px) 6px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; }
+  .buy-head { max-width: var(--max); margin: 0 auto; padding: 18px var(--gutter) 6px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; }
   .buy-head h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 3vw, 46px); letter-spacing: 0.01em; margin: 0; }
   .buy-head p { margin: 0; font-size: 16px; color: var(--ash); }
-  .buy-stage { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(380px, 1fr); align-items: start; }
+  .buy-stage { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(380px, 1fr); align-items: start; }   /* the site's width, not the viewport's */
   .buy-visual { position: sticky; top: 0; height: 100vh; height: 100dvh; min-height: 560px; }
-  .buy-visual-in { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; padding: clamp(84px, 9vh, 104px) clamp(20px, 4vw, 72px) 96px; box-sizing: border-box; }   /* 96 px: the dots clear the fixed total bar */
+  .buy-visual-in { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; padding: clamp(84px, 9vh, 104px) clamp(12px, 2vw, 32px) 96px 0; box-sizing: border-box; }   /* 96 px: the dots clear the fixed total bar */
   .buy-slide { position: relative; min-height: 0; display: grid; place-items: center; }
   .buy-slide img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block;
     filter: drop-shadow(0 22px 26px rgba(21,24,32,0.16)); transition: opacity 0.2s ease; }
@@ -41,7 +41,7 @@
   .buy-dots button::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: rgba(21,24,32,0.28); transition: background 0.15s ease, transform 0.15s ease; }
   .buy-dots button[aria-selected="true"]::before { background: var(--ink); transform: scale(1.25); }
   .buy-cap { font-size: 13px; color: var(--ash); }
-  .buy-picks { padding: 6px clamp(20px, 3vw, 56px) 140px clamp(8px, 2vw, 32px); }
+  .buy-picks { padding: 6px 0 140px clamp(16px, 2.5vw, 40px); }
   .buy-steps { max-width: 560px; }
   .buy-step { padding: 26px 0 10px; border-top: 1px solid rgba(21,24,32,0.14); transition: opacity 0.25s ease; }
   .buy-step:first-child { border-top: 0; padding-top: 6px; }
@@ -66,7 +66,7 @@
   .buy-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; background: rgba(253,246,226,0.97); border-top: 1.5px solid rgba(21,24,32,0.35);
     transform: translateY(110%); transition: transform 0.3s var(--ease-out); }
   .buy-bar.is-on { transform: none; }
-  .buy-bar-in { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px clamp(20px, 3vw, 48px); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .buy-bar-in { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px var(--gutter); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
   .buy-bar-txt { min-width: 0; }
   .buy-bar-txt b { display: block; font-family: var(--font-head); font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
   .buy-bar-txt span { display: block; font-size: 13px; color: var(--ash); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -78,9 +78,9 @@
   @media (max-width: 980px) {
     .buy-stage { grid-template-columns: 1fr; }
     .buy-visual { position: static; height: auto; min-height: 0; }
-    .buy-visual-in { padding: 8px 16px 0; grid-template-rows: auto auto; }
+    .buy-visual-in { padding: 8px 0 0; grid-template-rows: auto auto; }
     .buy-slide { aspect-ratio: 4 / 3; }
-    .buy-picks { padding: 18px 16px 120px; }
+    .buy-picks { padding: 18px 0 120px; }
     .buy-bar-txt { display: none; }
     .buy-bar-right { width: 100%; justify-content: space-between; }
     .buy-bar-price { font-size: 24px; }
@@ -93,9 +93,9 @@
   }
 
   /* lower sections: one width, one rhythm, no plates */
-  .buy-sec { padding: clamp(52px, 7vh, 96px) clamp(20px, 3vw, 48px); }
+  .buy-sec { padding: clamp(52px, 7vh, 96px) var(--gutter); }
   .buy-sec.is-alt { background: var(--paper); }
-  .buy-in { max-width: 1600px; margin: 0 auto; }
+  .buy-in { max-width: var(--max); margin: 0 auto; }
   .buy-h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 2.8vw, 44px); letter-spacing: 0.01em; margin: 0 0 6px; }
   .buy-sub { font-size: 16.5px; line-height: 1.55; color: var(--ash); max-width: 64ch; margin: 0 0 30px; }
   .box-tabs { display: inline-flex; border: 1.5px solid rgba(21,24,32,0.35); border-radius: 12px; overflow: hidden; background: transparent; margin-bottom: 24px; }
@@ -115,27 +115,6 @@
   .dlv-tile .dlv-k { font-family: var(--font-mono); font-size: 12px; color: var(--hi); margin-bottom: 8px; display: block; }
   .dlv-tile p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--ink-soft); }
   @media (max-width: 720px) { .dlv-grid { grid-template-columns: 1fr; } }
-  .cmp-pick { display: none; margin-bottom: 14px; align-items: center; gap: 10px; font-size: 14px; }
-  .cmp-pick select { font: inherit; font-size: 15px; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1.5px solid rgba(21,24,32,0.4); background: var(--panel); color: var(--ink); }
-  .cmp-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--panel); border: 1.5px solid rgba(21,24,32,0.18); border-radius: 16px; overflow: hidden; }
-  .cmp-table th, .cmp-table td { text-align: left; padding: 13px 16px; font-size: 14px; line-height: 1.45; border-bottom: 1px solid rgba(21,24,32,0.12); vertical-align: top; }
-  .cmp-table th { font-family: var(--font-head); font-weight: 700; font-size: 15px; background: var(--paper); }
-  .cmp-table th:first-child, .cmp-table td:first-child { font-family: var(--font-mono); font-size: 12px; color: var(--ash); width: 22%; letter-spacing: 0.04em; text-transform: uppercase; }
-  .cmp-table tr:last-child td { border-bottom: 0; }
-  .cmp-table td.is-price { font-family: var(--font-mono); font-weight: 700; }
-  @media (max-width: 720px) {
-    .cmp-pick { display: flex; }
-    .cmp-table th:not(:first-child):not(.is-shown), .cmp-table td:not(:first-child):not(.is-shown) { display: none; }
-    .cmp-table th:first-child, .cmp-table td:first-child { width: 38%; }
-  }
-  .ways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 30px; }
-  .ways-col { background: var(--panel); border: 1.5px solid rgba(21,24,32,0.18); border-radius: 16px; overflow: hidden; }
-  .ways-col h4 { margin: 0; padding: 13px 16px; font-family: var(--font-head); font-weight: 700; font-size: 16px; background: var(--paper); border-bottom: 1px solid rgba(21,24,32,0.12); }
-  .ways-col.is-lead h4 { background: var(--yellow); }
-  .ways-col dl { margin: 0; padding: 6px 16px 12px; }
-  .ways-col dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ash); margin-top: 10px; }
-  .ways-col dd { margin: 2px 0 0; font-size: 14px; line-height: 1.45; color: var(--ink-soft); }
-  @media (max-width: 720px) { .ways { grid-template-columns: 1fr; } }
   .parts-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
   .parts-tabs { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; max-width: 100%; padding: 2px; }
   .parts-tabs::-webkit-scrollbar { display: none; }
@@ -160,11 +139,16 @@
   .parts-note { font-family: var(--font-mono); font-size: 11.5px; color: var(--ash); margin-top: 18px; line-height: 1.6; }
   @media (max-width: 980px) { .parts-grid { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 640px) { .parts-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .parts-search { flex: 1 1 100%; } }
-  .ord-faq { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px 32px; }
-  .ord-faq div { border-top: 1.5px solid rgba(21,24,32,0.4); padding-top: 12px; }
-  .ord-faq b { display: block; font-family: var(--font-head); font-weight: 700; font-size: 15px; margin-bottom: 4px; }
-  .ord-faq p { font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); margin: 0; }
-  @media (max-width: 720px) { .ord-faq { grid-template-columns: 1fr; } }
+  .faq-k { font-family: var(--font-head); font-weight: 600; font-size: 16px; letter-spacing: 0.01em; margin: 0 0 8px; }
+  .faq-list { border-top: 1px solid rgba(21,24,32,0.14); }
+  .faq-list details { border-bottom: 1px solid rgba(21,24,32,0.14); }
+  .faq-list summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0; min-height: 44px;
+    font-family: var(--font-head); font-weight: 500; font-size: 17px; color: var(--ink); -webkit-tap-highlight-color: transparent; }
+  .faq-list summary::-webkit-details-marker { display: none; }
+  .faq-list summary::after { content: '+'; flex: none; width: 24px; text-align: center; font-family: var(--font-head); font-weight: 300; font-size: 28px; line-height: 1; color: var(--ink); transition: transform 0.2s ease; }
+  .faq-list details[open] summary::after { transform: rotate(45deg); }
+  .faq-list summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
+  .faq-list p { margin: 0 0 22px; max-width: 76ch; font-size: 15px; line-height: 1.65; color: var(--ink-soft); }
   /* cart drawer */
   .cart-veil { position: fixed; inset: 0; background: rgba(21,24,32,0.55); z-index: 120; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s; }
   .cart-veil.is-open { opacity: 1; visibility: visible; }
@@ -273,7 +257,7 @@
 
 <main class="buy-main">
   <div class="buy-head"><h1>Buy MABEL.</h1><p>From $15,000 as a kit, or $25,000 assembled and tested.</p></div>
-  <div class="ord-done" id="ordDone" hidden style="margin:12px clamp(20px,3vw,48px) 0;"><b>Order received</b><p id="ordDoneText"></p></div>
+  <div class="buy-in" style="padding:0 var(--gutter);"><div class="ord-done" id="ordDone" hidden style="margin:12px 0 0;"><b>Order received</b><p id="ordDoneText"></p></div></div>
   <div class="buy-stage" id="configure">
     <div class="buy-visual" id="buyGallery">
       <div class="buy-visual-in">
@@ -306,15 +290,8 @@
   <div class="dlv-grid" id="dlvGrid"></div>
 </div></section>
 
-<section class="buy-sec is-alt" id="compare"><div class="buy-in">
-  <h2 class="buy-h2">Which MABEL.</h2>
-  <p class="buy-sub">The four bodies side by side, and the three ways to get one. Prices are before an end effector, compute upgrades and sensors.</p>
-  <div class="cmp-pick"><label for="cmpSel">Show</label><select id="cmpSel" aria-label="Configuration to show"></select></div>
-  <table class="cmp-table" id="cmpTable"></table>
-  <div class="ways" id="ways"></div>
-</div></section>
 
-<section class="buy-sec" id="parts"><div class="buy-in">
+<section class="buy-sec is-alt" id="parts"><div class="buy-in">
   <h2 class="buy-h2">Parts and accessories.</h2>
   <p class="buy-sub">Every line of the bill of materials at list, plus assembled arms and hands and the printed sets. Replace anything, upgrade anything.</p>
   <div class="parts-bar">
@@ -326,16 +303,23 @@
   <p class="parts-note" id="partsNote"></p>
 </div></section>
 
-<section class="buy-sec is-alt" id="faq"><div class="buy-in">
-  <h2 class="buy-h2">The fine print.</h2>
-  <p class="buy-sub">Short, because there is not much of it.</p>
-  <div class="ord-faq">
-    <div><b>Paying</b><p>Checkout runs on Stripe. Pay in full, or reserve a robot with a 10% deposit and settle the balance by invoice before it ships. Prices in US dollars.</p></div>
-    <div><b>Shipping and duties</b><p>Robots ship crated by freight, quoted after checkout. Parts ship by courier. Import duties and taxes are the buyer's.</p></div>
-    <div><b>Warranty</b><p>Twelve months on assembled robots and on every part we make; pass-through parts carry their vendor's warranty. Crash damage is not covered, but every part to fix it is on this page.</p></div>
-    <div><b>Upgrades later</b><p>Every option is also a spare part, so a Pi today can become a Jetson next year, and grippers can become hands.</p></div>
-    <div><b>Support</b><p>The wiki, the community page, and the people who built it. The design is open, so nothing is hidden from you.</p></div>
-    <div><b>Returns</b><p>Unopened parts within 30 days. A robot is built to your configuration, so the deposit is refundable until the build starts.</p></div>
+<section class="buy-sec" id="faq"><div class="buy-in">
+  <h2 class="faq-k">FAQ</h2>
+  <div class="faq-list">
+    <details><summary>What is MABEL?</summary><p>MABEL is a mobile bimanual robot: a holonomic swerve base, a 0.635 m lift, a torso, two 7-DOF arms, a 3-DOF head and, as standard, two 17-DOF ORCA hands, for 56 functional degrees of freedom. The hardware and software are released under the MIT licence, and the robot you buy is the platform described in the paper.</p></details>
+    <details><summary>What can MABEL do today?</summary><p>It can be teleoperated from a Vision Pro, an iPhone, a browser or a gamepad; record demonstrations to LeRobot datasets; map and navigate a space with a lidar through SLAM and Nav2; and run trained policies on its on-board compute. A MuJoCo twin of the whole robot ships with it, so work can start before the crate arrives.</p></details>
+    <details><summary>How big is MABEL?</summary><p>The base is 0.49 m across. The lift travels 0.635 m, placing the shoulders anywhere from table height to above a standard counter, and the arms span 2.23 m fingertip to fingertip. Power comes from two on-board battery packs on 24 V and 12 V rails.</p></details>
+    <details><summary>Is MABEL safe around people?</summary><p>A hardware E-stop de-energises every actuator independently of the computer, every command path is covered by a watchdog, and a tip-over model bounds the base's motion by the robot's centre of mass. The arms are back-drivable with torque limits. MABEL is a research platform rather than a certified consumer product, and it should be operated under supervision as described in the safety chapter of the wiki.</p></details>
+    <details><summary>What is in the box?</summary><p>An assembled robot arrives calibrated and burn-in tested, with the compute and sensors you chose fitted, two battery packs and a charger, the hardware E-stop, a USB-CAN bench adapter and its calibration report. A kit contains every plate, extrusion and printed part, the actuators with their bus addresses set, the harness and boards, the compute and sensors, fasteners bagged by chapter, and a printed build guide. The full lists are shown above.</p></details>
+    <details><summary>When will it ship?</summary><p>A parts kit ships in about two weeks. An assembled robot is built, calibrated and burn-in tested before it ships, which takes about a month. Spare parts ship within a few days. Every order can be followed from your account.</p></details>
+    <details><summary>How do I pay?</summary><p>Checkout is handled by Stripe. You can pay in full, or reserve a robot with a 10% deposit and settle the balance by invoice before it ships. All prices are in US dollars.</p></details>
+    <details><summary>How is it delivered, and who pays duties?</summary><p>Robots ship crated by freight; the freight cost is quoted after checkout. Parts ship by tracked courier. Import duties and local taxes are the responsibility of the buyer.</p></details>
+    <details><summary>What does the warranty cover?</summary><p>Assembled robots and every part manufactured by us are covered for twelve months. Pass-through components such as actuators, cameras and computers carry their manufacturer's warranty. Damage from collisions is not covered, but every part needed for a repair is available on this page.</p></details>
+    <details><summary>Is there a return policy?</summary><p>Unopened parts can be returned within 30 days of delivery. A robot is built to your configuration, so its deposit is refundable until the build begins.</p></details>
+    <details><summary>Can I upgrade MABEL later?</summary><p>Yes. Every option in the configurator is also sold as a part, so compute, sensors and end effectors can be changed after purchase. The design is open, and nothing on the robot is sealed.</p></details>
+    <details><summary>Do I need a Vision Pro?</summary><p>No. The iPhone app, the browser control centre, a gamepad and the keyboard all drive the robot. A Vision Pro adds whole-body teleoperation, with the operator's arms, hands and head mapped to the robot's.</p></details>
+    <details><summary>Can I build MABEL myself?</summary><p>Yes. The plans, the bill of materials with every vendor named and the illustrated build guide are free, and any part you would rather not source is available here. A kit contains everything already cut, printed and flashed.</p></details>
+    <details><summary>What support is included?</summary><p>The wiki, the community page and the people who designed the robot. Because the design is open, there is no part of the hardware or software you cannot inspect or change.</p></details>
   </div>
 </div></section>
 
