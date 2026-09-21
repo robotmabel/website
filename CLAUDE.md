@@ -17,9 +17,12 @@ generated**: `assets/data/harness.json` comes from `scripts/build_harness.py`,
 which reads `claude_harness/data/commands.yaml` in the repo root. Never type a
 command into the page; edit the registry and re-run the script.
 
-`order.html` is the store: three ways to get a robot (build / kit / assembled),
-an Apple-style four-step configurator (body, compute, sensors, end effector), the
-spare-parts list, a cart, accounts and Stripe checkout. **Every price is
+`order.html` is the store, laid out like Apple's buy page: a photo gallery on
+the left, the picks on the right ONE AT A TIME — how it ships, body, compute,
+each sensor, end effector — with every later step grey until the earlier one
+is made, a sticky total bar that rides the configurator only, then what's in
+the box, delivery, a comparison of the four bodies and the three ways, a
+compact Bambu-style parts grid, a cart drawer and an account sheet. **Every price is
 generated**: `assets/data/order.json` comes from `scripts/build_order.py`, which
 prices the BOM (`BOM/data/*.csv`) with the margin rule in that script and writes
 the internal margin table to `commerce/pricing_report.md`. Never type a price
@@ -99,11 +102,23 @@ in its docstring. `scripts/run_all.sh` runs the lot.
 | `wikitest.py` | `docs/` stays the site's ground and faces, and its links resolve |
 | `hxtest.py` | the harness page renders exactly the registry's commands, and its filters, search and badges work |
 | `build_harness.py --check` | the page's data has drifted from the repo's command registry |
-| `ordertest.py` | the store: DOM totals equal the SERVER's pricing, gating hides what does not fit, the cart and deposit maths, a loud failure when checkout is unreachable, and the PHONE layout — no overflow at 390/360, 44 px tap targets, the sticky bar and dock never overlap |
+| `ordertest.py` | the store: one open step at a time, DOM totals equal the SERVER's pricing, a body hides the steps that do not fit, the share link opens fully picked, the gallery, box, delivery and comparison render, the parts grid previews and expands, the cart and deposit maths, a loud failure when checkout is unreachable, the account sheet's validation and code path, and the PHONE layout — no overflow at 390/360, 44 px tap targets, a two-column comparison with a picker, the bar riding the configurator only |
+| `navfit.py` | the nav bar FITS at 1200–1680 px (the logo once hung off its left edge), the wordmark clears the first link, and the top-right store dock never sits on the bar or the burger |
 | `build_order.py --check` | the catalog has drifted from the pricing rule |
 
 Each takes its own debugger port and profile — they used to collide and one
 would die mid-run, which looked like a real failure.
+
+## The nav has three widths
+
+The bar is 1245 px at full size. Below 1500 px it tightens, below 1400 px it
+hugs the left edge, and below 1260 px the burger takes over — because the
+store dock (account + cart) sits at the top right on its own, and a centred
+flex pill that outgrows the viewport spills out of BOTH ends, logo first.
+`navfit.py` measures every case. Its buttons: **DIY guide** (`.nav-cta`, to the
+wiki) and **BUY ONE NOW!** (`.nav-build`, the one `--pop`, to `order.html`).
+`assets/store-nav.js` paints the dock's cart count and signed-in dot on every
+page from the same localStorage the order page writes.
 
 ## Assets are GENERATED. Do not hand-edit them.
 

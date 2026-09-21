@@ -253,8 +253,81 @@ def main(check=False):
     groups = ["Mobile base", "Body / torso", "Arms - both", "Hands - both", "Neck / head", "Structural hardware",
               "Electronics, power & cabling", "3D printed material", "Compute", "Sensors"]
 
+    # ── the page's other sections, as data: what's in the box, delivery, the
+    #    comparison tables. Specs come from assets/data/hw-modules.json (rendered
+    #    from the MJCF and the BOM) so the chart never drifts from the hardware page.
+    hw = {m["id"]: dict(m["specs"]) for m in json.loads((SITE / "assets" / "data" / "hw-modules.json").read_text())["modules"]}
+    span = hw["arms"]["Reach"].split("fingertip")[0].strip().replace("0 – ", "")
+    foot = hw["base"]["Footprint"]
+    stroke = hw["lift"]["Stroke"].split(" (")[0]
+    box = {
+        "assembled": [
+            {"t": "The robot, assembled and calibrated", "s": "Every joint zeroed, the hands tuned, the whole-body controller burned in.", "img": "assets/hw/body-sm.png"},
+            {"t": "Your compute, fitted", "s": "Flashed with the stack and the studios, on the tray.", "img": "assets/hw/electronics-sm.png"},
+            {"t": "Your sensors, fitted", "s": "Mounted, cabled and calibrated to the head and wrists.", "img": "assets/hw/sensors-sm.png"},
+            {"t": "Batteries and charger", "s": "Two packs, the mains charger and the power cord."},
+            {"t": "Hardware E-stop", "s": "De-energises every actuator, independently of the host."},
+            {"t": "USB-CAN bench adapter", "s": "For bring-up and calibration at a desk."},
+            {"t": "Calibration report", "s": "The numbers this robot shipped with."},
+            {"t": "Quick-start card", "s": "Power on, connect the app, drive — and the wiki for the rest."},
+        ],
+        "kit": [
+            {"t": "Sheet metal and extrusion, cut", "s": "Every plate bent and tapped, every extrusion cut to length.", "img": "assets/hw/base-sm.png"},
+            {"t": "Every printed part", "s": "Shells, mounts, hand frames — printed and cleaned.", "img": "assets/hw/hands-sm.png"},
+            {"t": "Actuators, pre-addressed", "s": "Arm, torso, neck and hand actuators with their bus IDs set.", "img": "assets/hw/arms-sm.png"},
+            {"t": "Harness, boards, batteries", "s": "The two rails, the network spine, both Teensys flashed."},
+            {"t": "Your compute and sensors", "s": "In the box, with their mounts and cables."},
+            {"t": "Fasteners, bagged by chapter", "s": "Each bag matches a chapter of the assembly guide."},
+            {"t": "Hardware E-stop", "s": "Fit it first."},
+            {"t": "Printed build guide", "s": "The wiki's assembly, electronics and bring-up chapters, on paper."},
+        ],
+    }
+    delivery = [
+        {"t": "Parts kit", "s": "Ships in about a week by tracked courier, in one crate and a few boxes.", "k": "~1 week"},
+        {"t": "Assembled robot", "s": "Built, calibrated and burn-in tested in about a week, then crated freight. Freight is quoted after checkout.", "k": "~1 week + freight"},
+        {"t": "Spare parts", "s": "A few days by courier. Pass-through parts follow their vendor's stock.", "k": "days"},
+    ]
+    def rp(r, t):
+        return f"${r['price'][t]:,}" + ("" if r["id"] == "base" else " + hands")
+    compare = {
+        "cols": [r["name"] for r in robots], "ids": [r["id"] for r in robots],
+        "rows": [
+            ["Arms", "2 × 7-DOF, " + hw["arms"]["Rate"].split(",")[0], "2 × 7-DOF", "2 × 7-DOF", "—"],
+            ["Hands", "ORCA 17-DOF pair, or grippers", "ORCA pair, or grippers", "ORCA pair, or grippers", "—"],
+            ["Head", "3-DOF, stereo camera", "3-DOF, stereo camera", "3-DOF, stereo camera", "—"],
+            ["Lift", stroke + " stroke", "Fixed column", "Bench fixture", "—"],
+            ["Base", "3-module holonomic swerve", "3-module holonomic swerve", "—", "3-module holonomic swerve"],
+            ["Fingertip span", span, span, span, "—"],
+            ["Footprint", foot, foot, "Bench", foot],
+            ["Compute", "Pi 5 to AGX Thor", "Pi 5 to AGX Thor", "Pi 5 to AGX Thor", "Pi 5 to AGX Thor"],
+            ["Sensors", "Wrist, head, lidar, base camera", "Wrist, head, lidar, base camera", "Wrist, head", "Lidar, base camera"],
+            ["Assembled", *[rp(r, "assembled") for r in robots]],
+            ["Kit", *[rp(r, "kit") for r in robots]],
+        ],
+        "ways": {"cols": ["Build from source", "Parts kit", "Assembled & tested"], "rows": [
+            ["What you get", "The plans, the BOM, the software", "Every part, cut, printed and flashed", "A calibrated, tested robot"],
+            ["Your time", "About a week, plus sourcing", "About a week", "None"],
+            ["Calibration", "You", "You, with the guide", "Done"],
+            ["Burn-in", "—", "—", "Done"],
+            ["Warranty", "—", "12 months on parts we make", "12 months"],
+            ["Price", "$0 · $8,722–$15,129 in parts", "From $15,000", "From $25,000"],
+        ]},
+    }
+    gallery = [
+        {"src": "assets/wild/hero-photo.jpg", "cap": "MABEL v1.0, as built", "key": "photo"},
+        {"src": "assets/hw/body.png", "cap": "Torso, arms and head", "key": "body"},
+        {"src": "assets/hw/base.png", "cap": "Holonomic swerve base", "key": "base"},
+        {"src": "assets/hw/hands.png", "cap": "ORCA hands, 17 DOF each", "key": "hands"},
+        {"src": "assets/hw/arms.png", "cap": "7-DOF arm", "key": "arms"},
+        {"src": "assets/hw/head.png", "cap": "3-DOF head", "key": "head"},
+        {"src": "assets/hw/lift.png", "cap": stroke + " lift", "key": "lift"},
+        {"src": "assets/hw/sensors.png", "cap": "Sensors", "key": "sensors"},
+        {"src": "assets/hw/electronics.png", "cap": "Compute and power", "key": "electronics"},
+        {"src": "assets/hw/exploded.webp", "cap": "Every part, exploded", "key": "exploded"},
+    ]
     catalog = {
         "generated_by": "website/scripts/build_order.py", "price_date": summary["price_date"],
+        "box": box, "delivery": delivery, "compare": compare, "gallery": gallery,
         "currency": "usd", "api": API, "deposit_fraction": DEPOSIT, "kit_factor": KIT_FACTOR,
         "tiers": [
             {"id": "assembled", "name": "Assembled & tested", "short": "Assembled",

@@ -4,183 +4,167 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#151820" />
-<title>MABEL — Order</title>
-<meta name="description" content="Order a MABEL: build it from the open plans, take the parts kit from $15,000, or have it assembled and tested from $25,000. Configure the body, compute, sensors and end effector, and order any spare part." />
+<title>MABEL — Buy</title>
+<meta name="description" content="Buy MABEL: a parts kit from $15,000 or an assembled, tested robot from $25,000. Pick how it ships, the body, the compute, the sensors and the end effector; see what is in the box, delivery, and a comparison of every configuration. Spare parts for every line of the BOM." />
 <link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
 <link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=d3ed04f8" />
+<link rel="stylesheet" href="assets/mabel.css?v=7df64b56" />
 <script>document.documentElement.classList.add('js');</script>
 <style>
-  /* ── Order page. Every class is prefixed (.ord- .cfg- .parts- .cart- .acct-)
-     and none of them is a utility name: see csscheck.py. ── */
-  .ord-ways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  .ord-way { background: var(--panel); border: var(--line-w) solid var(--ink); border-radius: 14px;
-    box-shadow: var(--glass-sh); padding: 26px 24px 24px; display: flex; flex-direction: column; gap: 10px; position: relative; }
-  .ord-way.is-lead { border-width: 3px; }
-  .ord-way-k { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hi); }
-  .ord-way h3 { font-family: var(--font-head); font-weight: 700; font-size: clamp(22px, 2vw, 28px); letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
-  .ord-way-price { font-family: var(--font-mono); font-size: 14px; color: var(--ink); display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
-  .ord-way-price b { font-family: var(--font-display); font-size: 30px; font-weight: 400; color: var(--rust); letter-spacing: 0.01em; }
-  .ord-way p { font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0; flex: 1; }
-  .ord-way ul { margin: 4px 0 8px; padding-left: 18px; font-size: 14px; line-height: 1.6; color: var(--ink-soft); }
-  .ord-way .btn { align-self: flex-start; margin-top: 6px; }
-  .ord-flag { position: absolute; top: -14px; right: 18px; background: var(--pop); color: var(--ink); border: 2px solid var(--ink);
-    border-radius: 8px; padding: 5px 10px 3px; font-family: var(--font-comic); font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; box-shadow: 3px 3px 0 rgba(21,24,32,0.9); }
-  @media (max-width: 880px) { .ord-ways { grid-template-columns: 1fr; gap: 22px; } }
-
-  .ord-claims { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 8px; }
-  .ord-claim { border-top: 3px solid var(--ink); padding-top: 16px; }
-  .ord-claim b { display: block; font-family: var(--font-head); font-weight: 700; font-size: 18px; letter-spacing: -0.01em; margin-bottom: 6px; }
-  .ord-claim p { font-size: 14px; line-height: 1.6; color: var(--ink-soft); margin: 0; }
-  @media (max-width: 880px) { .ord-claims { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 520px) { .ord-claims { grid-template-columns: 1fr; } }
-
-  /* ── configurator ── */
-  .cfg { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: clamp(24px, 3.5vw, 56px); align-items: start; }
-  .cfg-tier { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: var(--line-w) solid var(--ink); border-radius: 12px; overflow: hidden;
-    background: var(--panel); box-shadow: 4px 4px 0 rgba(21,24,32,0.9); margin-bottom: 30px; }
-  .cfg-tier button { font-family: var(--font-head); font-weight: 600; font-size: 15px; padding: 14px 12px; border: 0; background: transparent; color: var(--ink);
-    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 64px; transition: background 0.15s ease, color 0.15s ease; }
-  .cfg-tier button + button { border-left: var(--line-w) solid var(--ink); }
-  .cfg-tier button small { font-family: var(--font-mono); font-size: 11px; opacity: 0.75; letter-spacing: 0.02em; }
-  .cfg-tier button[aria-checked="true"] { background: var(--ink); color: var(--bone); }
-  .cfg-step { margin-bottom: 40px; }
-  .cfg-step-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
-  .cfg-step-num { font-family: var(--font-comic); font-size: 15px; letter-spacing: 0.12em; color: var(--hi); }
-  .cfg-step-head h3 { font-family: var(--font-head); font-weight: 700; font-size: clamp(22px, 2vw, 28px); letter-spacing: -0.02em; margin: 0; }
-  .cfg-step-head span { font-size: 14px; color: var(--ash); }
-  .cfg-grp { margin-top: 22px; }
-  .cfg-grp-title { font-family: var(--font-head); font-weight: 700; font-size: 16px; margin: 0 0 3px; }
-  .cfg-grp-note { font-size: 13px; color: var(--ash); margin: 0 0 10px; }
-  .cfg-skip { font-family: var(--font-mono); font-size: 12px; color: var(--ash); border: 1.5px dashed rgba(21,24,32,0.35); border-radius: 10px; padding: 12px 14px; }
-  .cfg-opts { display: grid; gap: 10px; }
-  .cfg-opt { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; text-align: left; width: 100%; -webkit-tap-highlight-color: transparent;
-    background: var(--panel); border: var(--line-w) solid rgba(21,24,32,0.55); border-radius: 12px; padding: 14px 16px; min-height: 64px;
-    cursor: pointer; font: inherit; color: var(--ink); transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s var(--ease-out); }
-  .cfg-opt:hover { border-color: var(--ink); }
-  .cfg-opt[aria-checked="true"] { border-color: var(--ink); border-width: 3px; padding: 13px 15px; box-shadow: 4px 4px 0 rgba(21,24,32,0.9); }
-  .cfg-opt:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
-  .cfg-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ink); background: var(--panel); position: relative; flex: none; }
-  .cfg-opt[aria-checked="true"] .cfg-radio::after { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: var(--hi); }
-  .cfg-opt-body { min-width: 0; }
-  .cfg-opt-name { font-family: var(--font-head); font-weight: 700; font-size: 16px; line-height: 1.25; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
-  .cfg-tag { font-family: var(--font-comic); font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 6px; padding: 2px 6px 1px; }
-  .cfg-opt-spec { font-size: 13.5px; line-height: 1.5; color: var(--ash); margin-top: 3px; }
-  .cfg-opt-price { font-family: var(--font-mono); font-size: 14px; white-space: nowrap; color: var(--ink); text-align: right; }
-  .cfg-opt-price.is-zero { color: var(--ash); }
-  .cfg-opt-img { width: 72px; height: 54px; object-fit: cover; border-radius: 8px; border: 1.5px solid rgba(21,24,32,0.5); background: var(--paper-2); }
-  .cfg-opt.has-img { grid-template-columns: auto auto minmax(0, 1fr) auto; }
-
-  .cfg-aside { position: sticky; top: 92px; }
-  .cfg-sum { background: var(--panel); border: 3px solid var(--ink); border-radius: 14px; box-shadow: 6px 6px 0 rgba(21,24,32,0.9); overflow: hidden; }
-  .cfg-sum-img { aspect-ratio: 4 / 3; background: var(--paper-2); border-bottom: var(--line-w) solid var(--ink); display: grid; place-items: center; overflow: hidden; }
-  .cfg-sum-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .cfg-sum-body { padding: 18px 20px 20px; }
-  .cfg-sum-k { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hi); margin-bottom: 8px; }
-  .cfg-sum-lines { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 6px; }
-  .cfg-sum-lines li { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; line-height: 1.4; color: var(--ink-soft); }
-  .cfg-sum-lines li span:last-child { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; color: var(--ink); }
-  .cfg-sum-total { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px solid var(--ink); padding-top: 12px; margin-bottom: 4px; }
-  .cfg-sum-total b { font-family: var(--font-display); font-size: 32px; font-weight: 400; color: var(--rust); }
-  .cfg-sum-total span { font-family: var(--font-mono); font-size: 12px; color: var(--ash); }
-  .cfg-sum-lead { font-size: 13px; color: var(--ash); margin: 0 0 14px; line-height: 1.5; }
-  .cfg-sum .btn { width: 100%; justify-content: center; min-height: 46px; }
-  .ord-way .btn, .cart-foot .btn, .acct .btn { min-height: 46px; }
-  .cfg-sum-share { margin-top: 10px; display: flex; gap: 10px; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--ash); }
-  .cfg-sum-share button { font: inherit; color: var(--blue); background: none; border: 0; padding: 0 4px; cursor: pointer; text-decoration: underline; min-height: 44px; }
-  .cfg-bar { display: none; }
+  /* ── Buy page. Prefixes: .buy- .box- .dlv- .cmp- .ways- .parts- .cart- .acct- .ord- ── */
+  .page-hero.is-short { padding-bottom: clamp(28px, 4vh, 44px); }
+  .buy { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); align-items: start; }
+  .buy-gallery { position: sticky; top: 92px; }
+  .buy-slide { position: relative; aspect-ratio: 4 / 3; background: var(--paper); border: 3px solid var(--ink); border-radius: 16px; overflow: hidden; box-shadow: 6px 6px 0 rgba(21,24,32,0.9); }
+  .buy-slide img { width: 100%; height: 100%; object-fit: cover; display: block; background: var(--paper-2); }
+  .buy-slide img.is-contain { object-fit: contain; padding: 4%; box-sizing: border-box; }
+  .buy-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--ink); background: var(--panel); color: var(--ink);
+    font-size: 26px; line-height: 1; cursor: pointer; box-shadow: 3px 3px 0 rgba(21,24,32,0.9); display: grid; place-items: center; padding: 0 0 3px; }
+  .buy-arrow:hover { background: var(--pop); }
+  .buy-prev { left: 12px; } .buy-next { right: 12px; }
+  .buy-strip { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+  .buy-dots { display: flex; gap: 0; flex-wrap: wrap; margin-left: -8px; }
+  .buy-dots button { width: 28px; height: 28px; border-radius: 50%; border: 0; background: transparent; padding: 0; cursor: pointer; display: grid; place-items: center; }
+  .buy-dots button::before { content: ''; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ink); background: var(--panel); }
+  .buy-dots button[aria-selected="true"]::before { background: var(--hi); }
+  .buy-cap { font-family: var(--font-mono); font-size: 12px; color: var(--ash); text-align: right; }
+  .buy-steps { display: grid; gap: 34px; padding-bottom: 96px; }
+  .buy-step { transition: opacity 0.25s ease; }
+  .buy-step[data-state="locked"] { opacity: 0.42; }
+  .buy-step-head { margin-bottom: 12px; }
+  .buy-step-head h3 { font-family: var(--font-head); font-weight: 700; font-size: clamp(22px, 2vw, 28px); letter-spacing: -0.02em; line-height: 1.1; margin: 0 0 4px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .buy-step-head h3 span { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.12em; color: var(--hi); text-transform: uppercase; }
+  .buy-step-q { font-size: 15px; color: var(--ash); margin: 0; }
+  .buy-step-lock { font-family: var(--font-mono); font-size: 12px; color: var(--ash); border: 1.5px dashed rgba(21,24,32,0.35); border-radius: 12px; padding: 14px 16px; }
+  .buy-opts { display: grid; gap: 10px; }
+  .buy-opt { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; align-items: center; text-align: left; width: 100%; -webkit-tap-highlight-color: transparent;
+    background: var(--panel); border: 2px solid rgba(21,24,32,0.45); border-radius: 14px; padding: 15px 18px; min-height: 64px; cursor: pointer; font: inherit; color: var(--ink);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+  .buy-opt:hover { border-color: var(--ink); }
+  .buy-opt[aria-checked="true"] { border-color: var(--ink); border-width: 3px; padding: 14px 17px; box-shadow: 4px 4px 0 rgba(21,24,32,0.9); }
+  .buy-opt:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .buy-opt-name { font-family: var(--font-head); font-weight: 700; font-size: 16.5px; line-height: 1.25; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+  .buy-tag { font-family: var(--font-comic); font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 6px; padding: 2px 6px 1px; }
+  .buy-opt-spec { font-size: 13.5px; line-height: 1.5; color: var(--ash); margin-top: 3px; }
+  .buy-opt-price { font-family: var(--font-mono); font-size: 14px; white-space: nowrap; text-align: right; color: var(--ink); }
+  .buy-opt-price.is-zero { color: var(--ash); }
+  .buy-bar { position: fixed; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 90; width: min(1100px, calc(100% - 20px));
+    transform: translate(-50%, calc(100% + 30px)); transition: transform 0.3s var(--ease-out); background: var(--panel); border: 2px solid var(--ink); border-radius: 14px; box-shadow: 6px 6px 0 rgba(21,24,32,0.9); }
+  .buy-bar.is-on { transform: translate(-50%, 0); }
+  .buy-bar-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px 12px 20px; }
+  .buy-bar-txt { min-width: 0; }
+  .buy-bar-txt b { display: block; font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hi); }
+  .buy-bar-txt span { display: block; font-size: 13px; color: var(--ash); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .buy-bar-right { display: flex; align-items: center; gap: 16px; flex: none; }
+  .buy-bar-price { font-family: var(--font-display); font-size: 26px; color: var(--rust); white-space: nowrap; }
+  .buy-bar .btn { min-height: 46px; }
+  .buy-bar .btn[disabled] { opacity: 0.45; cursor: not-allowed; transform: none; }
   @media (max-width: 980px) {
-    .cfg { grid-template-columns: 1fr; }
-    .cfg-aside { position: static; }
-    .cfg-sum-img { aspect-ratio: 16 / 7; }
-    body.has-cfg-bar { padding-bottom: 76px; }
-    .cfg-bar { display: flex; position: fixed; left: 10px; right: 10px; bottom: max(10px, env(safe-area-inset-bottom)); z-index: 90; height: 68px; box-sizing: border-box;
-      transform: translateY(calc(100% + 24px)); transition: transform 0.25s var(--ease-out); }
-    .cfg-bar.is-on { transform: none; }
-      background: var(--panel); border: var(--line-w) solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 rgba(21,24,32,0.9);
-      padding: 10px 12px 10px 16px; align-items: center; gap: 12px; justify-content: space-between; }
-    .cfg-bar b { font-family: var(--font-display); font-size: 24px; font-weight: 400; color: var(--rust); }
-    .cfg-bar small { display: block; font-family: var(--font-mono); font-size: 10.5px; color: var(--ash); letter-spacing: 0.04em; }
-    .cfg-bar .btn { padding: 0 16px; font-size: 14px; min-height: 44px; }
+    .buy { grid-template-columns: 1fr; }
+    .buy-gallery { position: static; }
+    .buy-bar-txt { display: none; }
+    .buy-bar-in { padding: 10px 12px 10px 16px; justify-content: space-between; }
+    .buy-bar-right { width: 100%; justify-content: space-between; }
+    .buy-bar-price { font-size: 24px; }
+    .buy-steps { padding-bottom: 80px; }
   }
   @media (max-width: 560px) {
-    .cfg-opt { grid-template-columns: auto minmax(0, 1fr); padding: 14px 14px; }
-    .cfg-opt[aria-checked="true"] { padding: 13px 13px; }
-    .cfg-opt.has-img { grid-template-columns: auto auto minmax(0, 1fr); }
-    .cfg-opt-img { width: 56px; height: 44px; }
-    .cfg-opt-price { grid-column: 2 / -1; text-align: left; margin-top: 2px; }
-    .cfg-opt.has-img .cfg-opt-price { grid-column: 3 / -1; }
-    .cfg-tier button { font-size: 14px; padding: 12px 8px; min-height: 52px; }
-    .cfg-tier button small { display: none; }
+    .buy-opt { grid-template-columns: 1fr; padding: 14px 15px; }
+    .buy-opt[aria-checked="true"] { padding: 13px 14px; }
+    .buy-opt-price { text-align: left; }
+    .buy-slide { border-radius: 12px; }
   }
 
-  /* ── spare parts ── */
-  .parts-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 22px; }
-  .parts-search { flex: 1 1 260px; min-width: 0; font: inherit; font-size: 15px; padding: 12px 14px; border-radius: 10px; min-height: 46px;
-    background: rgba(253,246,226,0.06); color: var(--bone); border: var(--line-w) solid rgba(217,161,63,0.55); }
+  .box-tabs { display: inline-flex; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; background: var(--panel); margin-bottom: 22px; }
+  .box-tabs button { font: inherit; font-weight: 600; font-size: 14px; padding: 0 16px; min-height: 44px; border: 0; background: transparent; cursor: pointer; color: var(--ink); }
+  .box-tabs button + button { border-left: 2px solid var(--ink); }
+  .box-tabs button[aria-selected="true"] { background: var(--ink); color: var(--bone); }
+  .box-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .box-tile { background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; padding: 14px 14px 16px; box-shadow: 4px 4px 0 rgba(21,24,32,0.9); display: grid; gap: 8px; align-content: start; }
+  .box-tile img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; border: 1.5px solid rgba(21,24,32,0.4); background: var(--paper-2); }
+  .box-tile .box-ph { width: 100%; aspect-ratio: 4 / 3; border-radius: 8px; border: 1.5px dashed rgba(21,24,32,0.35); display: grid; place-items: center; font-family: var(--font-display); font-size: 34px; color: var(--ash-light); }
+  .box-tile b { font-family: var(--font-head); font-weight: 700; font-size: 15px; line-height: 1.25; }
+  .box-tile p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ash); }
+  @media (max-width: 980px) { .box-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .dlv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .dlv-tile { border-top: 3px solid var(--ink); padding-top: 14px; }
+  .dlv-tile b { display: block; font-family: var(--font-head); font-weight: 700; font-size: 18px; margin-bottom: 4px; }
+  .dlv-tile .dlv-k { font-family: var(--font-mono); font-size: 12px; color: var(--rust); margin-bottom: 8px; display: block; }
+  .dlv-tile p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--ink-soft); }
+  @media (max-width: 720px) { .dlv-grid { grid-template-columns: 1fr; } }
+
+  .cmp-pick { display: none; margin-bottom: 14px; align-items: center; gap: 10px; font-size: 14px; }
+  .cmp-pick select { font: inherit; font-size: 15px; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 2px solid var(--ink); background: var(--panel); color: var(--ink); }
+  .cmp-table { width: 100%; border-collapse: collapse; background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; overflow: hidden; box-shadow: 4px 4px 0 rgba(21,24,32,0.9); }
+  .cmp-table th, .cmp-table td { text-align: left; padding: 12px 14px; font-size: 14px; line-height: 1.45; border-bottom: 1.5px solid rgba(21,24,32,0.18); vertical-align: top; }
+  .cmp-table th { font-family: var(--font-head); font-weight: 700; font-size: 15px; background: var(--paper); }
+  .cmp-table th:first-child, .cmp-table td:first-child { font-family: var(--font-mono); font-size: 12px; color: var(--ash); width: 22%; letter-spacing: 0.04em; text-transform: uppercase; }
+  .cmp-table tr:last-child td { border-bottom: 0; }
+  .cmp-table td.is-price { font-family: var(--font-mono); font-weight: 700; }
+  @media (max-width: 720px) {
+    .cmp-pick { display: flex; }
+    .cmp-table th:not(:first-child):not(.is-shown), .cmp-table td:not(:first-child):not(.is-shown) { display: none; }
+    .cmp-table th:first-child, .cmp-table td:first-child { width: 38%; }
+  }
+  .ways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 34px; }
+  .ways-col { background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 rgba(21,24,32,0.9); overflow: hidden; }
+  .ways-col h4 { margin: 0; padding: 12px 14px; font-family: var(--font-head); font-weight: 700; font-size: 16px; background: var(--paper); border-bottom: 2px solid var(--ink); }
+  .ways-col.is-lead h4 { background: var(--yellow); }   /* narration yellow: the nav starburst is the one --pop on screen */
+  .ways-col dl { margin: 0; padding: 6px 14px 10px; }
+  .ways-col dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ash); margin-top: 10px; }
+  .ways-col dd { margin: 2px 0 0; font-size: 14px; line-height: 1.45; color: var(--ink-soft); }
+  @media (max-width: 720px) { .ways { grid-template-columns: 1fr; } }
+
+  .parts-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .parts-tabs { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; max-width: 100%; padding: 2px; }
+  .parts-tabs::-webkit-scrollbar { display: none; }
+  .parts-tab { flex: none; font-family: var(--font-mono); font-size: 12px; padding: 0 14px; min-height: 44px; border-radius: 999px; cursor: pointer;
+    background: transparent; color: var(--ash-light); border: 1.5px solid rgba(217,161,63,0.45); }
+  .parts-tab[aria-pressed="true"] { background: var(--gold); color: var(--ink); border-color: var(--gold); font-weight: 700; }
+  .parts-search { flex: 0 1 240px; min-width: 160px; font: inherit; font-size: 14px; padding: 9px 12px; border-radius: 10px; min-height: 44px;
+    background: rgba(253,246,226,0.06); color: var(--bone); border: 1.5px solid rgba(217,161,63,0.55); }
   .parts-search::placeholder { color: var(--ash-light); }
   .parts-search:focus { outline: none; border-color: var(--gold); }
-  .parts-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  @media (max-width: 720px) { .parts-chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 2px 0 6px; margin: 0 calc(-1 * var(--gutter)); padding-left: var(--gutter); padding-right: var(--gutter); } .parts-chips::-webkit-scrollbar { display: none; } .parts-chip { flex: none; } }
-  .parts-chip { font-family: var(--font-mono); font-size: 12px; padding: 8px 14px; min-height: 44px; border-radius: 999px; cursor: pointer;
-    background: rgba(253,246,226,0.06); color: var(--ash-light); border: 1.5px solid rgba(217,161,63,0.45); }
-  .parts-chip[aria-pressed="true"] { background: var(--gold); color: var(--ink); border-color: var(--gold); font-weight: 700; }
-  .parts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-  .parts-card { background: var(--glass-bg-d); border: var(--line-w) solid var(--glass-border-d); border-radius: 12px; padding: 16px 16px 14px;
-    box-shadow: var(--glass-sh-d); display: flex; flex-direction: column; gap: 6px; }
-  .parts-grp { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
-  .parts-name { font-family: var(--font-head); font-weight: 700; font-size: 16px; line-height: 1.25; color: var(--bone); }
-  .parts-spec { font-size: 13px; line-height: 1.5; color: var(--ash-light); flex: 1; }
-  .parts-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
-  .parts-price { font-family: var(--font-mono); font-size: 17px; color: var(--bone); }
-  .parts-price small { font-size: 11px; color: var(--ash-light); margin-left: 4px; }
-  .parts-qty { display: inline-flex; align-items: center; border: 1.5px solid rgba(217,161,63,0.6); border-radius: 8px; overflow: hidden; }
-  .parts-qty button { width: 44px; height: 44px; border: 0; background: transparent; color: var(--bone); font: inherit; font-size: 18px; cursor: pointer; }
-  .parts-qty output { min-width: 30px; text-align: center; font-family: var(--font-mono); font-size: 14px; color: var(--bone); }
-  .parts-add { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; background: var(--pop); color: var(--ink);
-    border: 2px solid var(--ink); border-radius: 9px; padding: 9px 16px 8px; min-height: 44px; cursor: pointer; box-shadow: 3px 3px 0 rgba(0,0,0,0.85); transition: transform 0.15s var(--ease-out), background 0.15s ease; }
+  .parts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .parts-card { background: var(--glass-bg-d); border: 1.5px solid var(--glass-border-d); border-radius: 12px; padding: 10px 10px 12px; display: grid; gap: 6px; align-content: start; }
+  .parts-card img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: var(--paper-2); }
+  .parts-name { font-family: var(--font-head); font-weight: 700; font-size: 14px; line-height: 1.25; color: var(--bone); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.5em; }
+  .parts-spec { font-size: 12px; line-height: 1.4; color: var(--ash-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .parts-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
+  .parts-price { font-family: var(--font-mono); font-size: 15px; color: var(--bone); }
+  .parts-add { font-family: var(--font-comic); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; background: var(--pop); color: var(--ink);
+    border: 2px solid var(--ink); border-radius: 8px; padding: 0 14px; min-height: 44px; cursor: pointer; box-shadow: 2px 2px 0 rgba(0,0,0,0.85); transition: transform 0.15s var(--ease-out), background 0.15s ease; }
   .parts-add:hover { background: var(--hi); color: #FFF6E4; transform: translate(-1px, -1px); }
-  .parts-empty { font-family: var(--font-mono); font-size: 13px; color: var(--ash-light); padding: 30px 0; }
-  .parts-note { font-family: var(--font-mono); font-size: 11.5px; color: var(--ash-light); margin-top: 22px; line-height: 1.6; }
+  .parts-more { text-align: center; margin-top: 18px; }
+  .parts-more button { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--bone); background: transparent; border: 2px solid var(--gold); border-radius: 10px; padding: 0 18px; min-height: 44px; cursor: pointer; }
+  .parts-more button:hover { background: rgba(217,161,63,0.15); }
+  .parts-empty { font-family: var(--font-mono); font-size: 13px; color: var(--ash-light); padding: 24px 0; grid-column: 1 / -1; }
+  .parts-note { font-family: var(--font-mono); font-size: 11.5px; color: var(--ash-light); margin-top: 18px; line-height: 1.6; }
+  @media (max-width: 980px) { .parts-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { .parts-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .parts-search { flex: 1 1 100%; } }
 
-  /* ── fine print ── */
-  .ord-faq { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 40px; }
+  .ord-faq { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px 32px; }
   .ord-faq div { border-top: 2px solid var(--ink); padding-top: 12px; }
-  .ord-faq b { display: block; font-family: var(--font-head); font-weight: 700; font-size: 16px; margin-bottom: 4px; }
-  .ord-faq p { font-size: 14px; line-height: 1.6; color: var(--ink-soft); margin: 0; }
+  .ord-faq b { display: block; font-family: var(--font-head); font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .ord-faq p { font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); margin: 0; }
   @media (max-width: 720px) { .ord-faq { grid-template-columns: 1fr; } }
 
-  /* ── dock: account + cart, fixed ── */
-  .ord-dock { position: fixed; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); z-index: 92; display: flex; gap: 10px; }
-  .ord-dock button { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px; border-radius: 12px; cursor: pointer;
-    font-family: var(--font-comic); font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; border: var(--line-w) solid var(--ink);
-    box-shadow: 4px 4px 0 rgba(21,24,32,0.9); transition: transform 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out), background 0.15s ease; }
-  .ord-dock button:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 rgba(21,24,32,0.9); }
-  .ord-dock svg { width: 18px; height: 18px; }
-  .ord-dock-acct { background: var(--panel); color: var(--ink); }
-  .ord-dock-cart { background: var(--hi); color: #FFF9F0; }
-  .ord-dock-cart:hover { background: var(--hi-deep); }
-  .ord-dock-n { min-width: 22px; height: 22px; border-radius: 11px; background: var(--pop); color: var(--ink); font-family: var(--font-mono); font-size: 12px; font-weight: 700;
-    display: inline-grid; place-items: center; padding: 0 5px; border: 1.5px solid var(--ink); }
-  .ord-dock-n[hidden] { display: none; }
-  @media (max-width: 980px) { body.has-cfg-bar.bar-on .ord-dock { bottom: calc(max(10px, env(safe-area-inset-bottom)) + 80px); } .ord-dock { transition: bottom 0.25s var(--ease-out); } }
-  @media (max-width: 560px) { .ord-dock button span.label { display: none; } .ord-dock button { padding: 0 13px; } }
-
-  /* ── cart drawer ── */
+  /* cart drawer */
   .cart-veil { position: fixed; inset: 0; background: rgba(21,24,32,0.55); z-index: 120; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s; }
   .cart-veil.is-open { opacity: 1; visibility: visible; }
   .cart { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100%); z-index: 121; background: var(--bone); border-left: 3px solid var(--ink);
-    transform: translateX(100%); transition: transform 0.3s var(--ease-out); display: flex; flex-direction: column; box-shadow: -6px 0 0 rgba(21,24,32,0.25); }
+    transform: translateX(100%); transition: transform 0.3s var(--ease-out); display: flex; flex-direction: column; }
   .cart.is-open { transform: none; }
   .cart-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 14px; border-bottom: 2px solid var(--ink); }
   .cart-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 26px; margin: 0; }
-  .cart-x { width: 44px; height: 44px; border-radius: 10px; border: var(--line-w) solid var(--ink); background: var(--panel); cursor: pointer; font-size: 20px; line-height: 1; color: var(--ink); }
+  .cart-x { width: 44px; height: 44px; border-radius: 10px; border: 2px solid var(--ink); background: var(--panel); cursor: pointer; font-size: 20px; line-height: 1; color: var(--ink); }
   .cart-list { flex: 1; overflow-y: auto; padding: 14px 20px; display: grid; gap: 12px; align-content: start; -webkit-overflow-scrolling: touch; }
-  .cart-item { background: var(--panel); border: var(--line-w) solid var(--ink); border-radius: 12px; padding: 12px 14px; display: grid; gap: 6px; }
+  .cart-item { background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; padding: 12px 14px; display: grid; gap: 6px; }
   .cart-item-name { font-family: var(--font-head); font-weight: 700; font-size: 15px; line-height: 1.3; }
   .cart-item-desc { font-size: 12.5px; line-height: 1.45; color: var(--ash); }
   .cart-item-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
@@ -191,15 +175,15 @@
   .cart-rm { font: inherit; font-size: 13px; color: var(--rust); background: none; border: 0; cursor: pointer; text-decoration: underline; padding: 0 4px; min-height: 44px; }
   .cart-empty { font-size: 14.5px; color: var(--ash); padding: 26px 4px; line-height: 1.6; }
   .cart-foot { border-top: 2px solid var(--ink); padding: 14px 20px calc(16px + env(safe-area-inset-bottom)); background: var(--paper); display: grid; gap: 10px; }
-  .cart-pay { display: grid; grid-template-columns: 1fr 1fr; border: var(--line-w) solid var(--ink); border-radius: 10px; overflow: hidden; background: var(--panel); }
+  .cart-pay { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; background: var(--panel); }
   .cart-pay button { font: inherit; font-size: 13px; font-weight: 600; padding: 9px 8px; min-height: 44px; border: 0; background: transparent; cursor: pointer; color: var(--ink); display: flex; flex-direction: column; gap: 2px; align-items: center; }
-  .cart-pay button + button { border-left: var(--line-w) solid var(--ink); }
+  .cart-pay button + button { border-left: 2px solid var(--ink); }
   .cart-pay button small { font-family: var(--font-mono); font-size: 10.5px; opacity: 0.75; }
   .cart-pay button[aria-checked="true"] { background: var(--ink); color: var(--bone); }
   .cart-sum { display: flex; justify-content: space-between; align-items: baseline; }
   .cart-sum b { font-family: var(--font-display); font-size: 28px; font-weight: 400; color: var(--rust); }
   .cart-sum span { font-family: var(--font-mono); font-size: 12px; color: var(--ash); }
-  .cart-foot .btn { width: 100%; justify-content: center; }
+  .cart-foot .btn { width: 100%; justify-content: center; min-height: 46px; }
   .cart-foot .btn[disabled] { opacity: 0.45; cursor: not-allowed; transform: none; }
   .cart-msg { font-size: 13px; line-height: 1.5; color: var(--ink-soft); border: 1.5px solid var(--ink); border-radius: 10px; padding: 10px 12px; background: var(--panel); }
   .cart-msg.is-err { border-color: var(--rust); color: var(--rust-dim); }
@@ -207,29 +191,32 @@
   .cart-acct { font-size: 12.5px; color: var(--ash); text-align: center; }
   .cart-acct button { font: inherit; color: var(--blue); background: none; border: 0; text-decoration: underline; cursor: pointer; padding: 0 4px; min-height: 44px; }
 
-  /* ── account sheet ── */
+  /* account sheet */
   .acct { position: fixed; inset: 0; z-index: 130; display: grid; place-items: center; padding: 16px; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s; background: rgba(21,24,32,0.55); }
   .acct.is-open { opacity: 1; visibility: visible; }
-  .acct-card { width: min(420px, 100%); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; background: var(--bone); border: 3px solid var(--ink); border-radius: 14px; box-shadow: 8px 8px 0 rgba(21,24,32,0.9); padding: 20px 22px 22px; }
+  .acct-card { width: min(440px, 100%); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; background: var(--bone); border: 3px solid var(--ink); border-radius: 14px; box-shadow: 8px 8px 0 rgba(21,24,32,0.9); padding: 20px 22px 22px; }
   .acct-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .acct-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 26px; margin: 0; }
-  .acct-tabs { display: grid; grid-template-columns: 1fr 1fr; border: var(--line-w) solid var(--ink); border-radius: 10px; overflow: hidden; margin-bottom: 16px; background: var(--panel); }
+  .acct-tabs { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; margin-bottom: 16px; background: var(--panel); }
   .acct-tabs button { font: inherit; font-weight: 600; font-size: 14px; min-height: 44px; border: 0; background: transparent; cursor: pointer; color: var(--ink); }
-  .acct-tabs button + button { border-left: var(--line-w) solid var(--ink); }
+  .acct-tabs button + button { border-left: 2px solid var(--ink); }
   .acct-tabs button[aria-selected="true"] { background: var(--ink); color: var(--bone); }
   .acct label { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ash); margin: 10px 0 5px; }
-  .acct input { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; min-height: 46px; border-radius: 10px; border: var(--line-w) solid var(--ink); background: var(--panel); color: var(--ink); }
+  .acct input { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; min-height: 46px; border-radius: 10px; border: 2px solid var(--ink); background: var(--panel); color: var(--ink); }
   .acct input:focus { outline: 3px solid var(--blue); outline-offset: 1px; }
-  .acct-err { color: var(--rust); font-size: 13px; margin-top: 10px; min-height: 18px; }
-  .acct .btn { width: 100%; justify-content: center; margin-top: 14px; }
-  .acct-me { font-size: 14px; line-height: 1.6; color: var(--ink-soft); }
+  .acct-hint { font-size: 13px; color: var(--ash); margin: 6px 0 0; line-height: 1.5; }
+  .acct-err { color: var(--rust); font-size: 13px; margin-top: 10px; min-height: 18px; line-height: 1.4; }
+  .acct .btn { width: 100%; justify-content: center; margin-top: 14px; min-height: 46px; }
+  .acct-me { font-size: 14px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 6px; }
   .acct-me b { font-family: var(--font-mono); word-break: break-all; }
-  .acct-orders { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+  .acct-h { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hi); margin: 18px 0 6px; }
+  .acct-orders { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
   .acct-orders li { background: var(--panel); border: 1.5px solid var(--ink); border-radius: 10px; padding: 10px 12px; font-size: 13px; display: grid; gap: 2px; }
   .acct-orders li span { font-family: var(--font-mono); font-size: 12px; color: var(--ash); }
-  .acct-orders .is-paid { color: var(--green); font-weight: 700; }
-  .acct-links { margin-top: 12px; display: flex; gap: 14px; font-size: 13px; }
-  .acct-links button { font: inherit; color: var(--blue); background: none; border: 0; text-decoration: underline; cursor: pointer; padding: 0 4px; min-height: 44px; }
+  .acct-orders .is-paid { color: var(--green); font-weight: 700; font-style: normal; }
+  .acct-links { margin-top: 10px; display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
+  .acct-links button { font: inherit; color: var(--blue); background: none; border: 0; text-decoration: underline; cursor: pointer; padding: 0 4px; min-height: 44px; text-align: left; }
+  .acct-links button[hidden] { display: none; }
 
   .ord-toast { position: fixed; left: 50%; top: calc(max(12px, env(safe-area-inset-top)) + 72px); transform: translate(-50%, -16px); z-index: 140; background: var(--ink); color: var(--bone);
     border: 2px solid var(--gold); border-radius: 10px; padding: 12px 18px; font-family: var(--font-head); font-weight: 600; font-size: 14px; opacity: 0; visibility: hidden;
@@ -239,7 +226,7 @@
   .ord-done[hidden] { display: none; }
   .ord-done b { font-family: var(--font-display); font-size: 24px; font-weight: 400; color: var(--green); display: block; margin-bottom: 4px; }
   .ord-done p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink-soft); }
-  @media (prefers-reduced-motion: reduce) { .cart, .cart-veil, .acct, .ord-toast, .cfg-opt, .ord-dock button { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .cart, .cart-veil, .acct, .ord-toast, .buy-opt, .buy-bar, .buy-step { transition: none; } }
 </style>
 </head>
 <body class="sec-page">
@@ -257,149 +244,106 @@
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="harness.html">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#what">What a harness is</a><a href="harness.html#registry">The registry</a><a href="harness.html#gates">Gates</a><a href="harness.html#surface">All 25 commands</a><a href="harness.html#limits">What it won’t do</a></div></div>
     <a href="connect.html">Links</a>
-    <a href="order.html" class="on">Order</a>
     <a href="index.html#paper" class="ext">Paper ↗</a>
-        <a href="docs/" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
-    <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
+        <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a href="order.html">Order</a><a href="index.html#paper" class="ext">Paper ↗</a>
-    <a href="docs/" class="nav-build" aria-label="Build one now"><span>BUILD<br/>ONE NOW!</span></a>
-    <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="nav-cta">Try the Control Center</a>
+  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
+    <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
 </nav>
+<div class="store-dock" id="storeDock" aria-label="Account and cart">
+  <a class="store-dock-btn" id="storeAcct" href="order.html?open=account" aria-label="Account" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
+  <a class="store-dock-btn" id="storeCart" href="order.html?open=cart" aria-label="Cart" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="store-dock-n" id="storeCartN" hidden>0</span></a>
+</div>
 
-<aside class="sidenav" aria-label="Order section navigation">
-  <div class="sidenav-title">Order</div>
-  <a href="#ways">Three ways</a><a href="#why">Why buy</a><a href="#configure">Configure</a>
-  <a href="#parts">Spare parts</a><a href="#faq">Fine print</a>
+<aside class="sidenav" aria-label="Buy section navigation">
+  <div class="sidenav-title">Buy</div>
+  <a href="#configure">Configure</a><a href="#box">In the box</a><a href="#delivery">Delivery</a>
+  <a href="#compare">Compare</a><a href="#parts">Parts</a><a href="#faq">Fine print</a>
 </aside>
 
-<section class="page-hero">
+<section class="page-hero is-short">
   <div class="page-hero-inner">
-    <div class="crumbs"><a href="index.html">Overview</a> / Order</div>
-    <span class="eyebrow">Order</span>
-    <h1 class="display-lg">Yours, in <span class="italic accent">a week.</span></h1>
-    <p class="lede">
-      Open hardware, three ways: build it from the plans for the cost of parts, take the kit and
-      assemble it in about a week, or have it built and tested. Every part stays orderable from
-      this page for the life of the robot.
-    </p>
-    <div class="spec" style="margin-top:28px;">
-      <span>Kit from $15,000</span><span>Assembled from $25,000</span><span>MIT-licensed, hardware and software</span><span>66 spare parts, in stock</span>
-    </div>
-    <div style="margin-top:22px; display:flex; gap:14px; flex-wrap:wrap;">
-      <a class="btn btn-primary" href="#configure">Configure yours</a>
-      <a class="btn btn-ghost" href="#parts">Spare parts</a>
+    <div class="crumbs"><a href="index.html">Overview</a> / Buy</div>
+    <span class="eyebrow">Buy</span>
+    <h1 class="display-lg">Buy <span class="italic accent">MABEL.</span></h1>
+    <p class="lede">Pick how it ships, then the body, the compute, the sensors and the hands, one at a time. The price follows every choice, and nothing is charged until checkout.</p>
+    <div class="spec" style="margin-top:24px;">
+      <span>Kit from $15,000</span><span>Assembled from $25,000</span><span>Ships in about a week</span><span>MIT-licensed, hardware and software</span>
     </div>
   </div>
 </section>
 
-<section class="pad-y" id="ways">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Three ways</span>
-        <h2 class="display-md title">Build it, kit it, or <span class="italic accent">have it built.</span></h2>
-      </div>
-      <p class="lede">The same robot at three points on the time-versus-money line. Whichever you pick, you get the whole design: the plans, the simulator, the apps, and the bill of materials with every vendor named.</p>
-    </div>
-    <div class="ord-ways">
-      <article class="ord-way fade-up">
-        <span class="ord-way-k">Build from source</span>
-        <h3>The plans, free.</h3>
-        <div class="ord-way-price"><b>$0</b><span>$8,722–$15,129 in parts</span></div>
-        <p>The wiki walks every step, the bill of materials names every vendor, and the illustrated guide builds it in about a week of evenings and a weekend.</p>
-        <ul><li>Fully itemised BOM with three builds costed</li><li>CAD, firmware, calibration, bring-up</li><li>Order any part you would rather not source below</li></ul>
-        <a class="btn btn-ghost" href="docs/">Open the build guide</a>
-      </article>
-      <article class="ord-way fade-up">
-        <span class="ord-way-k">Parts kit</span>
-        <h3>Everything in the box.</h3>
-        <div class="ord-way-price"><b>$15,000</b><span>complete robot, ORCA hands</span></div>
-        <p>Every part cut, printed, flashed and bagged by subsystem, with the actuators pre-addressed. You assemble it with the same guide, in about a week.</p>
-        <ul><li>Sheet metal, extrusion, printed parts, all fasteners</li><li>Motors, servos, harness, controllers, batteries</li><li>Raspberry Pi 5 and the standard cameras included</li></ul>
-        <button type="button" class="btn btn-primary" data-pick-tier="kit">Configure a kit</button>
-      </article>
-      <article class="ord-way is-lead fade-up">
-        <span class="ord-flag">Most complete</span>
-        <span class="ord-way-k">Assembled &amp; tested</span>
-        <h3>Drive it the day it arrives.</h3>
-        <div class="ord-way-price"><b>$25,000</b><span>complete robot, ORCA hands</span></div>
-        <p>Built by the people who designed it, calibrated joint by joint, and burn-in tested on the same teleop and autonomy stack the paper reports on.</p>
-        <ul><li>Calibration and hand tuning done</li><li>Burn-in on the whole-body controller</li><li>Same open design: nothing sealed, nothing locked</li></ul>
-        <button type="button" class="btn btn-primary" data-pick-tier="assembled">Configure assembled</button>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="pad-y alt" id="why">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Why buy from us</span>
-        <h2 class="display-md title">Serviceable, <span class="italic accent">by design.</span></h2>
-      </div>
-      <p class="lede">A research robot lives for years and gets crashed into things. MABEL is built from off-the-shelf actuators, printed shells and a documented wire contract, so every repair is a part on this page and every upgrade is an option in the configurator.</p>
-    </div>
-    <div class="ord-claims fade-up">
-      <div class="ord-claim"><b>One week to build</b><p>The kit follows the wiki's illustrated assembly, electronics and bring-up chapters. No machining, no soldering beyond a harness.</p></div>
-      <div class="ord-claim"><b>Tested before it ships</b><p>Assembled robots leave calibrated, with the hands tuned and the whole-body controller exercised through its burn-in routine.</p></div>
-      <div class="ord-claim"><b>Every part, orderable</b><p>The spare-parts list is the bill of materials. Replace a servo, a plate, a whole arm, or a printed cover set.</p></div>
-      <div class="ord-claim"><b>Open, end to end</b><p>MIT-licensed hardware and software, a simulator that runs in your browser, and apps for iPhone and Vision Pro. No lock-in, ever.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="pad-y" id="configure">
+<section class="pad-y-sm" id="configure">
   <div class="wrap">
     <div class="ord-done" id="ordDone" hidden><b>Order received</b><p id="ordDoneText"></p></div>
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Configure</span>
-        <h2 class="display-md title">Build yours, <span class="italic accent">step by step.</span></h2>
-      </div>
-      <p class="lede">Four choices. The price follows every click, and nothing is charged until checkout. Options that do not fit the body you picked simply disappear.</p>
-    </div>
-    <div class="cfg">
-      <div class="cfg-main" id="cfgMain">
-        <div class="cfg-tier" role="radiogroup" aria-label="How it ships" id="cfgTier"></div>
-        <div id="cfgSteps"></div>
-      </div>
-      <aside class="cfg-aside" id="cfgAside">
-        <div class="cfg-sum">
-          <div class="cfg-sum-img"><img id="cfgImg" src="assets/hw/body-sm.png" width="500" height="375" alt="" /></div>
-          <div class="cfg-sum-body">
-            <div class="cfg-sum-k">Your MABEL</div>
-            <ul class="cfg-sum-lines" id="cfgLines"></ul>
-            <div class="cfg-sum-total"><span id="cfgTierName">Assembled &amp; tested</span><b id="cfgTotal">$25,000</b></div>
-            <p class="cfg-sum-lead" id="cfgLead"></p>
-            <button type="button" class="btn btn-primary" id="cfgAdd">Add to cart</button>
-            <div class="cfg-sum-share"><span>Reserve with a 10% deposit at checkout.</span><button type="button" id="cfgShare">Copy link</button></div>
-          </div>
+    <div class="buy">
+      <div class="buy-gallery" id="buyGallery">
+        <div class="buy-slide">
+          <img id="buySlide" src="assets/wild/hero-photo.jpg" width="1600" height="1066" alt="MABEL v1.0, as built" />
+          <button type="button" class="buy-arrow buy-prev" id="buyPrev" aria-label="Previous photo">‹</button>
+          <button type="button" class="buy-arrow buy-next" id="buyNext" aria-label="Next photo">›</button>
         </div>
-      </aside>
+        <div class="buy-strip"><div class="buy-dots" id="buyDots" role="tablist" aria-label="Photos"></div><span class="buy-cap" id="buyCap"></span></div>
+      </div>
+      <div class="buy-steps" id="buySteps"></div>
     </div>
   </div>
 </section>
-<div class="cfg-bar" id="cfgBar"><div><b id="cfgBarTotal">$25,000</b><small id="cfgBarTier">Assembled &amp; tested</small></div><button type="button" class="btn btn-primary" id="cfgBarAdd">Add to cart</button></div>
+<div class="buy-bar" id="buyBar"><div class="buy-bar-in">
+  <div class="buy-bar-txt"><b>Your MABEL</b><span id="buyBarSum">Pick how it ships to begin.</span></div>
+  <div class="buy-bar-right"><span class="buy-bar-price" id="buyBarPrice">From $15,000</span><button type="button" class="btn btn-primary" id="buyAdd" disabled>Add to cart</button></div>
+</div></div>
+
+<section class="pad-y alt" id="box">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div><span class="eyebrow">In the box</span><h2 class="display-md title">What <span class="italic accent">arrives.</span></h2></div>
+      <p class="lede">Everything the guide expects you to have on the bench, whichever way it ships.</p>
+    </div>
+    <div class="box-tabs" id="boxTabs" role="tablist" aria-label="Which box"></div>
+    <div class="box-grid" id="boxGrid"></div>
+  </div>
+</section>
+
+<section class="pad-y" id="delivery">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div><span class="eyebrow">Delivery</span><h2 class="display-md title">When it <span class="italic accent">ships.</span></h2></div>
+      <p class="lede">Lead times are estimates and every order is tracked from your account.</p>
+    </div>
+    <div class="dlv-grid" id="dlvGrid"></div>
+  </div>
+</section>
+
+<section class="pad-y alt" id="compare">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div><span class="eyebrow">Compare</span><h2 class="display-md title">Which <span class="italic accent">MABEL.</span></h2></div>
+      <p class="lede">The four bodies side by side, and the three ways to get one. Prices are before an end effector, compute upgrades and sensors.</p>
+    </div>
+    <div class="cmp-pick"><label for="cmpSel">Show</label><select id="cmpSel" aria-label="Configuration to show"></select></div>
+    <table class="cmp-table" id="cmpTable"></table>
+    <div class="ways" id="ways"></div>
+  </div>
+</section>
 
 <section class="pad-y dark-sec" id="parts">
   <div class="wrap">
     <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Spare parts</span>
-        <h2 class="display-md title">Every part, <span class="italic accent">orderable.</span></h2>
-      </div>
-      <p class="lede">The same lines as the bill of materials, at list. Fully serviceable means you can replace anything on the robot from here, from a screw assortment to an assembled arm, and every one is the part the guide names.</p>
+      <div><span class="eyebrow">Parts &amp; accessories</span><h2 class="display-md title">Every part, <span class="italic accent">at list.</span></h2></div>
+      <p class="lede">The lines of the bill of materials, plus assembled arms and hands and the printed sets. Replace anything, upgrade anything.</p>
     </div>
-    <div class="parts-tools">
-      <input class="parts-search" id="partsSearch" type="search" placeholder="Search parts, e.g. DM4340, servo, plate…" aria-label="Search parts" autocomplete="off" />
-      <div class="parts-chips" id="partsChips" role="group" aria-label="Filter by subsystem"></div>
+    <div class="parts-bar">
+      <div class="parts-tabs" id="partsTabs" role="group" aria-label="Filter parts"></div>
+      <input class="parts-search" id="partsSearch" type="search" placeholder="Search parts" aria-label="Search parts" autocomplete="off" />
     </div>
     <div class="parts-grid" id="partsGrid"></div>
+    <div class="parts-more" id="partsMoreWrap"><button type="button" id="partsMore">Show all parts</button></div>
     <p class="parts-note" id="partsNote"></p>
   </div>
 </section>
@@ -407,19 +351,16 @@
 <section class="pad-y" id="faq">
   <div class="wrap">
     <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">The fine print</span>
-        <h2 class="display-md title">Before you <span class="italic accent">click.</span></h2>
-      </div>
+      <div><span class="eyebrow">The fine print</span><h2 class="display-md title">Before you <span class="italic accent">click.</span></h2></div>
       <p class="lede">Short, because there is not much of it.</p>
     </div>
     <div class="ord-faq fade-up">
-      <div><b>Lead time</b><p>Kits ship in about a week. Assembled robots are built, calibrated and burn-in tested in about a week and ship when the test passes. Spare parts ship in a few days; pass-through parts follow their vendor's stock.</p></div>
-      <div><b>Paying</b><p>Checkout runs on Stripe. Pay in full, or reserve a robot with a 10% deposit and settle the balance by invoice before it ships. Prices are in US dollars.</p></div>
+      <div><b>Paying</b><p>Checkout runs on Stripe. Pay in full, or reserve a robot with a 10% deposit and settle the balance by invoice before it ships. Prices in US dollars.</p></div>
       <div><b>Shipping and duties</b><p>Robots ship crated by freight, quoted after checkout. Parts ship by courier. Import duties and taxes are the buyer's.</p></div>
-      <div><b>Warranty</b><p>Twelve months on assembled robots and on every part we make. Pass-through parts carry their vendor's warranty. Crash damage is not covered, but every part to fix it is on this page.</p></div>
-      <div><b>Upgrades later</b><p>Every configurator option is also a spare part, so a Pi today can become a Jetson next year, and grippers can become hands.</p></div>
-      <div><b>Support</b><p>The wiki, the community page, and the same people who built it. The design is open, so nothing is hidden from you.</p></div>
+      <div><b>Warranty</b><p>Twelve months on assembled robots and on every part we make; pass-through parts carry their vendor's warranty. Crash damage is not covered, but every part to fix it is on this page.</p></div>
+      <div><b>Upgrades later</b><p>Every option is also a spare part, so a Pi today can become a Jetson next year, and grippers can become hands.</p></div>
+      <div><b>Support</b><p>The wiki, the community page, and the people who built it. The design is open, so nothing is hidden from you.</p></div>
+      <div><b>Returns</b><p>Unopened parts within 30 days. A robot is built to your configuration, so the deposit is refundable until the build starts.</p></div>
     </div>
   </div>
 </section>
@@ -436,11 +377,6 @@
     <div class="foot-bottom"><span>© 2026 The MABEL Authors · MIT License</span><span>Built with love · v1.0.0</span></div>
   </div>
 </footer>
-
-<div class="ord-dock" id="ordDock">
-  <button type="button" class="ord-dock-acct" id="dockAcct" aria-label="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="label" id="dockAcctLabel">Sign in</span></button>
-  <button type="button" class="ord-dock-cart" id="dockCart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="label">Cart</span><span class="ord-dock-n" id="dockCartN" hidden>0</span></button>
-</div>
 
 <div class="cart-veil" id="cartVeil"></div>
 <aside class="cart" id="cart" aria-label="Your cart" aria-hidden="true">
@@ -460,18 +396,22 @@
 
 <div class="acct" id="acct" role="dialog" aria-modal="true" aria-labelledby="acctTitle">
   <div class="acct-card">
-    <div class="acct-head"><h2 id="acctTitle">Account</h2><button type="button" class="cart-x" id="acctClose" aria-label="Close">×</button></div>
+    <div class="acct-head"><h2 id="acctTitle">Sign in</h2><button type="button" class="cart-x" id="acctClose" aria-label="Close">×</button></div>
     <div id="acctGuest">
       <div class="acct-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mode="login">Sign in</button><button type="button" role="tab" aria-selected="false" data-mode="register">Create account</button></div>
       <form id="acctForm" novalidate>
-        <label for="acctEmail">Email</label><input id="acctEmail" type="email" autocomplete="email" inputmode="email" required />
-        <label for="acctPass">Password</label><input id="acctPass" type="password" autocomplete="current-password" minlength="8" required />
+        <label for="acctIdent">Email or phone number</label><input id="acctIdent" type="text" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" required />
+        <div id="acctPwRow"><label for="acctPass">Password</label><input id="acctPass" type="password" autocomplete="current-password" minlength="8" /></div>
+        <div id="acctCodeRow" hidden><label for="acctCode">Six-digit code</label><input id="acctCode" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" /><p class="acct-hint" id="acctCodeHint"></p></div>
         <div class="acct-err" id="acctErr" aria-live="polite"></div>
         <button type="submit" class="btn btn-primary" id="acctSubmit">Sign in</button>
+        <div class="acct-links"><button type="button" id="acctUseCode" hidden>Send me a code instead</button><button type="button" id="acctUsePw" hidden>Use a password instead</button></div>
       </form>
     </div>
     <div id="acctUser" hidden>
-      <p class="acct-me">Signed in as <b id="acctWho"></b>. Your cart is saved to this account.</p>
+      <p class="acct-me">Signed in as <b id="acctWho"></b>. Your cart and orders are saved to this account.</p>
+      <form id="acctPwForm" hidden novalidate><label for="acctNewPw">Set a password, so you can sign in without a code</label><input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" /><button type="submit" class="btn btn-ghost">Save password</button></form>
+      <h3 class="acct-h">Orders</h3>
       <ul class="acct-orders" id="acctOrders"></ul>
       <div class="acct-links"><button type="button" id="acctLogout">Sign out</button></div>
     </div>
@@ -482,6 +422,7 @@
 
 <script src="assets/order-pricing.js"></script>
 <script src="assets/order.js"></script>
+<script src="assets/store-nav.js"></script>
 <script src="assets/mabel.js?v=05171eac"></script>
 </body>
 </html>

@@ -220,7 +220,22 @@ section { position: relative; }
 .mob a.ext { color: var(--rust); margin-top: 4px; }
 .mob-grp { display: block; padding: 12px 8px 3px; font-family: var(--font-comic); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); font-weight: 400; }
 .mob a.sub { padding: 6px 8px 6px 18px; font-size: 13px; font-weight: 400; opacity: 0.82; }
-@media (max-width: 1180px) {
+/* The bar is 1245 px at full size. Below 1500 px it tightens (smaller type,
+   closer items) so the store dock at the top right has room; below 1400 px it
+   hugs the left edge instead of centring; below 1260 px the burger takes over.
+   scripts/navfit.py measures all three. */
+@media (max-width: 1500px) {
+  .nav { gap: 14px; padding: 8px 12px; }
+  .nav-logo { margin-right: 18px; font-size: 20px; }   /* Limelight overhangs its box; less than this and the wordmark paints over the first link */
+  .nav-links { font-size: 13px; gap: 0; }
+  .nav-links a, .nav-grp-btn { padding: 7px 8px; font-size: 13px; }
+  .nav-cta { font-size: 13px; padding: 6px 10px 5px !important; }
+}
+@media (max-width: 1400px) {
+  .nav { left: 12px; transform: none; max-width: calc(100% - 140px); }
+}
+@media (max-width: 1260px) {
+  .nav { left: 50%; transform: translateX(-50%); max-width: min(calc(100% - 20px), var(--max)); }
   .nav-links { display: none; } .hbg { display: flex; } .mob { display: block; }
   /* mobile: full-width bar again so the logo sits left and the burger sits right */
   .nav {
@@ -4772,3 +4787,24 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 
 /* the gate table — two columns, and the second is the point */
 .ahx-gates td:first-child { font-family: var(--font-mono); font-size: 12.5px; }
+
+/* ═══ Store dock — account + cart, a small pill of its own at the top right ═══
+   Separate from the nav on purpose: the bar sells the site, this holds the
+   shopper's things. On phones it tucks in beside the burger, inside the bar's
+   footprint, so the top edge stays one row. assets/store-nav.js paints it. */
+.store-dock { position: fixed; top: 14px; right: 14px; z-index: 101; display: flex; gap: 4px; padding: 4px;
+  background: var(--panel); border: var(--line-w) solid var(--ink); border-radius: 12px;
+  box-shadow: 3px 3px 0 rgba(21,24,32,0.9); transition: top 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out); }
+.store-dock.scrolled { top: 10px; box-shadow: 4px 4px 0 rgba(21,24,32,0.9); }
+.store-dock-btn { position: relative; width: 32px; height: 32px; border-radius: 9px; display: inline-grid; place-items: center;
+  color: var(--ink); text-decoration: none; background: transparent; border: 0; cursor: pointer; padding: 0; transition: background 0.15s ease; }
+.store-dock-btn:hover { background: rgba(21,24,32,0.08); }
+.store-dock-btn svg { width: 17px; height: 17px; display: block; }
+.store-dock-btn.is-in::after { content: ''; position: absolute; right: 5px; top: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--green); border: 1.5px solid var(--panel); }
+.store-dock-n { position: absolute; top: -6px; right: -6px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--pop); color: var(--ink);
+  border: 1.5px solid var(--ink); font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; line-height: 14px; text-align: center; }
+.store-dock-n[hidden] { display: none; }
+@media (max-width: 1260px) {
+  .store-dock { top: 27px; right: 70px; padding: 0; gap: 2px; background: transparent; border: 0; box-shadow: none; }
+  .store-dock.scrolled { top: 23px; box-shadow: none; }
+}

@@ -63,6 +63,7 @@ run figures     $P scripts/figscale.py $B/index.html
 run panels      $P scripts/panels.py $B/docs/assembly.html
 run css         $P scripts/csscheck.py
 run nav         $P scripts/navtest.py
+run nav-fit     $P scripts/navfit.py $B/index.html $B/order.html $B/hardware.html
 run harness     $P scripts/hxtest.py $B/harness.html
 run harness-gen $P scripts/build_harness.py --check
 run order       $P scripts/ordertest.py $B/order.html
