@@ -123,16 +123,7 @@
       if (!has[stepDef('effector').requires]) delete pick.effector;
     }
     if (opt.slide) showSlide(opt.slide); else if (step.slide) showSlide(step.slide);
-    renderSteps();
-    // walk to the next open step, the way a form does
-    var seq = sequence(), st = states(seq);
-    for (var i = 0; i < seq.length; i++) {
-      if (st[i] === 'open') {
-        var el = $('buy-' + seq[i].id);
-        if (el) setTimeout(function () { el.scrollIntoView({ block: 'start' }); }, 60);   // the stylesheet decides smooth vs instant
-        break;
-      }
-    }
+    renderSteps();   // the next step opens in place; the page never scrolls on the shopper's behalf
   }
   function renderBar() {
     var bar = $('buyBar'), btn = $('buyAdd'), sum = $('buyBarSum'), price = $('buyBarPrice');
@@ -183,7 +174,7 @@
   function goSlide(i) {
     var n = cat.gallery.length; slideAt = ((i % n) + n) % n;
     var g = cat.gallery[slideAt], img = $('buySlide');
-    img.src = g.src; img.alt = g.cap; img.classList.toggle('is-contain', g.key === 'exploded');
+    img.src = g.src; img.alt = g.cap; img.classList.toggle('is-contain', g.key === 'exploded'); img.classList.toggle('is-photo', g.key === 'photo');
     $('buyCap').textContent = g.cap;
     $('buyDots').querySelectorAll('button').forEach(function (b, k) { b.setAttribute('aria-selected', String(k === slideAt)); });
     var nx = cat.gallery[(slideAt + 1) % n]; var pre = new Image(); pre.src = nx.src;   // the next one is ready before the arrow

@@ -26,6 +26,24 @@
     var s = window.scrollY > 12 ? 1 : 0;
     if (s !== last) { dock.classList.toggle('scrolled', !!s); last = s; }
   }
+  /* Sit BESIDE the bar, not at the viewport's edge. The bar is a centred pill
+     whose width depends on the fonts and the viewport, so the gap is measured:
+     10 px to the right of the bar, centred on its height. Below the burger
+     breakpoint the stylesheet places the dock inside the bar instead. */
+  var GAP = 10;
+  function place() {
+    var nav = document.getElementById('nav'), hbg = document.getElementById('hbg');
+    if (!nav) return;
+    if (hbg && getComputedStyle(hbg).display !== 'none') { dock.style.left = ''; dock.style.right = ''; dock.style.removeProperty('--dock-top'); return; }
+    var r = nav.getBoundingClientRect(), w = dock.offsetWidth, h = dock.offsetHeight;
+    var rest = r.top + (nav.classList.contains('scrolled') ? 4 : 0);   // the bar rises 4 px once scrolled
+    dock.style.left = Math.min(r.right + GAP, window.innerWidth - w - 10) + 'px';
+    dock.style.right = 'auto';
+    dock.style.setProperty('--dock-top', Math.round(rest + (r.height - h) / 2) + 'px');
+  }
   window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
-  window.__storeDock = { paint: paint, count: count };
+  window.addEventListener('resize', place); place();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+  window.addEventListener('load', function () { place(); setTimeout(place, 300); });
+  window.__storeDock = { paint: paint, count: count, place: place };
 })();

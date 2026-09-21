@@ -17,8 +17,10 @@ generated**: `assets/data/harness.json` comes from `scripts/build_harness.py`,
 which reads `claude_harness/data/commands.yaml` in the repo root. Never type a
 command into the page; edit the registry and re-run the script.
 
-`order.html` is the store, laid out like Apple's buy page: a photo gallery on
-the left, the picks on the right ONE AT A TIME — how it ships, body, compute,
+`order.html` is the store, laid out like Apple's buy page: no page header and
+no side rail, a full-bleed stage with the product at two thirds of the width on
+the left (the renders are transparent PNGs, so it floats), the picks on the
+right ONE AT A TIME — how it ships, body, compute,
 each sensor, end effector — with every later step grey until the earlier one
 is made, a sticky total bar that rides the configurator only, then what's in
 the box, delivery, a comparison of the four bodies and the three ways, a
