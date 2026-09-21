@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=c0b86a5d" />
+<link rel="stylesheet" href="assets/mabel.css?v=51996965" />
 <script>document.documentElement.classList.add('js');</script>
 <style>
   /* ── The buy page. Apple's buy-page structure in the site's type and colour:
@@ -31,6 +31,7 @@
   .buy-slide img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block;
     filter: drop-shadow(0 22px 26px rgba(21,24,32,0.16)); transition: opacity 0.2s ease; }
   .buy-slide img.is-photo { border-radius: 18px; filter: none; box-shadow: 0 24px 40px rgba(21,24,32,0.18); }
+  .buy-slide img { max-height: min(100%, 78vh); }
   .buy-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid rgba(21,24,32,0.35); background: rgba(253,246,226,0.85); color: var(--ink);
     font-size: 24px; line-height: 1; cursor: pointer; display: grid; place-items: center; padding: 0 0 3px; transition: border-color 0.15s ease, background 0.15s ease; }
   .buy-arrow:hover { border-color: var(--ink); background: var(--panel); }
@@ -66,6 +67,7 @@
   .buy-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; background: rgba(253,246,226,0.97); border-top: 1.5px solid rgba(21,24,32,0.35);
     transform: translateY(110%); transition: transform 0.3s var(--ease-out); }
   .buy-bar.is-on { transform: none; }
+  body.has-buy-bar { padding-bottom: 84px; }
   .buy-bar-in { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px var(--gutter); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
   .buy-bar-txt { min-width: 0; }
   .buy-bar-txt b { display: block; font-family: var(--font-head); font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
@@ -251,7 +253,7 @@
     <a href="docs/" class="nav-cta">DIY guide</a>
 </nav>
 <div class="store-dock" id="storeDock" aria-label="Account and cart">
-  <a class="store-dock-btn" id="storeAcct" href="order.html?open=account" aria-label="Account" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
+  <a class="store-dock-btn" id="storeAcct" href="account.html" aria-label="Account" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
   <a class="store-dock-btn" id="storeCart" href="order.html?open=cart" aria-label="Cart" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="store-dock-n" id="storeCartN" hidden>0</span></a>
 </div>
 
@@ -262,7 +264,7 @@
     <div class="buy-visual" id="buyGallery">
       <div class="buy-visual-in">
         <div class="buy-slide">
-          <img id="buySlide" class="is-photo" src="assets/wild/hero-photo.jpg" width="1600" height="1066" alt="MABEL v1.0, as built" />
+          <img id="buySlide" class="is-photo" src="assets/wild/store/front.jpg" width="1600" height="1067" alt="MABEL, as built" />
           <button type="button" class="buy-arrow buy-prev" id="buyPrev" aria-label="Previous photo">‹</button>
           <button type="button" class="buy-arrow buy-next" id="buyNext" aria-label="Next photo">›</button>
         </div>
@@ -367,7 +369,7 @@
       </form>
     </div>
     <div id="acctUser" hidden>
-      <p class="acct-me">Signed in as <b id="acctWho"></b>. Your cart and orders are saved to this account.</p>
+      <p class="acct-me">Signed in as <b id="acctWho"></b>. Your cart and orders are saved to this account. <a href="account.html">Open your account</a>.</p>
       <form id="acctPwForm" hidden novalidate><label for="acctNewPw">Set a password, so you can sign in without a code</label><input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" /><button type="submit" class="btn btn-ghost">Save password</button></form>
       <h3 class="acct-h">Orders</h3>
       <ul class="acct-orders" id="acctOrders"></ul>
@@ -379,6 +381,7 @@
 <div class="ord-toast" id="ordToast" role="status" aria-live="polite"></div>
 
 <script src="assets/order-pricing.js"></script>
+<script src="assets/store-api.js"></script>
 <script src="assets/order.js"></script>
 <script src="assets/store-nav.js"></script>
 <script src="assets/mabel.js?v=05171eac"></script>

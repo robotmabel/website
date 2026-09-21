@@ -285,17 +285,14 @@ def main(check=False):
         {"t": "Assembled robot", "s": "Built, calibrated and burn-in tested, then crated freight; ships in about a month. Freight is quoted after checkout.", "k": "~1 month + freight"},
         {"t": "Spare parts", "s": "A few days by courier. Pass-through parts follow their vendor's stock.", "k": "days"},
     ]
-    gallery = [
-        {"src": "assets/wild/hero-photo.jpg", "cap": "MABEL v1.0, as built", "key": "photo"},
-        {"src": "assets/hw/body.png", "cap": "Torso, arms and head", "key": "body"},
-        {"src": "assets/hw/base.png", "cap": "Holonomic swerve base", "key": "base"},
-        {"src": "assets/hw/hands.png", "cap": "ORCA hands, 17 DOF each", "key": "hands"},
-        {"src": "assets/hw/arms.png", "cap": "7-DOF arm", "key": "arms"},
-        {"src": "assets/hw/head.png", "cap": "3-DOF head", "key": "head"},
-        {"src": "assets/hw/lift.png", "cap": stroke + " lift", "key": "lift"},
-        {"src": "assets/hw/sensors.png", "cap": "Sensors", "key": "sensors"},
-        {"src": "assets/hw/electronics.png", "cap": "Compute and power", "key": "electronics"},
-        {"src": "assets/hw/exploded.webp", "cap": "Every part, exploded", "key": "exploded"},
+    gallery = [   # real photographs only — the renders belong to the hardware page
+        {"src": "assets/wild/store/front.jpg", "cap": "MABEL, as built", "key": "photo", "w": 1600, "h": 1067},
+        {"src": "assets/wild/store/pose.jpg", "cap": "Two 7-DOF arms, 2.23 m fingertip to fingertip", "key": "pose", "w": 1600, "h": 1067},
+        {"src": "assets/wild/store/tabletop.jpg", "cap": "Bimanual work at a table", "key": "tabletop", "w": 1600, "h": 1067},
+        {"src": "assets/wild/store/laptop.jpg", "cap": "ORCA hands at a keyboard", "key": "laptop", "w": 1067, "h": 1600},
+        {"src": "assets/wild/store/laptop-close.jpg", "cap": "Seventeen degrees of freedom per hand", "key": "hands", "w": 1067, "h": 1600},
+        {"src": "assets/wild/store/skyline-dusk.jpg", "cap": "Outdoors, at dusk", "key": "dusk", "w": 1600, "h": 1067},
+        {"src": "assets/wild/store/skyline-night.jpg", "cap": "Outdoors, at night", "key": "night", "w": 1600, "h": 1067},
     ]
     catalog = {
         "generated_by": "website/scripts/build_order.py", "price_date": summary["price_date"],

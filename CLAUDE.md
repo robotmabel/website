@@ -33,6 +33,13 @@ server's (`commerce/pricing.py`); `commerce/tests/test_pricing_parity.py` keeps
 them identical, and the checkout server on the VPS re-prices every cart. See
 `commerce/README.md` for connecting Stripe.
 
+`account.html` is the owner's page: the robots on the account with their build
+stage (ordered → building → testing → shipped → delivered, serial and tracking
+as the owner sets them with `python3 -m commerce.admin` on the VPS), the orders,
+the tools an owner uses (simulator, apps, studios, docs, source, citation,
+community) and how they sign in. `assets/store-api.js` is the one client both
+it and the buy page use.
+
 `simulation.html` is the twin's own page — the canonical model, the
 `simulation_bridge` plant, the 35-scene library, the Unity/Genesis branches,
 simulated data collection and the mjlab PPO track. `software.html#simulation`
@@ -105,6 +112,7 @@ in its docstring. `scripts/run_all.sh` runs the lot.
 | `hxtest.py` | the harness page renders exactly the registry's commands, and its filters, search and badges work |
 | `build_harness.py --check` | the page's data has drifted from the repo's command registry |
 | `ordertest.py` | the store: one open step at a time, DOM totals equal the SERVER's pricing, a body hides the steps that do not fit, the share link opens fully picked, the gallery, box and delivery render, the parts grid previews and expands, the cart and deposit maths, a loud failure when checkout is unreachable, the account sheet's validation and code path, and the PHONE layout — no overflow at 390/360, 44 px tap targets, the bar riding the configurator only |
+| `accounttest.py` | the account page against a REAL copy of the store API spawned for the run: create an account, the robots and orders render, register a robot by serial, set a password, sign out; the dock's account icon leads there |
 | `navfit.py` | the nav bar FITS at 1200–1680 px (the logo once hung off its left edge), the wordmark clears the first link, and the top-right store dock never sits on the bar or the burger |
 | `build_order.py --check` | the catalog has drifted from the pricing rule |
 

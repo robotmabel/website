@@ -8,7 +8,7 @@
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var P = window.MabelOrderPricing;
-  var CART_KEY = 'mabel.cart.v1', SESSION_KEY = 'mabel.session';
+  var CART_KEY = 'mabel.cart.v1';
   var cat = null, pick = {}, cart = [], user = null, pay = 'full', otp = { email: false, sms: false };
   var api = (function () {
     try {
@@ -42,18 +42,18 @@
           return { id: t.id, name: t.name, spec: t.blurb + ' ' + t.lead + '.', label: 'From ' + usd(base) };
         }), slide: 'photo' },
       { id: 'robot', title: 'Robot.', q: 'Which body?', options: stepDef('robot').options.map(function (o) {
-          return { id: o.id, name: o.name, spec: o.spec, tag: o.tag, label: pick.tier ? usd(o.price[pick.tier]) : '', slide: { complete: 'body', fixed: 'arms', upper: 'head', base: 'base' }[o.id] };
+          return { id: o.id, name: o.name, spec: o.spec, tag: o.tag, label: pick.tier ? usd(o.price[pick.tier]) : '', slide: { complete: 'photo', fixed: 'pose', upper: 'tabletop', base: 'photo' }[o.id] };
         }), slide: 'body' },
-      { id: 'compute', title: 'Compute.', q: 'What runs on board?', options: deltaOpts(stepDef('compute').options), slide: 'electronics' },
+      { id: 'compute', title: 'Compute.', q: 'What runs on board?', options: deltaOpts(stepDef('compute').options) },
     ];
     stepDef('sensors').groups.forEach(function (g) {
       if (pick.robot && !has[g.requires]) return;   // not on this body — hidden, exactly like the price ignores it
-      seq.push({ id: g.id, title: g.title + '.', q: g.note || 'What it sees.', options: deltaOpts(g.options), slide: 'sensors', requires: g.requires });
+      seq.push({ id: g.id, title: g.title + '.', q: g.note || 'What it sees.', options: deltaOpts(g.options), requires: g.requires });
     });
     var eff = stepDef('effector');
     if (!pick.robot || has[eff.requires]) {
       seq.push({ id: 'effector', title: 'End effector.', q: 'What it holds with?', options: deltaOpts(eff.options).map(function (o) {
-        o.slide = o.id === 'ee_orca' ? 'hands' : 'arms'; return o; }), slide: 'hands', requires: eff.requires });
+        if (o.id === 'ee_orca') o.slide = 'hands'; return o; }), requires: eff.requires });
     }
     return seq;
   }
@@ -122,7 +122,7 @@
       stepDef('sensors').groups.forEach(function (g) { if (!has[g.requires]) delete pick[g.id]; });
       if (!has[stepDef('effector').requires]) delete pick.effector;
     }
-    if (opt.slide) showSlide(opt.slide); else if (step.slide) showSlide(step.slide);
+    if (opt.slide) showSlide(opt.slide); else if (step.slide) showSlide(step.slide);   // only a pick with a photo of its own moves the gallery
     renderSteps();   // the next step opens in place; the page never scrolls on the shopper's behalf
   }
   function renderBar() {
@@ -171,13 +171,18 @@
       d.appendChild(b);
     });
   }
+  var browsed = false;
   function goSlide(i) {
     var n = cat.gallery.length; slideAt = ((i % n) + n) % n;
     var g = cat.gallery[slideAt], img = $('buySlide');
-    img.src = g.src; img.alt = g.cap; img.classList.toggle('is-contain', g.key === 'exploded'); img.classList.toggle('is-photo', g.key === 'photo');
+    if (img.getAttribute('src') !== g.src) img.src = g.src;
+    img.alt = g.cap; img.width = g.w || 1600; img.height = g.h || 1067; img.classList.add('is-photo');
     $('buyCap').textContent = g.cap;
     $('buyDots').querySelectorAll('button').forEach(function (b, k) { b.setAttribute('aria-selected', String(k === slideAt)); });
-    var nx = cat.gallery[(slideAt + 1) % n]; var pre = new Image(); pre.src = nx.src;   // the next one is ready before the arrow
+    // Fetch the neighbour only once the shopper has started browsing: a cold
+    // visit downloads one photograph, not two (scripts/loadtest.py budget).
+    if (browsed) { var nx = cat.gallery[(slideAt + 1) % n]; var pre = new Image(); pre.src = nx.src; }
+    browsed = true;
   }
   function showSlide(key) { for (var i = 0; i < cat.gallery.length; i++) if (cat.gallery[i].key === key) { goSlide(i); return; } }
 
@@ -294,16 +299,11 @@
   function closeCart() { $('cart').classList.remove('is-open'); $('cartVeil').classList.remove('is-open'); $('cart').setAttribute('aria-hidden', 'true'); }
   function cartMessage(text, err) { var m = $('cartMsg'); m.textContent = text; m.classList.toggle('is-err', !!err); m.hidden = false; }
 
-  /* ── API (bearer token; the cookie is a bonus Safari will not keep) ────── */
-  function token() { try { return localStorage.getItem(SESSION_KEY) || ''; } catch (e) { return ''; } }
-  function setToken(t) { try { if (t) localStorage.setItem(SESSION_KEY, t); else localStorage.removeItem(SESSION_KEY); } catch (e) {} document.dispatchEvent(new CustomEvent('order:auth')); }
-  function req(method, path, body) {
-    if (!api) return Promise.reject(new Error('no api'));
-    var h = { 'Content-Type': 'application/json' }, t = token();
-    if (t) h.Authorization = 'Bearer ' + t;
-    return fetch(api + path, { method: method, credentials: 'include', headers: h, body: body ? JSON.stringify(body) : undefined })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw new Error(j.detail || j.error || ('HTTP ' + r.status)); return j; }); });
-  }
+  /* ── API: the shared client (assets/store-api.js) — bearer token, not a cookie ── */
+  var S = window.MabelStore;
+  function token() { return S.token(); }
+  function setToken(t) { S.setToken(t); }
+  function req(method, path, body) { S.api = api; return S.req(method, path, body); }
   function checkout() {
     if (!cart.length) return;
     var btn = $('cartCheckout'); btn.disabled = true; btn.textContent = 'Opening checkout…';
@@ -400,7 +400,7 @@
   function afterCheckout() {
     var q = new URLSearchParams(location.search), st = q.get('checkout'), open = q.get('open');
     if (open === 'cart') openCart();
-    if (open === 'account') openAcct();
+    if (open === 'account') location.replace('account.html');
     if (st === 'cancel') toast('Checkout cancelled. Your cart is saved.');
     if (st === 'success') {
       var sid = q.get('session_id'), done = $('ordDone'), txt = $('ordDoneText');
@@ -422,9 +422,8 @@
     var sx = null, slide = $('buySlide');
     slide.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
     slide.addEventListener('touchend', function (e) { if (sx == null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) goSlide(slideAt + (dx < 0 ? 1 : -1)); sx = null; }, { passive: true });
-    var sc = $('storeCart'), sa = $('storeAcct');
-    if (sc) sc.addEventListener('click', function (e) { e.preventDefault(); openCart(); });
-    if (sa) sa.addEventListener('click', function (e) { e.preventDefault(); openAcct(); });
+    var sc = $('storeCart');
+    if (sc) sc.addEventListener('click', function (e) { e.preventDefault(); openCart(); });   // the account icon is a link to account.html
     $('cartClose').addEventListener('click', closeCart); $('cartVeil').addEventListener('click', closeCart);
     $('cartCheckout').addEventListener('click', checkout);
     $('cartPay').querySelectorAll('button').forEach(function (b) { b.addEventListener('click', function () { pay = b.dataset.pay; renderCart(); }); });
@@ -437,13 +436,9 @@
     $('partsSearch').addEventListener('input', function () { partsQ = this.value; partsAll = false; renderParts(); });
     $('partsMore').addEventListener('click', function () { partsAll = true; renderParts(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeCart(); closeAcct(); } });
-    /* the sticky bar belongs to the configurator: it rides along only while
-       that section is on screen, so the rest of the page keeps its full height */
-    var bar = $('buyBar'), sec = $('configure');
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (es) { var on = es[0].isIntersecting; bar.classList.toggle('is-on', on); document.body.classList.toggle('bar-on', on); },
-                               { rootMargin: '-80px 0px -40px 0px' }).observe(sec);
-    } else { bar.classList.add('is-on'); }
+    /* the total bar floats on every part of the page, so a shopper can add the
+       robot from the FAQ as easily as from the picks; the body makes room for it */
+    $('buyBar').classList.add('is-on'); document.body.classList.add('has-buy-bar');
   }
 
   fetch('assets/data/order.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (c) {
@@ -451,7 +446,7 @@
     if (!api) api = c.api || '';
     pick = {};
     try { decode(new URLSearchParams(location.search).get('c')); } catch (e) {}
-    loadCart(); wire(); renderDots(); goSlide(0); renderSteps(); renderBox(); renderDelivery(); renderTabs(); renderParts(); renderCart(); renderAcct();
+    loadCart(); wire(); renderDots(); browsed = false; goSlide(0); browsed = false; renderSteps(); renderBox(); renderDelivery(); renderTabs(); renderParts(); renderCart(); renderAcct();
     $('partsNote').textContent = 'List prices from the bill of materials priced ' + c.price_date + ', computed by scripts/build_order.py. Pass-through parts follow their vendor’s pricing and may move; parts we make are priced by us. ' + c.parts.length + ' parts.';
     afterCheckout();
     if (api) fetch(api + '/api/health').then(function (r) { return r.json(); }).then(function (h) { otp = h.otp || otp; renderAcct(); }).catch(function () {});

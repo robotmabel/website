@@ -30,16 +30,18 @@
      whose width depends on the fonts and the viewport, so the gap is measured:
      10 px to the right of the bar, centred on its height. Below the burger
      breakpoint the stylesheet places the dock inside the bar instead. */
-  var GAP = 10;
+  var GAP = 18;   // daylight between the bar and the dock; the dock is the bar's height
   function place() {
     var nav = document.getElementById('nav'), hbg = document.getElementById('hbg');
     if (!nav) return;
-    if (hbg && getComputedStyle(hbg).display !== 'none') { dock.style.left = ''; dock.style.right = ''; dock.style.removeProperty('--dock-top'); return; }
-    var r = nav.getBoundingClientRect(), w = dock.offsetWidth, h = dock.offsetHeight;
+    if (hbg && getComputedStyle(hbg).display !== 'none') { dock.style.left = ''; dock.style.right = ''; dock.style.height = ''; dock.style.removeProperty('--dock-top'); return; }
+    var r = nav.getBoundingClientRect();
     var rest = r.top + (nav.classList.contains('scrolled') ? 4 : 0);   // the bar rises 4 px once scrolled
+    dock.style.height = Math.round(r.height) + 'px';
+    var w = dock.offsetWidth;
     dock.style.left = Math.min(r.right + GAP, window.innerWidth - w - 10) + 'px';
     dock.style.right = 'auto';
-    dock.style.setProperty('--dock-top', Math.round(rest + (r.height - h) / 2) + 'px');
+    dock.style.setProperty('--dock-top', Math.round(rest) + 'px');
   }
   window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
   window.addEventListener('resize', place); place();

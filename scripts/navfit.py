@@ -66,7 +66,7 @@ async def go():
                   var burger=getComputedStyle(h).display!=='none'; var links=n.querySelector('.nav-links'), kr=links?links.getBoundingClientRect():null; var first=links?links.querySelector('a,button'):null, fr=first?first.getBoundingClientRect():null;
                   var clear = !dr || (burger ? (dr.right<=hr.left+0.5 && dr.left>=nr.left) : (dr.left>=nr.right-0.5||dr.right<=nr.left+0.5));
                   var logoClear = burger || !fr || fr.left >= lr.right + 8;   /* the wordmark's glyphs overhang; 8 px of daylight is the floor */
-                  var beside = burger || !dr || (dr.left - nr.right >= 6 && dr.left - nr.right <= 24 && Math.abs((dr.top+dr.bottom)/2 - (nr.top+nr.bottom)/2) <= 2);   /* beside the bar, not at the edge */
+                  var beside = burger || !dr || (dr.left - nr.right >= 12 && dr.left - nr.right <= 30 && Math.abs(dr.top - nr.top) <= 1 && Math.abs(dr.height - nr.height) <= 1);   /* beside the bar, the bar's height, top-aligned */
                   return {fits:n.scrollWidth<=n.clientWidth+1, navW:Math.round(nr.width), logoIn:lr.left>=nr.left-0.5&&lr.right<=nr.right+0.5&&logoClear, burger:burger,
                           dockClear:clear && beside, gap:dr?Math.round(dr.left-nr.right):null, dy:dr?Math.round(((dr.top+dr.bottom)-(nr.top+nr.bottom))/2):null, dock:dr?[Math.round(dr.left),Math.round(dr.right)]:null, nav:[Math.round(nr.left),Math.round(nr.right)]}})()"""
                 m = await ev(MEASURE)

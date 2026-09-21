@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#151820" />
+<title>MABEL — Account</title>
+<meta name="description" content="Your MABEL account: the robots you own and their build status, your orders, the simulator, the apps, the data and training studios, documentation and support." />
+<link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css?v=51996965" />
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  /* ── Account page. Prefixes: .acct- .robot- .ord- .res- ── */
+  .acct-page .sidenav { display: none !important; }
+  .acct-main { padding: clamp(96px, 11vh, 120px) var(--gutter) clamp(56px, 8vh, 96px); }
+  .acct-wrap { max-width: var(--max); margin: 0 auto; }
+  .acct-k { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ash); display: block; margin-bottom: 6px; }
+  .acct-h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 3vw, 46px); letter-spacing: 0.01em; margin: 0 0 6px; }
+  .acct-h2 { font-family: var(--font-head); font-weight: 700; font-size: 22px; letter-spacing: -0.02em; margin: 0 0 4px; }
+  .acct-sub { font-size: 15px; color: var(--ash); margin: 0 0 18px; max-width: 70ch; line-height: 1.55; }
+  .acct-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px 24px; padding-bottom: 22px; border-bottom: 1px solid rgba(21,24,32,0.14); margin-bottom: 26px; }
+  .acct-meta { font-size: 14px; color: var(--ash); margin: 0; }
+  .acct-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink); }
+  .acct-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .acct-actions .btn, .acct-guest .btn, .acct-sec .btn { box-shadow: none; border-radius: 12px; min-height: 44px; }
+  .acct-actions .btn:hover, .acct-guest .btn:hover, .acct-sec .btn:hover { box-shadow: none; transform: none; }
+  .acct-quiet { background: transparent !important; color: var(--ink) !important; border: 1.5px solid rgba(21,24,32,0.45) !important; }
+  .acct-quiet:hover { border-color: var(--ink) !important; background: var(--panel) !important; }
+  .acct-nav { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 30px; }
+  .acct-nav a { font: inherit; font-weight: 600; font-size: 14px; color: var(--ink); text-decoration: none; padding: 0 14px; min-height: 40px; display: inline-flex; align-items: center; border-radius: 999px; border: 1.5px solid rgba(21,24,32,0.25); }
+  .acct-nav a:hover { border-color: var(--ink); }
+  .acct-sec { padding: 26px 0 34px; border-top: 1px solid rgba(21,24,32,0.14); }
+  .acct-sec:first-of-type { border-top: 0; padding-top: 0; }
+  .acct-empty { border: 1.5px dashed rgba(21,24,32,0.3); border-radius: 16px; padding: 22px 22px 24px; display: grid; gap: 10px; justify-items: start; }
+  .acct-empty p { margin: 0; font-size: 15px; color: var(--ink-soft); line-height: 1.55; max-width: 60ch; }
+  .robot-list { display: grid; gap: 14px; }
+  .robot-card { background: var(--panel); border: 1.5px solid rgba(21,24,32,0.18); border-radius: 16px; padding: 18px 20px 16px; display: grid; gap: 12px; }
+  .robot-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 18px; align-items: baseline; }
+  .robot-head b { font-family: var(--font-head); font-weight: 700; font-size: 18px; letter-spacing: -0.01em; }
+  .robot-serial { font-family: var(--font-mono); font-size: 13px; color: var(--ink); }
+  .robot-serial.is-tbd { color: var(--ash); }
+  .robot-config { font-size: 13.5px; color: var(--ash); line-height: 1.5; margin: 0; }
+  .robot-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin: 4px 0 2px; }
+  .robot-step { position: relative; padding-top: 18px; font-size: 12.5px; color: var(--ash); }
+  .robot-step::before { content: ''; position: absolute; left: 0; right: 0; top: 6px; height: 2px; background: rgba(21,24,32,0.18); }
+  .robot-step::after { content: ''; position: absolute; left: 0; top: 1px; width: 12px; height: 12px; border-radius: 50%; background: var(--panel); border: 2px solid rgba(21,24,32,0.35); box-sizing: border-box; }
+  .robot-step.is-done::before { background: var(--ink); }
+  .robot-step.is-done::after { background: var(--ink); border-color: var(--ink); }
+  .robot-step.is-now::after { background: var(--hi); border-color: var(--hi); }
+  .robot-step.is-now { color: var(--ink); font-weight: 600; }
+  .robot-step small { display: block; font-family: var(--font-mono); font-size: 10.5px; color: var(--ash); font-weight: 400; margin-top: 2px; }
+  .robot-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: center; border-top: 1px solid rgba(21,24,32,0.12); padding-top: 12px; }
+  .robot-warranty { font-size: 13px; color: var(--ink-soft); }
+  .robot-links { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13.5px; }
+  .robot-links a, .robot-links button { font: inherit; font-size: 13.5px; font-weight: 600; color: var(--blue); text-decoration: none; background: none; border: 0; cursor: pointer; padding: 6px 0; min-height: 36px; }
+  .robot-links a:hover, .robot-links button:hover { text-decoration: underline; }
+  .acct-reg { margin-top: 16px; border: 1.5px solid rgba(21,24,32,0.18); border-radius: 16px; background: var(--panel); }
+  .acct-reg summary { list-style: none; cursor: pointer; padding: 16px 20px; font-family: var(--font-head); font-weight: 600; font-size: 15.5px; display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
+  .acct-reg summary::-webkit-details-marker { display: none; }
+  .acct-reg summary::after { content: '+'; font-weight: 300; font-size: 26px; line-height: 1; }
+  .acct-reg[open] summary::after { transform: rotate(45deg); }
+  .acct-reg form { padding: 0 20px 20px; display: grid; grid-template-columns: 1.2fr 1fr auto auto; gap: 10px; align-items: end; }
+  .acct-reg p { grid-column: 1 / -1; margin: 0 0 4px; font-size: 13.5px; color: var(--ash); }
+  .acct-field label { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ash); margin: 0 0 5px; }
+  .acct-field input, .acct-field select { width: 100%; font: inherit; font-size: 15px; padding: 10px 12px; min-height: 44px; border-radius: 10px; border: 1.5px solid rgba(21,24,32,0.35); background: var(--bone); color: var(--ink); box-sizing: border-box; }
+  .acct-field input:focus, .acct-field select:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+  @media (max-width: 720px) { .acct-reg form { grid-template-columns: 1fr; } .robot-steps { grid-template-columns: 1fr; gap: 10px; } .robot-step { padding-top: 0; padding-left: 22px; } .robot-step::before { display: none; } .robot-step::after { top: 3px; } }
+  .ord-list { display: grid; gap: 10px; }
+  .ord-row { background: var(--panel); border: 1.5px solid rgba(21,24,32,0.18); border-radius: 14px; padding: 14px 18px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 6px 18px; align-items: center; }
+  .ord-id { font-family: var(--font-mono); font-size: 13px; color: var(--ash); }
+  .ord-items { min-width: 0; }
+  .ord-items b { display: block; font-family: var(--font-head); font-weight: 600; font-size: 15px; }
+  .ord-items span { display: block; font-size: 13px; color: var(--ash); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ord-total { font-family: var(--font-mono); font-size: 15px; text-align: right; white-space: nowrap; }
+  .ord-total small { display: block; font-size: 11px; color: var(--ash); }
+  .ord-chip { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; padding: 6px 10px; border-radius: 999px; border: 1.5px solid; white-space: nowrap; }
+  .ord-chip.is-paid { color: var(--green); border-color: var(--green); }
+  .ord-chip.is-pending { color: var(--gold-deep); border-color: var(--gold-deep); }
+  .ord-chip.is-expired { color: var(--ash); border-color: var(--ash-light); }
+  @media (max-width: 720px) { .ord-row { grid-template-columns: 1fr auto; } .ord-id { grid-column: 1; } .ord-chip { grid-column: 2; grid-row: 1; justify-self: end; } .ord-items { grid-column: 1 / -1; } .ord-total { grid-column: 1 / -1; text-align: left; } }
+  .acct-res { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .acct-tile { background: var(--panel); border: 1.5px solid rgba(21,24,32,0.18); border-radius: 16px; padding: 18px 18px 16px; display: grid; gap: 8px; align-content: start; }
+  .acct-tile b { font-family: var(--font-head); font-weight: 700; font-size: 16px; line-height: 1.25; }
+  .acct-tile p { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--ash); }
+  .acct-tile .acct-tile-links { display: grid; gap: 2px; margin-top: 4px; }
+  .acct-tile a, .acct-tile button { font: inherit; font-size: 13.5px; font-weight: 600; color: var(--blue); text-decoration: none; background: none; border: 0; padding: 6px 0; min-height: 36px; text-align: left; cursor: pointer; display: inline-flex; align-items: center; }
+  .acct-tile a:hover, .acct-tile button:hover { text-decoration: underline; }
+  @media (max-width: 980px) { .acct-res { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .acct-res { grid-template-columns: 1fr; } }
+  .acct-sec-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .acct-panel { background: var(--panel); border: 1.5px solid rgba(21,24,32,0.18); border-radius: 16px; padding: 18px 20px; display: grid; gap: 10px; align-content: start; }
+  .acct-panel b { font-family: var(--font-head); font-weight: 700; font-size: 16px; }
+  .acct-panel p { margin: 0; font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  .acct-panel form { display: grid; gap: 10px; }
+  @media (max-width: 720px) { .acct-sec-grid { grid-template-columns: 1fr; } }
+  .acct-guest-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 440px); gap: clamp(28px, 5vw, 80px); align-items: start; }
+  .acct-intro ul { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .acct-intro li { font-size: 15px; line-height: 1.5; color: var(--ink-soft); padding-left: 22px; position: relative; }
+  .acct-intro li::before { content: ''; position: absolute; left: 0; top: 9px; width: 10px; height: 10px; border-radius: 50%; background: var(--hi); }
+  .acct-card { background: var(--panel); border: 1.5px solid rgba(21,24,32,0.18); border-radius: 18px; padding: 22px 22px 24px; }
+  .acct-tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid rgba(21,24,32,0.35); border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+  .acct-tabs button { font: inherit; font-weight: 600; font-size: 14px; min-height: 44px; border: 0; background: transparent; cursor: pointer; color: var(--ink); }
+  .acct-tabs button + button { border-left: 1.5px solid rgba(21,24,32,0.35); }
+  .acct-tabs button[aria-selected="true"] { background: var(--ink); color: var(--bone); }
+  .acct-card label { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ash); margin: 10px 0 5px; }
+  .acct-card input { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; min-height: 46px; border-radius: 10px; border: 1.5px solid rgba(21,24,32,0.35); background: var(--bone); color: var(--ink); box-sizing: border-box; }
+  .acct-card input:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+  .acct-hint { font-size: 13px; color: var(--ash); margin: 6px 0 0; line-height: 1.5; }
+  .acct-err { color: var(--rust); font-size: 13px; margin-top: 10px; min-height: 18px; line-height: 1.4; }
+  .acct-card .btn { width: 100%; justify-content: center; margin-top: 14px; min-height: 46px; }
+  .acct-links { margin-top: 10px; display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
+  .acct-links button { font: inherit; color: var(--blue); background: none; border: 0; text-decoration: underline; cursor: pointer; padding: 0 4px; min-height: 44px; text-align: left; }
+  .acct-links button[hidden] { display: none; }
+  @media (max-width: 860px) { .acct-guest-grid { grid-template-columns: 1fr; } }
+  .ord-toast { position: fixed; left: 50%; top: calc(max(12px, env(safe-area-inset-top)) + 72px); transform: translate(-50%, -16px); z-index: 140; background: var(--ink); color: var(--bone);
+    border: 2px solid var(--gold); border-radius: 10px; padding: 12px 18px; font-family: var(--font-head); font-weight: 600; font-size: 14px; opacity: 0; visibility: hidden;
+    transition: opacity 0.2s ease, transform 0.25s var(--ease-out), visibility 0.2s; max-width: calc(100% - 32px); text-align: center; pointer-events: none; }
+  .ord-toast.is-on { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+</style>
+</head>
+<body class="sec-page acct-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><img src="assets/head-icon.svg" alt="" class="nav-head" /> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+        <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="harness.html">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#what">What a harness is</a><a href="harness.html#registry">The registry</a><a href="harness.html#gates">Gates</a><a href="harness.html#surface">All 25 commands</a><a href="harness.html#limits">What it won’t do</a></div></div>
+    <a href="connect.html">Links</a>
+    <a href="index.html#paper" class="ext">Paper ↗</a>
+        <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
+    <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
+</nav>
+<div class="store-dock" id="storeDock" aria-label="Account and cart">
+  <a class="store-dock-btn" id="storeAcct" href="account.html" aria-label="Account" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
+  <a class="store-dock-btn" id="storeCart" href="order.html?open=cart" aria-label="Cart" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="store-dock-n" id="storeCartN" hidden>0</span></a>
+</div>
+
+<main class="acct-main"><div class="acct-wrap">
+
+  <section id="acctGuest" hidden>
+    <div class="acct-guest-grid">
+      <div class="acct-intro">
+        <span class="acct-k">Account</span>
+        <h1 class="acct-h1">Your MABEL account.</h1>
+        <p class="acct-sub">One place for the robot, from the order to the years after it.</p>
+        <ul>
+          <li>Follow a robot from order to delivery: build, test, shipping and tracking.</li>
+          <li>Register a robot you built yourself and keep its serial, parts and support together.</li>
+          <li>Keep your cart and your orders across devices.</li>
+          <li>The simulator, the apps, the data and training studios and the documentation, in one place.</li>
+        </ul>
+      </div>
+      <div class="acct-card">
+        <div class="acct-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mode="login">Sign in</button><button type="button" role="tab" aria-selected="false" data-mode="register">Create account</button></div>
+        <form id="acctForm" novalidate>
+          <label for="acctIdent">Email or phone number</label><input id="acctIdent" type="text" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" required />
+          <div id="acctPwRow"><label for="acctPass">Password</label><input id="acctPass" type="password" autocomplete="current-password" minlength="8" /></div>
+          <div id="acctCodeRow" hidden><label for="acctCode">Six-digit code</label><input id="acctCode" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" /><p class="acct-hint" id="acctCodeHint"></p></div>
+          <div class="acct-err" id="acctErr" aria-live="polite"></div>
+          <button type="submit" class="btn btn-primary" id="acctSubmit">Sign in</button>
+          <div class="acct-links"><button type="button" id="acctUseCode" hidden>Send me a code instead</button><button type="button" id="acctUsePw" hidden>Use a password instead</button></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="acctUser" hidden>
+    <div class="acct-top">
+      <div><span class="acct-k">Account</span><h1 class="acct-h1" id="acctHello">Hello.</h1><p class="acct-meta" id="acctMeta"></p></div>
+      <div class="acct-actions"><a class="btn btn-primary" href="order.html">Configure a MABEL</a><button type="button" class="btn btn-ghost acct-quiet" id="acctLogout">Sign out</button></div>
+    </div>
+    <nav class="acct-nav" aria-label="Account sections"><a href="#robots">Robots</a><a href="#orders">Orders</a><a href="#resources">Resources</a><a href="#security">Security</a></nav>
+
+    <section class="acct-sec" id="robots">
+      <h2 class="acct-h2">Your robots</h2>
+      <p class="acct-sub">Every MABEL on this account: bought here, or built by you and registered.</p>
+      <div class="robot-list" id="robotList"></div>
+      <details class="acct-reg" id="regBox">
+        <summary>Register a robot you built</summary>
+        <form id="regForm" novalidate>
+          <p>A kit or a robot built from the plans gets the same page as one bought assembled: parts, software, support and warranty on the parts we make.</p>
+          <div class="acct-field"><label for="regSerial">Serial</label><input id="regSerial" type="text" placeholder="MBL-K-0012" autocapitalize="characters" spellcheck="false" required /></div>
+          <div class="acct-field"><label for="regName">Name (optional)</label><input id="regName" type="text" placeholder="Lab robot" maxlength="60" /></div>
+          <div class="acct-field"><label for="regSource">Built from</label><select id="regSource"><option value="kit">The parts kit</option><option value="self-built">The open plans</option></select></div>
+          <button type="submit" class="btn btn-ghost acct-quiet" id="regSubmit">Register</button>
+        </form>
+      </details>
+    </section>
+
+    <section class="acct-sec" id="orders">
+      <h2 class="acct-h2">Orders</h2>
+      <p class="acct-sub">Robots and parts, newest first. A deposit reserves a build; the balance is invoiced before it ships.</p>
+      <div class="ord-list" id="orderList"></div>
+    </section>
+
+    <section class="acct-sec" id="resources">
+      <h2 class="acct-h2">Get the most from MABEL</h2>
+      <p class="acct-sub">The same tools the platform was developed with, open to every owner.</p>
+      <div class="acct-res">
+        <div class="acct-tile"><b>Simulate before it ships</b><p>The whole robot in MuJoCo, in a browser. Practise teleoperation and run policies on the twin while yours is being built.</p>
+          <div class="acct-tile-links"><a href="simulator.html">Browser simulator</a><a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener">Control Center, simulation ↗</a></div></div>
+        <div class="acct-tile"><b>Drive it</b><p>Whole-body teleoperation from a Vision Pro, an iPhone, a browser or a gamepad.</p>
+          <div class="acct-tile-links"><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="https://control.mabelrobot.duckdns.org" target="_blank" rel="noopener">Control Center, your robot ↗</a></div></div>
+        <div class="acct-tile"><b>Collect and curate data</b><p>Record demonstrations, inspect and clean episodes, and export LeRobot datasets.</p>
+          <div class="acct-tile-links"><a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Data Studio ↗</a><a href="autonomy.html#curation">How curation works</a></div></div>
+        <div class="acct-tile"><b>Train a policy</b><p>ACT, diffusion and π0-family policies trained in the browser, and a community queue for shared runs.</p>
+          <div class="acct-tile-links"><a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Trainer Studio ↗</a><a href="autonomy.html#learning">Architectures and results</a></div></div>
+        <div class="acct-tile"><b>Documentation</b><p>Assembly, electronics, bring-up, calibration, troubleshooting and the safety chapter.</p>
+          <div class="acct-tile-links"><a href="docs/">The wiki</a><a href="docs/troubleshoot.html">Troubleshooting</a><a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build guide, PDF ↗</a></div></div>
+        <div class="acct-tile"><b>Source, CAD and firmware</b><p>Everything on the robot is in one repository, under the MIT licence.</p>
+          <div class="acct-tile-links"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="software.html#firmware">Firmware</a><a href="docs/bom.html#explore">Bill of materials</a></div></div>
+        <div class="acct-tile"><b>Cite MABEL</b><p>If MABEL is part of your research, cite the paper.</p>
+          <div class="acct-tile-links"><a href="index.html#paper">The paper</a><button type="button" id="citeCopy">Copy BibTeX</button></div>
+          <pre id="citeText" hidden>@misc{mabel2026,
+  title  = {{MABEL}: An Open Anthropomorphic Mobile Bimanual Platform for Teleoperation and Learning},
+  author = {Anonymous (under review)},
+  year   = {2026},
+  note   = {robotmabel.github.io/website}
+}</pre></div>
+        <div class="acct-tile"><b>Community and support</b><p>Other builders, the showcase, and the people who designed the robot.</p>
+          <div class="acct-tile-links"><a href="connect.html">Community</a><a href="docs/#showcase">Showcase</a><a href="order.html#parts">Order parts</a></div></div>
+      </div>
+    </section>
+
+    <section class="acct-sec" id="security">
+      <h2 class="acct-h2">Security</h2>
+      <div class="acct-sec-grid">
+        <div class="acct-panel"><b>How you sign in</b><p id="secHow"></p><p>A session lasts 30 days on the device it was started on. Signing out ends it on this device.</p></div>
+        <div class="acct-panel"><b id="pwTitle">Password</b><p id="pwHint"></p>
+          <form id="acctPwForm" novalidate><div class="acct-field"><label for="acctNewPw">New password</label><input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" /></div><button type="submit" class="btn btn-ghost acct-quiet">Save password</button></form></div>
+      </div>
+    </section>
+  </section>
+
+</div></main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="connect.html">Community</a></div></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a><a href="harness.html">AI harness</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="docs/assembly.html">Assembly guide</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">CAD files ↗</a><a href="order.html">Order a robot</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 The MABEL Authors · MIT License</span><span>Built with love · v1.0.0</span></div>
+  </div>
+</footer>
+
+<div class="ord-toast" id="ordToast" role="status" aria-live="polite"></div>
+
+<script src="assets/store-api.js"></script>
+<script src="assets/account.js"></script>
+<script src="assets/store-nav.js"></script>
+<script src="assets/mabel.js?v=05171eac"></script>
+</body>
+</html>

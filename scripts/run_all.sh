@@ -34,7 +34,7 @@ run () {
 P=python3
 run structure   $P scripts/structure.py $B/index.html $B/software.html \
                    $B/teleop.html $B/connect.html $B/hardware.html $B/autonomy.html \
-                   $B/anatomy.html $B/simulator.html $B/simulation.html $B/harness.html $B/order.html \
+                   $B/anatomy.html $B/simulator.html $B/simulation.html $B/harness.html $B/order.html $B/account.html \
                    $B/docs/bom.html $B/docs/assembly.html $B/docs/troubleshoot.html
 run tables      $P scripts/tablescroll.py $B/index.html $B/docs/bom.html $B/software.html \
                    $B/teleop.html $B/autonomy.html $B/hardware.html $B/connect.html \
@@ -68,6 +68,7 @@ run harness     $P scripts/hxtest.py $B/harness.html
 run harness-gen $P scripts/build_harness.py --check
 run order       $P scripts/ordertest.py $B/order.html
 run order-gen   $P scripts/build_order.py --check
+run account     $P scripts/accounttest.py $B/account.html
 run wiki        $P scripts/wikitest.py
 run page-weight $P scripts/loadtest.py
 run platforms   $P scripts/pttest.py $B/index.html

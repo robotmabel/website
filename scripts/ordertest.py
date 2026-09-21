@@ -24,7 +24,7 @@ Two passes, desktop (1400×950) and phone (390×844, touch), and in each:
 Phone-only:
   * no horizontal overflow at 390 and 360, with the drawer and sheet open;
   * every interactive element in the store's widgets is at least 44 px tall;
-  * the sticky bar rides the configurator only, and never overlaps the dock.
+  * the total bar floats on every part of the page and never overlaps the dock.
 `--shots DIR` saves a viewport screenshot of each state to look at.
 """
 import asyncio, base64, json, os, pathlib, random, subprocess, sys, time, urllib.request, websockets
@@ -204,12 +204,17 @@ async def go():
             await load(URL.split("?")[0])
             g0 = await ev("[document.querySelectorAll('#buyDots button').length, window.__order.slide]")
             check(g0 == [len(CAT["gallery"]), "photo"], f"the gallery opens on the photo with a dot per slide: {g0}")
-            await click('.buy-opt[data-step="tier"][data-opt="kit"]'); await click('.buy-opt[data-step="robot"][data-opt="base"]')
-            check(await ev("window.__order.slide") == "base", "picking the base shows the base")
+            await click('.buy-opt[data-step="tier"][data-opt="kit"]'); await click('.buy-opt[data-step="robot"][data-opt="upper"]')
+            check(await ev("window.__order.slide") == "tabletop", "picking the upper body shows the tabletop photograph")
+            await click('.buy-opt[data-step="compute"][data-opt="pi5"]')
+            check(await ev("window.__order.slide") == "tabletop", "a pick without a photograph of its own leaves the gallery alone")
             await click("#buyNext"); s1 = await ev("window.__order.slide"); await click("#buyPrev"); s2 = await ev("window.__order.slide")
-            check(s1 == "hands" and s2 == "base", f"the arrows step through the slides: {s1}, {s2}")
-            await click("#buyDots button:nth-child(10)")
-            check(await ev("window.__order.slide") == "exploded" and await ev("document.getElementById('buySlide').classList.contains('is-contain')"), "the exploded view fits inside the frame")
+            check(s1 == "laptop" and s2 == "tabletop", f"the arrows step through the slides: {s1}, {s2}")
+            await click("#buyDots button:last-child")
+            last = CAT["gallery"][-1]
+            check(await ev("window.__order.slide") == last["key"] and (await ev("document.getElementById('buySlide').getAttribute('src')")) == last["src"], "the last dot shows the last photograph")
+            real = all(g["src"].startswith("assets/wild/") for g in CAT["gallery"])
+            check(real, "the gallery is photographs only, no renders")
 
             # ── box, delivery, compare ──
             b = await ev("[document.querySelectorAll('#boxGrid .box-tile').length, document.querySelectorAll('#boxTabs button').length]")
@@ -267,8 +272,9 @@ async def go():
             await click("#cartClose"); await asyncio.sleep(0.3)
 
             # ── account ──
-            await click("#storeAcct")
-            check(await ev("document.getElementById('acct').classList.contains('is-open')"), "the top-right account icon opens the sheet")
+            check(await ev("document.getElementById('storeAcct').getAttribute('href')") == "account.html", "the top-right account icon leads to the account page")
+            await ev("window.__order.openAcct(); true"); await asyncio.sleep(0.3)
+            check(await ev("document.getElementById('acct').classList.contains('is-open')"), "the cart's sign-in opens the sheet")
             check(await ev("document.getElementById('acctUseCode').hidden"), "no code option is offered while the server cannot send one")
             await ev("window.__order.otp = {email: true, sms: false}; true")
             check(not await ev("document.getElementById('acctUseCode').hidden"), "…and it appears when the server can")
@@ -313,8 +319,8 @@ async def go():
                 check(bar[0] and bar[1] < bar[2] and bar[3] < bar[1], f"inside the configurator the bar is up, below the dock: {bar}")
                 await shot(f"{tag}-bar")
                 await ev("window.scrollTo({top: document.documentElement.scrollHeight, behavior: 'instant'}); true"); await asyncio.sleep(0.5)
-                fb = await ev("[document.getElementById('buyBar').classList.contains('is-on'), document.getElementById('buyBar').getBoundingClientRect().top, window.innerHeight]")
-                check(not fb[0] and fb[1] >= fb[2] - 0.5, f"past the configurator the bar leaves the screen: {fb}")
+                fb = await ev("[document.getElementById('buyBar').classList.contains('is-on'), document.getElementById('buyBar').getBoundingClientRect().top, window.innerHeight, document.querySelector('body > footer .foot-bottom').getBoundingClientRect().bottom]")
+                check(fb[0] and fb[1] < fb[2] and fb[3] <= fb[1] + 0.5, f"at the foot of the page the bar still floats and the last line clears it: {fb}")
                 check(await ev("getComputedStyle(document.getElementById('ordToast')).pointerEvents") == "none", "the toast never intercepts a tap")
                 await cmd("Emulation.setDeviceMetricsOverride", {"width": 360, "height": 780, "deviceScaleFactor": 2, "mobile": True})
                 await asyncio.sleep(0.3)
