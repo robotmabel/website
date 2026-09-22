@@ -16,66 +16,82 @@ window.MABEL_BOM = {
  "as_quoted_today": 14968.37,
  "functional_dof": 56,
  "motor_count": 59,
- "core_total": 8058.29,
+ "core_total": 7650.05,
  "core_line_count": 49,
  "core_sections": [
   {
    "name": "Mobile base",
-   "usd": 2272.11,
-   "share": 28.2
+   "usd": 1912.11,
+   "share": 24.99
   },
   {
    "name": "Body / torso",
    "usd": 889.06,
-   "share": 11.03
+   "share": 11.62
   },
   {
    "name": "Arms - both",
    "usd": 2622.24,
-   "share": 32.54
+   "share": 34.28
   },
   {
    "name": "Hands - both",
    "usd": 1194.61,
-   "share": 14.82
+   "share": 15.62
   },
   {
    "name": "Neck / head",
    "usd": 235.3,
-   "share": 2.92
+   "share": 3.08
   },
   {
    "name": "Structural hardware",
    "usd": 184.21,
-   "share": 2.29
+   "share": 2.41
   },
   {
    "name": "Electronics, power & cabling",
-   "usd": 499.83,
-   "share": 6.2
+   "usd": 491.84,
+   "share": 6.43
   },
   {
    "name": "3D printed material",
-   "usd": 160.93,
-   "share": 2.0
+   "usd": 120.68,
+   "share": 1.58
   }
  ],
  "core": [
   {
    "ref": "1.01",
    "section": "Mobile base",
-   "item": "REV Swerve Drive Module",
-   "spec": "REV-21-3005",
+   "item": "REV 3in MAXSwerve Module",
+   "spec": "REV-21-3005, module only",
    "qty": 3,
-   "unit_usd": 675.0,
-   "ext_usd": 2025.0,
+   "unit_usd": 275.0,
+   "ext_usd": 825.0,
    "currency": "USD",
-   "unit_native": 675.0,
+   "unit_native": 275.0,
    "vendor": "revrobotics.com",
    "link": "https://www.revrobotics.com/rev-21-3005/",
    "fgroup": "actuation",
-   "status": "sheet",
-   "note": "As-paid lump per module. REV's catalog page prices the module itself at $275 and states motors, controllers and framing are NOT included - see the open items."
+   "status": "corrected",
+   "note": "REV catalogue price. The sheet carried a $675 as-paid lump per module; itemised at catalogue it is $275 + the $280 motor and controller bundle below."
+  },
+  {
+   "ref": "1.01b",
+   "section": "Mobile base",
+   "item": "REV MAXSwerve Motor & Controller Bundle",
+   "spec": "REV-15-2992: NEO + NEO 550 + 2x SPARK MAX, one module",
+   "qty": 3,
+   "unit_usd": 280.0,
+   "ext_usd": 840.0,
+   "currency": "USD",
+   "unit_native": 280.0,
+   "vendor": "revrobotics.com",
+   "link": "https://www.revrobotics.com/rev-15-2992/",
+   "fgroup": "actuation",
+   "status": "corrected",
+   "note": "One bundle per module: the drive NEO, the steering NEO 550 and their two SPARK MAX controllers."
   },
   {
    "ref": "1.02",
@@ -750,22 +766,6 @@ window.MABEL_BOM = {
    "note": ""
   },
   {
-   "ref": "7.17",
-   "section": "Electronics, power & cabling",
-   "item": "Flashlight",
-   "spec": "Inspection / work light",
-   "qty": 1,
-   "unit_usd": 7.99,
-   "ext_usd": 7.99,
-   "currency": "USD",
-   "unit_native": 7.99,
-   "vendor": "amazon.com",
-   "link": "",
-   "fgroup": "misc",
-   "status": "sheet",
-   "note": ""
-  },
-  {
    "ref": "7.18",
    "section": "Electronics, power & cabling",
    "item": "Custom PCBs",
@@ -803,15 +803,15 @@ window.MABEL_BOM = {
    "item": "Bambu Lab PLA Basic, Jade White",
    "spec": "1.75 mm, 1 kg with spool - covers, sensor mounts, trim",
    "qty": 4,
-   "unit_usd": 22.99,
-   "ext_usd": 91.96,
+   "unit_usd": 17.24,
+   "ext_usd": 68.96,
    "currency": "USD",
-   "unit_native": 22.99,
+   "unit_native": 17.24,
    "vendor": "bambulab.com",
    "link": "https://us.store.bambulab.com/collections/pla",
    "fgroup": "structure",
-   "status": "sheet",
-   "note": "Priced at list. Bambu Lab's standing bulk offer takes 25% off four rolls or more, which brings all seven spools to $120.70 and the core to $8,018.06."
+   "status": "corrected",
+   "note": "Bambu Lab's standing bulk price: 25% off four rolls or more, and the build takes seven, so every roll is $17.24 rather than the $22.99 list. Covers, sensor mounts and trim."
   },
   {
    "ref": "8.02",
@@ -819,15 +819,15 @@ window.MABEL_BOM = {
    "item": "Bambu Lab PLA Basic, Black",
    "spec": "1.75 mm, 1 kg with spool - ORCA hand structure",
    "qty": 2,
-   "unit_usd": 22.99,
-   "ext_usd": 45.98,
+   "unit_usd": 17.24,
+   "ext_usd": 34.48,
    "currency": "USD",
-   "unit_native": 22.99,
+   "unit_native": 17.24,
    "vendor": "bambulab.com",
    "link": "https://us.store.bambulab.com/collections/pla",
    "fgroup": "structure",
-   "status": "sheet",
-   "note": "The tendon-driven hand frames; the highest-wear printed parts on the robot."
+   "status": "corrected",
+   "note": "Bambu Lab's standing bulk price: 25% off four rolls or more, and the build takes seven, so every roll is $17.24 rather than the $22.99 list. The tendon-driven hand frames; the highest-wear printed parts on the robot."
   },
   {
    "ref": "8.03",
@@ -835,15 +835,15 @@ window.MABEL_BOM = {
    "item": "Bambu Lab PLA Basic, Light Gray",
    "spec": "1.75 mm, 1 kg with spool - accent parts",
    "qty": 1,
-   "unit_usd": 22.99,
-   "ext_usd": 22.99,
+   "unit_usd": 17.24,
+   "ext_usd": 17.24,
    "currency": "USD",
-   "unit_native": 22.99,
+   "unit_native": 17.24,
    "vendor": "bambulab.com",
    "link": "https://us.store.bambulab.com/collections/pla",
    "fgroup": "structure",
-   "status": "sheet",
-   "note": ""
+   "status": "corrected",
+   "note": "Bambu Lab's standing bulk price: 25% off four rolls or more, and the build takes seven, so every roll is $17.24 rather than the $22.99 list."
   }
  ],
  "choices": [
@@ -851,17 +851,28 @@ window.MABEL_BOM = {
    "id": "9.1",
    "name": "Onboard compute",
    "qty": 1,
-   "lo": 399.0,
+   "lo": 120.0,
    "hi": 5499.0,
    "options": [
+    {
+     "option": "Raspberry Pi 5 16 GB",
+     "spec": "16 GB, quad Cortex-A76; teleoperation, recording and the studios, policies run off-board",
+     "unit_usd": 120.0,
+     "ext_usd": 120.0,
+     "tiers": [
+      "essential"
+     ],
+     "vendor": "raspberrypi.com",
+     "link": "https://www.raspberrypi.com/products/raspberry-pi-5/",
+     "fgroup": "compute",
+     "note": "The standard robot's compute. Add an NVMe HAT and SSD (about $45) to keep datasets on the robot; a Jetson is the upgrade for on-board policy inference."
+    },
     {
      "option": "NVIDIA Jetson Orin Nano Super Dev Kit",
      "spec": "8 GB, 67 TOPS, carrier also accepts Orin NX modules",
      "unit_usd": 399.0,
      "ext_usd": 399.0,
-     "tiers": [
-      "essential"
-     ],
+     "tiers": [],
      "vendor": "amazon.com",
      "link": "https://developer.nvidia.com/embedded/buy-jetson",
      "fgroup": "compute",
@@ -933,9 +944,9 @@ window.MABEL_BOM = {
       "essential"
      ],
      "vendor": "amazon.com",
-     "link": "",
+     "link": "https://www.amazon.com/MMlove-Shutter-1280x720-Embedded-Applications/dp/B0BZYW6DJT",
      "fgroup": "perception",
-     "note": ""
+     "note": "The standard wrist camera, one per arm. Amazon.com listing B0BZYW6DJT."
     },
     {
      "option": "MMlove AR0144 GS-1200P-90fps",
@@ -969,22 +980,22 @@ window.MABEL_BOM = {
    "id": "9.3",
    "name": "Head camera",
    "qty": 1,
-   "lo": 97.99,
+   "lo": 119.0,
    "hi": 399.0,
    "options": [
     {
-     "option": "MMlove 1200P stereo, 112 deg HFOV",
-     "spec": "3200x1200 @ 60, global shutter, synced pair, host-side matching",
-     "unit_usd": 97.99,
-     "ext_usd": 97.99,
+     "option": "IEights OG02B10 stereo, 1200P 60 fps, 100 deg HFOV",
+     "spec": "3200x1200 @ 60 (1200P per eye), global shutter, synchronised pair, 60 mm baseline, host-side matching",
+     "unit_usd": 119.0,
+     "ext_usd": 119.0,
      "tiers": [
       "essential",
       "recommended"
      ],
      "vendor": "amazon.com",
-     "link": "",
+     "link": "https://www.amazon.com/Shutter-Synchronization-Computer-Binocular-100%C2%B0Industrial/dp/B0DHYDWSGT",
      "fgroup": "perception",
-     "note": "Raw synchronised stereo with matching moved onto the host, which costs memory on a smaller Jetson."
+     "note": "The standard head camera (est.): the US price is converted from the CA$159.14 Amazon.ca listing B0DHYDWSGT until verified at the link."
     },
     {
      "option": "Intel RealSense D435i",
@@ -1116,7 +1127,7 @@ window.MABEL_BOM = {
    "options": [
     {
      "option": "None needed",
-     "spec": "MMlove boards use the USB-C to USB-A cables already in the core",
+     "spec": "The MMlove wrist boards and the IEights head board use the USB-A cables already in the core",
      "unit_usd": 0.0,
      "ext_usd": 0.0,
      "tiers": [
@@ -1126,7 +1137,7 @@ window.MABEL_BOM = {
      "vendor": "-",
      "link": "",
      "fgroup": "data",
-     "note": "Choosing MMlove for both wrist and head removes $48.66 of camera-specific cabling."
+     "note": "Choosing the MMlove wrists and the IEights head removes $48.66 of camera-specific cabling."
     },
     {
      "option": "Micro-B pair + ZED USB-C run",
@@ -1145,24 +1156,24 @@ window.MABEL_BOM = {
   }
  ],
  "choices_range": {
-  "lo": 663.97,
+  "lo": 405.98,
   "hi": 7022.35,
-  "ratio": 10.6
+  "ratio": 17.3
  },
  "builds": [
   {
    "id": "essential",
    "name": "Essential",
-   "blurb": "Smallest Jetson, no base depth camera, LD19 lidar. A genuine working robot rather than a stripped one - the mechanism is identical and every difference upgrades later without touching the structure.",
-   "core_usd": 8058.29,
-   "choices_usd": 663.97,
-   "total": 8722.26,
+   "blurb": "Raspberry Pi 5, no base depth camera, LD19 lidar. A genuine working robot rather than a stripped one - the mechanism is identical and every difference upgrades later without touching the structure.",
+   "core_usd": 7650.05,
+   "choices_usd": 405.98,
+   "total": 8056.03,
    "picks": [
     {
      "choice_id": "9.1",
      "choice": "Onboard compute",
-     "option": "NVIDIA Jetson Orin Nano Super Dev Kit",
-     "usd": 399.0
+     "option": "Raspberry Pi 5 16 GB",
+     "usd": 120.0
     },
     {
      "choice_id": "9.2",
@@ -1173,8 +1184,8 @@ window.MABEL_BOM = {
     {
      "choice_id": "9.3",
      "choice": "Head camera",
-     "option": "MMlove 1200P stereo, 112 deg HFOV",
-     "usd": 97.99
+     "option": "IEights OG02B10 stereo, 1200P 60 fps, 100 deg HFOV",
+     "usd": 119.0
     },
     {
      "choice_id": "9.4",
@@ -1200,9 +1211,9 @@ window.MABEL_BOM = {
    "id": "recommended",
    "name": "Recommended",
    "blurb": "16 GB of memory, 1200P global-shutter wrists, RPLIDAR C1. Keeps what decides which policies run onboard and spends nothing on sensing you are unlikely to use.",
-   "core_usd": 8058.29,
-   "choices_usd": 1611.97,
-   "total": 9670.26,
+   "core_usd": 7650.05,
+   "choices_usd": 1632.98,
+   "total": 9283.03,
    "picks": [
     {
      "choice_id": "9.1",
@@ -1219,8 +1230,8 @@ window.MABEL_BOM = {
     {
      "choice_id": "9.3",
      "choice": "Head camera",
-     "option": "MMlove 1200P stereo, 112 deg HFOV",
-     "usd": 97.99
+     "option": "IEights OG02B10 stereo, 1200P 60 fps, 100 deg HFOV",
+     "usd": 119.0
     },
     {
      "choice_id": "9.4",
@@ -1246,9 +1257,9 @@ window.MABEL_BOM = {
    "id": "maximum",
    "name": "Maximum",
    "blurb": "Jetson Thor, RealSense D405 wrists, ZED Mini head, base depth camera. Everything the original bill of materials specified.",
-   "core_usd": 8058.29,
+   "core_usd": 7650.05,
    "choices_usd": 7071.01,
-   "total": 15129.3,
+   "total": 14721.06,
    "picks": [
     {
      "choice_id": "9.1",
@@ -1293,44 +1304,44 @@ window.MABEL_BOM = {
   {
    "key": "actuation",
    "name": "Actuation",
-   "usd": 6238.6,
-   "share": 64.51
+   "usd": 5878.6,
+   "share": 63.33
   },
   {
    "key": "compute",
    "name": "Compute",
    "usd": 1249.0,
-   "share": 12.92
+   "share": 13.45
   },
   {
    "key": "structure",
    "name": "Structure",
-   "usd": 1182.71,
-   "share": 12.23
+   "usd": 1142.46,
+   "share": 12.31
   },
   {
    "key": "perception",
    "name": "Perception",
-   "usd": 362.97,
-   "share": 3.75
+   "usd": 383.98,
+   "share": 4.14
   },
   {
    "key": "power",
    "name": "Power & wiring",
    "usd": 294.6,
-   "share": 3.05
+   "share": 3.17
   },
   {
    "key": "data",
    "name": "Data & connectivity",
    "usd": 248.89,
-   "share": 2.57
+   "share": 2.68
   },
   {
    "key": "misc",
    "name": "Control & misc",
-   "usd": 93.49,
-   "share": 0.97
+   "usd": 85.5,
+   "share": 0.92
   }
  ],
  "functional_of": "recommended",
@@ -1339,66 +1350,66 @@ window.MABEL_BOM = {
    "item": "NVIDIA Jetson AGX Thor Developer Kit",
    "qty": 1,
    "ext_usd": 5499.0,
-   "share": 36.3
-  },
-  {
-   "item": "REV Swerve Drive Module",
-   "qty": 3,
-   "ext_usd": 2025.0,
-   "share": 13.4
+   "share": 37.4
   },
   {
    "item": "DAMIAO DM8009P joint module",
    "qty": 4,
    "ext_usd": 1089.44,
-   "share": 7.2
+   "share": 7.4
   },
   {
    "item": "Feetech HL3915M servo",
    "qty": 32,
    "ext_usd": 1078.54,
-   "share": 7.1
+   "share": 7.3
+  },
+  {
+   "item": "REV MAXSwerve Motor & Controller Bundle",
+   "qty": 3,
+   "ext_usd": 840.0,
+   "share": 5.7
+  },
+  {
+   "item": "REV 3in MAXSwerve Module",
+   "qty": 3,
+   "ext_usd": 825.0,
+   "share": 5.6
   },
   {
    "item": "Intel RealSense D405",
    "qty": 2,
    "ext_usd": 576.0,
-   "share": 3.8
+   "share": 3.9
   },
   {
    "item": "DAMIAO FOCGM43 joint module",
    "qty": 6,
    "ext_usd": 515.46,
-   "share": 3.4
+   "share": 3.5
   },
   {
    "item": "DAMIAO DM4340 joint motor",
    "qty": 4,
    "ext_usd": 506.18,
-   "share": 3.3
+   "share": 3.4
   },
   {
    "item": "FlexiSpot E7 Pro lift column",
    "qty": 1,
    "ext_usd": 399.0,
-   "share": 2.6
+   "share": 2.7
   },
   {
    "item": "Stereolabs ZED Mini",
    "qty": 1,
    "ext_usd": 399.0,
-   "share": 2.6
-  },
-  {
-   "item": "OpenArm structural set",
-   "qty": 1,
-   "ext_usd": 387.1,
-   "share": 2.6
+   "share": 2.7
   }
  ],
- "top_ten_sum": 12474.72,
- "top_ten_share": 82.5,
- "top_ten_rest": 2654.58,
+ "top_ten_sum": 11727.62,
+ "top_ten_share": 79.7,
+ "top_ten_rest": 2993.44,
  "top_ten_rest_count": 45,
  "machined": [
   {
@@ -1686,15 +1697,6 @@ window.MABEL_BOM = {
  "open_items": [
   {
    "kind": "correction",
-   "item": "Swerve module content",
-   "qty": 3,
-   "low_usd": 0.0,
-   "high_usd": 0.0,
-   "impact": "unpriced",
-   "note": "The $675/module line is a lump. REV prices REV-21-3005 at $275 and states motors, controllers and framing are not included; the module needs a NEO ($42.50), a NEO 550 ($30), a SPARK Flex ($110) and a SPARK MAX ($100). Itemised that is $557.50 each. Either the sheet's $675 includes parts not listed, or the line is $352.50 high across three modules. A reader ordering from it as written receives three modules that cannot move."
-  },
-  {
-   "kind": "correction",
    "item": "Neck servo identity",
    "qty": 1,
    "low_usd": 0.0,
@@ -1762,16 +1764,16 @@ window.MABEL_BOM = {
   "high": 1118.0
  },
  "hand_actuator_usd": 1181.52,
- "hand_share_recommended": 12.2,
- "hand_share_maximum": 7.8,
+ "hand_share_recommended": 12.7,
+ "hand_share_maximum": 8.0,
  "bulk_offer": {
   "vendor": "Bambu Lab",
   "discount": 0.25,
   "min_qty": 4,
   "applies_to": "3D printed material",
-  "filament_list": 160.93,
-  "filament_bulk": 120.7,
-  "core_at_bulk": 8018.06
+  "filament_list": 160.91,
+  "filament_bulk": 120.68,
+  "core_at_bulk": 7690.28
  },
  "sensing_savings": [
   {
@@ -1782,7 +1784,7 @@ window.MABEL_BOM = {
   {
    "id": "9.3",
    "name": "Head camera",
-   "saving": 301.01
+   "saving": 280.0
   },
   {
    "id": "9.4",
@@ -1796,12 +1798,12 @@ window.MABEL_BOM = {
   }
  ],
  "perception_cut": {
-  "recommended": 76,
-  "essential": 83
+  "recommended": 75,
+  "essential": 81
  },
  "perception_by_build": {
-  "essential": 264.97,
-  "recommended": 362.97,
+  "essential": 285.98,
+  "recommended": 383.98,
   "maximum": 1523.35
  },
  "peers": [

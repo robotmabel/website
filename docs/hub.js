@@ -26,7 +26,7 @@
   var BOOT = [
     ['MABEL BIOS v1.0', null, 0],
     ['', null, 0],
-    ['BILL OF MATERIALS', '$8,722 · 100%', 1],
+    ['BILL OF MATERIALS', '$8,056 · 100%', 1],
     ['PRINTED PARTS', 'READY', 1],
     ['SWERVE BASE', '3 MODULES', 1],
     ['ARMS / HANDS', '2×7 + 2×17 DOF', 1],

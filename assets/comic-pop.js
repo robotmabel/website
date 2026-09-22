@@ -164,7 +164,7 @@
         '<g transform="translate(210,92)">' +
         '<circle cx="0" cy="0" r="56" fill="' + YELLOW + '" stroke="' + INK + '" stroke-width="5"/>' +
         '<text x="0" y="12" font-family="Limelight, serif" font-size="30" fill="' + INK +
-        '" text-anchor="middle">$9,670</text></g>' +
+        '" text-anchor="middle">$8,056</text></g>' +
         speed(24, 34, 4, 84, RUST) + speed(312, 34, 4, 84, RUST) +
         '<text x="210" y="180" font-family="Bangers, cursive" font-size="18" fill="' + RUST +
         '" text-anchor="middle" letter-spacing="1">AS BUILT — NO MACHINE SHOP</text>');

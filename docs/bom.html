@@ -18,7 +18,7 @@
   <h1><span class="n">01</span>Bill of materials</h1>
   <p class="lead">
     One core parts list every build shares, plus six perception/compute choices
-    that set your tier. Prices are live-quoted (last refresh: 31&nbsp;July&nbsp;2026)
+    that set your tier. Configuration updated 22&nbsp;September&nbsp;2026 (price basis: 31&nbsp;July&nbsp;2026)
     and maintained as CSVs in the repo — the PDFs and the site's interactive BOM
     are generated from the same data.
   </p>
@@ -29,24 +29,24 @@
     <a href="../assets/bom/MABEL_Wiring_Guide.pdf">MABEL_Wiring_Guide.pdf<small>harness, buses, pinouts</small></a>
   </div>
   <p class="dim">The parts list itself is <a href="#explore">below, live</a> —
-  searchable, filterable by tier, with a vendor link per line. The raw CSVs it
-  is generated from live in
-  <a href="https://github.com/robotmabel/MABEL/tree/main/BOM/data"><code>BOM/data/</code></a>.</p>
+  searchable, filterable by tier, with a vendor link per line. Download the current <a href="../assets/bom/core.csv">core parts CSV</a>,
+  <a href="../assets/bom/choices.csv">compute and sensing CSV</a>, or
+  <a href="../assets/bom/mabel_bom.pdf">BOM audit PDF</a>.</p>
 
-  <h2>Core BOM — $8,058.29, every build</h2>
+  <h2>Core BOM — $7,650.05, every build</h2>
   <p>49 lines, identical across tiers. By section:</p>
   <table>
-    <tr><th>Section</th><th class="num">USD</th><th class="num">Share</th><th>Headline parts</th></tr>
-    <tr><td>Arms (both)</td><td class="num">2,622.24</td><td class="num">32.5%</td><td>14 × DaMiao QDD (2 × J8009P, 2 × J4340, 3 × J4310 per arm)</td></tr>
-    <tr><td>Mobile base</td><td class="num">2,272.11</td><td class="num">28.2%</td><td>3 × REV swerve module (NEO + NEO 550), 6 × SPARK, sheet chassis</td></tr>
-    <tr><td>Hands (both)</td><td class="num">1,194.61</td><td class="num">14.8%</td><td>32 × Feetech HL3915M + 2 × HL3930M, ORCA hand hardware</td></tr>
-    <tr><td>Body / torso</td><td class="num">889.06</td><td class="num">11.0%</td><td>DM-J10422P torso (100 N·m rated, 400 N·m peak), FlexiSpot E7 Pro lift column</td></tr>
-    <tr><td>Electronics, power &amp; cabling</td><td class="num">499.83</td><td class="num">6.2%</td><td>Custom PCBs, battery pack ×2, Teensy 4.1 ×2, Pico, U2D2, audio</td></tr>
-    <tr><td>Neck / head</td><td class="num">235.30</td><td class="num">2.9%</td><td>DaMiao yaw + 2 × Dynamixel XC330-T181</td></tr>
-    <tr><td>Structural hardware</td><td class="num">184.21</td><td class="num">2.3%</td><td>Rail, fasteners, bearings</td></tr>
-    <tr><td>3D printed material</td><td class="num">160.93</td><td class="num">2.0%</td><td>Filament for every printed part</td></tr>
-    <tr class="total"><td>Core total</td><td class="num">8,058.29</td><td class="num">100%</td><td>as-quoted 31 Jul 2026</td></tr>
-  </table>
+<tr><th>Section</th><th class="num">USD</th><th class="num">Share</th></tr>
+<tr><td>Mobile base</td><td class="num">1,912.11</td><td class="num">24.99%</td></tr>
+<tr><td>Body / torso</td><td class="num">889.06</td><td class="num">11.62%</td></tr>
+<tr><td>Arms - both</td><td class="num">2,622.24</td><td class="num">34.28%</td></tr>
+<tr><td>Hands - both</td><td class="num">1,194.61</td><td class="num">15.62%</td></tr>
+<tr><td>Neck / head</td><td class="num">235.30</td><td class="num">3.08%</td></tr>
+<tr><td>Structural hardware</td><td class="num">184.21</td><td class="num">2.41%</td></tr>
+<tr><td>Electronics, power &amp; cabling</td><td class="num">491.84</td><td class="num">6.43%</td></tr>
+<tr><td>3D printed material</td><td class="num">120.68</td><td class="num">1.58%</td></tr>
+<tr class="total"><td>Core total</td><td class="num">7,650.05</td><td class="num">100%</td></tr>
+</table>
 
 
   <h2 id="explore">Explore the bill</h2>
@@ -76,15 +76,15 @@
           <table class="data-table" id="bomRows">
             <thead><tr><th style="text-align:left;">Subsystem</th><th>Share</th><th style="text-align:right;">Cost</th></tr></thead>
             <tbody>
-            <tr data-sec="Mobile base"><td data-l="Subsystem"><span class="bom-dot" style="background:#C6301A"></span>Mobile base</td><td data-l="Share">28%</td><td data-l="Cost" style="text-align:right;">$2,272</td></tr>
-            <tr data-sec="Body / torso"><td data-l="Subsystem"><span class="bom-dot" style="background:#D9A13F"></span>Body / torso</td><td data-l="Share">11%</td><td data-l="Cost" style="text-align:right;">$889</td></tr>
-            <tr data-sec="Arms - both"><td data-l="Subsystem"><span class="bom-dot" style="background:#23577E"></span>Arms - both</td><td data-l="Share">33%</td><td data-l="Cost" style="text-align:right;">$2,622</td></tr>
-            <tr data-sec="Hands - both"><td data-l="Subsystem"><span class="bom-dot" style="background:#2E7D4F"></span>Hands - both</td><td data-l="Share">15%</td><td data-l="Cost" style="text-align:right;">$1,195</td></tr>
+            <tr data-sec="Mobile base"><td data-l="Subsystem"><span class="bom-dot" style="background:#C6301A"></span>Mobile base</td><td data-l="Share">25%</td><td data-l="Cost" style="text-align:right;">$1,912</td></tr>
+            <tr data-sec="Body / torso"><td data-l="Subsystem"><span class="bom-dot" style="background:#D9A13F"></span>Body / torso</td><td data-l="Share">12%</td><td data-l="Cost" style="text-align:right;">$889</td></tr>
+            <tr data-sec="Arms - both"><td data-l="Subsystem"><span class="bom-dot" style="background:#23577E"></span>Arms - both</td><td data-l="Share">34%</td><td data-l="Cost" style="text-align:right;">$2,622</td></tr>
+            <tr data-sec="Hands - both"><td data-l="Subsystem"><span class="bom-dot" style="background:#2E7D4F"></span>Hands - both</td><td data-l="Share">16%</td><td data-l="Cost" style="text-align:right;">$1,195</td></tr>
             <tr data-sec="Neck / head"><td data-l="Subsystem"><span class="bom-dot" style="background:#8B5A3C"></span>Neck / head</td><td data-l="Share">3%</td><td data-l="Cost" style="text-align:right;">$235</td></tr>
             <tr data-sec="Structural hardware"><td data-l="Subsystem"><span class="bom-dot" style="background:#B77E1E"></span>Structural hardware</td><td data-l="Share">2%</td><td data-l="Cost" style="text-align:right;">$184</td></tr>
-            <tr data-sec="Electronics, power & cabling"><td data-l="Subsystem"><span class="bom-dot" style="background:#93220F"></span>Electronics, power & cabling</td><td data-l="Share">6%</td><td data-l="Cost" style="text-align:right;">$500</td></tr>
-            <tr data-sec="3D printed material"><td data-l="Subsystem"><span class="bom-dot" style="background:#151820"></span>3D printed material</td><td data-l="Share">2%</td><td data-l="Cost" style="text-align:right;">$161</td></tr>
-            <tr class="best"><td>Core total</td><td></td><td class="hi" style="text-align:right;">$8,058</td></tr>
+            <tr data-sec="Electronics, power & cabling"><td data-l="Subsystem"><span class="bom-dot" style="background:#93220F"></span>Electronics, power & cabling</td><td data-l="Share">6%</td><td data-l="Cost" style="text-align:right;">$492</td></tr>
+            <tr data-sec="3D printed material"><td data-l="Subsystem"><span class="bom-dot" style="background:#151820"></span>3D printed material</td><td data-l="Share">2%</td><td data-l="Cost" style="text-align:right;">$121</td></tr>
+            <tr class="best"><td>Core total</td><td></td><td class="hi" style="text-align:right;">$7,650</td></tr>
             </tbody>
           </table>
         </div>
@@ -98,7 +98,7 @@
           <h3 class="display-sm" style="margin:0;">All 49 parts.</h3>
         </div>
         <p class="lede" style="font-size:14px;">Search it, filter by subsystem, and hover any
-          row for a preview. Prices are as paid on 31 July 2026.</p>
+          row for a preview. Price basis: 31 July 2026; configuration and catalog corrections updated 22 September 2026.</p>
       </div>
       <div id="bomTable"></div>
     </div>
@@ -120,18 +120,20 @@
     so every choice upgrades later without touching the structure.
   </p>
   <table>
-    <tr><th>Choice</th><th>Essential</th><th>Recommended</th><th>Maximum</th></tr>
-    <tr><td>Onboard compute</td><td>Jetson Orin Nano Super ($399)</td><td>Jetson Orin NX 16 GB ($1,249)</td><td>Jetson AGX Thor ($5,499)</td></tr>
-    <tr><td>Wrist cameras ×2</td><td>AR0144 global-shutter 720p60</td><td>AR0144 global-shutter 1200p90</td><td>RealSense D405 (metric depth)</td></tr>
-    <tr><td>Head camera</td><td colspan="2">1200p stereo global-shutter pair, 112° HFOV</td><td>Stereolabs ZED Mini (VIO + depth engine)</td></tr>
-    <tr><td>Base depth camera</td><td colspan="2">omit — 2D lidar covers navigation</td><td>RealSense D435i</td></tr>
-    <tr><td>2D lidar</td><td>youyeetoo FHL-LD19</td><td>Slamtec RPLIDAR C1</td><td>Slamtec RPLIDAR A2M12</td></tr>
-    <tr class="total"><td>Build total</td><td class="num">$8,722</td><td class="num">$9,670</td><td class="num">$15,129</td></tr>
-  </table>
+<tr><th>Choice</th><th>Essential</th><th>Recommended</th><th>Maximum</th></tr>
+<tr><td>Onboard compute</td><td>Raspberry Pi 5 16 GB ($120.00)</td><td>NVIDIA Jetson Orin NX 16 GB + carrier ($1,249.00)</td><td>NVIDIA Jetson AGX Thor Developer Kit ($5,499.00)</td></tr>
+<tr><td>Wrist cameras</td><td>MMlove AR0144 GS-720P-60fps ($97.98)</td><td>MMlove AR0144 GS-1200P-90fps ($165.98)</td><td>Intel RealSense D405 ($576.00)</td></tr>
+<tr><td>Head camera</td><td>IEights OG02B10 stereo, 1200P 60 fps, 100 deg HFOV ($119.00)</td><td>IEights OG02B10 stereo, 1200P 60 fps, 100 deg HFOV ($119.00)</td><td>Stereolabs ZED Mini ($399.00)</td></tr>
+<tr><td>Base depth camera</td><td>Omit - rely on the 2D lidar ($0.00)</td><td>Omit - rely on the 2D lidar ($0.00)</td><td>Intel RealSense D435i ($319.72)</td></tr>
+<tr><td>2D lidar</td><td>youyeetoo FHL-LD19 ($69.00)</td><td>Slamtec RPLIDAR C1 ($99.00)</td><td>Slamtec RPLIDAR A2M12 ($228.63)</td></tr>
+<tr><td>Camera-specific cabling</td><td>None needed ($0.00)</td><td>None needed ($0.00)</td><td>Micro-B pair + ZED USB-C run ($48.66)</td></tr>
+<tr class="total"><td>Listed parts subtotal</td><td class="num">$8,056.03</td><td class="num">$9,283.03</td><td class="num">$14,721.06</td></tr>
+</table>
   <div class="note">
-    The reference robot in these docs is the <b>Maximum</b> build (Jetson Thor,
-    D405 wrists, ZED Mini head, D435i base, A2M12). Where a step is
-    sensor-specific it is flagged; everything else is tier-independent.
+    The standard robot uses the <b>Essential</b> configuration: Raspberry Pi 5 (16 GB),
+    720p global-shutter wrist cameras, an IEights stereo head camera, and LD19 lidar.
+    Policies run off-board; Jetson compute and depth cameras are optional upgrades.
+    Totals exclude unpriced items, optional storage, operator equipment, shipping, taxes, and labor.
   </div>
 
   <h2>Ordering notes</h2>
@@ -179,7 +181,7 @@
   </p>
 </main>
 </div>
-<script src="../assets/bom/bom_data.js"></script>
+<script src="../assets/bom/bom_data.js?v=3ff29405"></script>
 <script src="../assets/bom-pie.js?v=7d9d9176"></script>
 <script src="../assets/bom-table.js?v=7d2a4988"></script>
 <script src="docs.js?v=0efc77c8"></script>

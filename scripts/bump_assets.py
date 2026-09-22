@@ -12,7 +12,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Every shared stylesheet/script the pages reference. Missing one here means
 # a deployed page can pair with a cached older copy of it — which is exactly
 # how a verified bom-table.js fix appeared to do nothing in the browser.
-TRACKED = ["assets/mabel.css", "assets/mabel.js",
+TRACKED = ["assets/mabel.css", "assets/mabel.js", "assets/bom/bom_data.js", "assets/spec-grid.js",
            "assets/comic-pop.js", "assets/tipover-lab.js",
            "assets/bom-table.js", "assets/bom-pie.js", "assets/reach-globe.js",
            "assets/wbc-viewer.js", "assets/robot-viewer.js", "assets/hero-rig.js",

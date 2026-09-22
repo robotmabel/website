@@ -48,14 +48,25 @@
    "parts": [
     {
      "ref": "1.01",
-     "item": "REV Swerve Drive Module",
-     "spec": "REV-21-3005",
+     "item": "REV 3in MAXSwerve Module",
+     "spec": "REV-21-3005, module only",
      "qty": 3,
-     "price": 675.0,
+     "price": 275.0,
      "vendor": "revrobotics.com",
      "link": "https://www.revrobotics.com/rev-21-3005/",
      "search": false,
-     "note": "As-paid lump per module. REV's catalog page prices the module itself at $275 and states motors, controllers and framing are NOT included - see the open items."
+     "note": "REV catalogue price. The sheet carried a $675 as-paid lump per module; itemised at catalogue it is $275 + the $280 motor and controller bundle below."
+    },
+    {
+     "ref": "1.01b",
+     "item": "REV MAXSwerve Motor & Controller Bundle",
+     "spec": "REV-15-2992: NEO + NEO 550 + 2x SPARK MAX, one module",
+     "qty": 3,
+     "price": 280.0,
+     "vendor": "revrobotics.com",
+     "link": "https://www.revrobotics.com/rev-15-2992/",
+     "search": false,
+     "note": "One bundle per module: the drive NEO, the steering NEO 550 and their two SPARK MAX controllers."
     },
     {
      "ref": "1.02",
@@ -81,7 +92,7 @@
     }
    ],
    "options": [],
-   "price": 2272.11,
+   "price": 1912.11,
    "img": "assets/hw/base.png"
   },
   {
@@ -555,11 +566,11 @@
    "specs": [
     [
      "Head",
-     "stereo, 1280\u00d7720"
+     "stereo, 1600\u00d71200 per eye, global shutter, 100\u00b0"
     ],
     [
      "Wrists",
-     "2 \u00d7 global shutter, one USB-2 hub"
+     "2 \u00d7 720p global shutter, 170\u00b0, one USB-2 hub"
     ],
     [
      "Base",
@@ -595,8 +606,8 @@
      "price": 48.99,
      "tier": "essential",
      "vendor": "amazon.com",
-     "link": "https://www.amazon.com/s?k=MMlove%20AR0144%20GS-720P-60fps%201280x720%20%40%2060%2C%20global%20shutter%2C%20170%20deg%20fisheye%2C%20no%20depth",
-     "search": true
+     "link": "https://www.amazon.com/MMlove-Shutter-1280x720-Embedded-Applications/dp/B0BZYW6DJT",
+     "search": false
     },
     {
      "choice": "Wrist cameras",
@@ -622,14 +633,14 @@
     },
     {
      "choice": "Head camera",
-     "option": "MMlove 1200P stereo, 112 deg HFOV",
-     "spec": "3200x1200 @ 60, global shutter, synced pair, host-side matching",
+     "option": "IEights OG02B10 stereo, 1200P 60 fps, 100 deg HFOV",
+     "spec": "3200x1200 @ 60 (1200P per eye), global shutter, synchronised pair, 60 mm baseline, host-side matching",
      "qty": 1,
-     "price": 97.99,
+     "price": 119.0,
      "tier": "essential recommended",
      "vendor": "amazon.com",
-     "link": "https://www.amazon.com/s?k=MMlove%201200P%20stereo%2C%20112%20deg%20HFOV%203200x1200%20%40%2060%2C%20global%20shutter%2C%20synced%20pair%2C%20host-side%20matching",
-     "search": true
+     "link": "https://www.amazon.com/Shutter-Synchronization-Computer-Binocular-100%C2%B0Industrial/dp/B0DHYDWSGT",
+     "search": false
     },
     {
      "choice": "Head camera",
@@ -720,7 +731,7 @@
      "search": true
     }
    ],
-   "price": 362.97,
+   "price": 383.98,
    "img": "assets/hw/sensors.png",
    "art": "assets/hw/sensors.svg"
   },
@@ -941,17 +952,6 @@
      "note": ""
     },
     {
-     "ref": "7.17",
-     "item": "Flashlight",
-     "spec": "Inspection / work light",
-     "qty": 1,
-     "price": 7.99,
-     "vendor": "amazon.com",
-     "link": "https://www.amazon.com/s?k=Flashlight%20Inspection%20/%20work%20light",
-     "search": true,
-     "note": ""
-    },
-    {
      "ref": "7.18",
      "item": "Custom PCBs",
      "spec": "Two-layer distribution boards - not yet priced",
@@ -977,11 +977,22 @@
    "options": [
     {
      "choice": "Onboard compute",
+     "option": "Raspberry Pi 5 16 GB",
+     "spec": "16 GB, quad Cortex-A76; teleoperation, recording and the studios, policies run off-board",
+     "qty": 1,
+     "price": 120.0,
+     "tier": "essential",
+     "vendor": "raspberrypi.com",
+     "link": "https://www.raspberrypi.com/products/raspberry-pi-5/",
+     "search": false
+    },
+    {
+     "choice": "Onboard compute",
      "option": "NVIDIA Jetson Orin Nano Super Dev Kit",
      "spec": "8 GB, 67 TOPS, carrier also accepts Orin NX modules",
      "qty": 1,
      "price": 399.0,
-     "tier": "essential",
+     "tier": "",
      "vendor": "amazon.com",
      "link": "https://developer.nvidia.com/embedded/buy-jetson",
      "search": false
@@ -1031,7 +1042,7 @@
      "search": false
     }
    ],
-   "price": 1748.83,
+   "price": 1740.84,
    "img": "assets/hw/electronics.png"
   }
  ]

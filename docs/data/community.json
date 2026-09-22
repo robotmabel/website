@@ -19,7 +19,7 @@
       "kind": "build", "title": "MABEL v1.0 — the reference build", "who": "the MABEL authors",
       "url": "overview.html", "shot": "../assets/wild/hero-photo.jpg",
       "stage": "shipped", "date": "2026-07", "ours": true,
-      "blurb": "56 DoF, 59 motors, $8,722 of parts, assembled in a weekend. Every number in this manual was measured on this robot.",
+      "blurb": "56 DoF, 59 motors, $8,056 of parts, assembled in a weekend. Every number in this manual was measured on this robot.",
       "tags": ["hardware", "full build"]
     },
     {
