@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#151820" />
+<title>MABEL — Autonomy</title>
+<meta name="description" content="MABEL autonomy: teleoperation writes the dataset, Diffusion Policy and ACT turn demos into skills, and learned policies stitch into long-horizon, onboard tasks." />
+<link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css?v=e48763b0" />
+<style>
+  /* Data Curation live-tool CTA */
+  .studio-card { padding: clamp(28px, 4vw, 48px); }
+  .studio-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+  .studio-live { display: inline-flex; align-items: center; gap: 8px; font-family: "Space Mono", monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--bone); opacity: 0.82; padding: 9px 13px; border: 1px solid rgba(244,234,210,0.22); border-radius: 999px; }
+  .studio-dot { width: 8px; height: 8px; border-radius: 50%; background: #3FB56B;
+    box-shadow: 0 0 0 4px rgba(63,181,107,0.18); animation: studioPulse 2.4s ease-in-out infinite; }
+  @keyframes studioPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(63,181,107,0.18); } 50% { box-shadow: 0 0 0 7px rgba(63,181,107,0.05); } }
+  @media (prefers-reduced-motion: reduce) { .studio-dot { animation: none; } }
+
+  /* ── interactive architecture viewer ── */
+  .av-desc strong { color: var(--ink-soft); } .av-decode { color: var(--rust); } .av-paper { color: var(--ash-light); }
+  #archCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+  #archCanvas:active { cursor: grabbing; }
+  .arch-legend { position: absolute; top: 10px; left: 12px; display: flex; gap: 10px; flex-wrap: wrap; z-index: 3; pointer-events: none; max-width: 60%; }
+  .lg-chip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 9.5px; color: var(--ash);
+    background: rgba(255,255,255,0.75); padding: 3px 7px; border-radius: 999px; border: 1px solid rgba(21,24,32,0.08); }
+  .lg-chip i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+  .arch-toolbar { position: absolute; top: 10px; right: 12px; display: flex; align-items: center; gap: 6px; z-index: 4; flex-wrap: wrap; justify-content: flex-end; }
+  .arch-toolbar .crumbs { display: flex; align-items: center; gap: 4px; }
+  .arch-toolbar .crumb { font-family: var(--font-mono); font-size: 11px; color: var(--ash); background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(21,24,32,0.08); border-radius: 7px; padding: 3px 8px; cursor: pointer; }
+  .arch-toolbar .crumb.on { color: var(--ink); font-weight: 600; }
+  .arch-toolbar .crumb-sep { color: var(--ash-light); font-size: 10px; }
+  .arch-toolbar .mini { font-family: var(--font-mono); font-size: 11px; color: var(--rust); background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(21,24,32,0.08); border-radius: 7px; padding: 3px 8px; cursor: pointer; }
+  .arch-toolbar .ro-chip { display: none; }
+  .arch-tip { position: absolute; display: none; pointer-events: none; z-index: 6; background: rgba(20,18,16,0.95); color: var(--bone);
+    border: 1px solid rgba(244,234,210,0.16); border-radius: 8px; padding: 7px 10px; font-size: 12px; line-height: 1.45; max-width: 240px; box-shadow: 0 10px 28px -12px rgba(0,0,0,0.5); }
+  .arch-tip i { color: var(--ash-light); font-size: 10px; font-style: normal; }
+  .av-fail { padding: 60px; text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--ash); }
+
+  /* ── contribute form (on the dark section card) ── */
+  .cf-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px 20px; margin-bottom: 22px; }
+  .cf-fields { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+  .cf-field { display: flex; flex-direction: column; gap: 7px; }
+  .cf-field.cf-wide { grid-column: 1 / -1; }
+  .cf-field > span { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--bone); opacity: 0.7; }
+  .cf-field > span em { color: var(--rust); cursor: help; font-style: normal; }
+  .cf-field input, .cf-field select, .cf-out { font-family: var(--font-sans); font-size: 14px; color: var(--bone);
+    background: rgba(244,234,210,0.06); border: 1px solid rgba(244,234,210,0.18); border-radius: 10px; padding: 10px 12px; width: 100%; }
+  .cf-out { color: var(--rust); font-family: var(--font-mono); font-size: 12.5px; }
+  .cf-field input:focus, .cf-field select:focus { outline: none; border-color: var(--rust); background: rgba(244,234,210,0.1); }
+  .cf-field select option { color: #151820; }
+  .cf-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .cf-msg { font-family: var(--font-mono); font-size: 12px; color: var(--bone); opacity: 0.85; }
+  .cf-msg.ok { color: #6FCF97; opacity: 1; } .cf-msg.err { color: #E88; opacity: 1; }
+  .cf-queue-wrap { margin-top: 28px; border-top: 1px solid rgba(244,234,210,0.14); padding-top: 18px; }
+  .cf-queue-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cf-refresh { font-family: var(--font-mono); font-size: 11px; color: var(--bone); opacity: 0.7; background: transparent; border: 1px solid rgba(244,234,210,0.18);
+    border-radius: 8px; padding: 5px 11px; cursor: pointer; } .cf-refresh:hover { opacity: 1; border-color: var(--rust); }
+  .cf-queue { display: flex; flex-direction: column; gap: 8px; }
+  .cf-q-empty { font-family: var(--font-mono); font-size: 12px; color: var(--bone); opacity: 0.55; padding: 8px 0; }
+  .cf-q-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(244,234,210,0.05); border: 1px solid rgba(244,234,210,0.1); }
+  .cf-q-arch { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--rust); min-width: 34px; }
+  .cf-q-main { flex: 1; font-size: 13px; color: var(--bone); opacity: 0.9; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cf-q-main b { font-weight: 600; } .cf-q-note { color: var(--ash-light); font-style: italic; }
+  .cf-q-status { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 9px; border-radius: 999px;
+    border: 1px solid currentColor; opacity: 0.9; }
+  .s-pending { color: #E7C24B; } .s-approved { color: #6FCF97; } .s-running { color: #56A6E0; } .s-done { color: #9AD; } .s-rejected { color: #C77; }
+  @media (max-width: 720px) { .cf-grid { grid-template-columns: 1fr; } }
+</style>
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  /* ── Coming soon (scoped) ───────────────────────────────────────── */
+  .soon-badge { display:inline-flex; align-items:center; gap:9px; font-family:var(--font-mono);
+    font-size:11px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--rust);
+    border:1px solid rgba(198,48,26,.34); border-radius:999px; padding:8px 14px; margin-bottom:22px; }
+  .soon-dot { width:7px; height:7px; border-radius:50%; background:var(--rust);
+    box-shadow:0 0 0 4px rgba(198,48,26,.16); animation:soonPulse 2.6s ease-in-out infinite; }
+  @keyframes soonPulse { 0%,100%{box-shadow:0 0 0 4px rgba(198,48,26,.16);} 50%{box-shadow:0 0 0 8px rgba(198,48,26,.04);} }
+  @media (prefers-reduced-motion: reduce) { .soon-dot { animation:none; } }
+  .soon-list { border-top:1px solid rgba(21,24,32,.12); margin:clamp(40px,6vh,64px) 0 0; }
+  .soon-item { display:grid; grid-template-columns:104px 1fr; gap:18px; padding:20px 0;
+    border-bottom:1px solid rgba(21,24,32,.12); align-items:start; }
+  .soon-item .st { font-family:var(--font-mono); font-size:10px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--ash); padding-top:5px; }
+  .soon-item h5 { font-family:var(--font-display); font-weight:400; font-size:clamp(19px,1.8vw,23px);
+    letter-spacing:-.015em; margin-bottom:5px; }
+  .soon-item p { font-size:14px; color:var(--ink-soft); line-height:1.55; }
+  @media (max-width:620px) { .soon-item { grid-template-columns:1fr; gap:6px; } .soon-item .st { padding-top:0; } }
+</style>
+</head>
+<body class="sec-page">
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><img src="assets/head-icon.svg" alt="" class="nav-head" /> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+        <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="harness.html">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#what">What a harness is</a><a href="harness.html#registry">The registry</a><a href="harness.html#gates">Gates</a><a href="harness.html#surface">All 25 commands</a><a href="harness.html#limits">What it won’t do</a></div></div>
+    <a href="connect.html">Links</a>
+    <a href="index.html#paper" class="ext">Paper ↗</a>
+        <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<div class="store-dock" id="storeDock" aria-label="Account and cart">
+  <a class="store-dock-btn" id="storeAcct" href="account.html" aria-label="Account" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
+  <a class="store-dock-btn" id="storeCart" href="order.html?open=cart" aria-label="Cart" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="store-dock-n" id="storeCartN" hidden>0</span></a>
+</div>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
+    <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
+</nav>
+
+<aside class="sidenav" aria-label="Autonomy section navigation">
+  <div class="sidenav-title">Autonomy</div>
+  <a href="#localization">Localization</a><a href="#mapping">Mapping</a><a href="#data">Collection</a><a href="#curation">Curation</a><a href="#learning">Training</a><a href="#deployment">Deployment</a>
+</aside>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / Autonomy</div>
+    <span class="eyebrow">Autonomy</span>
+    <h1 class="display-lg">Demonstrate. Train. Deploy.</h1>
+    <p class="lede">
+      Learn from demonstration. <a href="teleop.html"><strong>Teleoperation</strong></a> feeds the data; Diffusion Policy and ACT
+      turn it into skills; the <a href="software.html#controller">controller</a> deploys them — stitched into long-horizon autonomy, onboard.
+    </p>
+    <div class="hero-actions" style="margin-top:22px;">
+      <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Data Curation GUI ↗</a>
+      <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-ghost">Training GUI ↗</a>
+    </div>
+    <div class="spec" style="margin-top:28px;">
+      <span>Diffusion Policy</span><span>ACT</span><span>59-DOF action label</span><span>HDF5 · one file / episode</span><span>Onboard inference</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DATA STUDIO · live tool ─── -->
+
+
+<!-- ─── POLICIES ─── -->
+
+
+<!-- ─── INTERACTIVE ARCHITECTURE VIEWER ─── -->
+
+
+<!-- ─── CONTRIBUTE A TRAINING JOB ─── -->
+
+
+<!-- ─── CTA ─── -->
+<section class="pad-y"><div class="wrap-narrow" style="text-align:center;">
+  <h2 class="display-sm fade-up" style="margin-bottom:24px;">From demo to deployment.</h2>
+  <div class="fade-up" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+    <a href="teleop.html" class="btn btn-primary">Teleop · the data source →</a>
+    <a href="software.html#controller" class="btn btn-ghost">Controller · deploy target →</a>
+    <a href="autonomy.html#mapping" class="btn btn-ghost">Navigation →</a>
+  </div>
+</div></section>
+
+
+<!-- ═══ DATA (merged from data.html) ═══ -->
+<!-- FIGURE -->
+<!-- ═══ 1 · LOCALIZATION ═══ -->
+<section class="soft-sec pad-y" id="localization"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 1</span>
+      <h2 class="display-md title">Where am <span class="italic accent">I?</span><img src="assets/stickers/subwayentrance.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede"><b>A robot that does not know where it is cannot do anything else.</b>
+      Three answers, all measured against MuJoCo ground truth in the same room: wheels
+      alone drift the moment one slips, vision corrects it, and the filter keeps whichever
+      is currently telling the truth.</p>
+  </div>
+
+  <div class="table-scroll tight fade-up">
+    <table class="data-table compact">
+      <thead><tr><th style="text-align:left;">Estimator</th><th>Position error</th><th>Heading</th><th>Path length vs truth</th></tr></thead>
+      <tbody>
+        <tr><td data-l="Estimator">Wheel odometry only</td><td data-l="Position error">0.67 m</td><td data-l="Heading">12.8°</td><td data-l="Path" class="hi">3.0× — slip reads as distance</td></tr>
+        <tr><td data-l="Estimator">Visual (cuVSLAM)</td><td data-l="Position error">0.21 m</td><td data-l="Heading">3.4°</td><td data-l="Path">1.10×</td></tr>
+        <tr class="best"><td data-l="Estimator">Fused EKF</td><td data-l="Position error" class="hi">0.21 m</td><td data-l="Heading" class="hi">3.4°</td><td data-l="Path" class="hi">1.08×</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card-grid fade-up" style="margin-top:clamp(24px,3vh,36px);">
+    <div class="card"><div class="card-num">01 · WHEELS</div><h4>Swerve forward kinematics</h4>
+      <p>Three steered modules over-determine the body twist, so <code>swerve_odometry</code>
+      least-squares them into one <code>(v<sub>x</sub>, v<sub>y</sub>, ω)</code> from
+      <code>/joint_states</code> alone. Honest but slip-blind.</p></div>
+    <div class="card"><div class="card-num">02 · LiDAR</div><h4>Keyframe ICP</h4>
+      <p><code>laser_odometry</code> matches each scan to a keyframe rather than to the last
+      scan, so error does not compound frame to frame. 720 points at 13 Hz costs 2–4 ms.</p></div>
+    <div class="card"><div class="card-num">03 · VISION</div><h4>cuVSLAM VIO</h4>
+      <p>Stereo plus IMU on the GPU. Absolute pose, no drift with distance — the estimate the
+      filter trusts.</p></div>
+    <div class="card"><div class="card-num">04 · FUSION</div><h4>The EKF, and its caveat</h4>
+      <p>Takes velocity from the wheels and <em>pose</em> from vision, at 30 Hz in 2-D. It is
+      tuned and benchmarked, but its launch file pins simulated time and no bring-up script
+      starts it — <strong>built, not yet deployed</strong>.</p></div>
+  </div>
+
+  <div class="callout fade-up" style="margin-top:clamp(24px,3vh,36px);">
+    <p><strong>The base itself is identified, not assumed.</strong> A system-ID sweep puts the
+    real motion at <strong>0.989 × commanded</strong> — 1.1% slip, identical on every axis,
+    decoupled, linear down to 0.05 m/s, with a first-order velocity ramp of τ = 0.13 s.
+    Modelling that ramp cut held-out error from 4.0% to <strong>2.2% of distance travelled</strong>
+    (4.7 cm over 2.16 m). It also reframes the wheel odometry's 3× over-read: the robot was
+    stuck, not mis-modelled.</p>
+  </div>
+</div></section>
+
+<!-- ═══ 2 · MAPPING ═══ -->
+<section class="pad-y" id="mapping"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 2</span>
+      <h2 class="display-md title">Two ways to build a <span class="italic accent">map.</span><img src="assets/stickers/watertower.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede"><b>Drive it yourself and watch the map appear.</b> MABEL builds
+      its own floor plan from a 360-point LiDAR — no beacons, no prior map, no
+      markers on the walls. Two stacks do it: a GPU visual one and a CPU LiDAR one,
+      both publishing the same <code>map → odom</code>. The tool below is the CPU
+      one, ported to run in this page.</p>
+  </div>
+
+  <div class="sl fade-up" id="slamLab" style="margin-bottom:clamp(26px,3.5vh,40px);"></div>
+
+  <div class="callout fade-up" style="margin-bottom:clamp(22px,3vh,32px);">
+    <p><strong>And it can do this without you.</strong> MABEL runs a Yamauchi-style
+    <strong>frontier explorer</strong>: it watches the live occupancy grid, finds the
+    cells where known-free space touches unknown, clusters them, scores each cluster by
+    travel cost less an information-gain bonus, and sends the best one to Nav2 as a
+    <code>NavigateToPose</code> goal. Unreachable goals are blacklisted so it never loops
+    on one, and when several cycles in a row turn up nothing it latches
+    <code>exploration_complete</code> and returns home. It is deliberately SLAM-agnostic
+    &mdash; its only inputs are <code>/map</code> and the
+    <code>map&nbsp;&rarr;&nbsp;base_link</code> transform, so it works behind either
+    stack below.
+    <a href="https://github.com/robotmabel/MABEL/blob/main/mabel_ws/src/mabel_navigation/mabel_navigation/frontier_explorer.py" target="_blank" rel="noopener">Read the node &#8599;</a></p>
+  </div>
+
+  <div class="paper-grid fade-up">
+    <div>
+      <h5 style="font-family:var(--font-comic); font-size:19px; letter-spacing:0.03em; margin:0 0 10px;">cuVSLAM + nvblox · the GPU path</h5>
+      <p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">Two rectified stereo
+      streams and an IMU into cuVSLAM; nvblox turns depth into a TSDF mesh and slices a 2-D
+      occupancy layer out of it. Everything loads as composable nodes into one container so
+      frames move by zero-copy.</p>
+      <div class="table-scroll tight" style="margin-top:12px;">
+        <table class="data-table compact">
+          <tbody>
+            <tr><td data-l="Setting">Voxel size</td><td data-l="Value" style="text-align:right;">0.05 m navigating · 0.01 m manipulating</td></tr>
+            <tr><td data-l="Setting">Integration range</td><td data-l="Value" style="text-align:right;">4 m nav · 1.5 m manip</td></tr>
+            <tr><td data-l="Setting">ESDF slice</td><td data-l="Value" style="text-align:right;">0.02–0.40 m band, cut at 0.13 m</td></tr>
+            <tr><td data-l="Setting">Colour integration</td><td data-l="Value" style="text-align:right;">5 Hz nav · 15 Hz manip</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h5 style="font-family:var(--font-comic); font-size:19px; letter-spacing:0.03em; margin:0 0 10px;">slam_toolbox · the CPU path</h5>
+      <p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">One asynchronous
+      lifecycle node on <code>/scan</code>, Ceres behind it, publishing <code>map → odom</code>
+      at 50 Hz. Loop closure is on: it searches 3 m and needs a chain of ten scans before it
+      will believe a match.</p>
+      <div class="table-scroll tight" style="margin-top:12px;">
+        <table class="data-table compact">
+          <tbody>
+            <tr><td data-l="Setting">Resolution</td><td data-l="Value" style="text-align:right;">0.05 m</td></tr>
+            <tr><td data-l="Setting">Laser range used</td><td data-l="Value" style="text-align:right;">0.45 – 12 m</td></tr>
+            <tr><td data-l="Setting">New node every</td><td data-l="Value" style="text-align:right;">0.2 m or 0.2 rad</td></tr>
+            <tr><td data-l="Setting">Map update</td><td data-l="Value" style="text-align:right;">every 0.5 s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="map-row fade-up" style="margin-top:clamp(26px,3.5vh,40px);">
+    <figure class="map-fig">
+      <img src="assets/maps/mabel_home.png" alt="Occupancy map of the home scene"
+           loading="lazy" />
+      <figcaption><b>Home</b><span>12.9 &times; 12.8 m &middot; 16 scans &middot; 25.5 m&sup2; swept</span></figcaption>
+    </figure>
+    <figure class="map-fig">
+      <img src="assets/maps/mabel_cafe.png" alt="Occupancy map of the cafe scene"
+           loading="lazy" />
+      <figcaption><b>Caf&eacute;</b><span>17.9 &times; 18.0 m &middot; 50 scans &middot; 58.0 m&sup2; swept</span></figcaption>
+    </figure>
+    <figure class="map-fig">
+      <img src="assets/maps/mabel_supermarket.png" alt="Occupancy map of the supermarket scene"
+           loading="lazy" />
+      <figcaption><b>Supermarket</b><span>26 &times; 26 m &middot; 110 scans &middot; 143.1 m&sup2; swept</span></figcaption>
+    </figure>
+  </div>
+  <p class="fade-up fig-note">Real grids, built by casting MABEL&rsquo;s own lidar
+    (12&nbsp;m, 720 bins) against the scene geometry and integrating log-odds at
+    <b>5&nbsp;cm</b>, slam_toolbox&rsquo;s own resolution &mdash; dark is occupied,
+    cream is swept and empty, tan was never seen, and the red track is where the
+    robot stood. <b>This is mapping with known poses, not SLAM:</b> the poses come
+    from the simulator rather than from scan matching, so it is the grid a perfect
+    front end would build. Regenerate with
+    <code>simulation/mabel_mujoco/scripts/tools/render_slam_maps.py</code>.</p>
+
+  <div class="callout fade-up" style="margin-top:clamp(26px,3.5vh,40px);">
+    <p><strong>We recommend the LiDAR path, and the robot already picks it.</strong> Bring-up
+    listens for a <code>/scan</code> for 15 seconds. If one appears, slam_toolbox takes over the
+    2-D map and <code>map → odom</code> — <strong>cuVSLAM is switched off entirely</strong> and
+    nvblox is demoted to 3-D mesh only, for the apps to draw. The reason is compute, not
+    accuracy: LiDAR SLAM is CPU-only, while the visual stack wants the same GPU your policy
+    does. nvblox cost scales with the cube of voxel size, so 5 cm is roughly 4× cheaper than
+    3 cm, and running the cameras at 15 fps instead of 30 roughly halves the load with no
+    practical accuracy cost.</p>
+  </div>
+
+  <p class="fade-up" style="margin-top:14px; font-family:var(--font-mono); font-size:11.5px; color:var(--ash);">
+    A saved room is four files: a 2-D <code>.pgm</code>+<code>.yaml</code> for Nav2, a
+    <code>.ply</code> mesh for the apps, and a <code>.nvblx</code> for relocalisation.
+    Frontier exploration can drive the whole survey and save at the end.</p>
+</div></section>
+
+<!-- ═══ 3 · DATA COLLECTION ═══ -->
+<section class="soft-sec pad-y" id="data"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 3</span>
+      <h2 class="display-md title">Every session is a <span class="italic accent">demonstration.</span><img src="assets/stickers/bodega.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede"><b>You do not collect data. You drive the robot, and the data is
+      already collected.</b> One 15&nbsp;Hz clock indexes seven cameras, 59 joints, the
+      LiDAR and the operator&rsquo;s own targets into a single frame-aligned file &mdash;
+      about <b>38&nbsp;MB a minute</b>, against 1.5&nbsp;GB a minute per camera for a raw
+      bag. The label a policy learns is <code>action/ctrl</code>: the absolute joint
+      target that was sent, not a delta.</p>
+  </div>
+
+  <div class="callout fade-up">
+    <p><strong>Where this is honest about itself.</strong> The simulation collector is
+    complete. On hardware, the working recorder is a standalone ROS node driven by the
+    app&rsquo;s own &ldquo;start collecting&rdquo; button &mdash; verified end to end in
+    July 2026, but with synthetic actions on a static robot, and the curation engine
+    correctly scored that data as frozen. The tidier <code>collect_real.py</code> harness
+    is still a stub. Most collected data today is simulated.</p>
+  </div>
+</div></section>
+
+<!-- ═══ 4 · DATA CURATION ═══ -->
+<section class="pad-y" id="curation"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 4</span>
+      <h2 class="display-md title">Cut it like <span class="italic accent">film.</span><img src="assets/stickers/tile.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede"><b>Bad demonstrations poison a policy, and you cannot see them by
+      watching.</b> The curation studio scores every episode against the failures that
+      actually matter &mdash; frozen joints, dropped frames, a camera that went black,
+      control lag between action and observation &mdash; then lets you blade, trim and
+      reorder on a timeline that never touches the source file. Cut three real takes
+      here, faults and all.</p>
+  </div>
+
+  <div class="cur-lab fade-up" id="curationLab"></div>
+
+  <div class="stg-open fade-up">
+    <img src="assets/studio/curation.jpg" loading="lazy" width="1200" height="685"
+         alt="The Data Curation studio with a dataset loaded: episode library, 3-D view, the issues panel, and a filmstrip timeline" />
+    <div>
+      <h4>The full studio has the rest</h4>
+      <p>The 3-D scene view, all seven camera feeds side by side, batch quality
+        scoring across a whole dataset, and LeRobot v2.1 export. It runs in a
+        browser too &mdash; this page carries the timeline and the detector, not the
+        review room.</p>
+      <a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open Data Curation &#8599;</a>
+      <a href="https://github.com/robotmabel/MABEL/tree/main/learning/data_curation" target="_blank" rel="noopener" class="btn btn-ghost">Source &#8599;</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- ═══ 5 · TRAINING ═══ -->
+<section class="soft-sec pad-y" id="learning"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 5</span>
+      <h2 class="display-md title">Four policies, one <span class="italic accent">trainer.</span><img src="assets/stickers/empirestate.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede"><b>Pick an architecture, pick what the robot is allowed to see, queue
+      the run.</b> Scope is a real slice of the dataset &mdash; whole body, one arm, both
+      hands, the base &mdash; not a mask applied in the loop, and it scatters back onto all
+      59 actuators at inference. ACT (52&nbsp;M) and the diffusion policy (296&nbsp;M) both
+      train on the robot&rsquo;s own Jetson; on curated data ACT went from L1 0.464 to
+      <b>0.135</b> train and 0.572 to <b>0.136</b> validation.</p>
+  </div>
+
+  <div class="table-scroll fade-up">
+    <table class="data-table compact">
+      <thead><tr><th style="text-align:left;">Architecture</th><th>Decoder</th><th>Chunk</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td data-l="Architecture"><strong>ACT</strong> &mdash; action chunking transformer</td><td data-l="Decoder">transformer + CVAE</td><td data-l="Chunk">100</td><td data-l="Status" class="hi">trains, resumes, evaluates</td></tr>
+        <tr><td data-l="Architecture"><strong>DiT</strong> &mdash; diffusion transformer</td><td data-l="Decoder">diffusion, 10 steps</td><td data-l="Chunk">16</td><td data-l="Status" class="hi">trains, resumes, evaluates</td></tr>
+        <tr><td data-l="Architecture"><strong>&pi;&#8320;</strong> &mdash; vision-language-action</td><td data-l="Decoder">flow matching</td><td data-l="Chunk">50</td><td data-l="Status">launches; needs a gated licence</td></tr>
+        <tr><td data-l="Architecture"><strong>&pi;&#8320;.&#8325;</strong> &mdash; VLA with co-training</td><td data-l="Decoder">flow matching</td><td data-l="Chunk">50</td><td data-l="Status">launches; needs a gated licence</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <div class="sec-head fade-up" style="margin-top:clamp(30px,4vh,46px);">
+    <div><span class="eyebrow">Architectures &middot; live</span>
+      <h3 class="display-sm title" style="margin:0;">See the network. <span class="italic accent">Every block.</span></h3></div>
+    <p class="lede"><b>Wire the blocks; it compiles to real PyTorch.</b> Not a diagram
+    of the model &mdash; the graph the training run executes, which is why the picture
+    and the network cannot drift apart. Switch between <b>ACT</b>, the <b>Diffusion
+    Transformer</b> and <b>&pi;<sub>0</sub> / &pi;<sub>0.5</sub></b>, drag, zoom, and
+    <em>double-click any block to open it</em> down to the individual Conv, Linear and
+    attention atoms. <b>Work in progress</b> &mdash; expect rough edges.</p>
+  </div>
+
+
+
+
+  <div class="av-shell fade-up">
+    <div class="av-tabs" id="av-tabs"></div>
+    <div class="av-desc" id="av-desc"></div>
+    <div class="av-stage" id="av-stage">
+      <span class="panel-speech" style="top:5%; left:4%; z-index:7; max-width:44%;">Peek at my brain!</span>
+      <div class="arch-toolbar" id="archToolbar"></div>
+      <div class="arch-legend" id="archLegend"></div>
+      <canvas id="archCanvas"></canvas>
+      <div class="arch-tip" id="archTip"></div>
+      <div class="av-hint">drag · scroll to zoom · double-click a block to look inside</div>
+    </div>
+  </div>
+
+  <div class="stg-open fade-up">
+    <img src="assets/studio/training.jpg" loading="lazy" width="1200" height="685"
+         alt="The Trainer Studio: run list, live loss curves, checkpoint browser and the scope picker" />
+    <div>
+      <h4>Watch a run, not a log file</h4>
+      <p>Live loss curves, the checkpoint browser, the scope picker, and every run as
+        a directory on disk with its manifest, config and metrics beside it &mdash; a
+        run survives a database wipe, because the filesystem <em>is</em> the database.</p>
+      <a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener" class="btn btn-primary">Open the Trainer Studio &#8599;</a>
+      <a href="#contribute" class="btn btn-ghost">Queue a run &rarr;</a>
+    </div>
+  </div>
+</div></section>
+
+
+
+<section class="dark-sec pad-y" id="contribute"><div class="wrap">
+  <div class="card studio-card fade-up">
+    <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Community training · help train MABEL</span>
+    <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">Queue a real <span class="italic accent">training job.</span></h2>
+    <p class="lede" style="margin:0 0 26px; max-width:64ch;"><b>Teach the robot something, from here, without an account.</b> Pick an architecture, choose a curated dataset, set a few hyperparameters and submit. Your job joins the community queue; once reviewed it trains on MABEL&rsquo;s own GPU, and the policy and its learning curves are published back on this page.</p>
+
+    <div class="cf-grid">
+      <label class="cf-field"><span>Architecture</span><output id="cf-arch" class="cf-out">…</output></label>
+      <label class="cf-field"><span>Dataset</span><select id="cf-dataset"></select></label>
+      <div class="cf-fields" id="cf-fields"></div>
+      <label class="cf-field"><span>Your name / handle</span><input id="cf-name" maxlength="40" placeholder="anon" autocomplete="off" /></label>
+      <label class="cf-field cf-wide"><span>Note <em>(optional)</em></span><input id="cf-note" maxlength="140" placeholder="what skill are you trying to teach?" autocomplete="off" /></label>
+    </div>
+
+    <div class="cf-actions">
+      <button class="btn btn-primary" id="cf-submit">Submit to the queue →</button>
+      <span class="cf-msg" id="cf-msg"></span>
+    </div>
+
+    <div class="cf-queue-wrap">
+      <p class="cl-note" style="margin:0 0 14px;"><b>Work in progress.</b> The Trainer
+      Studio and the Data Curation studio are both live and both still being polished —
+      the queue runs, the architecture editor compiles, and neither is finished.</p>
+      <div class="cf-queue-head"><span class="eyebrow" style="color:var(--bone); opacity:.8;">Community queue</span><button class="cf-refresh" id="cf-refresh">↻ refresh</button></div>
+      <div class="cf-queue" id="cf-queue"></div>
+    </div>
+
+    <div class="spec" style="margin-top:24px;">
+      <span>Owner-approved before it runs</span><span>Runs on MABEL&rsquo;s hardware</span><span>ACT · DiT · π₀ · π₀.₅</span><span>Results published back</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- ═══ 6 · DEPLOYMENT AND EVALUATION ═══ -->
+<section class="pad-y" id="deployment"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div><span class="eyebrow">Stage 6</span>
+      <h2 class="display-md title">Run it, then <span class="italic accent">judge it.</span><img src="assets/stickers/manhole.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2></div>
+    <p class="lede"><b>A checkpoint is a claim until it drives something.</b> The policy
+      goes back into the loop it learned from &mdash; proprioception and camera renders in,
+      59 actuator targets out, 15&nbsp;Hz on top of 500&nbsp;Hz physics &mdash; and the same
+      controller gate stands in front of it that stands in front of a human.</p>
+  </div>
+
+  <div class="paper-grid fade-up">
+    <div>
+      <h5 style="font-family:var(--font-comic); font-size:19px; letter-spacing:0.03em; margin:0 0 10px;">Closed loop, in the twin</h5>
+      <p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">Deployment loads the
+      checkpoint through the standard policy path, reads joint positions straight out of MuJoCo,
+      renders each selected camera, and scatters the policy's action onto the full 59-DOF command
+      — joints outside the scope simply hold. Every frame streams back to the viewer.</p>
+    </div>
+    <div>
+      <h5 style="font-family:var(--font-comic); font-size:19px; letter-spacing:0.03em; margin:0 0 10px;">Offline, against held-out episodes</h5>
+      <p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">The evaluation harness
+      replays unseen episodes frame by frame and reports L1 and MSE per joint and overall,
+      persisted beside the run. A self-test measured open-loop L1 of 0.183 and a closed-loop
+      deployment that moved the robot.</p>
+    </div>
+  </div>
+
+  <div class="callout fade-up" style="margin-top:clamp(24px,3vh,36px);">
+    <p><strong>What does not exist yet, stated plainly.</strong> Policies do not run on the
+    physical robot. The wire protocol can <em>select</em> one and echo it in robot state, but the
+    runner that would execute it is a documented seam, not code — every long-horizon skill in the
+    control centre is declared "coming soon, no deployable checkpoint yet". And there is no
+    task-success-rate harness for imitation policies: the metric today is open-loop action error,
+    not "did it make the coffee". Navigation is the exception, with measured pose error and map
+    accuracy.</p>
+  </div>
+
+  <div class="sec-head fade-up" style="margin-top:clamp(34px,4.5vh,52px);">
+    <div><span class="eyebrow">On the floor</span>
+      <h3 class="display-sm title">Sim, then the real thing.</h3></div>
+    <p class="lede">The same stack, the same scenes, the same wire protocol —
+      once on a laptop and once on the robot.</p>
+  </div>
+  <div class="ab-row fade-up">
+    <figure class="ab-cell">
+      <span class="ab-tag sim">Simulation</span>
+      <video data-lazyvid="assets/sim/scenes/mabel_home.mp4"
+             data-lo="assets/sim/scenes/mabel_home-lo.mp4"
+             poster="assets/sim/scenes/mabel_home.jpg"
+             autoplay muted loop playsinline preload="none"
+             aria-label="The home scene in MuJoCo, camera orbiting"></video>
+      <figcaption>A released scene in MuJoCo. The physics, the sensors and the
+        controller are the ones the robot runs.</figcaption>
+    </figure>
+    <figure class="ab-cell">
+      <span class="ab-tag real">Real robot</span>
+      <video data-lazyvid="assets/home/fridge.mp4" data-lo="assets/home/fridge-lo.mp4"
+             poster="assets/home/fridge-poster.jpg"
+             autoplay muted loop playsinline preload="none"
+             aria-label="MABEL opening a refrigerator in a real kitchen"></video>
+      <figcaption>The real robot in a real kitchen, teleoperated (sped up 2.4&times;).</figcaption>
+    </figure>
+    <figure class="ab-cell">
+      <span class="ab-tag sim">Simulation</span>
+      <video data-lazyvid="assets/sim/scenes/mabel_supermarket.mp4"
+             data-lo="assets/sim/scenes/mabel_supermarket-lo.mp4"
+             poster="assets/sim/scenes/mabel_supermarket.jpg"
+             autoplay muted loop playsinline preload="none"
+             aria-label="The supermarket scene in MuJoCo"></video>
+      <figcaption>A shelf-height task in sim, where a failure costs nothing.</figcaption>
+    </figure>
+    <figure class="ab-cell">
+      <span class="ab-tag real">Real robot</span>
+      <video data-lazyvid="assets/wild/d-manip.mp4" data-lo="assets/wild/d-manip-lo.mp4"
+             poster="assets/wild/d-manip.jpg"
+             autoplay muted loop playsinline preload="none"
+             aria-label="MABEL manipulating an object on hardware"></video>
+      <figcaption>The same reach on hardware, teleoperated — this is where the
+        demonstrations come from.</figcaption>
+    </figure>
+  </div>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="connect.html">Community</a></div></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a><a href="harness.html">AI harness</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="docs/">Assembly guide</a><a href="hardware.html#model">3D model</a><a href="order.html">Order a robot</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 The MABEL Authors · Apache-2.0 software · CERN-OHL-S-2.0 hardware · CC BY 4.0 docs</span><span>Built with love · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/curation-lab.js"></script>
+<script src="assets/store-nav.js"></script>
+<script src="assets/mabel.js?v=d39cf631"></script>
+<script src="assets/slam-lab.js"></script>
+<script defer src="assets/defer-module.js" data-mod="./arch-contribute.js" data-when="#archCanvas"></script>
+</body>
+</html>

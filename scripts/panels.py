@@ -1,0 +1,72 @@
+import asyncio, json, subprocess, sys, time, urllib.request, websockets
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+import random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
+# A PORT AND A PROFILE PER RUN. The comment that used to live here said
+# exactly that — and it had SWALLOWED the rm onto its own line, so the cleanup
+# never ran and the profile stayed the fixed "/tmp/cdp-pn". Chrome then refused
+# to start against a profile another run still held, /json returned nothing,
+# and the failure surfaced as `UnboundLocalError: tabs` forty seconds later.
+P = 9291 + random.randrange(60)
+PROF = f"/tmp/cdp-pn-{P}"
+subprocess.run(["rm", "-rf", PROF])
+p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
+  f"--user-data-dir={PROF}","--window-size=1440,900","--hide-scrollbars",
+  "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
+  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
+async def go():
+    tabs=None
+    for _ in range(40):
+        try: tabs=json.load(urllib.request.urlopen(f"http://127.0.0.1:{P}/json")); break
+        except Exception: time.sleep(0.4)
+    if not tabs:
+        print(f"chrome never answered on :{P}\n\nRESULT: FAIL"); return
+    ws=[t for t in tabs if t["type"]=="page"][0]["webSocketDebuggerUrl"]
+    async with websockets.connect(ws, max_size=None) as c:
+        i=[0]
+        async def cmd(m,pp=None):
+            i[0]+=1; await c.send(json.dumps({"id":i[0],"method":m,"params":pp or {}}))
+            while True:
+                r=json.loads(await c.recv())
+                if r.get("id")==i[0]: return r
+        await cmd("Page.enable"); await cmd("Runtime.enable")
+        await cmd("Network.enable"); await cmd("Network.setCacheDisabled",{"cacheDisabled":True})
+        await cmd("Page.navigate",{"url":sys.argv[1]}); await asyncio.sleep(3.2)
+        r=await cmd("Runtime.evaluate",{"returnByValue":True,"expression":"""(function(){
+          /* The panels are a UNIFORM instruction grid now, so a partial last
+             row is correct — that is how auto-fill works, and it is what the
+             reference sheet does. What matters is that every tile is the same
+             width and every one carries a figure and a caption. */
+          var out=[];
+          document.querySelectorAll('ol.asm-steps').forEach(function(ol){
+            var lis=[].slice.call(ol.children);
+            var widths=lis.map(function(li){
+              return Math.round(li.getBoundingClientRect().width);});
+            var uniq=widths.filter(function(v,i,a){return a.indexOf(v)===i;});
+            var noArt=lis.filter(function(li){return !li.querySelector('.asm-art svg');}).length;
+            /* <strong> on the site, <b> in the wiki — asm-art.js reads both,
+               so this must too, or every wiki panel reads as caption-less. */
+            var noCap=lis.filter(function(li){return !li.querySelector('strong, b');}).length;
+            /* NAME THE LIST BY ITS NEAREST HEADING, not by an enclosing
+               <section> id. The wiki has no <section> wrappers, so closest()
+               returned null, `sec` came back undefined, JSON.stringify DROPPED
+               THE KEY, and the check died with KeyError forty lines later —
+               a page-shape assumption surfacing as a crash, not a failure. */
+            var h=ol.previousElementSibling, name='';
+            while(h){ if(/^H[1-6]$/.test(h.tagName)){name=h.textContent.trim().slice(0,12);break;}
+                      h=h.previousElementSibling; }
+            if(!name) name=((ol.closest('section')||{}).id)||'list';
+            out.push({sec:name, n:lis.length,
+                      widths:uniq.length, noArt:noArt, noCap:noCap});});
+          return JSON.stringify(out);})()"""})
+        d=json.loads(r["result"]["result"]["value"])
+        bad=0
+        for s in d:
+            ok = s["widths"] <= 2 and s["noArt"]==0 and s["noCap"]==0
+            if not ok: bad+=1
+            print(f"  {s['sec']:12s} {s['n']:2d} panels  {s['widths']} distinct width(s)  "
+                  f"art missing {s['noArt']}  captions missing {s['noCap']}  "
+                  f"{'ok' if ok else 'PROBLEM'}")
+        print("RESULT:", "PASS" if bad==0 else f"{bad} module(s) with a problem")
+asyncio.run(go()); p.terminate()

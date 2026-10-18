@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#151820" />
+<link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
+<title>MABEL — Software</title>
+<meta name="description" content="One stack: a compliant whole-body controller, analytic retargeting, a lift-aware tip-over motion model, and a MuJoCo twin that runs the production code at 500 Hz." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css?v=e48763b0" />
+<script>document.documentElement.classList.add('js');</script>
+<script type="importmap">
+{ "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
+</script>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><img src="assets/head-icon.svg" alt="" class="nav-head" /> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+        <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="harness.html">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#what">What a harness is</a><a href="harness.html#registry">The registry</a><a href="harness.html#gates">Gates</a><a href="harness.html#surface">All 25 commands</a><a href="harness.html#limits">What it won’t do</a></div></div>
+    <a href="connect.html">Links</a>
+    <a href="index.html#paper" class="ext">Paper ↗</a>
+        <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<div class="store-dock" id="storeDock" aria-label="Account and cart">
+  <a class="store-dock-btn" id="storeAcct" href="account.html" aria-label="Account" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
+  <a class="store-dock-btn" id="storeCart" href="order.html?open=cart" aria-label="Cart" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="store-dock-n" id="storeCartN" hidden>0</span></a>
+</div>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
+    <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
+</nav>
+
+<aside class="sidenav" aria-label="Software section navigation">
+  <div class="sidenav-title">Software</div>
+  <a href="#ros">ROS stack</a><a href="#controller">Controller</a><a href="#motion">Motion model</a><a href="#retargeting">Retargeting</a><a href="#firmware">Firmware</a><a href="#calibration">Calibration</a><a href="simulation.html">Simulation &rarr;</a>
+</aside>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="crumbs"><a href="index.html">Overview</a> / Software</div>
+    <span class="eyebrow">The software</span>
+    <h1 class="display-lg">One brain, one wire.</h1>
+    <p class="lede">Every command source — a headset, a phone, a browser, a learned policy — speaks one
+      wire protocol and passes one whole-body controller. The MuJoCo twin runs the identical stack at
+      500 Hz. Nothing here is a demo copy.</p>
+    <div class="spec">
+      <span>ROS 2 · one graph</span><span>500 Hz twin</span><span>35 environments</span><span>MIT license</span>
+    </div>
+    <div class="hero-actions" style="margin-top:22px;">
+      <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="btn btn-primary">Control GUI ↗</a>
+      <a href="https://github.com/robotmabel/MABEL/tree/main/web_gui/setup_studio" target="_blank" rel="noopener" class="btn btn-ghost">Setup GUI ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE STACK · retro-game flow ─── -->
+<section class="pad-y" id="ros">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The ROS stack</span>
+        <h2 class="display-md title">Commands in, <span class="italic accent">state out.</span><img src="assets/stickers/subwayentrance.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(6deg);" loading="lazy" /></h2>
+      </div>
+      <p class="lede" id="server">Teleop and autonomy publish commands; driver nodes turn them into torque and
+        publish state back. Boot the twin and one <code>mujoco_sim</code> node stands in for every
+        driver — consumers never notice.<span id="relay"></span></p>
+    </div>
+
+    <div class="ros-game fade-up">
+      <div class="rg-head"><span class="rg-title">MABEL_WS · THE ROS 2 GRAPH</span><span class="rg-coin">every topic below is real</span></div>
+
+      <div class="rg-row">
+        <div class="rg-tile blue"><b>teleop</b><span>Vision Pro · iPhone · web</span></div>
+        <div class="rg-tile blue"><b>Nav2</b><span>NavFn A* → MPPI</span></div>
+        <div class="rg-tile blue"><b>policy</b><span>ACT · DiT</span></div>
+      </div>
+
+      <div class="rg-bus blue"><span class="rg-blink">▼</span> COMMANDS
+        <code>/mabel_cmd</code> <code>/nav/mabel_cmd</code> <code>/cmd_vel</code>
+        <code>/goal_pose</code> <code>/arms/command</code> <code>/body/command</code>
+        <code>/lift/command</code> <code>/left_hand/command</code> <code>/right_hand/command</code></div>
+
+      <div class="rg-row rg-wrap">
+        <div class="rg-tile orange"><b>swerve_node</b><span>base · 3 modules</span></div>
+        <div class="rg-tile orange"><b>lift_node</b><span>0.635 m column</span></div>
+        <div class="rg-tile orange"><b>body_node</b><span>torso · neck</span></div>
+        <div class="rg-tile orange"><b>arms_node</b><span>2 × 7 DOF</span></div>
+        <div class="rg-tile orange"><b>orca_hands</b><span>2 × 17 DOF</span></div>
+        <div class="rg-tile green"><b>zed / front cam</b><span>stereo + depth</span></div>
+        <div class="rg-tile green"><b>wrist_cams</b><span>L + R</span></div>
+        <div class="rg-tile green"><b>rplidar</b><span>720 pts · 12 m</span></div>
+        <div class="rg-tile gold"><b>mujoco_sim</b><span>use_sim:=true</span></div>
+      </div>
+
+      <div class="rg-bus green"><span class="rg-blink">▲</span> STATE
+        <code>/joint_states</code> <code>/arms/joint_states</code> <code>/body/joint_states</code>
+        <code>/base/joint_states</code> <code>/lift/joint_states</code>
+        <code>/left_hand/joint_states</code> <code>/right_hand/joint_states</code>
+        <code>/odom</code> <code>/odom_laser</code> <code>/scan</code>
+        <code>/camera/front/color/image_raw</code> <code>/camera/zed/left/image_raw</code>
+        <code>/tf</code> <code>/clock</code></div>
+
+      <div class="rg-row rg-wrap">
+        <div class="rg-tile"><b>whole_body_control</b><span>IK · compliance · tip-safe</span></div>
+        <div class="rg-tile"><b>slam_toolbox</b><span>/map · map→odom</span></div>
+        <div class="rg-tile"><b>cuvslam + nvblox</b><span>/visual_slam/tracking/odometry</span></div>
+        <div class="rg-tile"><b>collector</b><span>episode_XXXX.h5</span></div>
+      </div>
+
+      <div class="rg-bus" style="background:var(--panel); color:var(--ink);">
+        <span class="rg-blink">◆</span> MAPS &amp; PLANS
+        <code>/map</code> <code>/map_lidar</code> <code>/map_visual</code>
+        <code>/map_costmap</code> <code>/plan</code>
+        <code>/visual_slam/tracking/odometry</code> <code>/odom_ground_truth</code></div>
+    </div>>
+  </div>
+</section>
+
+<!-- ─── CONTROLLER ─── -->
+<section class="soft-sec pad-y" id="controller">
+  <div class="wrap"><span id="wbc"></span>
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The controller</span>
+        <h2 class="display-md title">Everything passes <span class="italic accent">one gate.</span><img src="assets/stickers/fireescape.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-6deg);" loading="lazy" /></h2>
+      </div>
+      <p class="lede">A compliant whole-body controller renders every reference — a teleoperator, a
+        collaborator's push, or a learned policy — through the same quadratic program, with
+        self-collision avoidance built in. Try it: drive the modes below.</p>
+    </div>
+    <div class="wbc-block fade-up" data-wbc-viewer="operate">
+    <div class="viewer-3d wbc-stage">
+    <span class="panel-speech" style="top:5%; left:4%; z-index:7; max-width:44%;">Push me — I'm compliant!</span>
+    <canvas></canvas>
+    <div class="ph viewer-loading"><div class="ph-label boot-label"><b>WHOLE-BODY QP v1.0</b>
+PLANT ............... <i>MuJoCo</i>
+SOLVER .............. <i>200 Hz</i>
+COLLISION GUARD ..... <i>ON</i>
+LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</span></div></div>
+    <button class="viewer-fs" data-viewer-fullscreen aria-label="Toggle full screen" title="Full screen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>
+    </button>
+    <div class="viewer-hint"><span class="dot-live"></span> Toggle mode · drive the command</div>
+    </div>
+
+    <div class="wbc-ctl">
+      <div class="wbc-ctl-head">
+        <span class="wbc-ctl-title">Control mode</span>
+        <button class="wbc-reset" data-wbc-reset>Reset</button>
+      </div>
+      <div class="wbc-row" style="border:none; padding-bottom:0;">
+        <div class="wbc-row-top"><span class="lab">Joint stiffness</span>
+          <span class="out" data-wbc-out="stiffness">Soft</span></div>
+        <div class="wbc-seg" data-wbc-stiff>
+          <button class="on" data-stiff="soft">Soft · gravity comp</button>
+          <button data-stiff="stiff">Stiff · impedance</button>
+        </div>
+        <p class="wbc-note" style="margin-top:8px;">Grab a green palm and pull.
+          <b>Soft</b>: the arm is back-drivable — it goes exactly where you put it and
+          stays there. <b>Stiff</b>: it resists, and snaps back when you let go.</p>
+      </div>
+      <div class="wbc-seg" data-wbc-segments>
+        <button class="on" data-mode="nav">1 · Nav</button>
+        <button data-mode="arm">2 · Arm</button>
+        <button data-mode="whole">3 · Whole&nbsp;body</button>
+      </div>
+
+      <div class="wbc-row" data-wbc-group="nav">
+        <div class="wbc-row-top"><span class="lab">Forward v<sub>x</sub></span><span class="out" data-wbc-out="vx">0.00 m/s</span></div>
+        <input class="wbc-slider" type="range" data-wbc-slider="vx" data-def="0" min="-0.8" max="0.8" step="0.01" value="0" />
+      </div>
+      <div class="wbc-row" data-wbc-group="nav">
+        <div class="wbc-row-top"><span class="lab">Strafe v<sub>y</sub></span><span class="out" data-wbc-out="vy">0.00 m/s</span></div>
+        <input class="wbc-slider" type="range" data-wbc-slider="vy" data-def="0" min="-0.8" max="0.8" step="0.01" value="0" />
+      </div>
+      <div class="wbc-row" data-wbc-group="nav">
+        <div class="wbc-row-top"><span class="lab">Yaw rate ω</span><span class="out" data-wbc-out="w">0.0 rad/s</span></div>
+        <input class="wbc-slider" type="range" data-wbc-slider="w" data-def="0" min="-2" max="2" step="0.05" value="0" />
+      </div>
+      <div class="wbc-row" data-wbc-group="nav">
+        <div class="wbc-row-top"><span class="lab">Lift height</span><span class="out" data-wbc-out="lift">0 cm</span></div>
+        <input class="wbc-slider" type="range" data-wbc-slider="lift" data-def="0" min="0" max="0.635" step="0.005" value="0" />
+      </div>
+      <p class="wbc-note" data-wbc-group="nav">Swerve base, holonomic. Caps: 0.8&nbsp;m/s linear, 2.0&nbsp;rad/s yaw — the tip-over model trims them as the lift rises.</p>
+
+      <div class="wbc-row" data-wbc-group="arm whole" style="border:none;padding-bottom:0;">
+        <div class="wbc-row-top"><span class="lab">Commanding hand</span></div>
+        <div class="wbc-seg" data-wbc-hand>
+          <button class="on" data-hand-side="l">Left palm</button>
+          <button data-hand-side="r">Right palm</button>
+        </div>
+      </div>
+      <div class="wbc-pad-wrap" data-wbc-group="arm whole">
+        <div class="wbc-pad" data-wbc-pad><span class="wbc-knob"></span></div>
+        <div class="wbc-pad-axes"><span>X&nbsp;<b data-wbc-out="padx">+0.00 m</b></span><span>Y&nbsp;<b data-wbc-out="pady">+0.00 m</b></span></div>
+      </div>
+      <div class="wbc-row" data-wbc-group="arm whole">
+        <div class="wbc-row-top"><span class="lab">Palm height Z</span><span class="out" data-wbc-out="armZ">+0 cm</span></div>
+        <input class="wbc-slider" type="range" data-wbc-slider="armZ" data-def="0" min="-0.3" max="0.4" step="0.005" value="0" />
+      </div>
+      <p class="wbc-note" data-wbc-group="arm">Pick a hand, then move the joystick — its <span class="green">green palm tracking point</span> follows and that arm tracks it by IK. Both palms are tracked bimanually; base and lift are held.</p>
+      <p class="wbc-note" data-wbc-group="whole">Same <span class="green">green palm targets</span>, but now the swerve base follows the hand centroid through the comfort box, and the lift &amp; torso are jointly engaged — lazier (50× / 2× weighted) — to keep both hands in reach.</p>
+    </div>
+  </div>
+    <div class="eq-card fade-up">
+      <span class="eq-k">Whole-body QP · 200 Hz</span>
+      <span class="eq"><span class="eq-main">q̇<sup>*</sup> = argmin<sub>q̇</sub> &nbsp;‖<b>r(q̇)</b>‖²<sub>W</sub> + w<sub>r</sub>‖q̇ − K<sub>p</sub>(q<sub>rest</sub> − q)‖² + w<sub>s</sub>‖q̇ − q̇<sup>−</sup>‖² + λ²‖q̇‖²<sub>W</sub></span><span class="eq-sub"><span class="eq-line">q<sub>lb</sub> + ε ≤ q + q̇·Δt ≤ q<sub>ub</sub> − ε<i>one-step joint box</i></span><span class="eq-line">|q̇| ≤ q̇<sub>max</sub> ,&nbsp; |q̇ − q̇<sup>−</sup>| ≤ q̈<sub>max</sub>·Δt<i>rate + acceleration</i></span><span class="eq-line hot"><b>J<sub>ab</sub> q̇ ≥ −κ (d<sub>ab</sub> − d<sub>s</sub>)</b> &nbsp;∀(a,b) ∈ C<i>discrete CBF</i></span></span></span>
+      <span class="eq-gloss">r(q̇) stacks the task residuals; the last row is a velocity-damper control-barrier condition — it admits any velocity that does not close the pair distance d_ab faster than κ permits, so self-contact is excluded <b>by construction, not by detection</b>. All three families act on the same q̇ the tasks compete over, so an infeasible command concedes task error instead of violating a bound. The reference is rendered at 500 Hz by gravity-compensated impedance control.</span>
+    </div>
+
+    <div class="fade-up" style="margin-top:clamp(28px,4vh,44px);">
+      <div class="table-scroll tight">
+        <table class="data-table">
+          <thead><tr><th>Property</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Gravity-comp hold (3 s)</td><td class="hi">&lt; 0.1 rad · sags &gt; 1 rad w/o</td></tr>
+            <tr><td>Felt residual at ±40% mass error</td><td>&lt; 0.06 N·m</td></tr>
+            <tr><td>Contact localization</td><td>0.5 N · 1.7 cm, correct link</td></tr>
+            <tr><td>Self-collision, hand→chest</td><td>−3.5 cm → +4.1 cm standoff</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MOTION MODEL ─── -->
+<section class="pad-y" id="motion">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The motion model</span>
+        <h2 class="display-md title">It knows when it would <span class="italic accent">tip.</span><img src="assets/stickers/trashcan.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(7deg);" loading="lazy" /></h2>
+      </div>
+      <p class="lede">A lift-aware tip-over envelope trims velocity before the physics does: a speed
+        pulse that tilts the bare platform 13.1° passes at 0.1° with the envelope on — and the robot
+        still carries 18 / 16 / 14 kg at lift 0 / 0.30 / 0.64 m.</p>
+    </div>
+    <!-- drive it yourself: the same constants, integrated live -->
+    <div class="tl-wrap fade-up" style="margin-bottom:clamp(24px,3vh,38px);">
+      <div id="tipLab"></div>
+    </div>
+    <p class="fade-up" style="margin:-8px 0 26px; font-size:12.5px; color:var(--ash);
+       font-family:var(--font-mono);">Drive it: raise the lift, slam the brakes, then switch the
+       model off and try again. The widget integrates the constants in
+       <code>controller/mabel/motion_model/tip_over.py</code> — nothing here is animated by hand.</p>
+    <div class="paper-grid fade-up">
+      <div>
+        <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 830 408" role="img" aria-label="Static tip payload 18, 16, 14 kg at lift 0, 0.30, 0.64 m; peak tilt 13.1 degrees with the envelope off versus 0.1 with it on" style="width:100%;height:auto;display:block;"><text x="30" y="34" font-family="Bangers, cursive" font-size="21" fill="#F0762E" letter-spacing="1">STILL CARRYING</text><rect x="60" y="132" width="64" height="198" rx="4" fill="#23577E" stroke="#151820" stroke-width="3"/><text x="92" y="122" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="19" fill="#151820">18 kg</text><text x="92" y="356" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">lift 0 m</text><rect x="170" y="154" width="64" height="176" rx="4" fill="#23577E" stroke="#151820" stroke-width="3"/><text x="202" y="144" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="19" fill="#151820">16 kg</text><text x="202" y="356" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">lift 0.30 m</text><rect x="280" y="176" width="64" height="154" rx="4" fill="#23577E" stroke="#151820" stroke-width="3"/><text x="312" y="166" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="19" fill="#151820">14 kg</text><text x="312" y="356" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">lift 0.64 m</text><line x1="42" y1="330" x2="400" y2="330" stroke="#151820" stroke-width="3.5"/><text x="30" y="392" font-family="'Space Mono', monospace" font-size="12" fill="#6D6551">static tip payload at the hand, per lift height</text><line x1="452" y1="40" x2="452" y2="390" stroke="#151820" stroke-width="2" stroke-dasharray="3 7"/><text x="486" y="34" font-family="Bangers, cursive" font-size="21" fill="#F0762E" letter-spacing="1">SAME SPEED PULSE</text><rect x="510" y="68" width="90" height="262" rx="4" fill="#C6301A" stroke="#151820" stroke-width="3" transform="rotate(-2 555 300)"/><text x="555" y="56" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="19" fill="#C6301A">13.1°</text><text x="555" y="356" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">envelope OFF</text><rect x="680" y="324" width="90" height="6" rx="2" fill="#2E7D4F" stroke="#151820" stroke-width="2.5"/><text x="725" y="312" text-anchor="middle" font-family="'Space Mono', monospace" font-weight="700" font-size="19" fill="#2E7D4F">0.1°</text><text x="725" y="356" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#6D6551">envelope ON</text><line x1="496" y1="330" x2="800" y2="330" stroke="#151820" stroke-width="3.5"/><text x="486" y="392" font-family="'Space Mono', monospace" font-size="12" fill="#6D6551">peak body tilt — the envelope trims first</text></svg></div>
+</div>
+      <div>
+        <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 880 372" role="img" aria-label="Plan view: three swerve modules form the support polygon around the centre of mass. Elevation: the CoM rises 0.37 to 0.66 metres with the lift, growing the tip lever" style="width:100%;height:auto;display:block;"><text x="30" y="34" font-family="Bangers, cursive" font-size="21" fill="#F0762E" letter-spacing="1">PLAN</text><rect x="60" y="70" width="240" height="240" rx="26" fill="#F4EAD2" stroke="#151820" stroke-width="4"/><path d="M 90 100 L 270 100 L 180 290 Z" fill="rgba(46,125,79,0.14)" stroke="#2E7D4F" stroke-width="3" stroke-dasharray="7 6"/><rect x="74" y="84" width="32" height="32" rx="6" fill="#F0762E" stroke="#151820" stroke-width="3.5"/><rect x="254" y="84" width="32" height="32" rx="6" fill="#F0762E" stroke="#151820" stroke-width="3.5"/><rect x="164" y="274" width="32" height="32" rx="6" fill="#F0762E" stroke="#151820" stroke-width="3.5"/><circle cx="180" cy="168" r="10" fill="#C6301A" stroke="#151820" stroke-width="3"/><text x="200" y="162" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#C6301A">CoM</text><path d="M180 168 L246 214" stroke="#151820" stroke-width="3" marker-end="none"/><path d="M246 214 l-12 -2 l5 -11 z" fill="#151820"/><path d="M90 100 l34 24" stroke="#23577E" stroke-width="3"/><path d="M124 124 l-11 -2 l5 -10 z" fill="#23577E"/><path d="M270 100 l34 24" stroke="#23577E" stroke-width="3"/><path d="M304 124 l-11 -2 l5 -10 z" fill="#23577E"/><path d="M180 290 l24 17" stroke="#23577E" stroke-width="3"/><path d="M204 307 l-11 -2 l5 -10 z" fill="#23577E"/><text x="66" y="238" font-family="'Space Mono', monospace" font-weight="700" font-size="12" fill="#23577E">wheel</text><text x="66" y="254" font-family="'Space Mono', monospace" font-size="12" fill="#23577E">vectors v&#7522;</text><text x="66" y="336" font-family="'Space Mono', monospace" font-size="12" fill="#6D6551">support polygon · 3 swerve modules</text><text x="440" y="34" font-family="Bangers, cursive" font-size="21" fill="#F0762E" letter-spacing="1">ELEVATION</text><rect x="470" y="250" width="180" height="66" rx="14" fill="#F4EAD2" stroke="#151820" stroke-width="4"/><circle cx="500" cy="322" r="12" fill="#151820"/><circle cx="620" cy="322" r="12" fill="#151820"/><rect x="544" y="120" width="30" height="132" fill="#F4EAD2" stroke="#151820" stroke-width="4"/><rect x="522" y="66" width="76" height="58" rx="16" fill="#F4EAD2" stroke="#151820" stroke-width="4"/><circle cx="560" cy="150" r="9" fill="#C6301A" stroke="#151820" stroke-width="3"/><path d="M700 96 v130" stroke="#23577E" stroke-width="3"/><path d="M700 96 l-6 12 h12 z M700 226 l-6 -12 h12 z" fill="#23577E"/><text x="714" y="150" font-family="'Space Mono', monospace" font-weight="700" font-size="14" fill="#23577E">CoM rises</text><text x="714" y="170" font-family="'Space Mono', monospace" font-size="13" fill="#23577E">0.37–0.66 m</text><path d="M620 322 A 150 150 0 0 0 560 150" fill="none" stroke="#C6301A" stroke-width="2.5" stroke-dasharray="4 6"/><text x="470" y="352" font-family="'Space Mono', monospace" font-size="12" fill="#6D6551">tip lever grows with the lift — so the trims tighten</text></svg></div>
+</div>
+    </div>
+    <div class="eq-card fade-up">
+      <span class="eq-k">Tip-over envelope · ZMP</span>
+      <span class="eq"><span class="eq-main">η<sub>k</sub>(q, a) = SF<sub>k</sub> · h<sub>c</sub>(q) · [−n<sub>k</sub><sup>T</sup>a]<sub>+</sub> / ( g · ℓ<sub>k</sub>(q) )</span><span class="eq-sub"><span class="eq-line">u<sub>s</sub>(q, ν<sub>b</sub>) = max<sub>k</sub> η<sub>k</sub>( q, a<sub>ω</sub>(ν<sub>b</sub>) )<i>admissible ⟺ u<sub>s</sub> ≤ 1</i></span><span class="eq-line hot"><b>ν<sub>b</sub><sup>safe</sup> = s · ν<sub>b</sub> ,&nbsp; s = min(1, u<sub>s</sub><sup>−1/2</sup>)</b><i>quadratic ⟹ closed form</i></span></span></span>
+      <span class="eq-gloss">Per support edge k: h_c is CoM height, ℓ_k the CoM lever arm to that edge, n_k its outward normal, SF_k the safety factor. Because steady acceleration is <b>quadratic in ν_b</b> at fixed configuration, an inadmissible twist is projected straight onto the stability boundary in closed form — no search. Acceleration and steering-rate limits are then enforced on the projected twist, and the same envelope serves teleop, navigation, and policy execution.</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── RETARGETING ─── -->
+<section class="dark-sec pad-y" id="retargeting">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Retargeting</span>
+        <h2 class="display-md title">Looking around isn't <span class="italic accent">driving.</span><img src="assets/stickers/timessquare.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-7deg);" loading="lazy" /></h2>
+      </div>
+      <p class="lede">The operator's unobserved torso frame is recovered analytically from head and
+        wrist poses alone — so glancing sideways never steers the base. No waist trackers, no mode
+        switches, no learned priors.</p>
+    </div>
+    <div class="fade-up" style="max-width:1120px; margin-left:auto; margin-right:auto;">
+      <div class="fade-up" style="margin-bottom:clamp(22px,3vh,34px);">
+      <div class="sec-head" style="margin-bottom:14px;">
+        <div><span class="eyebrow">Try it · runs on your machine</span>
+          <h3 class="display-sm" style="margin:0;">Be the operator.</h3></div>
+        <p class="lede" style="font-size:14px;">Turn the camera on and MABEL's arms follow
+          yours — the same idea the headset uses, working out which way your body faces from
+          your head and wrists alone.</p>
+      </div>
+      <div id="retargetCam"></div>
+    </div>
+
+    <div class="rk fade-up" id="retargetClips"
+         style="margin:clamp(20px,3vh,32px) auto 0;"></div>
+
+    <div class="rc2 fade-up" id="retargetCompare"
+         style="margin:clamp(28px,4vh,44px) auto 0;"></div>
+
+    <div class="paper-fig" style="background:var(--panel);"><svg viewBox="0 0 820 360" role="img" aria-label="A headset reports the head and both wrists; a closed-form fit recovers the operator's torso frame; looking moves the neck while turning the body drives the base" style="width:100%;height:auto;display:block;">
+<defs>
+  <marker id="rtA" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#151820"/></marker>
+  <marker id="rtG" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#2E7D4F"/></marker>
+  <marker id="rtB" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L7 3.5 L0 6.5 z" fill="#23577E"/></marker>
+</defs>
+
+<text x="30" y="30" font-family="Bangers, cursive" font-size="15" fill="#F0762E" letter-spacing="1">WHAT THE HEADSET SEES</text>
+<g font-family="'Space Mono', monospace" font-size="12.5" fill="#151820">
+  <rect x="30" y="46" width="150" height="40" rx="7" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
+  <text x="105" y="71" text-anchor="middle">your head</text>
+  <rect x="30" y="96" width="150" height="40" rx="7" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
+  <text x="105" y="121" text-anchor="middle">left wrist</text>
+  <rect x="30" y="146" width="150" height="40" rx="7" fill="#FDF6E2" stroke="#151820" stroke-width="2.5"/>
+  <text x="105" y="171" text-anchor="middle">right wrist</text>
+</g>
+
+<g stroke="#D9A13F" stroke-width="2.5" fill="none" marker-end="url(#rtA)">
+  <path d="M180 66 C222 66 226 104 268 114"/>
+  <path d="M180 116 H268"/>
+  <path d="M180 166 C222 166 226 128 268 118"/>
+</g>
+
+<text x="290" y="30" font-family="Bangers, cursive" font-size="15" fill="#F0762E" letter-spacing="1">WE WORK IT OUT</text>
+<rect x="290" y="46" width="200" height="140" rx="10" fill="#F0762E" stroke="#151820" stroke-width="3"/>
+<text x="390" y="88" font-family="Bangers, cursive" font-size="21" fill="#FFF9F0" text-anchor="middle" letter-spacing="1">WHICH WAY</text>
+<text x="390" y="112" font-family="Bangers, cursive" font-size="21" fill="#FFF9F0" text-anchor="middle" letter-spacing="1">YOUR BODY FACES</text>
+<text x="390" y="142" font-family="'Space Mono', monospace" font-size="11" fill="#3A1E10" text-anchor="middle">solved directly from those</text>
+<text x="390" y="160" font-family="'Space Mono', monospace" font-size="11" fill="#3A1E10" text-anchor="middle">three, every frame</text>
+
+<path d="M490 116 H556" stroke="#151820" stroke-width="2.5" marker-end="url(#rtA)"/>
+
+<text x="566" y="30" font-family="Bangers, cursive" font-size="15" fill="#F0762E" letter-spacing="1">SO IT KNOWS WHAT YOU MEANT</text>
+<g>
+  <rect x="566" y="52" width="224" height="56" rx="8" fill="#E9F2EA" stroke="#2E7D4F" stroke-width="2.5"/>
+  <text x="678" y="76" font-family="Bangers, cursive" font-size="17" fill="#2E7D4F" text-anchor="middle" letter-spacing="1">GLANCE SIDEWAYS</text>
+  <text x="678" y="96" font-family="'Space Mono', monospace" font-size="11" fill="#3B5B45" text-anchor="middle">only the neck turns</text>
+
+  <rect x="566" y="124" width="224" height="56" rx="8" fill="#E4ECF3" stroke="#23577E" stroke-width="2.5"/>
+  <text x="678" y="148" font-family="Bangers, cursive" font-size="17" fill="#23577E" text-anchor="middle" letter-spacing="1">TURN YOUR BODY</text>
+  <text x="678" y="168" font-family="'Space Mono', monospace" font-size="11" fill="#2C4B66" text-anchor="middle">the robot drives</text>
+</g>
+<path d="M556 116 C566 116 560 92 566 82" stroke="#2E7D4F" stroke-width="2.5" fill="none" marker-end="url(#rtG)"/>
+<path d="M556 116 C566 116 560 140 566 150" stroke="#23577E" stroke-width="2.5" fill="none" marker-end="url(#rtB)"/>
+
+<line x1="30" y1="236" x2="790" y2="236" stroke="#151820" stroke-width="2"/>
+<text x="30" y="260" font-family="Bangers, cursive" font-size="15" fill="#C6301A" letter-spacing="1">HOW WELL IT WORKS · 60 TRIALS</text>
+<g font-family="'Space Mono', monospace">
+  <rect x="30" y="274" width="180" height="52" rx="7" fill="#E9F2EA" stroke="#2E7D4F" stroke-width="2.5"/>
+  <text x="120" y="298" font-family="Limelight, serif" font-size="20" fill="#2E7D4F" text-anchor="middle">2.3°</text>
+  <text x="120" y="316" font-size="10" fill="#3B5B45" text-anchor="middle">off, when you turn</text>
+
+  <rect x="222" y="274" width="180" height="52" rx="7" fill="#E9F2EA" stroke="#2E7D4F" stroke-width="2.5"/>
+  <text x="312" y="298" font-family="Limelight, serif" font-size="20" fill="#2E7D4F" text-anchor="middle">0.0%</text>
+  <text x="312" y="316" font-size="10" fill="#3B5B45" text-anchor="middle">accidental driving</text>
+
+  <rect x="414" y="274" width="180" height="52" rx="7" fill="#FBE9E4" stroke="#C6301A" stroke-width="2.5"/>
+  <text x="504" y="298" font-family="Limelight, serif" font-size="20" fill="#C6301A" text-anchor="middle">43.3°</text>
+  <text x="504" y="316" font-size="10" fill="#7A2A18" text-anchor="middle">head-only guess</text>
+
+  <rect x="606" y="274" width="184" height="52" rx="7" fill="#FBE9E4" stroke="#C6301A" stroke-width="2.5"/>
+  <text x="698" y="298" font-family="Limelight, serif" font-size="20" fill="#C6301A" text-anchor="middle">60.1°</text>
+  <text x="698" y="316" font-size="10" fill="#7A2A18" text-anchor="middle">both hands together</text>
+</g>
+</svg></div>
+<div class="eq-card fade-up">
+      <span class="eq-k">Body-frame retargeting</span>
+      <span class="eq"><span class="eq-main">T̂ = argmin<sub>T ∈ SE(3)</sub> &nbsp;Σ<sub>i</sub> w<sub>i</sub> ‖ p<sub>d,i</sub> − T · p<sub>h,i</sub> ‖²</span><span class="eq-sub"><span class="eq-line">e<sub>i</sub>(T) = ‖ p<sub>d,i</sub> − T · p<sub>h,i</sub> ‖<i>per-anchor residual</i></span><span class="eq-line hot"><b>Δψ<sub>b</sub> = (1 − χ) Δψ<sub>rig</sub> + χ · γ(Δψ<sub>h</sub>, ψ<sub>β</sub>) · ψ<sub>β</sub></b><i>base-yaw blend</i></span></span></span>
+      <span class="eq-gloss">χ ∈ [0,1] is the ambiguity between arm sweep and body rotation: <b>isolated head motion drives the neck; coordinated head–wrist rotation drives the base</b>. The torso frame is fit in closed form from the three observed poses — no waist tracker, no mode switch, no learned prior. Measured: 2.3° RMS on commanded torso rotation with 0.0% false base motion over 60 trials.</span>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SIMULATION ─── -->
+<!-- ═══ FIRMWARE (merged from firmware.html) ═══ -->
+<!-- ─── PHILOSOPHY ─── -->
+<!-- ─── THE GUI ─── -->
+
+
+<!-- ─── REV SWERVE REVERSE ENGINEERING ─── -->
+<!-- ─── ACTUATOR FAMILIES ─── -->
+
+
+<section class="soft-sec pad-y" id="firmware">
+  <div class="wrap">
+    <div class="sec-head-center fade-up">
+      <span class="eyebrow">The fleet</span>
+      <h2 class="display-md">Every actuator, owned.</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">01</span><div><h4>Swerve base · REV SPARK</h4><p>NEO / NEO550 on 3 delta modules. Reverse-engineered SPARK CAN in Python + Teensy C++.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">02</span><div><h4>Arms · Damiao DM</h4><p>OpenArm-derived 7-DOF arms, quasi-direct-drive over CAN (Teensy + FlexCAN_T4), MIT-mode.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">03</span><div><h4>Body &amp; torso · Damiao</h4><p>Torso pitch shares the arms' Damiao/CAN driver, status, and quick-control.</p></div></div>
+    <div class="card fade-up"><span class="card-num">04</span><div><h4>Hands · Feetech</h4><p>16× HLS3915 fingers + 1× HLS3930 wrist on a 1 MHz TTL chain; USB adapter auto-detected.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">05</span><div><h4>Neck · Dynamixel</h4><p>3-DOF neck (yaw / pitch / roll) via our <code>dynamixel_neck</code> library.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">06</span><div><h4>Lift · RP2040 Pico</h4><p>MicroPython, BTS7960 + quad encoder, cascaded position + velocity, host lib + iOS GUI.</p></div></div>
+  </div>
+</section>
+
+<section class="pad-y soft-sec" id="calibration"><div class="wrap">
+  <div class="sec-head fade-up">
+    <div>
+      <span class="eyebrow">Setup Studio</span>
+      <h2 class="display-md title">Make the numbers <span class="italic accent">true.</span><img src="assets/stickers/empirestate.svg" alt="" class="sticker" aria-hidden="true" loading="lazy" /></h2>
+    </div>
+    <p class="lede">Bring-up runs in a browser: a per-module <strong>status · control · calibration</strong>
+      studio that walks the robot module by module — Arm, Base, Neck, Lift, Hand&nbsp;L, Hand&nbsp;R —
+      and writes what it measures into one file the whole robot reads.</p>
+  </div>
+
+  <div class="ros-game fade-up">
+    <div class="rg-head"><span class="rg-title">SETUP STUDIO · :8082</span><span class="rg-coin">▶ module by module, in order</span></div>
+    <div class="rg-row">
+      <div class="rg-tile orange"><b>ARM</b><span>bus + zero + limits</span></div>
+      <div class="rg-tile orange"><b>BASE</b><span>steer offsets</span></div>
+      <div class="rg-tile blue"><b>NECK</b><span>serial, direct bus</span></div>
+      <div class="rg-tile blue"><b>LIFT</b><span>stall-seek travel</span></div>
+      <div class="rg-tile green"><b>HAND · L</b><span>17 DOF end-stops</span></div>
+      <div class="rg-tile green"><b>HAND · R</b><span>17 DOF end-stops</span></div>
+    </div>
+    <div class="rg-bus green"><span class="rg-blink">▼</span> WRITES <code>hardware_bridge/calibration_data/mabel.json</code></div>
+    <div class="rg-row">
+      <div class="rg-tile yellow"><b>calib server</b><span>Zenoh queryable</span></div>
+      <div class="rg-tile"><b>mabel/calib/&lt;path&gt;</b><span>any node, at startup</span></div>
+    </div>
+  </div>
+
+  <div class="paper-grid fade-up" style="margin-top:clamp(24px,4vh,40px);">
+    <div>
+      <h3 style="font-family:var(--font-head); font-weight:700; font-size:clamp(18px,1.7vw,23px); letter-spacing:-0.02em; margin-bottom:10px;">Every joint gets its own zero and its own stops</h3>
+      <p class="body">Each module opens on a <strong>Control</strong> tab (enable torque, jog the joint)
+        and a <strong>Calibration</strong> tab. The lift is the clearest example: <em>⟳ Auto-calibrate</em>
+        — an armed two-click confirm, because the column moves — fires the Pico's own
+        <strong>floor→ceiling stall-seek</strong>, and the studio records the measured travel window
+        (<code>min_pos</code> / <code>max_pos</code> / <code>span</code>) under the
+        <code>lift/pico</code> slice. The height slider only appears once that window exists, so you
+        can't drive a column whose limits nobody has measured.</p>
+    </div>
+    <div>
+      <h3 style="font-family:var(--font-head); font-weight:700; font-size:clamp(18px,1.7vw,23px); letter-spacing:-0.02em; margin-bottom:10px;">Files as truth, served over the wire</h3>
+      <p class="body">Nothing is hard-coded in a node. Calibration lands in a
+        <strong>human-readable JSON</strong> file — diffable, reviewable, shareable — and a thin
+        service answers Zenoh queries against it, so a node asks
+        <code>mabel/calib/arm/openarm-dual</code> at startup and gets either one value or the whole
+        slice. Three families share the tree: <strong>calibration</strong> (written here),
+        <strong>network identity</strong> (human-set), and <strong>nominal physical</strong> (seeded
+        from the MuJoCo model) — the as-deployed counterpart to the as-designed model.</p>
+    </div>
+  </div>
+
+  <div class="callout fade-up" style="margin-top:clamp(20px,3vh,32px);">
+    <p><strong>Don't skip the CoM check</strong> after any mass change:
+      <code>wbc_stability.py --only 4</code>. If E4 shows &gt;1&nbsp;cm bias, update the tip-over
+      constants — that measurement is what keeps MABEL from tipping.</p>
+  </div>
+
+  <div class="fade-up" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:clamp(20px,3vh,30px);">
+    <a href="https://github.com/robotmabel/MABEL/tree/main/web_gui/setup_studio" target="_blank" rel="noopener" class="btn btn-primary">Setup GUI ↗</a>
+    <a href="docs/" class="btn btn-ghost">Assembly guide →</a>
+  </div>
+</div></section>
+
+<section class="pad-y" id="simulation">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Simulation</span>
+        <h2 class="display-md title">The twin is the <span class="italic accent">same robot.</span><img src="assets/stickers/tile.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:14px; transform:rotate(-7deg);" loading="lazy"/></h2>
+      </div>
+      <p class="lede">One canonical model generates the URDF, the MJCF and every derived artifact.
+        The production controller drives MuJoCo unmodified at 500&nbsp;Hz across 35 released
+        environments &mdash; <code>use_sim:=true</code> is the only difference. The twin has a
+        page of its own: the plant, the scene library, the renderers, simulated data collection
+        and the PPO track.</p>
+    </div>
+    <div class="fade-up" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;">
+      <a href="simulation.html" class="btn btn-primary">The simulation stack &rarr;</a>
+      <a href="simulator.html" class="btn btn-ghost">Drive the twin in your browser</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="connect.html">Community</a></div></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a><a href="harness.html">AI harness</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="docs/">Assembly guide</a><a href="hardware.html#model">3D model</a><a href="order.html">Order a robot</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 The MABEL Authors · Apache-2.0 software · CERN-OHL-S-2.0 hardware · CC BY 4.0 docs</span><span>Built with love · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script defer src="assets/defer-module.js" data-mod="./tipover-lab.js?v=c9793a6d" data-when="#tipLab"></script>
+<script src="assets/scene-filter.js?v=46de80c8"></script>
+<script src="assets/retarget-compare.js"></script>
+<script src="assets/retarget-clips.js"></script>
+<script src="assets/store-nav.js"></script>
+<script src="assets/mabel.js?v=d39cf631"></script>
+<script defer src="assets/defer-module.js" data-mod="./wbc-viewer.js?v=c74c2734" data-when="[data-wbc-viewer]"></script>
+<script defer src="assets/defer-module.js" data-mod="./retarget-cam.js" data-when="#retargetCam"></script>
+</body>
+</html>

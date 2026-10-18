@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#F4EAD2"/>
+<title>The build guide moved — MABEL</title>
+<link rel="canonical" href="docs/"/>
+<meta name="robots" content="noindex, follow"/>
+<!-- The one-page build guide folded into the replication wiki: the BOM, the
+     illustrated assembly panels and the FAQ pop-ups all live there now, in
+     order, next to the community hub. This page only forwards. GitHub Pages
+     serves static files, so the redirect has to be a meta refresh + a script;
+     the fallback below is what a reader sees if both are blocked. -->
+<script>
+  (function () {
+    /* keep the reader's place: the old page's sections map onto chapters */
+    var MAP = {
+      '#materials':   'docs/overview.html',
+      '#bom':         'docs/bom.html#explore',
+      '#assembly':    'docs/assembly.html',
+      '#electronics': 'docs/electronics.html',
+      '#poweron':     'docs/bringup.html',
+      '#faq':         'docs/troubleshoot.html#four',
+      '#community':   'docs/#contribute'
+    };
+    location.replace(MAP[location.hash] || 'docs/');
+  })();
+</script>
+<meta http-equiv="refresh" content="0; url=docs/"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bone:#F4EAD2; --ink:#151820; --hi:#E4442A; --panel:#FDF6E2; }
+  html,body { margin:0; height:100%; }
+  body { background: var(--bone); color: var(--ink);
+    font-family:'Jost',-apple-system,'Helvetica Neue',sans-serif;
+    display:flex; align-items:center; justify-content:center; padding:24px; }
+  .box { max-width:520px; text-align:center; background: var(--panel);
+    border:3px solid var(--ink); border-radius:16px; padding:34px 30px;
+    box-shadow:10px 10px 0 rgba(21,24,32,0.88); }
+  h1 { font-family:'Limelight',Impact,sans-serif; font-size:30px; margin:0 0 10px; line-height:1.1; }
+  p { line-height:1.55; margin:0 0 20px; }
+  a.btn { display:inline-block; font-family:'Bangers',Impact,sans-serif; letter-spacing:.05em;
+    font-size:19px; text-decoration:none; color:#FFF9F0; background:var(--hi);
+    border:3px solid var(--ink); border-radius:11px; padding:11px 20px;
+    box-shadow:5px 5px 0 rgba(21,24,32,0.9); }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>The build guide moved.</h1>
+    <p>It is now the <b>replication wiki</b> — the same parts list, assembly
+      panels and fixes, in build order, alongside the community hub.</p>
+    <a class="btn" href="docs/">Take me to the wiki &rarr;</a>
+  </div>
+</body>
+</html>

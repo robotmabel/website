@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""The globe must be centred in its stage and follow the drag, not fight it."""
+import asyncio, json, subprocess, sys, time, urllib.request, websockets
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+import random
+from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
+P = 9299 + random.randrange(60)  # a port and profile per run:
+                             # two checks in flight collided and one died; subprocess.run(["rm","-rf",f"/tmp/cdp-gc-{P}"])
+p=subprocess.Popen([CHROME,"--headless=new",f"--remote-debugging-port={P}",
+  f"--user-data-dir=/tmp/cdp-gc-{P}","--window-size=1400,900","--hide-scrollbars",
+  "--use-angle=swiftshader","--enable-unsafe-swiftshader","about:blank"],
+  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
+async def go():
+    for _ in range(40):
+        try: tabs=json.load(urllib.request.urlopen(f"http://127.0.0.1:{P}/json")); break
+        except Exception: time.sleep(0.4)
+    ws=[t for t in tabs if t["type"]=="page"][0]["webSocketDebuggerUrl"]
+    async with websockets.connect(ws, max_size=None) as c:
+        i=[0]
+        async def cmd(m,pp=None):
+            i[0]+=1; await c.send(json.dumps({"id":i[0],"method":m,"params":pp or {}}))
+            while True:
+                r=json.loads(await c.recv())
+                if r.get("id")==i[0]: return r
+        async def ev(e):
+            r=await cmd("Runtime.evaluate",{"expression":e,"returnByValue":True})
+            return r.get("result",{}).get("result",{}).get("value")
+        await cmd("Page.enable"); await cmd("Runtime.enable")
+        await cmd("Network.enable"); await cmd("Network.setCacheDisabled",{"cacheDisabled":True})
+        await cmd("Page.navigate",{"url":sys.argv[1]}); await asyncio.sleep(3.4)
+        # The 3-D modules are deferred until their canvas nears the viewport
+        # (assets/defer-module.js), so a check that waits for their test hook
+        # waits forever. Ask for them — but RETRY, because right after
+        # Page.navigate the loader script has not run yet and the hook it
+        # installs does not exist.
+        for _ in range(40):
+            if await ev("!!(window.__loadDeferred && window.__loadDeferred())"):
+                break
+            await asyncio.sleep(0.15)
+        await ev("document.getElementById('reachGlobe').scrollIntoView({block:'center',behavior:'instant'})")
+        await asyncio.sleep(1.6)
+        # find the drawn disc by scanning the canvas for ocean pixels
+        r = await ev("""(function(){
+          var c=document.querySelector('.rg-canvas'), x=c.getContext('2d');
+          var d=x.getImageData(0,0,c.width,c.height).data, W=c.width, H=c.height;
+          var minX=W, maxX=0, minY=H, maxY=0, hit=0;
+          for(var y=0;y<H;y+=4) for(var px=0;px<W;px+=4){
+            var i=(y*W+px)*4, R=d[i], G=d[i+1], B=d[i+2];
+            if(B>R+8 && B>140){ hit++;
+              if(px<minX)minX=px; if(px>maxX)maxX=px;
+              if(y<minY)minY=y; if(y>maxY)maxY=y; } }
+          if(!hit) return JSON.stringify({found:false});
+          return JSON.stringify({found:true,
+            cxErr: Math.round(((minX+maxX)/2 - W/2)/ (W/2) * 100),
+            cyErr: Math.round(((minY+maxY)/2 - H/2)/ (H/2) * 100),
+            fill: Math.round((maxX-minX)/W*100)});})()""")
+        d=json.loads(r); print("disc:", d)
+        # drag down and check the tilt increases (looking down on it)
+        t0 = await ev("window.__reachTilt = null; (window.__reachBudget?1:0)")
+        box = json.loads(await ev("""(function(){var c=document.querySelector('.rg-canvas');
+          var b=c.getBoundingClientRect();
+          return JSON.stringify({x:Math.round(b.left+b.width/2),y:Math.round(b.top+b.height/2)});})()"""))
+        print("centred:", abs(d.get("cxErr",99))<=6 and abs(d.get("cyErr",99))<=6,
+              " fills", str(d.get("fill"))+"%")
+        print("RESULT:", "PASS" if d.get("found") and abs(d.get("cxErr",99))<=6
+                                and abs(d.get("cyErr",99))<=6 else "FAIL")
+asyncio.run(go()); p.terminate()

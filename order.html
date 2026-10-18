@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#151820" />
+<title>MABEL — Buy</title>
+<meta name="description" content="Buy MABEL: a parts kit from $15,000 or an assembled, tested robot from $25,000. Pick how it ships, the body, the compute, the sensors and the end effector; see what is in the box, delivery, and a comparison of every configuration. Spare parts for every line of the BOM." />
+<link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css?v=e48763b0" />
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  /* ── The buy page. Apple's buy-page structure in the site's type and colour:
+     no header, a full-bleed stage — product left at two thirds, picks right —
+     quiet 1.5 px rules instead of the comic plates, one accent border on the
+     chosen option, and no motion the shopper did not ask for. ── */
+  .buy-page .sidenav { display: none !important; }
+  .buy-main { padding-top: clamp(84px, 9vh, 104px); }
+  .buy-head { max-width: var(--max); margin: 0 auto; padding: 18px var(--gutter) 6px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; }
+  .buy-head h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 3vw, 46px); letter-spacing: 0.01em; margin: 0; }
+  .buy-head p { margin: 0; font-size: 16px; color: var(--ash); }
+  .buy-stage { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(380px, 1fr); align-items: start; }   /* the site's width, not the viewport's */
+  .buy-visual { position: sticky; top: 0; height: 100vh; height: 100dvh; min-height: 560px; }
+  .buy-visual-in { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; padding: clamp(84px, 9vh, 104px) clamp(12px, 2vw, 32px) 96px 0; box-sizing: border-box; }   /* 96 px: the dots clear the fixed total bar */
+  .buy-slide { position: relative; min-height: 0; display: grid; place-items: center; }
+  .buy-slide img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block;
+    filter: drop-shadow(0 22px 26px rgba(21,24,32,0.16)); transition: opacity 0.2s ease; }
+  .buy-slide img.is-photo { border-radius: 18px; filter: none; box-shadow: 0 24px 40px rgba(21,24,32,0.18); }
+  .buy-slide img { max-height: min(100%, 78vh); }
+  .buy-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid rgba(21,24,32,0.35); background: rgba(253,246,226,0.85); color: var(--ink);
+    font-size: 24px; line-height: 1; cursor: pointer; display: grid; place-items: center; padding: 0 0 3px; transition: border-color 0.15s ease, background 0.15s ease; }
+  .buy-arrow:hover { border-color: var(--ink); background: var(--panel); }
+  .buy-prev { left: 0; } .buy-next { right: 0; }
+  .buy-strip { display: grid; justify-items: center; gap: 4px; padding-top: 14px; }
+  .buy-dots { display: flex; gap: 0; }
+  .buy-dots button { width: 28px; height: 28px; border-radius: 50%; border: 0; background: transparent; padding: 0; cursor: pointer; display: grid; place-items: center; }
+  .buy-dots button::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: rgba(21,24,32,0.28); transition: background 0.15s ease, transform 0.15s ease; }
+  .buy-dots button[aria-selected="true"]::before { background: var(--ink); transform: scale(1.25); }
+  .buy-cap { font-size: 13px; color: var(--ash); }
+  .buy-picks { padding: 6px 0 140px clamp(16px, 2.5vw, 40px); }
+  .buy-steps { max-width: 560px; }
+  .buy-step { padding: 26px 0 10px; border-top: 1px solid rgba(21,24,32,0.14); transition: opacity 0.25s ease; }
+  .buy-step:first-child { border-top: 0; padding-top: 6px; }
+  .buy-step[data-state="locked"] { opacity: 0.32; }
+  .buy-step-head { margin-bottom: 14px; }
+  .buy-step-head h3 { font-family: var(--font-head); font-weight: 700; font-size: 24px; letter-spacing: -0.02em; line-height: 1.15; margin: 0 0 3px; display: flex; align-items: baseline; gap: 10px; }
+  .buy-step-head h3 span { font-family: var(--font-mono); font-size: 12px; color: var(--ash); letter-spacing: 0.06em; }
+  .buy-step-q { font-size: 15px; color: var(--ash); margin: 0; }
+  .buy-step-lock { font-size: 13px; color: var(--ash); padding: 2px 0 8px; }
+  .buy-opts { display: grid; gap: 10px; }
+  .buy-opt { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; text-align: left; width: 100%; -webkit-tap-highlight-color: transparent;
+    background: transparent; border: 1.5px solid rgba(21,24,32,0.28); border-radius: 12px; padding: 15px 17px; min-height: 60px; cursor: pointer; font: inherit; color: var(--ink);
+    transition: border-color 0.15s ease, background 0.15s ease; }
+  .buy-opt:hover { border-color: rgba(21,24,32,0.7); }
+  .buy-opt[aria-checked="true"] { border-color: var(--hi); border-width: 2px; padding: 14.5px 16.5px; background: var(--panel); }
+  .buy-opt:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+  .buy-opt-name { font-family: var(--font-head); font-weight: 600; font-size: 16.5px; line-height: 1.25; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+  .buy-tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); border: 1px solid var(--blue); border-radius: 5px; padding: 2px 6px 1px; }
+  .buy-opt-spec { font-size: 13.5px; line-height: 1.5; color: var(--ash); margin-top: 3px; }
+  .buy-opt-price { font-family: var(--font-mono); font-size: 14px; white-space: nowrap; text-align: right; color: var(--ink); }
+  .buy-opt-price.is-zero { color: var(--ash); }
+  .buy-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; background: rgba(253,246,226,0.97); border-top: 1.5px solid rgba(21,24,32,0.35);
+    transform: translateY(110%); transition: transform 0.3s var(--ease-out); }
+  .buy-bar.is-on { transform: none; }
+  body.has-buy-bar { padding-bottom: 84px; }
+  .buy-bar-in { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px var(--gutter); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .buy-bar-txt { min-width: 0; }
+  .buy-bar-txt b { display: block; font-family: var(--font-head); font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
+  .buy-bar-txt span { display: block; font-size: 13px; color: var(--ash); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .buy-bar-right { display: flex; align-items: center; gap: 18px; flex: none; }
+  .buy-bar-price { font-family: var(--font-display); font-size: 26px; color: var(--ink); white-space: nowrap; }
+  .buy-bar .btn { min-height: 46px; box-shadow: none; border-radius: 12px; }
+  .buy-bar .btn:hover { box-shadow: none; transform: none; }
+  .buy-bar .btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+  @media (max-width: 980px) {
+    .buy-stage { grid-template-columns: 1fr; }
+    .buy-visual { position: static; height: auto; min-height: 0; }
+    .buy-visual-in { padding: 8px 0 0; grid-template-rows: auto auto; }
+    .buy-slide { aspect-ratio: 4 / 3; }
+    .buy-picks { padding: 18px 0 120px; }
+    .buy-bar-txt { display: none; }
+    .buy-bar-right { width: 100%; justify-content: space-between; }
+    .buy-bar-price { font-size: 24px; }
+  }
+  @media (max-width: 560px) {
+    .buy-head { padding-top: 8px; }
+    .buy-opt { grid-template-columns: 1fr; padding: 14px 15px; }
+    .buy-opt[aria-checked="true"] { padding: 13.5px 14.5px; }
+    .buy-opt-price { text-align: left; }
+  }
+
+  /* lower sections: one width, one rhythm, no plates */
+  .buy-sec { padding: clamp(52px, 7vh, 96px) var(--gutter); }
+  .buy-sec.is-alt { background: var(--paper); }
+  .buy-in { max-width: var(--max); margin: 0 auto; }
+  .buy-h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 2.8vw, 44px); letter-spacing: 0.01em; margin: 0 0 6px; }
+  .buy-sub { font-size: 16.5px; line-height: 1.55; color: var(--ash); max-width: 64ch; margin: 0 0 30px; }
+  .box-tabs { display: inline-flex; border: 1.5px solid rgba(21,24,32,0.35); border-radius: 12px; overflow: hidden; background: transparent; margin-bottom: 24px; }
+  .box-tabs button { font: inherit; font-weight: 600; font-size: 14px; padding: 0 18px; min-height: 44px; border: 0; background: transparent; cursor: pointer; color: var(--ink); }
+  .box-tabs button + button { border-left: 1.5px solid rgba(21,24,32,0.35); }
+  .box-tabs button[aria-selected="true"] { background: var(--ink); color: var(--bone); }
+  .box-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .box-tile { background: var(--panel); border: 1.5px solid rgba(21,24,32,0.18); border-radius: 16px; padding: 14px 14px 18px; display: grid; gap: 8px; align-content: start; }
+  .box-tile img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; border-radius: 10px; }
+  .box-tile .box-ph { width: 100%; aspect-ratio: 4 / 3; border-radius: 10px; background: var(--paper); display: grid; place-items: center; font-family: var(--font-display); font-size: 34px; color: var(--ash-light); }
+  .box-tile b { font-family: var(--font-head); font-weight: 700; font-size: 15.5px; line-height: 1.25; }
+  .box-tile p { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--ash); }
+  @media (max-width: 980px) { .box-grid { grid-template-columns: repeat(2, 1fr); } }
+  .dlv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .dlv-tile { border-top: 1.5px solid rgba(21,24,32,0.4); padding-top: 16px; }
+  .dlv-tile b { display: block; font-family: var(--font-head); font-weight: 700; font-size: 18px; margin-bottom: 4px; }
+  .dlv-tile .dlv-k { font-family: var(--font-mono); font-size: 12px; color: var(--hi); margin-bottom: 8px; display: block; }
+  .dlv-tile p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--ink-soft); }
+  @media (max-width: 720px) { .dlv-grid { grid-template-columns: 1fr; } }
+  .parts-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .parts-tabs { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; max-width: 100%; padding: 2px; }
+  .parts-tabs::-webkit-scrollbar { display: none; }
+  .parts-tab { flex: none; font-family: var(--font-mono); font-size: 12px; padding: 0 14px; min-height: 44px; border-radius: 999px; cursor: pointer; background: transparent; color: var(--ink-soft); border: 1.5px solid rgba(21,24,32,0.3); }
+  .parts-tab[aria-pressed="true"] { background: var(--ink); color: var(--bone); border-color: var(--ink); }
+  .parts-search { flex: 0 1 260px; min-width: 160px; font: inherit; font-size: 14px; padding: 9px 12px; border-radius: 10px; min-height: 44px; background: var(--panel); color: var(--ink); border: 1.5px solid rgba(21,24,32,0.3); }
+  .parts-search::placeholder { color: var(--ash-light); }
+  .parts-search:focus { outline: none; border-color: var(--ink); }
+  .parts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .parts-card { background: var(--panel); border: 1.5px solid rgba(21,24,32,0.18); border-radius: 16px; padding: 12px 12px 14px; display: grid; gap: 6px; align-content: start; }
+  .parts-card img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; border-radius: 10px; background: var(--paper); }
+  .parts-name { font-family: var(--font-head); font-weight: 600; font-size: 14.5px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.5em; }
+  .parts-spec { font-size: 12.5px; line-height: 1.4; color: var(--ash); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .parts-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
+  .parts-price { font-family: var(--font-mono); font-size: 15px; color: var(--ink); }
+  .parts-add { font: inherit; font-weight: 600; font-size: 13px; background: transparent; color: var(--ink); border: 1.5px solid var(--ink); border-radius: 999px; padding: 0 16px; min-height: 44px; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; }
+  .parts-add:hover { background: var(--ink); color: var(--bone); }
+  .parts-more { text-align: center; margin-top: 18px; }
+  .parts-more button { font: inherit; font-weight: 600; font-size: 14px; color: var(--ink); background: transparent; border: 1.5px solid rgba(21,24,32,0.4); border-radius: 999px; padding: 0 22px; min-height: 44px; cursor: pointer; }
+  .parts-more button:hover { border-color: var(--ink); }
+  .parts-empty { font-family: var(--font-mono); font-size: 13px; color: var(--ash); padding: 24px 0; grid-column: 1 / -1; }
+  .parts-note { font-family: var(--font-mono); font-size: 11.5px; color: var(--ash); margin-top: 18px; line-height: 1.6; }
+  @media (max-width: 980px) { .parts-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { .parts-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .parts-search { flex: 1 1 100%; } }
+  .faq-k { font-family: var(--font-head); font-weight: 600; font-size: 16px; letter-spacing: 0.01em; margin: 0 0 8px; }
+  .faq-list { border-top: 1px solid rgba(21,24,32,0.14); }
+  .faq-list details { border-bottom: 1px solid rgba(21,24,32,0.14); }
+  .faq-list summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0; min-height: 44px;
+    font-family: var(--font-head); font-weight: 500; font-size: 17px; color: var(--ink); -webkit-tap-highlight-color: transparent; }
+  .faq-list summary::-webkit-details-marker { display: none; }
+  .faq-list summary::after { content: '+'; flex: none; width: 24px; text-align: center; font-family: var(--font-head); font-weight: 300; font-size: 28px; line-height: 1; color: var(--ink); transition: transform 0.2s ease; }
+  .faq-list details[open] summary::after { transform: rotate(45deg); }
+  .faq-list summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
+  .faq-list p { margin: 0 0 22px; max-width: 76ch; font-size: 15px; line-height: 1.65; color: var(--ink-soft); }
+  /* cart drawer */
+  .cart-veil { position: fixed; inset: 0; background: rgba(21,24,32,0.55); z-index: 120; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s; }
+  .cart-veil.is-open { opacity: 1; visibility: visible; }
+  .cart { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100%); z-index: 121; background: var(--bone); border-left: 3px solid var(--ink);
+    transform: translateX(100%); transition: transform 0.3s var(--ease-out); display: flex; flex-direction: column; }
+  .cart.is-open { transform: none; }
+  .cart-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 14px; border-bottom: 2px solid var(--ink); }
+  .cart-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 26px; margin: 0; }
+  .cart-x { width: 44px; height: 44px; border-radius: 10px; border: 2px solid var(--ink); background: var(--panel); cursor: pointer; font-size: 20px; line-height: 1; color: var(--ink); }
+  .cart-list { flex: 1; overflow-y: auto; padding: 14px 20px; display: grid; gap: 12px; align-content: start; -webkit-overflow-scrolling: touch; }
+  .cart-item { background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; padding: 12px 14px; display: grid; gap: 6px; }
+  .cart-item-name { font-family: var(--font-head); font-weight: 700; font-size: 15px; line-height: 1.3; }
+  .cart-item-desc { font-size: 12.5px; line-height: 1.45; color: var(--ash); }
+  .cart-item-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
+  .cart-item-amt { font-family: var(--font-mono); font-size: 14px; }
+  .cart-qty { display: inline-flex; align-items: center; border: 1.5px solid rgba(21,24,32,0.55); border-radius: 8px; overflow: hidden; }
+  .cart-qty button { width: 44px; height: 44px; border: 0; background: transparent; font: inherit; font-size: 18px; cursor: pointer; color: var(--ink); }
+  .cart-qty output { min-width: 28px; text-align: center; font-family: var(--font-mono); font-size: 13px; }
+  .cart-rm { font: inherit; font-size: 13px; color: var(--rust); background: none; border: 0; cursor: pointer; text-decoration: underline; padding: 0 4px; min-height: 44px; }
+  .cart-empty { font-size: 14.5px; color: var(--ash); padding: 26px 4px; line-height: 1.6; }
+  .cart-foot { border-top: 2px solid var(--ink); padding: 14px 20px calc(16px + env(safe-area-inset-bottom)); background: var(--paper); display: grid; gap: 10px; }
+  .cart-pay { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; background: var(--panel); }
+  .cart-pay button { font: inherit; font-size: 13px; font-weight: 600; padding: 9px 8px; min-height: 44px; border: 0; background: transparent; cursor: pointer; color: var(--ink); display: flex; flex-direction: column; gap: 2px; align-items: center; }
+  .cart-pay button + button { border-left: 2px solid var(--ink); }
+  .cart-pay button small { font-family: var(--font-mono); font-size: 10.5px; opacity: 0.75; }
+  .cart-pay button[aria-checked="true"] { background: var(--ink); color: var(--bone); }
+  .cart-sum { display: flex; justify-content: space-between; align-items: baseline; }
+  .cart-sum b { font-family: var(--font-display); font-size: 28px; font-weight: 400; color: var(--rust); }
+  .cart-sum span { font-family: var(--font-mono); font-size: 12px; color: var(--ash); }
+  .cart-foot .btn { width: 100%; justify-content: center; min-height: 46px; }
+  .cart-foot .btn[disabled] { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .cart-msg { font-size: 13px; line-height: 1.5; color: var(--ink-soft); border: 1.5px solid var(--ink); border-radius: 10px; padding: 10px 12px; background: var(--panel); }
+  .cart-msg.is-err { border-color: var(--rust); color: var(--rust-dim); }
+  .cart-msg[hidden] { display: none; }
+  .cart-acct { font-size: 12.5px; color: var(--ash); text-align: center; }
+  .cart-acct button { font: inherit; color: var(--blue); background: none; border: 0; text-decoration: underline; cursor: pointer; padding: 0 4px; min-height: 44px; }
+
+  /* account sheet */
+  .acct { position: fixed; inset: 0; z-index: 130; display: grid; place-items: center; padding: 16px; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s; background: rgba(21,24,32,0.55); }
+  .acct.is-open { opacity: 1; visibility: visible; }
+  .acct-card { width: min(440px, 100%); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; background: var(--bone); border: 3px solid var(--ink); border-radius: 14px; box-shadow: 8px 8px 0 rgba(21,24,32,0.9); padding: 20px 22px 22px; }
+  .acct-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .acct-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 26px; margin: 0; }
+  .acct-tabs { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; margin-bottom: 16px; background: var(--panel); }
+  .acct-tabs button { font: inherit; font-weight: 600; font-size: 14px; min-height: 44px; border: 0; background: transparent; cursor: pointer; color: var(--ink); }
+  .acct-tabs button + button { border-left: 2px solid var(--ink); }
+  .acct-tabs button[aria-selected="true"] { background: var(--ink); color: var(--bone); }
+  .acct label { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ash); margin: 10px 0 5px; }
+  .acct input { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; min-height: 46px; border-radius: 10px; border: 2px solid var(--ink); background: var(--panel); color: var(--ink); }
+  .acct input:focus { outline: 3px solid var(--blue); outline-offset: 1px; }
+  .acct-hint { font-size: 13px; color: var(--ash); margin: 6px 0 0; line-height: 1.5; }
+  .acct-err { color: var(--rust); font-size: 13px; margin-top: 10px; min-height: 18px; line-height: 1.4; }
+  .acct .btn { width: 100%; justify-content: center; margin-top: 14px; min-height: 46px; }
+  .acct-me { font-size: 14px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 6px; }
+  .acct-me b { font-family: var(--font-mono); word-break: break-all; }
+  .acct-h { font-family: var(--font-comic); font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hi); margin: 18px 0 6px; }
+  .acct-orders { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .acct-orders li { background: var(--panel); border: 1.5px solid var(--ink); border-radius: 10px; padding: 10px 12px; font-size: 13px; display: grid; gap: 2px; }
+  .acct-orders li span { font-family: var(--font-mono); font-size: 12px; color: var(--ash); }
+  .acct-orders .is-paid { color: var(--green); font-weight: 700; font-style: normal; }
+  .acct-links { margin-top: 10px; display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
+  .acct-links button { font: inherit; color: var(--blue); background: none; border: 0; text-decoration: underline; cursor: pointer; padding: 0 4px; min-height: 44px; text-align: left; }
+  .acct-links button[hidden] { display: none; }
+
+  .ord-toast { position: fixed; left: 50%; top: calc(max(12px, env(safe-area-inset-top)) + 72px); transform: translate(-50%, -16px); z-index: 140; background: var(--ink); color: var(--bone);
+    border: 2px solid var(--gold); border-radius: 10px; padding: 12px 18px; font-family: var(--font-head); font-weight: 600; font-size: 14px; opacity: 0; visibility: hidden;
+    transition: opacity 0.2s ease, transform 0.25s var(--ease-out), visibility 0.2s; max-width: calc(100% - 32px); text-align: center; pointer-events: none; }
+  .ord-toast.is-on { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+  .ord-done { border: 3px solid var(--green); background: var(--panel); border-radius: 14px; padding: 18px 20px; margin-bottom: 26px; box-shadow: 6px 6px 0 rgba(21,24,32,0.9); }
+  .ord-done[hidden] { display: none; }
+  .ord-done b { font-family: var(--font-display); font-size: 24px; font-weight: 400; color: var(--green); display: block; margin-bottom: 4px; }
+  .ord-done p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink-soft); }
+  @media (prefers-reduced-motion: reduce) { .cart, .cart-veil, .acct, .ord-toast, .buy-opt, .buy-bar, .buy-step { transition: none; } }
+</style>
+</head>
+<body class="sec-page buy-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><img src="assets/head-icon.svg" alt="" class="nav-head" /> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+        <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="harness.html">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#what">What a harness is</a><a href="harness.html#registry">The registry</a><a href="harness.html#gates">Gates</a><a href="harness.html#surface">All 25 commands</a><a href="harness.html#limits">What it won’t do</a></div></div>
+    <a href="connect.html">Links</a>
+    <a href="index.html#paper" class="ext">Paper ↗</a>
+        <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
+    <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
+</nav>
+<div class="store-dock" id="storeDock" aria-label="Account and cart">
+  <a class="store-dock-btn" id="storeAcct" href="account.html" aria-label="Account" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
+  <a class="store-dock-btn" id="storeCart" href="order.html?open=cart" aria-label="Cart" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="store-dock-n" id="storeCartN" hidden>0</span></a>
+</div>
+
+<main class="buy-main">
+  <div class="buy-head"><h1>Buy MABEL.</h1><p>From $15,000 as a kit, or $25,000 assembled and tested.</p></div>
+  <div class="buy-in" style="padding:0 var(--gutter);"><div class="ord-done" id="ordDone" hidden style="margin:12px 0 0;"><b>Order received</b><p id="ordDoneText"></p></div></div>
+  <div class="buy-stage" id="configure">
+    <div class="buy-visual" id="buyGallery">
+      <div class="buy-visual-in">
+        <div class="buy-slide">
+          <img id="buySlide" class="is-photo" src="assets/wild/store/front.jpg" width="1600" height="1067" alt="MABEL, as built" />
+          <button type="button" class="buy-arrow buy-prev" id="buyPrev" aria-label="Previous photo">‹</button>
+          <button type="button" class="buy-arrow buy-next" id="buyNext" aria-label="Next photo">›</button>
+        </div>
+        <div class="buy-strip"><div class="buy-dots" id="buyDots" role="tablist" aria-label="Photos"></div><span class="buy-cap" id="buyCap"></span></div>
+      </div>
+    </div>
+    <div class="buy-picks"><div class="buy-steps" id="buySteps"></div></div>
+  </div>
+</main>
+<div class="buy-bar" id="buyBar"><div class="buy-bar-in">
+  <div class="buy-bar-txt"><b>Your MABEL</b><span id="buyBarSum">Pick how it ships to begin.</span></div>
+  <div class="buy-bar-right"><span class="buy-bar-price" id="buyBarPrice">From $15,000</span><button type="button" class="btn btn-primary" id="buyAdd" disabled>Add to cart</button></div>
+</div></div>
+
+<section class="buy-sec is-alt" id="box"><div class="buy-in">
+  <h2 class="buy-h2">What's in the box.</h2>
+  <p class="buy-sub">Everything the guide expects you to have on the bench, whichever way it ships.</p>
+  <div class="box-tabs" id="boxTabs" role="tablist" aria-label="Which box"></div>
+  <div class="box-grid" id="boxGrid"></div>
+</div></section>
+
+<section class="buy-sec" id="delivery"><div class="buy-in">
+  <h2 class="buy-h2">Delivery.</h2>
+  <p class="buy-sub">Lead times are estimates, and every order is tracked from your account.</p>
+  <div class="dlv-grid" id="dlvGrid"></div>
+</div></section>
+
+
+<section class="buy-sec is-alt" id="parts"><div class="buy-in">
+  <h2 class="buy-h2">Parts and accessories.</h2>
+  <p class="buy-sub">Every line of the bill of materials at list, plus assembled arms and hands and the printed sets. Replace anything, upgrade anything.</p>
+  <div class="parts-bar">
+    <div class="parts-tabs" id="partsTabs" role="group" aria-label="Filter parts"></div>
+    <input class="parts-search" id="partsSearch" type="search" placeholder="Search parts" aria-label="Search parts" autocomplete="off" />
+  </div>
+  <div class="parts-grid" id="partsGrid"></div>
+  <div class="parts-more" id="partsMoreWrap"><button type="button" id="partsMore">Show all parts</button></div>
+  <p class="parts-note" id="partsNote"></p>
+</div></section>
+
+<section class="buy-sec" id="faq"><div class="buy-in">
+  <h2 class="faq-k">FAQ</h2>
+  <div class="faq-list">
+    <details><summary>What is MABEL?</summary><p>MABEL is a mobile bimanual robot: a holonomic swerve base, a 0.635 m lift, a torso, two 7-DOF arms, a 3-DOF head and, as standard, two 17-DOF dexterous hands built from the open ORCA Hand design, for 56 functional degrees of freedom. The software is released under Apache-2.0, the hardware under CERN-OHL-S-2.0 and the documentation under CC BY 4.0; the robot you buy is the platform described in the paper.</p></details>
+    <details><summary>What can MABEL do today?</summary><p>It can be teleoperated from a Vision Pro, an iPhone, a browser or a gamepad; record demonstrations to LeRobot datasets; map and navigate a space with a lidar through SLAM and Nav2; and run trained policies on its on-board compute. A MuJoCo twin of the whole robot ships with it, so work can start before the crate arrives.</p></details>
+    <details><summary>How big is MABEL?</summary><p>The base is 0.49 m across. The lift travels 0.635 m, placing the shoulders anywhere from table height to above a standard counter, and the arms span 2.23 m fingertip to fingertip. Power comes from two on-board battery packs on 24 V and 12 V rails.</p></details>
+    <details><summary>Is MABEL safe around people?</summary><p>A hardware E-stop de-energises every actuator independently of the computer, every command path is covered by a watchdog, and a tip-over model bounds the base's motion by the robot's centre of mass. The arms are back-drivable with torque limits. MABEL is a research platform rather than a certified consumer product, and it should be operated under supervision as described in the safety chapter of the wiki.</p></details>
+    <details><summary>What is in the box?</summary><p>An assembled robot arrives calibrated and burn-in tested, with the compute and sensors you chose fitted, two battery packs and a charger, the hardware E-stop, a USB-CAN bench adapter and its calibration report. A kit contains every plate, extrusion and printed part, the actuators with their bus addresses set, the harness and boards, the compute and sensors, fasteners bagged by chapter, and a printed build guide. The full lists are shown above.</p></details>
+    <details><summary>When will it ship?</summary><p>A parts kit ships in about two weeks. An assembled robot is built, calibrated and burn-in tested before it ships, which takes about a month. Spare parts ship within a few days. Every order can be followed from your account.</p></details>
+    <details><summary>How do I pay?</summary><p>Checkout is handled by Stripe. You can pay in full, or reserve a robot with a 10% deposit and settle the balance by invoice before it ships. All prices are in US dollars.</p></details>
+    <details><summary>How is it delivered, and who pays duties?</summary><p>Robots ship crated by freight; the freight cost is quoted after checkout. Parts ship by tracked courier. Import duties and local taxes are the responsibility of the buyer.</p></details>
+    <details><summary>What does the warranty cover?</summary><p>Assembled robots and every part manufactured by us are covered for twelve months. Pass-through components such as actuators, cameras and computers carry their manufacturer's warranty. Damage from collisions is not covered, but every part needed for a repair is available on this page.</p></details>
+    <details><summary>Is there a return policy?</summary><p>Unopened parts can be returned within 30 days of delivery. A robot is built to your configuration, so its deposit is refundable until the build begins.</p></details>
+    <details><summary>Can I upgrade MABEL later?</summary><p>Yes. Every option in the configurator is also sold as a part, so compute, sensors and end effectors can be changed after purchase. The design is open, and nothing on the robot is sealed.</p></details>
+    <details><summary>Do I need a Vision Pro?</summary><p>No. The iPhone app, the browser control centre, a gamepad and the keyboard all drive the robot. A Vision Pro adds whole-body teleoperation, with the operator's arms, hands and head mapped to the robot's.</p></details>
+    <details><summary>Can I build MABEL myself?</summary><p>Yes. The plans, the bill of materials with every vendor named and the illustrated build guide are free, and any part you would rather not source is available here. A kit contains everything already cut, printed and flashed.</p></details>
+    <details><summary>What support is included?</summary><p>The wiki, the community page and the people who designed the robot. Because the design is open, there is no part of the hardware or software you cannot inspect or change.</p></details>
+  </div>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="connect.html">Community</a></div></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a><a href="harness.html">AI harness</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="assets/bom/MABEL_Build_Guide.pdf" target="_blank" rel="noopener">Build Guide PDF ↗</a><a href="docs/assembly.html">Assembly guide</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">CAD files ↗</a><a href="order.html">Order a robot</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 The MABEL Authors · Apache-2.0 software · CERN-OHL-S-2.0 hardware · CC BY 4.0 docs</span><span>Built with love · v1.0.0</span></div>
+  </div>
+</footer>
+
+<div class="cart-veil" id="cartVeil"></div>
+<aside class="cart" id="cart" aria-label="Your cart" aria-hidden="true">
+  <div class="cart-head"><h2>Your cart</h2><button type="button" class="cart-x" id="cartClose" aria-label="Close cart">×</button></div>
+  <div class="cart-list" id="cartList"></div>
+  <div class="cart-foot">
+    <div class="cart-pay" role="radiogroup" aria-label="How to pay" id="cartPay">
+      <button type="button" role="radio" aria-checked="true" data-pay="full">Pay in full<small>at checkout</small></button>
+      <button type="button" role="radio" aria-checked="false" data-pay="deposit">Reserve<small>10% deposit now</small></button>
+    </div>
+    <div class="cart-sum"><span id="cartSumLabel">Total</span><b id="cartTotal">$0</b></div>
+    <div class="cart-msg" id="cartMsg" hidden></div>
+    <button type="button" class="btn btn-primary" id="cartCheckout">Checkout</button>
+    <div class="cart-acct" id="cartAcct"></div>
+  </div>
+</aside>
+
+<div class="acct" id="acct" role="dialog" aria-modal="true" aria-labelledby="acctTitle">
+  <div class="acct-card">
+    <div class="acct-head"><h2 id="acctTitle">Sign in</h2><button type="button" class="cart-x" id="acctClose" aria-label="Close">×</button></div>
+    <div id="acctGuest">
+      <div class="acct-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mode="login">Sign in</button><button type="button" role="tab" aria-selected="false" data-mode="register">Create account</button></div>
+      <form id="acctForm" novalidate>
+        <label for="acctIdent">Email or phone number</label><input id="acctIdent" type="text" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" required />
+        <div id="acctPwRow"><label for="acctPass">Password</label><input id="acctPass" type="password" autocomplete="current-password" minlength="8" /></div>
+        <div id="acctCodeRow" hidden><label for="acctCode">Six-digit code</label><input id="acctCode" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" /><p class="acct-hint" id="acctCodeHint"></p></div>
+        <div class="acct-err" id="acctErr" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary" id="acctSubmit">Sign in</button>
+        <div class="acct-links"><button type="button" id="acctUseCode" hidden>Send me a code instead</button><button type="button" id="acctUsePw" hidden>Use a password instead</button></div>
+      </form>
+    </div>
+    <div id="acctUser" hidden>
+      <p class="acct-me">Signed in as <b id="acctWho"></b>. Your cart and orders are saved to this account. <a href="account.html">Open your account</a>.</p>
+      <form id="acctPwForm" hidden novalidate><label for="acctNewPw">Set a password, so you can sign in without a code</label><input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" /><button type="submit" class="btn btn-ghost">Save password</button></form>
+      <h3 class="acct-h">Orders</h3>
+      <ul class="acct-orders" id="acctOrders"></ul>
+      <div class="acct-links"><button type="button" id="acctLogout">Sign out</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="ord-toast" id="ordToast" role="status" aria-live="polite"></div>
+
+<script src="assets/order-pricing.js"></script>
+<script src="assets/store-api.js"></script>
+<script src="assets/order.js"></script>
+<script src="assets/store-nav.js"></script>
+<script src="assets/mabel.js?v=d39cf631"></script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#151820" />
+<title>MABEL — Teleop</title>
+<meta name="description" content="Teleoperate MABEL: try the browser operator console live with no install, then drive it from Apple Vision Pro or iPhone — three clients, one wire protocol, sim or real robot." />
+<link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/mabel.css?v=e48763b0" />
+<link rel="stylesheet" href="assets/teleop-app.css?v=20260630-balldrag" />
+<script>document.documentElement.classList.add('js');</script>
+<script type="importmap">
+{ "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
+</script>
+<style>
+  /* Control Center live-tool CTA (same pattern as autonomy's Data Curation card) */
+  .studio-card { padding: clamp(28px, 4vw, 48px); }
+  .studio-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+  .studio-live { display: inline-flex; align-items: center; gap: 8px; font-family: "Space Mono", monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--bone); opacity: 0.82; padding: 9px 13px; border: 1px solid rgba(244,234,210,0.22); border-radius: 999px; }
+  .studio-dot { width: 8px; height: 8px; border-radius: 50%; background: #3FB56B;
+    box-shadow: 0 0 0 4px rgba(63,181,107,0.18); animation: studioPulse 2.4s ease-in-out infinite; }
+  @keyframes studioPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(63,181,107,0.18); } 50% { box-shadow: 0 0 0 7px rgba(63,181,107,0.05); } }
+  @media (prefers-reduced-motion: reduce) { .studio-dot { animation: none; } }
+</style>
+</head>
+<body class="sec-page">
+
+<div id="progress"></div>
+
+<header class="nav" id="nav">
+  <a href="index.html" class="nav-logo"><img src="assets/head-icon.svg" alt="" class="nav-head" /> MABEL</a>
+  <nav class="nav-links">
+    <a href="index.html">Overview</a>
+        <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
+    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="harness.html">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#what">What a harness is</a><a href="harness.html#registry">The registry</a><a href="harness.html#gates">Gates</a><a href="harness.html#surface">All 25 commands</a><a href="harness.html#limits">What it won’t do</a></div></div>
+    <a href="connect.html">Links</a>
+    <a href="index.html#paper" class="ext">Paper ↗</a>
+        <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+<div class="store-dock" id="storeDock" aria-label="Account and cart">
+  <a class="store-dock-btn" id="storeAcct" href="account.html" aria-label="Account" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
+  <a class="store-dock-btn" id="storeCart" href="order.html?open=cart" aria-label="Cart" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="store-dock-n" id="storeCartN" hidden>0</span></a>
+</div>
+<nav class="mob" id="mob">
+  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a href="index.html#paper" class="ext">Paper ↗</a>
+    <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
+    <a href="docs/" class="nav-cta">DIY guide</a>
+</nav>
+
+<aside class="sidenav" aria-label="Teleop section navigation">
+  <div class="sidenav-title">Teleop</div>
+  <a href="#try">Browser</a><a href="#controlcenter">Control Studio</a><a href="#vp-app">Vision Pro</a><a href="#ios-app">iPhone</a><a href="#safety">Safety</a>
+</aside>
+
+<!-- ─── HERO ─── -->
+<section class="page-hero" style="padding-bottom:30px;"><div class="page-hero-inner">
+  <div class="crumbs"><a href="index.html">Overview</a> / Teleop</div>
+  <span class="eyebrow">Teleop</span>
+  <h1 class="display-lg">Wear the robot.</h1>
+  <p class="lede">Drive MABEL three ways — a <strong>browser console</strong> you can try right now, an <strong>iPhone</strong> in your pocket, and an <strong>Apple Vision Pro</strong> you reach through. All three speak one wire protocol to the same bridge, and point at the MuJoCo twin or the real robot with no change. Every session is also a training demo.</p>
+  <div class="app-links" style="margin-top:26px;"><a href="#try" class="btn">Web GUI teleop →</a><a href="https://github.com/robotmabel/MABEL/releases" target="_blank" rel="noopener" class="btn">Download the iOS app ↗</a><a href="https://github.com/robotmabel/MABEL/releases" target="_blank" rel="noopener" class="btn">Download the Vision Pro app ↗</a></div>
+  <div class="spec" style="margin-top:28px;"><span>No-install browser console</span><span>iPhone · Vision Pro</span><span>One wire protocol</span><span>Sim or real</span><span>→ feeds <a href="autonomy.html" style="color:inherit;">autonomy</a></span></div>
+</div></section>
+
+<!-- ═══ TRY IT — THE BROWSER CONSOLE (live) ═══ -->
+<section class="pad-y" id="try" style="padding-top:8px;"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Try it now · no install</span><h2 class="display-md title">Drive it in <span class="italic accent">your browser.</span><img src="assets/stickers/bodega.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-6deg);" loading="lazy" /></h2></div>
+    <p class="lede">Three views — <strong>Teleop</strong>, <strong>Body</strong>, <strong>Navigate</strong> — over one robot. Press <strong>Connect</strong> to reach a live bridge; with none reachable, an in-browser kinematic twin keeps every control live. Same <code>teleop_frame</code> protocol as the iPhone and Vision&nbsp;Pro apps.</p></div>
+</div>
+</section>
+
+<section class="ta-wrap" id="taSection">
+  <div class="ta-app" id="taApp">
+
+    <!-- ── PILOT ────────────────────────────────────────────────── -->
+    <div class="ta-view on" data-view="teleop">
+      <div class="ta-video">
+        <span class="panel-speech tail-br" style="top:6%; left:5%; z-index:7;">Grab the sticks!</span>
+        <img id="taCamMain" alt="" style="display:none;" />
+        <!-- H.264/WebCodecs canvas (LAN low-latency); overlays the MJPEG <img>, shown only while decoding -->
+        <canvas id="taCanvasMain" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas>
+        <div class="ta-novid" id="taNoVid"><div class="inner">
+          <b>Drive MABEL in your browser</b>
+          <p id="taNoVidMsg">Joysticks, body control, and navigation over a live MuJoCo simulation — the same wire protocol as the iPhone and Vision&nbsp;Pro apps. The hosted sim may be offline; either way the controls stay live on the in-browser model.</p>
+          <button class="ta-trylive" id="taTryLive">▶&nbsp; Try it live</button>
+        </div></div>
+      </div>
+      <div class="ta-pip l"><img id="taCamL" alt="" /><canvas id="taCanvasL" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas><span class="tag">L WRIST</span></div>
+      <div class="ta-pip r"><img id="taCamR" alt="" /><canvas id="taCanvasR" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas><span class="tag">R WRIST</span></div>
+
+      <div class="ta-top">
+        <span class="ta-title">PILOT</span>
+        <div class="ta-seg" data-ck>
+          <button class="on" data-mode="drive">Drive</button>
+          <button data-mode="arms">Arms</button>
+        </div>
+        <span class="ta-title" data-ta="speed">0.00 m/s</span>
+      </div>
+
+      <!-- Start / Stop teleop — gates the joysticks (mirrors the iOS app's
+           play/stop teleop button: controls are hidden until you press start) -->
+      <button class="ta-startteleop" id="taStartTeleop" type="button">
+        <svg class="ic-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor" stroke="none"/></svg>
+        <svg class="ic-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="9"/><rect x="9" y="9" width="6" height="6" rx="1.2" fill="currentColor" stroke="none"/></svg>
+        <span class="lab">Start Teleop</span>
+      </button>
+
+      <!-- drive sticks -->
+      <div class="ta-joy l" data-joy="navL" data-show="drive"><span class="knob"></span><span class="lab">TRANSLATE</span></div>
+      <div class="ta-joy r accent" data-joy="navR" data-show="drive"><span class="knob"></span><span class="lab">ROTATE · LIFT</span></div>
+
+      <!-- arm clusters -->
+      <div class="ta-cluster l" data-show="arms" style="display:none;">
+        <div class="ta-nudge"><button data-side="left" data-dir="1">⌃</button><button data-side="left" data-dir="-1">⌄</button><span class="lab">RAISE</span></div>
+        <div class="ta-joy" style="position:static;" data-joy="armL"><span class="knob"></span><span class="lab">L WRIST</span></div>
+        <div class="ta-grip" data-side="left"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">L GRIP</span></div>
+      </div>
+      <div class="ta-cluster r" data-show="arms" style="display:none;">
+        <div class="ta-nudge"><button data-side="right" data-dir="1">⌃</button><button data-side="right" data-dir="-1">⌄</button><span class="lab">RAISE</span></div>
+        <div class="ta-joy accent" style="position:static;" data-joy="armR"><span class="knob"></span><span class="lab">R WRIST</span></div>
+        <div class="ta-grip" data-side="right"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">R GRIP</span></div>
+      </div>
+
+      <!-- synced miniature -->
+      <div class="ta-mini">
+        <div class="ta-stage"><canvas></canvas><div class="ta-loading">RIG</div></div>
+        <span class="tag">ROBOT STATE</span>
+      </div>
+    </div>
+
+    <!-- ── MANIPULATION ─────────────────────────────────────────── -->
+    <div class="ta-view" data-view="body">
+      <div class="ta-stage"><canvas></canvas><div class="ta-loading">LOADING MABEL</div></div>
+
+      <div class="ta-top">
+        <span class="ta-title">MANIPULATE</span>
+        <span></span>
+      </div>
+
+      <!-- Stiff / Soft — the control law on the joints -->
+      <div class="ta-feelbar">
+        <div class="ta-seg" data-feel>
+          <button class="on" data-val="impedance">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            Stiff</button>
+          <button data-val="compliance">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1V4.5a1.5 1.5 0 0 1 3 0V10m0-.5V6a1.5 1.5 0 0 1 3 0v7a6 6 0 0 1-6 6h-1.5a5 5 0 0 1-4-2l-2.5-3.5a1.6 1.6 0 0 1 2.4-2L9 14"/></svg>
+            Soft</button>
+        </div>
+      </div>
+
+      <!-- context hint — changes with Stiff/Soft + Task/Joint -->
+      <div class="ta-manip-hint" id="taManipHint">Drag the green ball to pose the arm; spin a ring to set the wrist.</div>
+
+      <!-- compact RIGHT-side control panel — all toggles visible at a glance -->
+      <aside class="ta-side ta-manip-side" id="taManipSide">
+        <!-- SPACE (Stiff only) -->
+        <div class="ta-seg sm full" data-space data-spacepanel>
+          <button class="on" data-sv="task">Task</button>
+          <button data-sv="joint">Joint</button>
+        </div>
+        <!-- CONTROL REGION (task space OR soft) -->
+        <div class="ta-panel pc" data-regionpanel>
+          <span class="ta-seglabel">REGION</span>
+          <div class="ta-seg sm full" data-region>
+            <button class="on" data-rv="arm">Arms</button>
+            <button data-rv="upper_body">Upper</button>
+            <button data-rv="whole_body">Whole</button>
+          </div>
+        </div>
+        <!-- TASK → stiffness + hand grips -->
+        <div class="ta-panel pc" data-taskonly>
+          <div class="row"><span class="k">STIFFNESS</span><span class="v" data-stiff-out>32 Nm/rad</span></div>
+          <input class="ta-slider" type="range" data-stiff min="0.1" max="1" step="0.01" value="0.7" />
+          <div class="ta-grip2">
+            <label><span class="k">L HAND</span><input class="ta-slider" data-grip="left" type="range" min="0" max="1" step="0.01" value="0" /></label>
+            <label><span class="k">R HAND</span><input class="ta-slider" data-grip="right" type="range" min="0" max="1" step="0.01" value="0" /></label>
+          </div>
+        </div>
+        <!-- JOINT → group tabs + sliders (2 columns for arms/hands) -->
+        <div class="ta-panel pc ta-joints" data-jointonly style="display:none;">
+          <div class="ta-jtabs" data-jtabs></div>
+          <div class="ta-jlist" data-jlist></div>
+        </div>
+        <!-- SOFT → view-only note -->
+        <div class="ta-panel pc ta-soft-note" data-softnote style="display:none;">
+          <b>View only.</b> The body is compliant — pose MABEL by hand (real or sim). This view mirrors the live state.
+        </div>
+      </aside>
+
+      <!-- viewport buttons: re-center · fit -->
+      <div class="ta-viewbtns" data-viewbtns="body">
+        <button class="ta-vbtn" data-vb="recenter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21"/></svg>Re-center</button>
+        <button class="ta-vbtn" data-vb="fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>Fit</button>
+      </div>
+    </div>
+
+    <!-- ── NAVIGATE ─────────────────────────────────────────────── -->
+    <div class="ta-view" data-view="nav">
+      <div class="ta-stage"><canvas></canvas><div class="ta-loading">BUILDING ROOM</div></div>
+
+      <div class="ta-top">
+        <span class="ta-title" data-ta="navroom">—</span>
+        <span class="ta-title" data-ta="navpts">—</span>
+      </div>
+
+      <div class="ta-rooms"></div>
+
+      <!-- viewport buttons: re-center · fit · follow robot -->
+      <div class="ta-viewbtns" data-viewbtns="nav">
+        <button class="ta-vbtn" data-vb="recenter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21"/></svg>Re-center</button>
+        <button class="ta-vbtn" data-vb="fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>Fit</button>
+        <button class="ta-vbtn" data-vb="followcam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>Follow robot</button>
+      </div>
+
+      <!-- bottom: Go / Clear the A* path (pure-pursuit follows) -->
+      <div class="ta-navhud">
+        <button class="ta-btn primary" id="taFollow" disabled>Go</button>
+        <button class="ta-btn ghost" id="taClearGoal" title="Clear goal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+      </div>
+    </div>
+
+    <!-- ── E-STOP veil ──────────────────────────────────────────── -->
+    <div class="ta-estop-veil"><span class="tag">E-STOP — OUTPUTS HALTED</span></div>
+  </div>
+
+  <!-- ── THE DOCK — floating liquid glass, two rows: views on top, status below ── -->
+  <div class="ta-dock" id="taDock">
+    <nav class="ta-tabs" data-tabs>
+      <button class="on" data-go="teleop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="4"/><path d="M7 12h3M8.5 10.5v3"/><circle cx="16" cy="11" r="1"/><circle cx="18.5" cy="13.5" r="1"/></svg>
+        Pilot
+      </button>
+      <button data-go="body">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.3"/><path d="M12 7.5v5M5 9l7 1 7-1M12 12.5l-4 7M12 12.5l4 7"/></svg>
+        Manipulate
+      </button>
+      <button data-go="nav">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l6-2.5 6 2.5 6-2.5V5l-6 2.5L9 5 3 7.5z"/><path d="M9 5v12M15 7.5v12"/></svg>
+        Navigate
+      </button>
+    </nav>
+    <div class="ta-dock-row">
+      <span class="ta-pill" id="taPill"><span class="dot"></span><span>LOCAL SIM</span></span>
+      <label class="ta-host" title="Wi-Fi auto-discovers — leave blank and the console races the bridge on this machine, the host it was served from, and your last-used LAN IP, connecting to whichever answers (the browser analog of the Vision Pro app's Bonjour scan). Type a LAN IP only to force one.">
+        <span>WI-FI</span><input id="taHostLocal" type="text" placeholder="auto-discover" spellcheck="false" autocomplete="off" aria-label="Local Wi-Fi host (auto-discovers)" /></label>
+      <label class="ta-host" title="From any network: the Mac's Tailscale IP (tailscale ip -4) — or, from this https page, its ts.net name (tailscale status). One-time setup — Tailscale on the Mac and this device, same account.">
+        <span>VPN</span><input id="taHostVpn" type="text" placeholder="100.x.y.z · mac.ts.net" spellcheck="false" autocomplete="off" aria-label="Tailscale VPN host" /></label>
+      <label class="ta-host ta-host-relay" title="From anywhere on the public internet: the secure relay hostname (e.g. mabel.duckdns.org). The robot dials OUT to a token-gated VPS — no VPN app, no open inbound port. See relay/README.md.">
+        <span>RELAY</span><input id="taHostRelay" type="text" placeholder="mabel.duckdns.org" spellcheck="false" autocomplete="off" aria-label="Secure relay host" /></label>
+      <label class="ta-host ta-host-key" title="The relay access token (APP_TOKEN). Every request must carry it as ?key= or the VPS returns 403 before reaching the robot. Treat it like a password.">
+        <span>KEY</span><input id="taRelayKey" type="text" placeholder="access token" spellcheck="false" autocomplete="off" aria-label="Relay access token" /></label>
+      <div class="ta-hostpick" id="taHostPick">
+        <button class="ta-connect" id="taConnect" type="button" aria-haspopup="true" aria-expanded="false" title="Choose which robot / sim to drive"><span class="hp-lbl">Connect</span><span class="hp-cv">▾</span></button>
+        <div class="ta-hostmenu" id="taHostMenu" role="menu" hidden></div>
+      </div>
+      <div class="ta-metrics">
+        <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
+        <span class="ta-metric">LAT<b data-ta="lat">—</b></span>
+        <span class="ta-metric">BATT<b data-ta="batt">—</b></span>
+      </div>
+      <span class="ta-divider"></span>
+      <button class="ta-sbtn" id="taReset">Reset</button>
+      <button class="ta-estop" id="taEstop">E-STOP</button>
+      <button class="ta-sbtn ta-fs" id="taFs" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTROL CENTER · live tool ─── -->
+<section class="dark-sec pad-y" id="controlcenter">
+  <div class="wrap">
+    <div class="card studio-card fade-up">
+      <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · open demo</span>
+      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">The full studio: <span class="italic accent">Control Studio.</span></h2>
+      <p class="lede" style="margin:0 0 26px; max-width:62ch;">The console above is the simple one. The <strong>Control Studio</strong> is the full cockpit the robot serves for real sessions — an rviz-class 3-D viewer inside its own SLAM map, drive and manipulate teleop, per-finger hand control, and 59-DOF telemetry.</p>
+      <div class="studio-actions">
+          <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:0;">Open the Control Studio ↗</a>
+        </div>
+      <div class="spec" style="margin-top:24px;">
+        <span>rviz-class 3D viewer</span><span>Drive · Manipulate · Hands</span><span>59-DOF telemetry</span><span>Server + client monitor</span><span>Setpoint timeline</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DESIGNED TO BE SAFE ═══ -->
+<span id="vp-app" class="anchor-alias"></span>
+<section class="dark-sec pad-y" id="visionpro"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Apple Vision Pro · visionOS</span><h2 class="display-md title" style="color:var(--bone);">Reach in. <span class="italic accent">It follows.</span></h2>
+    <div class="app-links"><a href="https://github.com/robotmabel/mabel/releases" target="_blank" rel="noopener" class="btn">Get the visionOS app ↗</a><a href="software.html#retargeting" class="btn">How retargeting works →</a></div></div>
+    <p class="lede">The same five tabs, floating as glass — <strong>every window below is a real capture from the visionOS&nbsp;Simulator</strong>. Put the headset on and MABEL's stereo feed wraps around you; step into the immersive room and your hands <em>are</em> the arms — a pinch closes the grasp, your gaze aims the neck. 27 joints per hand at 60&nbsp;Hz.</p></div>
+  <div class="tele-duo fade-up" style="margin-bottom:30px;">
+    <figure class="tele-clip"><video muted loop playsinline preload="none" poster="assets/wild/v-avp.jpg" data-lo="assets/wild/v-avp-lo.mp4" data-lazyvid="assets/wild/v-avp.mp4" aria-label="Operator in a Vision Pro; the real robot mirrors both arms"></video><span class="burst sm" aria-hidden="true">Sync!</span><figcaption>The operator moves — the real robot moves with them</figcaption></figure>
+    <figure class="tele-clip"><video muted loop playsinline preload="none" poster="assets/wild/d-vp3.jpg" data-lo="assets/wild/d-vp3-lo.mp4" data-lazyvid="assets/wild/d-vp3.mp4" aria-label="Full-mirror Vision Pro session"></video><figcaption>Full mirror — 27 joints per hand at 60 Hz</figcaption></figure>
+  </div>
+  <div class="appgal-wrap fade-up">
+    <span class="appgal-hint"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h24M20 2l5 4-5 4"/></svg>Swipe through all five tabs · real captures</span>
+    <div class="appgal vp">
+      <figure><img loading="lazy" width="1500" height="776" src="assets/app/vp-teleop.jpg" alt="Real visionOS-simulator capture — Teleop tab floating in a room: head-POV and wrist-cam panels, Start Teleop, and the glass tab bar" /><figcaption><b><span class="ix">01</span>Teleop</b>Head POV &amp; wrist cams float in the room — then reach in.</figcaption></figure>
+      <figure><img loading="lazy" width="1500" height="776" src="assets/app/vp-body.jpg" alt="Real visionOS-simulator capture — Body tab: Hold/Soft and Wrist/Joints controls beside the live 3D digital twin standing in the room" /><figcaption><b><span class="ix">02</span>Body</b>The live twin stands in the room — pinch an arm to guide it.</figcaption></figure>
+      <figure><img loading="lazy" width="1500" height="776" src="assets/app/vp-maps.jpg" alt="Real visionOS-simulator capture — Maps tab: saved room reconstructions and pinch-the-floor goal setting" /><figcaption><b><span class="ix">03</span>Maps</b>Saved rooms — pinch the floor to set a goal.</figcaption></figure>
+      <figure><img loading="lazy" width="1500" height="776" src="assets/app/vp-policies.jpg" alt="Real visionOS-simulator capture — Policies tab: assistant, robot quick actions, weekly automations and the skill library as floating glass cards" /><figcaption><b><span class="ix">04</span>Policies</b>Assistant, automations &amp; skills — cards float in space.</figcaption></figure>
+      <figure><img loading="lazy" width="1500" height="776" src="assets/app/vp-robot.jpg" alt="Real visionOS-simulator capture — Robot tab: connection, model picker, calibration, speed caps and permissions" /><figcaption><b><span class="ix">05</span>Robot</b>Connection, calibration, speed caps &amp; security.</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="points fade-up" style="margin-top:30px;">
+    <div class="point"><div class="num">01</div><div><h5 style="color:var(--bone);">Stereo passthrough</h5><p>The head ZED's left/right streams map onto an inward-facing RealityKit sphere — you look around the robot's world in true stereo, with wrist-cam thumbnails for close work.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5 style="color:var(--bone);">Clutch retargeting</h5><p>A UMI-style <em>relative</em> mapping: pinch to clutch in, move, release to re-anchor — no jumps. Thumb-to-index distance becomes the grasp. See <a href="software.html#retargeting" style="color:#e9a679;">retargeting</a>.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5 style="color:var(--bone);">Whole body, one operator</h5><p>Hand targets feed the <a href="software.html#controller" style="color:#e9a679;">control cascade</a>; a lazy swerve base and a look-at neck come along for free. One headset drives all 51 joints.</p></div></div>
+  </div>
+</div></section>
+
+<span id="ios-app" class="anchor-alias"></span>
+<section class="pad-y" id="ios"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">iPhone · iOS</span><h2 class="display-md title">Your robot, <span class="italic accent">in your pocket.</span></h2>
+    <div class="app-links"><a href="https://github.com/robotmabel/mabel/releases" target="_blank" rel="noopener" class="btn">Get the iOS app ↗</a><a href="autonomy.html#mapping" class="btn">How navigation works →</a></div></div>
+    <p class="lede">All five tabs, one thumb — <strong>every screen below is a real capture from the iOS&nbsp;Simulator</strong>. It auto-discovers MABEL on Wi-Fi and falls back to an on-device simulator, so every control stays live even with no robot in the room.</p></div>
+
+  <div class="tele-duo fade-up" style="margin-bottom:30px;">
+    <figure class="tele-clip"><video data-lazyvid="assets/app/ios-drive.mp4" muted loop playsinline preload="none" autoplay aria-label="Drive cockpit — live joysticks over the head and wrist cameras"></video><figcaption>The Pilot cockpit — thumbsticks over live cameras</figcaption></figure>
+    <figure class="tele-clip"><video data-lazyvid="assets/app/ios-maps.mp4" muted loop playsinline preload="none" autoplay aria-label="Tap-to-go navigation on a live SLAM map"></video><figcaption>Tap the map — A* plans it, pure pursuit drives it</figcaption></figure>
+    <figure class="tele-clip"><video data-lazyvid="assets/app/ios-body.mp4" muted loop playsinline preload="none" autoplay aria-label="Posing the live 3D twin on the phone"></video><figcaption>Pose the live twin — the controller solves the rest</figcaption></figure>
+  </div>
+
+  <div class="appgal-wrap fade-up">
+    <span class="appgal-hint"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h24M20 2l5 4-5 4"/></svg>Swipe through all five tabs · real captures</span>
+    <div class="appgal ios">
+      <figure><img loading="lazy" width="780" height="1695" src="assets/app/ios-pilot.jpg" alt="Real iOS-simulator capture — Pilot tab: the live head camera with left and right wrist feeds, speed governor, record, and an always-present STOP" /><figcaption><b><span class="ix">01</span>Pilot</b>Live camera + wrist cams; drive, look &amp; record.</figcaption></figure>
+      <figure><img loading="lazy" width="780" height="1695" src="assets/app/ios-manipulate.jpg" alt="Real iOS-simulator capture — Manipulate tab: the live 3D twin with Stiff/Soft feel, Task/Joint space, stiffness and grip sliders" /><figcaption><b><span class="ix">02</span>Manipulate</b>Pose the live 3D twin — feel × region × space.</figcaption></figure>
+      <figure><img loading="lazy" width="780" height="1695" src="assets/app/ios-navigate.jpg" alt="Real iOS-simulator capture — Navigate tab: a live SLAM map with obstacles, Live SLAM toggle and saved maps" /><figcaption><b><span class="ix">03</span>Navigate</b>A live SLAM map — tap a spot to plan and drive.</figcaption></figure>
+      <figure><img loading="lazy" width="780" height="1695" src="assets/app/ios-autonomy.jpg" alt="Real iOS-simulator capture — Autonomy tab: assistant chat, robot quick actions, weekly automations and a skill library" /><figcaption><b><span class="ix">04</span>Autonomy</b>Talk to it; quick actions, automations &amp; skills.</figcaption></figure>
+      <figure><img loading="lazy" width="780" height="1695" src="assets/app/ios-settings.jpg" alt="Real iOS-simulator capture — Settings tab: connection status, robots list, real-robot security and access code" /><figcaption><b><span class="ix">05</span>Settings</b>Connection, robots, limits &amp; security.</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="points fade-up" style="margin-top:30px;">
+    <div class="point"><div class="num">01</div><div><h5>Drive with your thumbs</h5><p>The Pilot cockpit: left stick translates, right stick turns and lifts, over live head and wrist feeds — with a speed governor and an always-present <strong>STOP</strong>.</p></div></div>
+    <div class="point"><div class="num">02</div><div><h5>Pose a real 3D twin</h5><p>Manipulate renders a live twin — drag a wrist, pick <em>Firm</em> or <em>Soft</em>, and how much body moves; the <a href="software.html#controller" style="color:var(--rust);">controller</a> coordinates the rest.</p></div></div>
+    <div class="point"><div class="num">03</div><div><h5>Tap-to-go navigation</h5><p>On a real SLAM map, tap a goal: an <strong>A*</strong> plan routes around obstacles, then pure-pursuit drives it. See <a href="autonomy.html#mapping" style="color:var(--rust);">navigation</a>.</p></div></div>
+    <div class="point"><div class="num">04</div><div><h5>Dispatch autonomy</h5><p>A library of learned and scripted skills, each with its kind and an offline-eval success rate. One tap runs it on the robot or the twin. See <a href="autonomy.html" style="color:var(--rust);">autonomy</a>.</p></div></div>
+  </div>
+</div></section>
+
+<section class="soft-sec pad-y" id="safety"><div class="wrap">
+  <div class="sec-head fade-up"><div><span class="eyebrow">Safety</span><h2 class="display-md title">Safe by construction, <span class="italic accent">not by manual.</span></h2></div>
+    <p class="lede">Safety isn't a settings page you're trusted to read — it's the spine of the interface. Three promises hold on every screen, on both devices, whether you're an operator or a first-time guest.</p></div>
+  <div class="card-grid">
+    <div class="card fade-up"><span class="card-num">A</span><div><h4>Stop, instantly</h4><p>A red <strong>STOP</strong> rides every screen and never scrolls away — one tap freezes all motion. Sleep the phone, lift the headset, or lose the link and the robot freezes <em>itself</em>: a heartbeat means it only moves while a human is actively holding on.</p></div></div>
+    <div class="card fade-up d1"><span class="card-num">B</span><div><h4>Never too fast, never past a limit</h4><p>A speed dial scales everything from a crawl to full tilt. Hard speed caps live on the robot itself, every joint stops short of its mechanical limit, and letting go <em>holds the pose</em> under gravity comp — nothing springs back at you.</p></div></div>
+    <div class="card fade-up d2"><span class="card-num">C</span><div><h4>Only the right hands, when armed</h4><p>One driver holds the controls at a time; the robot must be explicitly <strong>armed</strong> to move; a stored access code gates every connection; and a live health panel flags a hot motor or a joint near its limit before it bites.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ─── CTA ─── -->
+<section class="soft-sec pad-y" id="paper-figs">
+  <div class="wrap">
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">Networking</span>
+        <h2 class="display-md title">Networking: drive it from <span class="italic accent">anywhere.</span></h2>
+      </div>
+      <p class="lede">The operator can be on the other side of the planet. Pick a city: the budget is the great circle at fibre speed, the relay hops, and the measured on-robot pipeline — nothing hand-waved.</p>
+    </div>
+    <div class="rg-wrap fade-up" style="margin-bottom:clamp(24px,3vh,38px);">
+      <div id="reachGlobe"></div>
+    </div>
+        <figure class="frames-fig fade-up">
+      <div class="fr2">
+        <div class="fr2-photo">
+          <img src="assets/teleop/frames-photo.jpg" loading="lazy" width="1628" height="1075"
+               alt="The operator in a Vision Pro beside MABEL. Six coordinate triads are drawn on the pair — the head frame on each, and a wrist frame on each hand — with dashed lines pairing the operator's to the robot's." />
+          <div class="fr2-key" aria-hidden="true">
+            <span class="fr2-ax x">x</span><span class="fr2-ax y">y</span><span class="fr2-ax z">z</span>
+            <b>F<sub>d</sub></b> head <b>F<sub>h</sub></b> wrists
+            <b>F<sub>e</sub></b> elbows
+          </div>
+          <figcaption>The frames the headset reports, and where they land. Head,
+            both wrists, both elbows &mdash; paired, not copied. Photograph and
+            annotation from the paper.</figcaption>
+        </div>
+        <ol class="fr2-steps">
+          <li><b>Clutch</b> Anchor at your shoulders, scale by your own span.
+            <i>a tall and a short operator drive it the same</i></li>
+          <li><b>Permute</b> One matrix, det&nbsp;=&nbsp;+1.
+            <code>x&#8202;=&#8202;z<sub>a</sub> &nbsp; y&#8202;=&#8202;y<sub>a</sub> &nbsp; z&#8202;=&#8202;&#8722;x<sub>a</sub></code>
+            <i>so your left hand stays your left</i></li>
+          <li><b>Gain</b> &times;1.3 forward, &times;1.3 left, &times;1.4 up.
+            <i>the lift, torso and base carry the long reaches</i></li>
+        </ol>
+      </div>
+      <p class="fr2-bite"><b>The one that bites:</b> a palm frame built from anatomy is
+        chirality-mirrored &mdash; palmar on the right hand, dorsal on the left. The robot's is
+        palmar on both, so the left one is flipped first. Cost of forgetting, measured:
+        178.6&deg;.</p>
+      <figcaption>Your body and MABEL's do not agree about which way is forward, how long an
+        arm is, or how wide a torso should be. Three steps reconcile them, and none is
+        learned &mdash; the clutch is your own shoulder width, the permutation is one matrix,
+        and the gain is six numbers in <code>config.py</code>.</figcaption>
+    </figure>
+
+<div class="lat-bars fade-up" id="latencyBars"></div>
+    <div class="callout fade-up" style="margin-top:clamp(28px,4vh,44px);">
+      <p><strong>Which headset?</strong> The <strong>Apple Vision Pro</strong> runs the native visionOS
+      app — ARKit head pose plus a 27-joint skeleton per hand, and it is simultaneously visualizer,
+      controller, and demonstration recorder. Other headsets (a <strong>PICO</strong>, a Quest) drive
+      MABEL through the zero-install <a href="simulator.html" style="color:var(--rust);">browser client</a>
+      instead — same wire protocol, no app store. All retargeting runs server-side either way.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="connect.html">Community</a></div></div>
+      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a><a href="harness.html">AI harness</a></div>
+      <div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="docs/">Assembly guide</a><a href="hardware.html#model">3D model</a><a href="order.html">Order a robot</a></div>
+      <div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#paper">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 The MABEL Authors · Apache-2.0 software · CERN-OHL-S-2.0 hardware · CC BY 4.0 docs</span><span>Built with love · v1.0.0</span></div>
+  </div>
+</footer>
+
+<script src="assets/latency-bars.js"></script>
+<script src="assets/reach-globe.js?v=e251d7bb"></script>
+<script src="assets/burst-variety.js?v=4bc405a8"></script>
+<script src="assets/store-nav.js"></script>
+<script src="assets/mabel.js?v=d39cf631"></script>
+<script defer src="assets/defer-module.js" data-mod="./teleop-app.js?v=20260630-balldrag" data-when=".ta-stage"></script>
+<script src="assets/inline-svg.js"></script>
+</body>
+</html>

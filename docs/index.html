@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#F4EAD2"/>
+<title>MABEL — build it, share it</title>
+<meta name="description" content="The MABEL community: the full build manual, and the place people share what they built with it — hardware, simulation scenes, skills and tools."/>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800&family=Space+Mono:ital,wght@0,400;0,700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css?v=470404c8"/>
+<link rel="stylesheet" href="hub.css?v=dd89615e"/>
+</head>
+<body class="hub">
+
+<header class="hub-nav">
+  <a class="hub-logo" href="index.html"><img src="../assets/logo.svg" alt=""/><b>MABEL</b><span>community</span></a>
+  <nav>
+    <a href="#manual">The manual</a>
+    <a href="#showcase">Showcase</a>
+    <a href="#challenges">Challenges</a>
+    <a href="#contribute">Contribute</a>
+    <a href="../order.html">Parts store</a>
+    <a href="../index.html" class="hub-out">Project site &#8599;</a>
+  </nav>
+</header>
+
+<!-- ═══ BOOT ═══ -->
+<section class="hub-hero">
+  <div class="hub-hero-in">
+    <pre class="boot" id="boot" aria-label="Boot readout"></pre>
+    <div class="hub-say">
+      <h1>Build one.<br/><span>Then show us.</span></h1>
+      <p>This manual is not a product page. It is the whole robot &mdash; bill of
+        materials, printed parts, wiring, PCBs, firmware, ROS, simulation,
+        calibration, teleoperation, learning, and the bugs that will bite you
+        &mdash; written so a stranger can reproduce it. <b>And it is meant to be
+        written by more than one of us.</b> Every chapter takes pull requests;
+        so does the shelf below.</p>
+      <div class="hub-cta">
+        <a class="hb hb-go" href="overview.html">Start the build &rarr;</a>
+        <a class="hb" href="#contribute">Add yours</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOUR THINGS ANYONE CAN BRING ═══ -->
+<section class="hub-band" id="showcase">
+  <div class="hub-wrap">
+    <h2 class="hub-h">Four things anyone can bring</h2>
+    <p class="hub-sub">You do not need the whole robot to contribute. One arm counts.
+      A scene counts. Fifty clean demonstrations count.</p>
+    <div class="kinds" id="kinds"></div>
+  </div>
+</section>
+
+<!-- ═══ THE SHELF ═══ -->
+<section class="hub-band alt">
+  <div class="hub-wrap">
+    <div class="shelf-head">
+      <h2 class="hub-h">The shelf</h2>
+      <div class="shelf-filters" id="shelfFilters"></div>
+    </div>
+    <div class="shelf" id="shelf"></div>
+    <p class="shelf-note" id="shelfNote"></p>
+  </div>
+</section>
+
+<!-- ═══ CHALLENGES ═══ -->
+<section class="hub-band" id="challenges">
+  <div class="hub-wrap">
+    <h2 class="hub-h">Open challenges</h2>
+    <p class="hub-sub">Not competitions &mdash; the three things the project most
+      needs from someone who is not us.</p>
+    <div class="chal" id="chal"></div>
+  </div>
+</section>
+
+<!-- ═══ THE MANUAL ═══ -->
+<section class="hub-band alt" id="manual">
+  <div class="hub-wrap">
+    <h2 class="hub-h">The manual, in build order</h2>
+    <p class="hub-sub">Ten chapters. You cannot wire a frame you have not printed,
+      so they run in the order the work does.</p>
+    <div class="chapters" id="chapters"></div>
+  </div>
+</section>
+
+<!-- ═══ CONTRIBUTE ═══ -->
+<section class="hub-band" id="contribute">
+  <div class="hub-wrap">
+    <h2 class="hub-h">How to put something here</h2>
+    <div class="contrib">
+      <div>
+        <h3>One file. One pull request. No account.</h3>
+        <p>Everything on the shelf is an object in
+          <code>website/docs/data/community.json</code>. Add yours, open a PR,
+          and it appears. Nothing else needs touching &mdash; no build step, no
+          CMS, no invitation.</p>
+        <pre><code>{
+  "kind":  "build",          <span class="c">// build | scene | skill | part | tool</span>
+  "title": "MABEL #7, Lisbon",
+  "who":   "your name or handle",
+  "url":   "https://...",    <span class="c">// repo, thread, video, anything</span>
+  "shot":  "https://...",    <span class="c">// optional image</span>
+  "stage": "wiring",         <span class="c">// planning | printing | wiring | running | shipped</span>
+  "blurb": "One or two sentences. What is it, what is different about it.",
+  "tags":  ["hardware", "swerve"]
+}</code></pre>
+        <p class="faint">Builds in progress are welcome and wanted. A half-wired
+          chassis with a note saying which step was wrong is more useful to the
+          next person than a finished photograph.</p>
+      </div>
+      <div>
+        <h3>Fixing the manual counts too</h3>
+        <p>If a step was wrong, a part was missing, or a command did not run,
+          that is the highest-value contribution there is &mdash; every chapter has
+          an <b>Edit this page</b> link at the foot that opens the file on GitHub.</p>
+        <ul class="check">
+          <li>A wrong torque, a missing washer, a bolt length that does not fit</li>
+          <li>A command that needs a flag on your distro</li>
+          <li>A part that is out of stock, with the substitute that worked</li>
+          <li>A photograph of the step you got stuck on</li>
+        </ul>
+        <div class="hub-cta">
+          <a class="hb hb-go" href="https://github.com/robotmabel/MABEL/blob/main/website/docs/data/community.json" target="_blank" rel="noopener">Edit the registry &#8599;</a>
+          <a class="hb" href="https://github.com/robotmabel/MABEL/issues" target="_blank" rel="noopener">Open an issue &#8599;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="hub-foot">
+  <div class="hub-wrap">
+    <b>MABEL</b>
+    <span>Open hardware, open software, open from day one &mdash; MIT.</span>
+    <nav>
+      <a href="overview.html">The manual</a>
+      <a href="../index.html">Project site</a>
+      <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub &#8599;</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="hub.js?v=1d877e26"></script>
+</body>
+</html>

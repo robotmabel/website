@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#F4EAD2"/>
+<title>Bill of materials — MABEL replication docs</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800&family=Space+Mono:ital,wght@0,400;0,700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="docs.css?v=470404c8"/>
+<link rel="stylesheet" href="build.css?v=b1512c9f"/>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1><span class="n">01</span>Bill of materials</h1>
+  <p class="lead">
+    One core parts list every build shares, plus six perception/compute choices
+    that set your tier. Configuration updated 22&nbsp;September&nbsp;2026 (price basis: 31&nbsp;July&nbsp;2026)
+    and maintained as CSVs in the repo — the PDFs and the site's interactive BOM
+    are generated from the same data.
+  </p>
+
+  <h2>Downloads</h2>
+  <div class="files">
+    <a href="../assets/bom/MABEL_Build_Guide.pdf">MABEL_Build_Guide.pdf<small>illustrated mechanical assembly</small></a>
+    <a href="../assets/bom/MABEL_Wiring_Guide.pdf">MABEL_Wiring_Guide.pdf<small>harness, buses, pinouts</small></a>
+  </div>
+  <p class="dim">The parts list itself is <a href="#explore">below, live</a> —
+  searchable, filterable by tier, with a vendor link per line. Download the current <a href="../assets/bom/core.csv">core parts CSV</a>,
+  <a href="../assets/bom/choices.csv">compute and sensing CSV</a>, or
+  <a href="../assets/bom/mabel_bom.pdf">BOM audit PDF</a>.</p>
+
+  <h2>Core BOM — $7,650.29, every build</h2>
+  <p>49 lines, identical across tiers. By section:</p>
+  <table>
+<tr><th>Section</th><th class="num">USD</th><th class="num">Share</th></tr>
+<tr><td>Mobile base</td><td class="num">1,912.11</td><td class="num">24.99%</td></tr>
+<tr><td>Body / torso</td><td class="num">889.06</td><td class="num">11.62%</td></tr>
+<tr><td>Arms - both</td><td class="num">2,622.24</td><td class="num">34.28%</td></tr>
+<tr><td>Hands - both</td><td class="num">1,194.61</td><td class="num">15.62%</td></tr>
+<tr><td>Neck / head</td><td class="num">235.30</td><td class="num">3.08%</td></tr>
+<tr><td>Structural hardware</td><td class="num">184.21</td><td class="num">2.41%</td></tr>
+<tr><td>Electronics, power &amp; cabling</td><td class="num">491.84</td><td class="num">6.43%</td></tr>
+<tr><td>3D printed material</td><td class="num">120.68</td><td class="num">1.58%</td></tr>
+<tr class="total"><td>Core total</td><td class="num">7,650.05</td><td class="num">100%</td></tr>
+</table>
+
+
+  <h2 id="explore">Explore the bill</h2>
+  <p>The same numbers as the table above, arranged so you can see where the
+  money actually goes. Hover a slice or a row and the components inside it
+  appear underneath; switch between grouping by module and by kind of part.</p>
+
+    <div class="sec-head fade-up">
+      <div>
+        <span class="eyebrow">The breakdown</span>
+        <h2 class="display-md title">Where the money <span class="italic accent">goes.</span></h2>
+      </div>
+      <p class="lede">Eight subsystems make up the core bill. Hover a slice — or a row — and the
+        actual components inside it appear below.</p>
+    </div>
+    <div class="bom-toggle fade-up" id="bomGroupToggle">
+      <button class="on" type="button" data-group="module">By module</button>
+      <button type="button" data-group="type">By type</button>
+    </div>
+    <div class="bom-grid fade-up">
+      <div class="bom-pie-wrap">
+        <div id="bomPie"></div>
+        <div class="bom-centre"><span id="bomPieVal"></span><span id="bomPieKey"></span></div>
+      </div>
+      <div>
+        <div class="table-scroll">
+          <table class="data-table" id="bomRows">
+            <thead><tr><th style="text-align:left;">Subsystem</th><th>Share</th><th style="text-align:right;">Cost</th></tr></thead>
+            <tbody>
+            <tr data-sec="Mobile base"><td data-l="Subsystem"><span class="bom-dot" style="background:#C6301A"></span>Mobile base</td><td data-l="Share">25%</td><td data-l="Cost" style="text-align:right;">$1,912</td></tr>
+            <tr data-sec="Body / torso"><td data-l="Subsystem"><span class="bom-dot" style="background:#D9A13F"></span>Body / torso</td><td data-l="Share">12%</td><td data-l="Cost" style="text-align:right;">$889</td></tr>
+            <tr data-sec="Arms - both"><td data-l="Subsystem"><span class="bom-dot" style="background:#23577E"></span>Arms - both</td><td data-l="Share">34%</td><td data-l="Cost" style="text-align:right;">$2,622</td></tr>
+            <tr data-sec="Hands - both"><td data-l="Subsystem"><span class="bom-dot" style="background:#2E7D4F"></span>Hands - both</td><td data-l="Share">16%</td><td data-l="Cost" style="text-align:right;">$1,195</td></tr>
+            <tr data-sec="Neck / head"><td data-l="Subsystem"><span class="bom-dot" style="background:#8B5A3C"></span>Neck / head</td><td data-l="Share">3%</td><td data-l="Cost" style="text-align:right;">$235</td></tr>
+            <tr data-sec="Structural hardware"><td data-l="Subsystem"><span class="bom-dot" style="background:#B77E1E"></span>Structural hardware</td><td data-l="Share">2%</td><td data-l="Cost" style="text-align:right;">$184</td></tr>
+            <tr data-sec="Electronics, power & cabling"><td data-l="Subsystem"><span class="bom-dot" style="background:#93220F"></span>Electronics, power & cabling</td><td data-l="Share">6%</td><td data-l="Cost" style="text-align:right;">$492</td></tr>
+            <tr data-sec="3D printed material"><td data-l="Subsystem"><span class="bom-dot" style="background:#151820"></span>3D printed material</td><td data-l="Share">2%</td><td data-l="Cost" style="text-align:right;">$121</td></tr>
+            <tr class="best"><td>Core total</td><td></td><td class="hi" style="text-align:right;">$7,650</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="bomParts"></div>
+      </div>
+    </div>
+    <div class="fade-up" style="margin-top:clamp(30px,4vh,46px);">
+      <div class="sec-head" style="margin-bottom:14px;">
+        <div>
+          <span class="eyebrow">Every line</span>
+          <h3 class="display-sm" style="margin:0;">All 49 parts.</h3>
+        </div>
+        <p class="lede" style="font-size:14px;">Search it, filter by subsystem, and hover any
+          row for a preview. Price basis: 31 July 2026; configuration and catalog corrections updated 22 September 2026.</p>
+      </div>
+      <div id="bomTable"></div>
+    </div>
+
+    <div class="callout fade-up" style="margin-top:clamp(28px,4vh,44px);">
+      <p><strong>Prices move.</strong>NVIDIA raised every Jetson price 33–101% on 22 July 2026 —
+      the identical robot went from $12,969 to $14,968 overnight. Compute is a choice here, not a
+      component: the bill treats it that way.</p>
+    </div>
+
+
+  <p class="faint">Both views are generated from <code>BOM/data/core.csv</code> and
+  <code>BOM/data/choices.csv</code> &mdash; the same two files the tables above
+  are built from, so they cannot disagree.</p>
+
+  <h2>The six choices — pick a tier</h2>
+  <p>
+    Only perception and compute differ between tiers. The mechanism is identical,
+    so every choice upgrades later without touching the structure.
+  </p>
+  <table>
+<tr><th>Choice</th><th>Essential</th><th>Recommended</th><th>Maximum</th></tr>
+<tr><td>Onboard compute</td><td>Raspberry Pi 5 16 GB ($120.00)</td><td>NVIDIA Jetson Orin NX 16 GB + carrier ($1,249.00)</td><td>NVIDIA Jetson AGX Thor Developer Kit ($5,499.00)</td></tr>
+<tr><td>Wrist cameras</td><td>MMlove AR0144 GS-720P-60fps ($97.98)</td><td>MMlove AR0144 GS-1200P-90fps ($165.98)</td><td>Intel RealSense D405 ($576.00)</td></tr>
+<tr><td>Head camera</td><td>IEights OG02B10 stereo, 1200P 60 fps, 100 deg HFOV ($119.00)</td><td>IEights OG02B10 stereo, 1200P 60 fps, 100 deg HFOV ($119.00)</td><td>Stereolabs ZED Mini ($399.00)</td></tr>
+<tr><td>Base depth camera</td><td>Omit - rely on the 2D lidar ($0.00)</td><td>Omit - rely on the 2D lidar ($0.00)</td><td>Intel RealSense D435i ($319.72)</td></tr>
+<tr><td>2D lidar</td><td>youyeetoo FHL-LD19 ($69.00)</td><td>Slamtec RPLIDAR C1 ($99.00)</td><td>Slamtec RPLIDAR A2M12 ($228.63)</td></tr>
+<tr><td>Camera-specific cabling</td><td>None needed ($0.00)</td><td>None needed ($0.00)</td><td>Micro-B pair + ZED USB-C run ($48.66)</td></tr>
+<tr class="total"><td>Listed parts subtotal</td><td class="num">$8,056.03</td><td class="num">$9,283.03</td><td class="num">$14,721.06</td></tr>
+</table>
+  <div class="note">
+    The standard robot uses the <b>Essential</b> configuration: Raspberry Pi 5 (16 GB),
+    720p global-shutter wrist cameras, an IEights stereo head camera, and LD19 lidar.
+    Policies run off-board; Jetson compute and depth cameras are optional upgrades.
+    Totals exclude unpriced items, optional storage, operator equipment, shipping, taxes, and labor.
+  </div>
+
+  <h2>Ordering notes</h2>
+  <ul>
+    <li><b>REV swerve modules</b> — the catalog module price excludes motors and
+      SPARK controllers; order NEO, NEO 550 and controllers explicitly
+      (the core CSV prices the as-paid lump per module).</li>
+    <li><b>DaMiao actuators</b> — quoted in CNY via Taobao (<code>taobao.csv</code>);
+      allow for freight and exchange drift. The FOCGM43 line in some vendor
+      sheets is the J4340.</li>
+    <li><b>Lift column</b> — a complete FlexiSpot E7 Pro standing desk is bought;
+      only the column and frame are used (0–0.635 m stroke).</li>
+    <li><b>Sheet parts</b> — <code>machined.csv</code> lists the laser-cut/bent
+      pieces with operations (bends, dimple forms, taps); any local or online
+      fab service can make them from the drawings.</li>
+    <li><b>Jetson pricing moves</b> — Thor jumped $3,499 → $5,499 in July 2026;
+      the BOM tracks an as-quoted and an at-today total for exactly this reason.</li>
+  </ul>
+
+  <h2>Part geometry — the CAD is the simulation model</h2>
+  <p>
+    MABEL's single source of truth is the MuJoCo model, and its mesh set
+    <em>is</em> the robot's part geometry — every structural part, printed or
+    machined, ships as STL/OBJ per module:
+  </p>
+  <table>
+    <tr><th>Path</th><th>Contents</th></tr>
+    <tr><td><code>simulation/mabel_mujoco/assets/meshes/</code></td>
+        <td>per-module part meshes — <code>base/</code> (chassis),
+            <code>swerve_drive/</code>, <code>lift/</code>, <code>body/</code>,
+            <code>arms/</code>, <code>hands/</code> (the full ORCA part set),
+            <code>head/</code></td></tr>
+    <tr><td><code>mabel_ws/src/mabel_description/meshes/</code></td>
+        <td>the same geometry as consumed by the ROS URDF</td></tr>
+    <tr><td><code>mechanical/arm_housing/exports/</code></td>
+        <td>16 print-ready arm-housing STLs (left/right × four segments ×
+            two halves), generated parametrically from the model</td></tr>
+  </table>
+  <p>
+    Every printed part fits a desktop printer; budget ≈ $161 of filament (core
+    BOM line, Bambu PLA: white for covers/mounts, black for the high-wear ORCA
+    hand structure). Sheet parts are itemized with operations in
+    <code>machined.csv</code>. Print as you assemble — the per-module lists in
+    <a href="assembly.html">02 · Assembly</a> follow the build order.
+  </p>
+</main>
+</div>
+<script src="../assets/bom/bom_data.js?v=3ff29405"></script>
+<script src="../assets/bom-pie.js?v=7d9d9176"></script>
+<script src="../assets/bom-table.js?v=7d2a4988"></script>
+<script src="docs.js?v=0efc77c8"></script>
+</body>
+</html>

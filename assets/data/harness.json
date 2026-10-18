@@ -1,0 +1,331 @@
+{
+ "generated_by": "website/scripts/build_harness.py",
+ "source": "claude_harness/data/commands.yaml",
+ "registry_commit": null,
+ "namespace": "mabel",
+ "total": 25,
+ "groups": [
+  {
+   "id": "orient",
+   "name": "Orient",
+   "blurb": "Start here. What MABEL is, where everything lives, and what the words mean.",
+   "commands": [
+    {
+     "name": "mabel-help",
+     "args": "[group]",
+     "purpose": "The whole harness surface \u2014 every command, its arguments, what it reads and whether it can touch hardware \u2014 rendered from claude_harness/data/commands.yaml, which is the same file the website page and the drift gate read. Pass a group id to show one section.",
+     "reads": "commands.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "help"
+    },
+    {
+     "name": "mabel-onboard",
+     "args": "",
+     "purpose": "Guided orientation for someone who just cloned the repo: what the robot is, the subsystem map, the hosts, the one wire contract every client speaks, and the two rules that never bend (hardware_bridge is the sole hardware owner; controller/ is the sole gate on motion).",
+     "reads": "subsystems.yaml + hosts.yaml + control.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "onboard"
+    },
+    {
+     "name": "mabel-map",
+     "args": "",
+     "purpose": "Every top-level directory grouped by the role it plays, plus how data moves between them. The answer to \"where does X live?\" and to \"what are all these folders?\".",
+     "reads": "subsystems.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "map"
+    },
+    {
+     "name": "mabel-glossary",
+     "args": "[term]",
+     "purpose": "MABEL's own vocabulary \u2014 swerve, WBC, ORCA, rathole, MJCF, retargeting, relay separation, the three different things called \"the bridge\". Words that mean something specific here and something else everywhere else.",
+     "reads": "glossary.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "glossary"
+    },
+    {
+     "name": "mabel-find",
+     "args": "<term>",
+     "purpose": "One search across every registry at once \u2014 ports, hosts, control paths, studios, subsystems, glossary, safety, the controller API \u2014 with the file each hit came from. \"Where is 9090 used?\" is one query, not seven.",
+     "reads": "every registry",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "find"
+    }
+   ]
+  },
+  {
+   "id": "operate",
+   "name": "Run and operate",
+   "blurb": "Bring a robot up, see whether it is alive, and know what stops it.",
+   "commands": [
+    {
+     "name": "mabel-launch",
+     "args": "[target] [--run]",
+     "purpose": "The exact command that starts each subsystem \u2014 sim teleop, the real robot, the MuJoCo HAL alone, the ROS twin, the hand bench \u2014 with its host, its conda environment, and the ports it opens. Prints by default. `--run` executes it, and a real-robot target additionally requires an explicit go-ahead in the session: the robot moves when this succeeds.",
+     "reads": "control.yaml (run_targets)",
+     "safety": "actuate",
+     "status": "shipped",
+     "note": null,
+     "view": "run"
+    },
+    {
+     "name": "mabel-status",
+     "args": "",
+     "purpose": "Live TCP probe of every port the registry knows about and every host it lists \u2014 what is listening here, right now, and whether thor and the VPS answer. A port being down almost always means its launcher is not running, not that anything is broken.",
+     "reads": "probes network.yaml live",
+     "safety": "probe",
+     "status": "shipped",
+     "note": null,
+     "view": "status"
+    },
+    {
+     "name": "mabel-health",
+     "args": "[--host thor]",
+     "purpose": "The robot's own health, which a port probe cannot see: which CAN and serial buses are up, which actuator IDs answer on each, the lift and hand chains, watchdog and e-stop state, and the tail of each subsystem log. Read-only over SSH \u2014 it enumerates and reports, and never commands an actuator.",
+     "reads": "hosts.yaml + firmware.yaml",
+     "safety": "probe",
+     "status": "partial",
+     "note": "Bus and log inspection ship. Battery state and per-joint temperature are NOT read yet \u2014 hardware_bridge exposes them on the state topic and this does not subscribe to it.",
+     "view": "health"
+    },
+    {
+     "name": "mabel-studios",
+     "args": "",
+     "purpose": "The nine browser studios \u2014 the sim and real control centers, Genesis, Unity, data curation, the LeRobot trainer, the community queue, the neck designer \u2014 with the port each binds and the URL that reaches it from outside.",
+     "reads": "control.yaml (studios)",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "studios"
+    },
+    {
+     "name": "mabel-safety",
+     "args": "",
+     "purpose": "What stops the robot and what bounds its motion \u2014 e-stop, the watchdogs and their timeouts, the tip-over and speed limits, command arbitration, relay security \u2014 each citing the file that implements it. Read this before the first time you drive anything.",
+     "reads": "safety.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "safety"
+    }
+   ]
+  },
+  {
+   "id": "wiring",
+   "name": "Wiring and infrastructure",
+   "blurb": "The machines, the ports between them, and the bits that reach a motor.",
+   "commands": [
+    {
+     "name": "mabel-network",
+     "args": "",
+     "purpose": "Every host, IP, port and protocol, plus the relay path a browser takes to reach the robot \u2014 Caddy, rathole, the DuckDNS domain \u2014 and which client speaks to which server on which port.",
+     "reads": "network.yaml + hosts.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "network"
+    },
+    {
+     "name": "mabel-hosts",
+     "args": "",
+     "purpose": "The physical infrastructure: thor (the Jetson on the robot), mabel-vps (the Oracle relay), the Mac development host \u2014 their addresses, their roles, and how each is reached on LAN, over Tailscale, or through the relay.",
+     "reads": "hosts.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "hosts"
+    },
+    {
+     "name": "mabel-firmware",
+     "args": "[subsystem]",
+     "purpose": "Per-subsystem firmware: which MCU runs it, which bus and protocol it speaks, at what rate, and the exact build, flash and probe commands \u2014 PlatformIO for the Teensy pair, mpremote for the Pico lift, the host-driven Python drivers for the hands and the legacy neck, and the shared SocketCAN bring-up. Prints commands; flashing is yours to run.",
+     "reads": "firmware.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "firmware"
+    },
+    {
+     "name": "mabel-diagram",
+     "args": "[network|flows]",
+     "purpose": "A Mermaid diagram of either the relay topology (browser to Caddy to rathole to host) or the subsystem data flow, emitted as text you can paste into GitHub, Obsidian or mermaid.live.",
+     "reads": "network.yaml / subsystems.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "diagram"
+    }
+   ]
+  },
+  {
+   "id": "control",
+   "name": "The control library",
+   "blurb": "Everything under controller/mabel \u2014 the one gate every command that moves the robot must pass through.",
+   "commands": [
+    {
+     "name": "mabel-control",
+     "args": "",
+     "purpose": "All eleven ways to drive the robot \u2014 Vision Pro, iPhone, the browser studios, the webcam retargeter, keyboard and gamepad, ROS, Nav2 \u2014 and the exact path each command takes from device to motor. Every one of them is a client of one wire contract; none publishes to a command topic directly.",
+     "reads": "control.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "control"
+    },
+    {
+     "name": "mabel-api",
+     "args": "[subpackage]",
+     "purpose": "The public API of the `mabel` control library by subpackage \u2014 the facade, the input sources, retargeting, the motion model, dynamics, the whole-body controller \u2014 with the paper behind each and the two safety rules that no caller may route around.",
+     "reads": "controller_api.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "controller"
+    },
+    {
+     "name": "mabel-motion-model",
+     "args": "",
+     "purpose": "The tip-over model in full: the ZMP formulation, the closed-form projection, the centre-of-mass constants measured from the MJCF, the validation numbers, and the rule for re-deriving all of it when the model changes (wbc_stability.py, check E4).",
+     "reads": "controller_api.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "motion_model"
+    },
+    {
+     "name": "mabel-dynamics",
+     "args": "",
+     "purpose": "Region dynamics and external-force estimation: the gravity and bias feedforward, the momentum observer, contact localisation, and the three regions the body is divided into.",
+     "reads": "controller_api.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "dynamic_model"
+    },
+    {
+     "name": "mabel-retarget",
+     "args": "",
+     "purpose": "Operator to robot, in detail: the hand and whole-body mappings, the solver's cost terms, the decoupling contracts between them, the device ingest path, and the measured benchmarks.",
+     "reads": "controller_api.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "retargeting"
+    },
+    {
+     "name": "mabel-hardware-api",
+     "args": "[area]",
+     "purpose": "The `mabel_hw` package \u2014 the hardware abstraction layer that owns every device \u2014 by area: the drivers, the RPC servers, the camera and video planes, the configuration surface and its environment switches.",
+     "reads": "hardware_api.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "hardware_api"
+    }
+   ]
+  },
+  {
+   "id": "knowledge",
+   "name": "Knowledge and upkeep",
+   "blurb": "The written record, and the checks that keep it true.",
+   "commands": [
+    {
+     "name": "mabel-pipelines",
+     "args": "",
+     "purpose": "The two chains that must be run in order. The model chain \u2014 MJCF to URDF to GLB to the app rigs and the mirror \u2014 and the learning chain from a teleoperated episode to a trained policy. Also what goes stale if you edit the model and skip a step.",
+     "reads": "control.yaml + subsystems.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "pipelines"
+    },
+    {
+     "name": "mabel-docs",
+     "args": "",
+     "purpose": "The per-subsystem technical papers (docs/*.tex, built to PDF), which subsystem each covers, and how to rebuild them.",
+     "reads": "docs.yaml",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "docs"
+    },
+    {
+     "name": "mabel-brain",
+     "args": "",
+     "purpose": "Regenerates the Obsidian second brain at harness/MABEL/ \u2014 the interlinked graph of the whole system \u2014 from the curated note bodies in claude_harness/brain/content/. The only command that writes outside the registry.",
+     "reads": "brain/content/ \u2192 writes harness/MABEL/",
+     "safety": "write",
+     "status": "shipped",
+     "note": "Runs claude_harness/tools/build_brain.py, not the mabel.py engine.",
+     "view": null
+    },
+    {
+     "name": "mabel-drift",
+     "args": "",
+     "purpose": "The citation gate. Every fact in the registry names the file it came from; this checks that each of those files still exists and still contains the fact, and that the command surface in commands.yaml matches the commands actually on disk in both directions. Treat a drift failure like a failing test.",
+     "reads": "every registry + the repo",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "drift"
+    },
+    {
+     "name": "mabel-doctor",
+     "args": "",
+     "purpose": "The full self-check: drift, the technical papers, whether every safety mechanism still cites a file that exists, whether the vault has been generated, and the open questions the registry has flagged for a human to confirm.",
+     "reads": "everything",
+     "safety": "read",
+     "status": "shipped",
+     "note": null,
+     "view": "doctor"
+    }
+   ]
+  }
+ ],
+ "not_built": [
+  {
+   "what": "No command moves the robot without an explicit go-ahead in the session.",
+   "why": "mabel-launch --run is the only path to hardware, it names the target and the host before it runs, and an approval given once does not carry to the next call."
+  },
+  {
+   "what": "drift is a CITATION checker, not an architecture checker.",
+   "why": "It verifies that every cited fact still exists. It passed clean through the whole neck migration while the invariant it documents was being violated. Architectural invariants are enforced by tests instead \u2014 hardware_bridge/tests/ \u2014 so a new rule goes there, not here."
+  },
+  {
+   "what": "Nothing writes outside the repository, and nothing edits a derived artifact.",
+   "why": "The URDF, the GLB, the app rigs and the sprite sheets are generated. A hand edit survives until the next regeneration and then silently does not."
+  }
+ ],
+ "retired": {
+  "onboard": "mabel-onboard",
+  "map": "mabel-map",
+  "glossary": "mabel-glossary",
+  "find": "mabel-find",
+  "run-mabel": "mabel-launch",
+  "status": "mabel-status",
+  "studios": "mabel-studios",
+  "safety": "mabel-safety",
+  "network": "mabel-network",
+  "hosts": "mabel-hosts",
+  "diagram": "mabel-diagram",
+  "control": "mabel-control",
+  "controller": "mabel-api",
+  "motion_model": "mabel-motion-model",
+  "dynamic_model": "mabel-dynamics",
+  "retargetting": "mabel-retarget",
+  "mabel_api": "mabel-hardware-api",
+  "pipelines": "mabel-pipelines",
+  "docs": "mabel-docs",
+  "brain": "mabel-brain",
+  "doctor": "mabel-doctor"
+ }
+}

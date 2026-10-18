@@ -1,0 +1,350 @@
+/* MABEL replication docs — the website's paper, the website's type.
+ *
+ * This used to be a dark manual with its own palette (#ffc24b, #57c7ff) and no
+ * display faces, which read as a different publication that happened to be
+ * hosted next door. It is the same publication: the same cream ground, the
+ * same Limelight / Bangers / Jost / Space Mono, the same 3 px ink borders and
+ * hard offset shadows.
+ *
+ * WHAT IS DELIBERATELY NOT SHARED: the marketing. No hero, no starbursts, no
+ * "be the operator". A build manual earns attention by being correct and by
+ * being fast to scan, so every rule here serves density and hierarchy —
+ * short measure, real tables, numbered steps you can hold a place in, and
+ * commands you can copy without reading a paragraph first.
+ *
+ * Tokens are copied rather than imported: this page must render standalone and
+ * printable without pulling 280 kB of site stylesheet for a nav it does not have.
+ */
+
+:root {
+  /* the site's ground */
+  --bone:      #F4EAD2;
+  --paper:     #ECDFBC;
+  --panel:     #FDF6E2;
+  --ink:       #151820;
+  --ink-soft:  #2A2E3A;
+  --ash:       #6D6551;
+  --ash-light: #A99F87;
+
+  /* the site's three voices, unchanged */
+  --hi:        #E4442A;   /* warm comic red — THE highlight */
+  --hi-deep:   #B92E17;
+  --pop:       #FFCE0A;   /* saturated cab yellow — the one thing that shouts */
+  --rust:      #C6301A;
+  --yellow:    #F2C94C;
+  --blue:      #23577E;
+  --green:     #2E7D4F;
+  --gold:      #D9A13F;
+
+  --line:      rgba(21,24,32,0.16);
+  --line-firm: rgba(21,24,32,0.34);
+
+  --display: 'Limelight', 'Arial Narrow', Impact, sans-serif;
+  --comic:   'Bangers', 'Arial Black', Impact, sans-serif;
+  --sans:    'Jost', -apple-system, 'Helvetica Neue', sans-serif;
+  --mono:    'Space Mono', 'SFMono-Regular', Menlo, monospace;
+  --side-w:  268px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+body {
+  margin: 0; background: var(--bone); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.62; font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── frame ─────────────────────────────────────────────────────────────── */
+.wrap { display: flex; min-height: 100vh; }
+
+/* declared BEFORE the media query that reveals it: two rules of equal
+   specificity, so whichever comes last wins, and this one losing meant the
+   Chapters button was invisible on a phone and the nav could not be opened. */
+#navtoggle {
+  display: none; background: transparent; border: 2px solid rgba(244,234,210,0.4);
+  color: var(--bone); font-family: var(--comic); font-size: 14px;
+  letter-spacing: 0.06em; padding: 6px 13px; border-radius: 8px;
+  cursor: pointer; margin-top: 12px;
+}
+#navtoggle:hover { border-color: var(--pop); color: var(--pop); }
+main { flex: 1; min-width: 0; padding: 40px 52px 96px; max-width: 62rem; margin: 0 auto; }
+
+/* THE SIDEBAR IS THE DARK HALF. The site alternates cream sections with ink
+   ones, and a doc with a permanent nav is the natural place to spend that. */
+nav.side {
+  width: var(--side-w); flex: none; background: var(--ink); color: var(--bone);
+  padding: 22px 18px 40px; position: sticky; top: 0; height: 100vh;
+  overflow-y: auto; border-right: 3px solid var(--ink);
+}
+@media (max-width: 900px) {
+  .wrap { display: block; }
+  nav.side { position: static; width: 100%; height: auto; border-right: 0;
+             border-bottom: 3px solid var(--ink); padding-bottom: 10px; }
+  nav.side .tree { display: none; }
+  nav.side.open .tree { display: block; }
+  #navtoggle { display: inline-block; }
+  main { padding: 26px 16px 70px; }
+  /* AT 390 px THE CONTENT OVERFLOWED BY 8 px. Everything wide here carries a
+     max-width in rem, which stops being a cap once the viewport is narrower
+     than the rem figure — the element then takes its own intrinsic width. A
+     hard 100% ceiling is what actually bounds them. */
+  main table, main pre, main figure, main .files, main .chips,
+  main .note, main .warn, main .stop, main p, main ul, main ol {
+    max-width: 100%;
+  }
+  main table { display: block; overflow-x: auto; }
+  /* …but a table should not NEED that scroll. What forced it was a single
+     unbreakable <code> path: `simulation/mabel_mujoco/assets/meshes/` has no
+     break opportunity, so it set the column's min-content width and the whole
+     table ran 80 px past a 390 px screen. Paths may break anywhere on a
+     phone; prose still breaks on spaces. */
+  main td code, main th code { overflow-wrap: anywhere; word-break: break-word; }
+  /* Four-column tables (the BOM's tier choices) overflowed by 6 px: 13 px of
+     side padding per cell is ~100 px of a 390 px screen. */
+  main td, main th { padding-left: 7px; padding-right: 7px; }
+}
+
+/* ── sidebar ───────────────────────────────────────────────────────────── */
+.side .brand { display: flex; align-items: center; gap: 11px; text-decoration: none;
+  padding-bottom: 15px; border-bottom: 2px solid rgba(217,161,63,0.45); }
+.side .brand img { width: 34px; height: 34px; flex: none; }
+.side .brand b { display: block; font-family: var(--display); font-weight: 400;
+  font-size: 23px; letter-spacing: 0.07em; color: var(--bone); line-height: 1; }
+.side .brand i { display: block; font-style: normal; color: var(--gold);
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.16em;
+  text-transform: uppercase; margin-top: 5px; }
+
+/* HOW FAR THROUGH THE BUILD. A manual is read over days and the first thing a
+   reader wants on coming back is their place in it. */
+.side .prog { display: flex; align-items: center; gap: 9px; margin: 14px 0 4px; }
+.side .prog-bar { flex: 1; height: 7px; border: 2px solid rgba(244,234,210,0.32);
+  border-radius: 999px; overflow: hidden; }
+.side .prog-bar i { display: block; height: 100%; background: var(--pop); }
+.side .prog span { font-family: var(--mono); font-size: 10.5px; color: var(--bone);
+  letter-spacing: 0.04em; }
+.side .prog em { font-style: normal; color: var(--ash-light); }
+
+.side .tree { list-style: none; margin: 16px 0 0; padding: 0; }
+.side .tree li { margin: 1px 0; }
+
+/* the phase headings — Plan / Build / Run / Extend */
+.side .tree li.ph {
+  font-family: var(--comic); font-size: 13px; letter-spacing: 0.1em;
+  color: var(--gold); text-transform: uppercase;
+  margin: 16px 0 5px; padding: 0 10px;
+  display: flex; align-items: center; gap: 9px;
+}
+.side .tree li.ph::after { content: ""; flex: 1; height: 2px;
+  background: rgba(217,161,63,0.34); }
+.side .tree li.ph:first-child { margin-top: 4px; }
+
+.side .tree a {
+  display: flex; gap: 10px; align-items: baseline; padding: 7px 10px;
+  border: 2px solid transparent; border-radius: 9px; text-decoration: none;
+  color: rgba(244,234,210,0.74); font-size: 14.5px; line-height: 1.3;
+  transition: transform .12s, background .12s, color .12s;
+}
+.side .tree a .n { font-family: var(--mono); font-size: 11px;
+  color: var(--ash-light); flex: none; }
+.side .tree a .t { min-width: 0; }
+.side .tree a:hover { background: rgba(244,234,210,0.09); color: var(--bone);
+  transform: translateX(2px); }
+
+/* THE CURRENT CHAPTER IS A STICKER, not a flat fill — the same ink border and
+   hard offset shadow every button on the site carries. */
+.side .tree a.here {
+  background: var(--hi); color: #FFF9F0; font-weight: 600;
+  border-color: var(--ink); box-shadow: 3px 3px 0 rgba(0,0,0,0.55);
+  transform: translateX(0);
+}
+.side .tree a.here .n { color: var(--pop); }
+.side .tree a.here:hover { transform: translateX(0); background: var(--hi); }
+
+.side .foot { margin-top: 26px; padding-top: 16px;
+  border-top: 2px solid rgba(244,234,210,0.18);
+  font-size: 12.5px; color: var(--ash-light); display: grid; gap: 7px; }
+.side .foot a { color: rgba(244,234,210,0.75); text-decoration: none;
+  font-family: var(--mono); font-size: 11.5px; }
+.side .foot a:hover { color: var(--pop); }
+.side .foot p { margin: 8px 0 0; font-size: 11.5px; line-height: 1.5;
+  color: var(--ash-light); max-width: none; }
+
+/* the one button in here: back to the site it belongs to */
+.side .foot a.sbtn {
+  display: block; text-align: center; font-family: var(--comic);
+  font-size: 13px; letter-spacing: 0.05em; color: var(--ink);
+  background: var(--pop); border: 2.5px solid var(--ink); border-radius: 9px;
+  padding: 8px 10px; box-shadow: 3px 3px 0 rgba(0,0,0,0.5); margin-bottom: 4px;
+  transition: transform .12s, box-shadow .12s;
+}
+.side .foot a.sbtn:hover { color: var(--ink); transform: translate(-1px,-1px);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.55); }
+
+/* ── content type ──────────────────────────────────────────────────────── */
+h1 {
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(30px, 4.6vw, 46px); line-height: 1.06;
+  letter-spacing: 0.01em; margin: 0 0 10px;
+}
+h1 .n { font-family: var(--comic); color: var(--hi); font-size: 0.62em;
+  margin-right: 12px; letter-spacing: 0.04em; }
+p.lead { color: var(--ink-soft); font-size: 17px; margin: 0 0 30px; max-width: 46rem; }
+
+/* h2 gets the comic face and a red rule: at a glance you can see where the
+   sections are without reading a word of them. */
+h2 {
+  font-family: var(--comic); font-weight: 400; font-size: 26px;
+  letter-spacing: 0.035em; margin: 46px 0 12px; padding-top: 16px;
+  border-top: 2.5px solid var(--ink); color: var(--ink);
+}
+h2::before { content: ""; display: block; width: 54px; height: 4px;
+  background: var(--hi); margin: -18px 0 14px; }
+h3 { font-family: var(--sans); font-weight: 700; font-size: 17px; margin: 28px 0 6px; }
+a { color: var(--hi); text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+a:hover { color: var(--hi-deep); }
+p, ul, ol { max-width: 46rem; }
+li { margin: 3px 0; }
+strong, b { font-weight: 700; }
+hr { border: 0; border-top: 2px solid var(--line); margin: 32px 0; }
+.dim { color: var(--ash); }
+.faint { color: var(--ash); font-size: 14px; }
+
+/* ── data ──────────────────────────────────────────────────────────────── */
+code, kbd {
+  font-family: var(--mono); font-size: 0.86em;
+  background: var(--panel); border: 1.5px solid var(--line-firm);
+  border-radius: 5px; padding: 1px 5px; color: var(--rust);
+}
+kbd { color: var(--ink); box-shadow: 0 1.5px 0 var(--line-firm); }
+
+/* A COMMAND BLOCK IS THE DARK VOICE. It is the thing a reader copies, so it
+   should be findable by scrolling past at speed, and ink-on-cream inverted is
+   the loudest the palette gets without shouting. */
+pre {
+  background: var(--ink); color: #E9E3D4; border: 3px solid var(--ink);
+  border-radius: 10px; box-shadow: 5px 5px 0 rgba(21,24,32,0.18);
+  padding: 15px 17px; overflow-x: auto; position: relative;
+  font-family: var(--mono); font-size: 13px; line-height: 1.6; max-width: 54rem;
+}
+pre code { background: none; border: 0; padding: 0; color: inherit; }
+pre .cbtn {
+  position: absolute; top: 8px; right: 8px;
+  border: 2px solid rgba(244,234,210,0.35); background: transparent;
+  color: rgba(244,234,210,0.7); font-family: var(--mono);
+  font-size: 10px; border-radius: 6px; padding: 3px 8px; cursor: pointer;
+  letter-spacing: 0.06em;
+}
+pre .cbtn:hover { color: var(--ink); background: var(--pop); border-color: var(--pop); }
+pre .c { color: var(--ash-light); }        /* comment */
+pre .p { color: var(--pop); }              /* prompt / the bit that matters */
+
+table { border-collapse: collapse; width: 100%; max-width: 54rem;
+  font-size: 14.5px; margin: 16px 0; background: var(--panel);
+  border: 2.5px solid var(--ink); border-radius: 10px; overflow: hidden;
+  box-shadow: 5px 5px 0 rgba(21,24,32,0.13); }
+th { text-align: left; font-family: var(--mono); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.09em; color: #FFF9F0;
+  background: var(--ink); padding: 9px 13px; font-weight: 400; }
+td { border-top: 1px solid var(--line); padding: 9px 13px; vertical-align: top; }
+tr:first-child td { border-top: 0; }
+td.num, th.num { text-align: right; font-family: var(--mono); font-size: 13px; }
+td.num { color: var(--rust); font-weight: 700; }
+tr.total td { border-top: 2.5px solid var(--ink); font-weight: 700;
+  background: rgba(255,206,10,0.16); }
+
+/* ── steps ─────────────────────────────────────────────────────────────── */
+ol.steps { counter-reset: st; list-style: none; margin: 18px 0; padding: 0;
+  max-width: 50rem; }
+ol.steps > li {
+  counter-increment: st; position: relative; padding: 0 0 18px 48px;
+  border-left: 2.5px solid var(--line-firm); margin-left: 15px;
+}
+ol.steps > li::before {
+  content: counter(st, decimal-leading-zero);
+  position: absolute; left: -17px; top: -3px;
+  background: var(--pop); border: 2.5px solid var(--ink); border-radius: 8px;
+  font-family: var(--mono); font-weight: 700; font-size: 11.5px; color: var(--ink);
+  padding: 3px 6px;
+}
+ol.steps > li:last-child { border-left-color: transparent; }
+ol.steps b:first-child { font-weight: 700; }
+
+/* ── callouts ──────────────────────────────────────────────────────────── */
+.note, .warn, .stop {
+  border: 2.5px solid var(--ink); border-left-width: 7px; border-radius: 10px;
+  padding: 12px 16px; margin: 18px 0; max-width: 50rem; font-size: 15px;
+  background: var(--panel); box-shadow: 4px 4px 0 rgba(21,24,32,0.12);
+}
+.note { border-left-color: var(--blue); }
+.warn { border-left-color: var(--pop); }
+.stop { border-left-color: var(--hi); background: #FFF0EC; }
+.note::before, .warn::before, .stop::before {
+  font-family: var(--comic); font-size: 13px; letter-spacing: 0.08em;
+  display: block; margin-bottom: 4px;
+}
+.note::before { content: "NOTE"; color: var(--blue); }
+.warn::before { content: "CAUTION"; color: var(--gold); }
+.stop::before { content: "STOP"; color: var(--hi); }
+
+/* ── spec chips / checklists ───────────────────────────────────────────── */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0; max-width: 54rem; }
+.chips span {
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 999px; padding: 4px 12px;
+  background: var(--panel);
+}
+ul.check { list-style: none; padding-left: 0; }
+ul.check li { padding-left: 30px; position: relative; }
+ul.check li::before {
+  content: ""; position: absolute; left: 2px; top: 6px;
+  width: 13px; height: 13px; border: 2.5px solid var(--ink); border-radius: 4px;
+  background: var(--panel);
+}
+
+/* ── figures / downloads ───────────────────────────────────────────────── */
+figure { margin: 20px 0; max-width: 54rem; }
+figure img { width: 100%; border: 2.5px solid var(--ink); border-radius: 10px;
+  box-shadow: 5px 5px 0 rgba(21,24,32,0.13); background: var(--panel); }
+figcaption { font-family: var(--mono); font-size: 11.5px; color: var(--ash);
+  margin-top: 8px; line-height: 1.6; }
+.files { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 11px; margin: 16px 0; max-width: 54rem; }
+.files a {
+  display: block; border: 2.5px solid var(--ink); border-radius: 10px;
+  padding: 12px 15px; text-decoration: none; color: var(--ink);
+  background: var(--panel); font-size: 14.5px; font-weight: 600;
+  box-shadow: 4px 4px 0 rgba(21,24,32,0.13); transition: transform .12s, box-shadow .12s;
+}
+.files a:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink);
+  color: var(--ink); }
+.files a small { display: block; color: var(--ash); font-family: var(--mono);
+  font-size: 11px; margin-top: 3px; font-weight: 400; }
+
+/* ── prev / next ───────────────────────────────────────────────────────── */
+.pn { display: flex; justify-content: space-between; gap: 12px;
+  margin-top: 60px; border-top: 2.5px solid var(--ink); padding-top: 20px; }
+.pn a { text-decoration: none; color: var(--ink); border: 2.5px solid var(--ink);
+  border-radius: 10px; padding: 11px 17px; max-width: 46%; background: var(--panel);
+  box-shadow: 4px 4px 0 rgba(21,24,32,0.13); font-weight: 600;
+  transition: transform .12s, box-shadow .12s; }
+.pn a small { display: block; color: var(--ash); font-family: var(--mono);
+  font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+  font-weight: 400; }
+.pn a:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+.pn .next { margin-left: auto; text-align: right; }
+
+@media print {
+  nav.side, .pn, #navtoggle, pre .cbtn { display: none; }
+  body { background: #fff; color: #111; }
+  pre { background: #f4f4f4; color: #111; border-color: #999; box-shadow: none; }
+  table, figure img, .note, .warn, .stop { box-shadow: none; }
+}
+
+/* the correction path, at the foot of every chapter */
+.editpage {
+  margin-top: 26px; padding: 12px 16px; max-width: none;
+  border: 2.5px dashed var(--line-firm); border-radius: 10px;
+  font-family: var(--mono); font-size: 12px; color: var(--ash);
+  background: rgba(255,206,10,0.07);
+}
+.editpage a { font-weight: 700; }

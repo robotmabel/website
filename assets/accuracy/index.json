@@ -1,0 +1,22 @@
+{
+ "generated_by": "website/scripts/render_accuracy_clips.py",
+ "note": "replays of the archived trials the panels are scored from \u2014 qpos is assigned per frame from the same rows, never re-simulated",
+ "clips": {
+  "stations": {
+   "clip": "stations.mp4",
+   "poster": "stations.jpg",
+   "frames": 175,
+   "title": "The ISO 9283 schedule, on the real robot",
+   "trial": 0,
+   "rows": 2627
+  },
+  "path": {
+   "clip": "path.mp4",
+   "poster": "path.jpg",
+   "frames": 175,
+   "title": "Tracing the circle, on the gains we deploy",
+   "trial": 0,
+   "rows": 1393
+  }
+ }
+}
