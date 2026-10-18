@@ -2,6 +2,14 @@
 """Drive the webcam retargeter with synthetic operators and check where the
 robot's hands actually end up.
 
+Since the widget runs the DEPLOYED retargeter (assets/deployed-retarget.js),
+each probe is a short session, the way a real one goes: the operator stands at
+rest for 1 s (the engine anchors on a steady head, and measures every later
+lean and reach against it), then holds the probe pose for 3 s so the joint
+slews arrive. Two expectations changed with the map and say so below: the gaze
+now turns BODY-TRUE (the deployed neck rule), and the torso reading is the
+COMMANDED lean, not the operator's.
+
 The demo used to be tested only for "it mounted and it did not open the camera",
 which is exactly why a wrong frame mapping shipped: every static check passed
 while the arms went to the wrong place. This feeds MediaPipe-shaped world
@@ -126,10 +134,28 @@ window.__mkHand = function (side, fingers, faces, at) {
 window.__probe = function (o) {
   var w = window.__mkPose(o);
   var vis = w.map(function () { return 1; });
+  var rw = window.__mkPose({});
+  var rest = { world: rw, vis: rw.map(function () { return 1; }), hands: {} };
   var hands = {};
-  if (o && o.hands) {
+  // THE DEPLOYED ENGINE NEEDS A HAND. An arm follows only while its hand is
+  // tracked (no wrist pose, no palm frame, no target — the robot holds), so a
+  // probe that names no hands gets both, fingers along the forearm and the
+  // palm turned toward the camera as far as that allows.
+  var dflt = function (sd) {
+    var wi = sd === 'left' ? 15 : 16, ei = sd === 'left' ? 13 : 14;
+    var f = [w[wi].x - w[ei].x, w[wi].y - w[ei].y, w[wi].z - w[ei].z];
+    var fn = Math.hypot(f[0], f[1], f[2]) || 1;
+    f = [f[0] / fn, f[1] / fn, f[2] / fn];
+    var n = [0, 0, -1], d = n[0] * f[0] + n[1] * f[1] + n[2] * f[2];
+    n = [n[0] - d * f[0], n[1] - d * f[1], n[2] - d * f[2]];
+    var nn = Math.hypot(n[0], n[1], n[2]);
+    n = nn > 0.2 ? [n[0] / nn, n[1] / nn, n[2] / nn] : [sd === 'left' ? -1 : 1, 0, 0];
+    return { fingers: f, faces: n };
+  };
+  var want = (o && o.hands) || { left: dflt('left'), right: dflt('right') };
+  if (want) {
     ['left', 'right'].forEach(function (sd) {
-      var h = o.hands[sd];
+      var h = want[sd];
       if (!h) return;
       // place it at the pose wrist so routing and placement agree
       var wi = sd === 'left' ? 15 : 16;
@@ -137,7 +163,7 @@ window.__probe = function (o) {
                                   [w[wi].x, w[wi].y, w[wi].z]);
     });
   }
-  return window.__wt.feed(w, vis, hands, null);
+  return window.__wt.feed(w, vis, hands, null, rest);
 };
 """
 
@@ -238,6 +264,14 @@ async def go():
             print("RESULT: FAIL"); return
 
         await cmd("Runtime.evaluate", {"expression": POSE_JS})
+        # the engine's data is fetched on demand (camera On), never at page load
+        fit = await cmd("Runtime.evaluate", {"expression": "window.__wt.ready()",
+                                             "awaitPromise": True, "returnByValue": True})
+        fit = fit.get("result", {}).get("result", {}).get("value")
+        print(f"engine → rig frame fit: {fit and round(fit['worstMm'], 1)} mm worst over "
+              f"{fit and fit['n']} bodies")
+        if not fit or fit["worstMm"] > 5.0:
+            print("   *** the engine's world and the rig's do not line up"); bad += 1
         # measure the MATH, not the software rasteriser
         await ev("window.__wt.pause(true)")
 
@@ -284,8 +318,10 @@ async def go():
             print("   *** reaching right did not move the target to the robot's right")
             bad += 1
 
-        # 4 — lean forward: the torso must pitch forward, which is negative q
-        lean = await probe(lean=1.0)
+        # 4 — lean forward: the torso must pitch forward, which is negative q.
+        # torsoDeg is the COMMANDED lean now (the engine's hip-pivot law, read
+        # against the upright pose the session anchored on).
+        lean = await probe(lean=0.6)
         print(f"lean      torso {lean['torsoDeg']:+.1f}°  → joint q {lean['torsoQ']:+.3f} rad "
               f"(rest {rest['torsoQ']:+.3f})")
         if not (lean["torsoDeg"] > 8 and lean["torsoQ"] < rest["torsoQ"] - 0.05):
@@ -303,16 +339,15 @@ async def go():
             bad += 1
 
         # turn the head to the operator's LEFT: the nose swings toward image
-        # right (+x) and the ears follow. The robot's head must turn to ITS
-        # left, which with forward = −X and right = −Z means gaze z goes +.
-        # The preview beside this widget is MIRRORED, so turning your head to
-        # your own left moves your image to the left of that frame and the
-        # robot must follow it there. Screen-left is −Z with the camera in
-        # front of the robot, so the gaze z must go NEGATIVE.
+        # right (+x) and the ears follow. CHANGED WITH THE DEPLOYED MAP: the
+        # robot's neck rule is body-true — your left is the robot's left, the
+        # same way your right hand drives its right arm — so with forward = −X
+        # and right = −Z the gaze z goes POSITIVE. (The old widget mirrored the
+        # gaze to match the mirrored preview, and only the gaze.)
         turn = await probe(head=[0.10, 0.0, 0.0])
         print(f"turn left gaze {fmt(turn['gaze'])}  Δz {turn['gaze'][2]-rest['gaze'][2]:+.2f}")
-        if not (turn["gaze"][2] - rest["gaze"][2] < -0.15):
-            print("   *** turning the head does not match the mirrored preview"); bad += 1
+        if not (turn["gaze"][2] - rest["gaze"][2] > 0.15):
+            print("   *** turning the head left does not turn the robot to its left"); bad += 1
 
         down = await probe(head=[0.0, 0.10, 0.0])
         print(f"look down gaze {fmt(down['gaze'])}  Δy {down['gaze'][1]-rest['gaze'][1]:+.2f}")

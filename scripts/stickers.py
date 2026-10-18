@@ -38,6 +38,18 @@ CHECK = """(function(){
       var b=rects[i];
       if(b.width<2||b.height<2) continue;
       if(b.bottom<-50||b.top>innerHeight+50) continue;
+      /* Text scrolled out of a clipping box (the survey table shows six rows
+         and scrolls the rest) still reports its layout position, which can sit
+         under the NEXT section's sticker. It is not on screen: clip it first. */
+      var clipped=false;
+      for(var a=n.parentElement;a&&a!==document.body;a=a.parentElement){
+        var o=getComputedStyle(a);
+        if(o.overflowY!=='visible'||o.overflowX!=='visible'){
+          var c=a.getBoundingClientRect();
+          if(b.bottom<=c.top||b.top>=c.bottom||b.right<=c.left||b.left>=c.right){clipped=true;break;}
+        }
+      }
+      if(clipped) continue;
       lines.push({l:b.left,t:b.top,r:b.right,b:b.bottom,
                   s:(n.nodeValue||'').trim().slice(0,30)});
     }

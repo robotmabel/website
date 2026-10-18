@@ -374,10 +374,10 @@
    "hand": 17,
    "neck": 3,
    "lift": "Lift + torso",
-   "cost": 9.7,
+   "cost": 8.1,
    "open": true,
    "focus": "Open anthropomorphic dexterity + spatial teleoperation",
-   "note": null,
+   "note": "Essential build; recommended $9.3k",
    "mobile": true,
    "ours": true,
    "link": "https://github.com/robotmabel/MABEL"

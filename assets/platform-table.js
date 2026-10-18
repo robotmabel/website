@@ -92,8 +92,9 @@
         return sortDir * ((x === true ? 1 : x === false ? 0 : x) -
                           (y === true ? 1 : y === false ? 0 : y));
       });
-      /* ours always sits last so the eye lands on it after the field */
-      rows.sort(function (a, b) { return (a.ours ? 1 : 0) - (b.ours ? 1 : 0); });
+      /* ours always sits FIRST: the table shows six rows and scrolls, so a
+         last-place MABEL row would start out of sight */
+      rows.sort(function (a, b) { return (b.ours ? 1 : 0) - (a.ours ? 1 : 0); });
 
       tbody.innerHTML = rows.map(function (r) {
         return '<tr class="' + (r.ours ? 'ours' : '') + '">' +
@@ -130,7 +131,25 @@
           (others === 0 ? ' — <b>only MABEL</b>.' : '.')
         : '<b>' + (D.platforms.length - 1) + '</b> other platforms surveyed. ' +
           'Try <b>Open source + Real hand + Actuated neck + Under $10k</b>.';
+      fit();
     }
+
+    /* Six rows visible, the rest scroll inside the table (header stays put).
+       Measured, not fixed: rows are taller on a phone, where they become cards. */
+    var VISIBLE = 6;
+    function fit() {
+      var box = host.querySelector('.pt-scroll'), trs = tbody.rows;
+      if (!box) return;
+      box.style.maxHeight = '';
+      box.classList.toggle('capped', trs.length > VISIBLE);
+      if (trs.length <= VISIBLE) return;
+      var top = box.getBoundingClientRect().top;
+      var cut = trs[VISIBLE - 1].getBoundingClientRect().bottom - top;
+      // never taller than ~70% of the screen: on a phone six rows are six stacked cards,
+      // and a scroll box taller than the viewport traps the page's own scroll
+      box.style.maxHeight = Math.ceil(Math.min(cut + 18, window.innerHeight * 0.7)) + 'px';
+    }
+    window.addEventListener('resize', fit);
 
     host.querySelector('.pt-filters').addEventListener('click', function (e) {
       if (e.target.closest('.pt-clear')) { on = {}; }

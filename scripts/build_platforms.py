@@ -92,15 +92,31 @@ P = [
     ("Unitree R1-A7-D", 2026, "Differential", False, "7×2", 7, 2, "Lift + waist", 4.3, False,
      "Modular dual-arm mobile manipulation", "lineup from $4,290; -D quote-based"),
     # ── ours ─────────────────────────────────────────────────────────────
-    ("MABEL", 2026, "3-module swerve", True, "7×2", 17, 3, "Lift + torso", 9.7, True,
-     "Open anthropomorphic dexterity + spatial teleoperation", None),
+    # MABEL's cost is NOT the paper's archived $9.7k: it is the published BOM's
+    # Essential build today (see essential_k below), so this table cannot quote a
+    # figure the rest of the site has moved past (bomclaims.py guards the rest).
+    ("MABEL", 2026, "3-module swerve", True, "7×2", 17, 3, "Lift + torso", "BOM", True,
+     "Open anthropomorphic dexterity + spatial teleoperation", "Essential build; recommended $RECk"),
 ]
+
+
+BOM_SUMMARY = os.path.join(os.path.dirname(SITE), "BOM", "generated", "bom_summary.json")
+
+
+def bom_k():
+    """(Essential, Recommended) totals in k$, one decimal, from the published BOM."""
+    with open(BOM_SUMMARY) as f:
+        builds = {b["id"]: b["total"] for b in json.load(f)["builds"]}
+    return round(builds["essential"] / 1000, 1), round(builds["recommended"] / 1000, 1)
 
 
 def main():
     rows = []
+    ess_k, rec_k = bom_k()
     for (name, yr, base, holo, arms, hand, neck, lift, cost, is_open,
          focus, note) in P:
+        if cost == "BOM":
+            cost, note = ess_k, note.replace("$RECk", f"${rec_k}k")
         n_arms = 1 if arms.endswith("×1") else (2 if "×2" in arms else
                                                 int(arms) if arms.isdigit() else 2)
         rows.append({

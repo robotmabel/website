@@ -54,6 +54,13 @@ run globe       $P scripts/globecentre.py $B/teleop.html
 run webcam      $P scripts/camtest.py $B/software.html
 run gestures    node scripts/gesturetest.mjs
 run retargeter  $P scripts/sync_bodyteleop.py --check
+# The webcam demo's arm map is a port of the robot's deployed retargeter. Its
+# data generator and the parity check against the robot's own Python live in
+# the private repo beside this one (they need MuJoCo and the engine); the
+# public site only carries assets/deployed-retarget.js and its data file.
+RTL=../web_gui/retarget_lab/tools
+[ -f $RTL/export_webcam_retarget.py ] && run retarget-gen $P $RTL/export_webcam_retarget.py --check
+[ -f $RTL/webcam_parity.mjs ] && run retarget-eq node $RTL/webcam_parity.mjs
 run hardware    $P scripts/hwtest.py $B/hardware.html
 run curation    $P scripts/curtest.py $B/autonomy.html
 run slam        $P scripts/slamtest.py $B/autonomy.html

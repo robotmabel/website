@@ -88,7 +88,8 @@ in its docstring. `scripts/run_all.sh` runs the lot.
 | `stickers.py` | stickers sitting on top of text |
 | `poptest.py` `hovertest.py` `bomgroup.py` | the pop-ups, the BOM hover card, its grouping |
 | `filmtest.py` `vidswap.py` | captions and cross-fades on the film players |
-| `camtest.py` | the webcam retargeter: target DIRECTIONS, the palm frame, gaze, roll, hold-on-loss, and the solve's cost in ms |
+| `camtest.py` | the webcam retargeter: target DIRECTIONS, the palm frame, gaze, roll, hold-on-loss, the engine→rig frame fit, and the step's cost in ms |
+| `retarget-gen` · `retarget-eq` | the webcam demo's arm map is a PORT of the robot's deployed retargeter (`assets/deployed-retarget.js`). Its data generator and the parity check against the robot's own Python (every commanded joint, frame by frame, to 1e-6 rad) live in the private repo beside this one (`../web_gui/retarget_lab/tools/`), and run only when it is there |
 | `frametest.mjs` | the operator→robot palm frame, in node, against hands whose orientation is known by construction |
 | `gesturetest.mjs` | the finger counts and the two-hand heart |
 | `sync_bodyteleop.py --check` | the vendored retargeter drifting from the studio's |
@@ -138,6 +139,7 @@ page from the same localStorage the order page writes.
 | `assets/tipover_table.json` | `controller/experiments/exp_tipover_web.py` |
 | `assets/data/hw-modules.json` | `scripts/build_hw_modules.py` (from `BOM/data/*.csv`) |
 | `assets/bodyteleop-core.js` | `scripts/sync_bodyteleop.py` (from the Control Studio) |
+| `assets/data/deployed-retarget.json` | `../web_gui/retarget_lab/tools/export_webcam_retarget.py` (private repo: the MJCF + the teleop engine at the Retarget Lab's deploy preset) — fetched only when the camera is switched on |
 | `assets/mabel_rig.glb`, `mabel_joints.json` | `mabel_ws/.../urdf_to_glb.py` |
 | `assets/hw/exploded.png` | `scripts/build_exploded.py` (cuts the paper's CAD out of its white) |
 | `assets/hw/callout.{svg,png,json}` | `simulation/.../render_callout.py` |
