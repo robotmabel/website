@@ -3,8 +3,8 @@
  * On the robot the teleop gateway steps the Retarget Lab's variant "ours" on
  * every headset frame — web_gui/retarget_lab/server/worker.py
  * KinematicRetargeter("ours") at the lab's deploy preset (config.py: upper-body
- * scope, the deployed robot's joint slews and torso range, the gateway's own
- * neck rule) — and commands the arms + torso it produces. Under that sits the
+ * scope, the deployed robot's joint slews and its torso and neck windows) and
+ * commands the arms, torso and neck it produces. Under that sits the
  * TeleopEngine (controller/mabel/teleop_engine/). This file is a line-for-line
  * port of the parts of that chain that decide where the joints go:
  *
@@ -17,15 +17,18 @@
  *                  damped Gauss-Newton with the active-set pass, the trust
  *                  region on the RESULT, _table_steer, _basin_escape
  *   workspace_table.py  WorkspaceTable.lookup (seam-aware blend, feasibility)
- *   wholebody.py   TorsoController + the "angle" lean law (hip pivot)
+ *   wholebody.py   TorsoController + the "angle" lean law, upper-body scope:
+ *                  lean from the head DROP, anchor leashed (walking is no lean)
  *   collision.py   ArmCollisionProjector: capsule barrier rows at the command
  *                  AND the measured pose, the velocity QP (solved exactly; its
  *                  answer is a unique projection), the 4 rad/s command slew
  *   ../whole_body_controller/collision_avoidance/capsule_guard.py  the capsules
  *   ../whole_body_retargeting/heading.py           LazyHeadHeading (body yaw)
  *   ../whole_body_retargeting/workspace_assist.py  WorkspaceAssist (anchor debt)
- *   web_gui/retarget_lab/server/worker.py   _servo_ideal at the deployed slews,
- *                  _deploy_out (torso clamp, gateway neck through its slew)
+ *   engine.py      the neck law: head on the latched torso datum, with the
+ *                  torso's gaze compensation (also moves the head capsule)
+ *   web_gui/retarget_lab/server/worker.py   _robot_limits (the deployed torso +
+ *                  neck windows), _servo_ideal at the deployed slews
  *
  * Every number it uses — the kinematic tree at the home keyframe, the palm
  * frames, the reach samples, the two posture tables, the capsules and the
@@ -720,35 +723,6 @@ class ArmIK {
   }
 }
 
-// ── the deployed gateway's neck rule (head vs the first steady head) ─────────
-class GatewayNeck {
-  constructor(N) { this.N = N; this.reset(); }
-  reset() { this.R0 = null; this.t_first = null; this.t_last = null; }
-  apply(head, now) {
-    const N = this.N;
-    if (!head || (head.trackingState || 'normal') !== 'normal') {
-      if (this.t_last !== null && now - this.t_last > N.lost_s) this.reset();
-      return null;
-    }
-    const m = head.transform && head.transform.matrix;
-    if (!m || m.length !== 16) return null;
-    const R = rot4(mat4(m));
-    if (this.t_last !== null && now - this.t_last > N.lost_s) this.reset();
-    this.t_last = now;
-    if (this.t_first === null) this.t_first = now;
-    if (this.R0 === null) {
-      if (now - this.t_first < N.anchor_hold) return null;
-      this.R0 = R;
-    }
-    const A = N.AVP_TO_ROBOT, dR = mm(mm(A, mm(R, tr(this.R0))), tr(A));
-    const yaw = Math.atan2(dR[1][0], dR[0][0]);
-    const pitch = -Math.asin(clamp(dR[2][0], -1, 1));
-    const roll = Math.atan2(dR[2][1], dR[2][2]);
-    return { neck_yaw: N.gain * N.signs[0] * yaw, neck_pitch: N.gain * N.signs[1] * pitch,
-             neck_roll: N.gain * N.signs[2] * roll };
-  }
-}
-
 // ── the self-collision projector (collision.py + capsule_guard.py) ───────────
 /* Closest points between segments p1q1 and p2q2 (capsule_guard._seg_seg,
    Ericson RTCD 5.1.9). */
@@ -963,6 +937,8 @@ export class DeployedRetargeter {
     for (const j of ['Neck Yaw', 'Neck Pitch', 'Neck Roll']) this.slewKey[j] = ['neck', null];
     this.limits = {};
     for (const b of D.bodies) if (b.joint) this.limits[b.joint.name] = b.joint;
+    // the deployed robot's own windows on torso + neck (worker._robot_limits)
+    for (const [j, L] of Object.entries(D.servo_limits || {})) this.limits[j] = { ...this.limits[j], ...L };
     this.reset();
   }
 
@@ -985,7 +961,6 @@ export class DeployedRetargeter {
     this._neck_ref = null; this._head0 = null;
     // wbc: torso controller + base tracker anchor (head offset only)
     this._base_anchored = false; this._trk_head0 = null; this._byaw0 = null;
-    this.neckRule = new GatewayNeck(D.deploy.neck); this._neck_out = [0, 0, 0];
     this.targets = {}; this.hk = {}; this.n = 0;
   }
 
@@ -1194,10 +1169,10 @@ export class DeployedRetargeter {
     return this.proj.project(des, this.q, this.X, this._frame_dt);
   }
 
-  /* the engine's OWN neck (engine._retarget): head on the latched torso datum,
-     plus the torso's deviation on the pitch (gaze compensation). It is not what
-     the robot commands — its neck is the gateway rule, below — but the head
-     capsule of the self-collision guard rides it. */
+  /* the engine's neck (engine._retarget): head on the latched torso datum,
+     plus the torso's deviation on the pitch (gaze compensation), clipped to the
+     deployed windows. This is what the robot's neck is commanded, and the head
+     capsule of the self-collision guard rides it too. */
   _engineNeck(H) {
     if (!H) return;
     const EN = this.D.engine_neck, A = this.hp.AVP_TO_ROBOT;
@@ -1220,7 +1195,24 @@ export class DeployedRetargeter {
     });
   }
 
-  /* wholebody.WholeBodyController.update_targets, torso half, local scope */
+  /* wholebody.BaseTracker.head_offset: head displacement since the anchor,
+     in the operator's current body frame → (forward, lateral) */
+  _headOffset(headPos, bodyYaw) {
+    const hp = this.hp;
+    let d = mv(hp.AVP_TO_ROBOT, sub(headPos, this._trk_head0));
+    if (hp.BASE_TRANSLATION_MODE === 'body' && bodyYaw !== null && bodyYaw !== undefined) {
+      if (this._byaw0 === null) this._byaw0 = bodyYaw;
+      const a = wrap(bodyYaw - Math.PI), c = Math.cos(a), s = Math.sin(a);
+      d = [c * d[0] + s * d[1], -s * d[0] + c * d[1], d[2]];
+    }
+    return [-d[0], d[1]];
+  }
+
+  /* wholebody.WholeBodyController.update_targets, torso half, UPPER-BODY scope:
+     the operator is tracked in a frame that moves with them — the lean is read
+     from the head DROP past a gait-bob deadband, and the horizontal anchor is
+     leashed to the forward travel that bend explains, so walking is not a lean.
+     The lift holds in this scope (it follows the head only in whole body). */
   _torso(headPos, bodyYaw) {
     const hp = this.hp;
     if (!headPos || !(hp.BASE_FOLLOW || hp.TORSO_FOLLOW)) return;
@@ -1229,20 +1221,23 @@ export class DeployedRetargeter {
       this._byaw0 = bodyYaw !== null && bodyYaw !== undefined ? bodyYaw : null;
       this._base_anchored = true;
     }
-    let d = mv(hp.AVP_TO_ROBOT, sub(headPos, this._trk_head0));
-    if (hp.BASE_TRANSLATION_MODE === 'body' && bodyYaw !== null && bodyYaw !== undefined) {
-      if (this._byaw0 === null) this._byaw0 = bodyYaw;
-      const a = wrap(bodyYaw - Math.PI), c = Math.cos(a), s = Math.sin(a);
-      d = [c * d[0] + s * d[1], -s * d[0] + c * d[1], d[2]];
+    let [fwd] = this._headOffset(headPos, bodyYaw);
+    const L = hp.TORSO_LEAN_PIVOT, DB = hp.TORSO_LOCAL_DROP_DEADBAND;
+    {                                                  // the leash (local scope)
+      const drop = Math.max(this._trk_head0[1] - headPos[1] - DB, 0);
+      const dBend = L * Math.sin(Math.acos(clamp(1 - drop / L, -1, 1)));
+      const dh = sub(headPos, this._trk_head0); dh[1] = 0;
+      const n = norm(dh);
+      if (n > dBend) {
+        this._trk_head0 = add(this._trk_head0, scl(dh, 1 - dBend / n));
+        [fwd] = this._headOffset(headPos, bodyYaw);
+      }
     }
-    const fwd = -d[0];
-    const L = hp.TORSO_LEAN_PIVOT;
     const drop = this._trk_head0[1] - headPos[1];
-    const thDrop = Math.acos(clamp(1 - Math.max(drop, 0) / L, -1, 1));
-    const dLean = fwd;                                 // LOCAL: all forward offset is lean
-    const thFwd = Math.atan2(dLean, Math.max(L - Math.max(drop, 0), 0.2 * L));
+    const dLean = fwd;                                 // what is left after the leash
     const thCap = Math.asin(clamp(Math.max(dLean, 0) / hp.TORSO_LEAN_PIVOT_MIN, 0, 1));
-    const theta = Math.max(thFwd, Math.min(thDrop, thCap));
+    const thDrop = Math.acos(clamp(1 - Math.max(drop - DB, 0) / L, -1, 1));
+    const theta = Math.min(thDrop, thCap);
     this.lean = theta;
     if (hp.TORSO_FOLLOW) {
       const t0 = this.D.torso.qpos0, [lo, hi] = this.D.torso.range;
@@ -1328,18 +1323,12 @@ export class DeployedRetargeter {
     const q = { ...this.q };
     const [tlo, thi] = this.D.deploy.torso_cmd_range;
     q.Torso = clamp(q.Torso, tlo, thi);
-    const tgt = this.neckRule.apply(frame.head, now);
-    const keys = ['neck_yaw', 'neck_pitch', 'neck_roll'], nst = sl.neck * this._frame_dt;
-    keys.forEach((k, i) => {
-      if (tgt) {
-        const v = clamp(tgt[k], this.D.neck_range[i][0], this.D.neck_range[i][1]);
-        this._neck_out[i] += clamp(v - this._neck_out[i], -nst, nst);
-      }
-    });
     this._prev_t = now;
     this.n++;
-    return { q, neck: { neck_yaw: this._neck_out[0], neck_pitch: this._neck_out[1],
-                        neck_roll: this._neck_out[2] },
+    // the neck the robot commands IS the engine's (its lazy-neck law within the
+    // deployed windows), slewed by the servo above
+    return { q, neck: { neck_yaw: q['Neck Yaw'], neck_pitch: q['Neck Pitch'],
+                        neck_roll: q['Neck Roll'] },
              engaged: this._world_ref !== null, targets: this.targets };
   }
 

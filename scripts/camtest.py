@@ -53,7 +53,7 @@ window.__mkPose = function (o) {
   var P = new Array(33);
   for (var i = 0; i < 33; i++) P[i] = { x: 0, y: 0, z: 0, visibility: 1 };
   var put = function (i, x, y, z) { P[i] = { x: x, y: y, z: z, visibility: 1 }; };
-  var dz = -lean * 0.5, dy = 0.02 * lean;
+  var dz = 0, dy = 0;   // the lean is a hip PIVOT, applied at the end
   // The head is a rigid triangle (nose out front, ears either side) that is
   // ROTATED, not translated: a yaw about the head centre swings the nose one
   // way and pulls one ear forward and the other back. Sliding the nose alone
@@ -92,6 +92,18 @@ window.__mkPose = function (o) {
   var LE = o.le || [0.26, -0.30, 0.02], RE = o.re || [-0.26, -0.30, 0.02];
   put(13, LE[0], LE[1], LE[2]); put(14, RE[0], RE[1], RE[2]);
   put(15, LW[0], LW[1], LW[2]); put(16, RW[0], RW[1], RW[2]);
+  // LEAN = a hip bend of `lean` rad toward the camera: everything above the
+  // hips pivots about them, so the head DROPS as in a real bend. The deployed
+  // engine reads an upper-body lean from that drop (a forward slide with no
+  // drop is a walk, and its anchor follows it), so a translated torso — what
+  // this fixture used to do — correctly reads as no lean at all.
+  if (lean) {
+    var c = Math.cos(lean), s = Math.sin(lean);
+    [0, 2, 5, 7, 8, 11, 12, 13, 14, 15, 16].forEach(function (i) {
+      var y = P[i].y, z = P[i].z;
+      P[i] = { x: P[i].x, y: c * y - s * z, z: s * y + c * z, visibility: 1 };
+    });
+  }
   return P;
 };
 // A hand in MediaPipe WORLD coordinates (metres, +x image-right, +y DOWN,

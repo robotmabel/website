@@ -261,6 +261,12 @@ function boot(HOST) {
     if (!engineP)
       engineP = fetch(ENGINE_DATA).then((r) => r.json()).then((D) => {
         ENG = new DeployedRetargeter(D);
+        /* The neck is commanded within the DEPLOYED windows (pitch 90° up /
+           53° down), wider than this rig's MJCF ±45°: show what is commanded. */
+        ['yaw', 'pitch', 'roll'].forEach((k, i) => {
+          const j = R.neck[k];
+          if (j && D.neck_range[i]) { j.lo = D.neck_range[i][0] - j.ref; j.hi = D.neck_range[i][1] - j.ref; }
+        });
         return ENG;
       });
     return engineP;
@@ -729,10 +735,21 @@ function boot(HOST) {
       lastHandPx = px || null;
       let ts = 0, r = null;
       const frames = Math.round((restS + holdS) * INFER_HZ);
+      /* the move from rest to the probe takes 0.5 s, as a body does: a head
+         that teleports > 0.35 m in one frame is the engine's "tracking origin
+         jumped" signal, and it re-anchors there (correctly) */
+      const moveS = 0.5;
+      const mix = (a, b, u) => a.map((p, i) => ({ x: p.x + (b[i].x - p.x) * u,
+        y: p.y + (b[i].y - p.y) * u, z: p.z + (b[i].z - p.z) * u, visibility: b[i].visibility }));
       for (let k = 0; k < frames; k++) {
-        const atRest = k < restS * INFER_HZ && rest;
-        r = stepEngine(atRest ? rest.world : world, atRest ? rest.vis : vis,
-                       atRest ? (rest.hands || {}) : (hands || {}), null, ts) || r;
+        const tk = k / INFER_HZ;
+        let w = world, v = vis, h = hands || {};
+        if (rest && tk < restS) { w = rest.world; v = rest.vis; h = rest.hands || {}; }
+        else if (rest && tk < restS + moveS) {
+          const u = (tk - restS) / moveS, e = 0.5 - 0.5 * Math.cos(Math.PI * u);
+          w = mix(rest.world, world, e);
+        }
+        r = stepEngine(w, v, h, null, ts) || r;
         ts += 1 / INFER_HZ;
       }
       R.live = false;
