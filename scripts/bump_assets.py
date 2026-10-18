@@ -16,7 +16,7 @@ TRACKED = ["assets/mabel.css", "assets/mabel.js", "assets/bom/bom_data.js", "ass
            "assets/comic-pop.js", "assets/tipover-lab.js",
            "assets/bom-table.js", "assets/bom-pie.js", "assets/reach-globe.js",
            "assets/wbc-viewer.js", "assets/robot-viewer.js", "assets/hero-rig.js",
-           "assets/anatomy.js", "assets/halftone-grid.js", "assets/platform-table.js", "assets/explode-viewer.js", "assets/asm-art.js", "assets/burst-variety.js", "assets/rail-loop.js", "assets/film-player.js", "assets/scene-filter.js",
+           "assets/anatomy.js", "assets/halftone-grid.js", "assets/tabreel.js", "assets/platform-table.js", "assets/explode-viewer.js", "assets/asm-art.js", "assets/burst-variety.js", "assets/rail-loop.js", "assets/film-player.js", "assets/scene-filter.js",
            "assets/faq-pop.js",
            # the wiki's own shell, and the widgets build.html handed it
            "docs/docs.css", "docs/docs.js", "docs/build.css",

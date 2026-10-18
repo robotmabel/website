@@ -4909,3 +4909,55 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   #demo .tab-bar { display: grid; grid-template-columns: 1fr 1fr; overflow: visible; }
   #demo .tab-btn { text-align: center; padding-left: 4px; padding-right: 4px; }
 }
+
+/* ─── Tab reels — one sliding row of illustrated tabs per app (teleop.html, assets/tabreel.js) ───
+   The next card always peeks in from the right so the row reads as "there's more"; the
+   chips above name every tab and jump to it. Illustrations are generated SVGs
+   (scripts/build_app_tabs.py) inlined so they set in the site's own type. */
+.tabreel { position: relative; }
+.trl-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.trl-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; min-width: 0; }
+.trl-chip { font-family: var(--font-comic); font-size: 13px; letter-spacing: .04em; padding: 6px 12px; min-height: 36px;
+  border: 2px solid var(--ink); border-radius: 999px; background: var(--bone); color: var(--ink); cursor: pointer;
+  transition: background .14s ease, transform .12s ease; }
+.trl-chip:hover { transform: translateY(-1px); }
+.trl-chip.on { background: var(--hi); color: #FFF9F0; }
+.trl-arrow { flex: 0 0 auto; width: 44px; height: 44px; border: 2px solid var(--ink); border-radius: 8px; background: var(--bone);
+  color: var(--ink); font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 3px 3px 0 var(--ink);
+  transition: transform .12s ease, box-shadow .12s ease; }
+.trl-arrow:hover:not(:disabled) { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+.trl-arrow:disabled { opacity: .35; cursor: default; }
+.dark-sec .trl-chip, .dark-sec .trl-arrow { border-color: var(--gold); }
+.dark-sec .trl-chip { background: transparent; color: var(--bone); }
+.dark-sec .trl-chip.on { background: var(--pop); color: var(--ink); border-color: var(--pop); }
+.dark-sec .trl-arrow { background: transparent; color: var(--bone); box-shadow: 3px 3px 0 rgba(0,0,0,.7); }
+.trl-track { display: flex; gap: clamp(14px, 2vw, 22px); overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: 2px 2px 14px; outline: none; }
+.trl-track::-webkit-scrollbar { display: none; }
+.trl-track:focus-visible { outline: 3px solid var(--hi); outline-offset: 4px; }
+.trl-card { flex: 0 0 min(86%, 980px); scroll-snap-align: start; margin: 0; display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: clamp(14px, 2vw, 26px); align-items: center;
+  border: 3px solid var(--ink); border-radius: 14px; background: var(--panel); box-shadow: 6px 6px 0 var(--ink);
+  padding: clamp(14px, 2vw, 22px); opacity: .55; transition: opacity .3s ease; }
+.trl-card.on { opacity: 1; }
+.dark-sec .trl-card { border-color: var(--gold); box-shadow: 6px 6px 0 rgba(0,0,0,.75); }
+.trl-art { min-width: 0; }
+.trl-art svg { display: block; width: 100%; height: auto; }
+.trl-card figcaption { min-width: 0; color: var(--ink); }
+.trl-card .trl-ix { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; color: var(--rust); }
+.trl-card h4 { margin: 4px 0 6px; font-family: var(--font-head); font-weight: 800; font-size: clamp(22px, 2.3vw, 30px); letter-spacing: -0.02em; line-height: 1.05; }
+.trl-card .trl-one { margin: 0 0 12px; font-size: 15px; line-height: 1.5; color: var(--ink-soft); }
+.trl-card ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.trl-card li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; font-size: 13.5px; line-height: 1.45; color: var(--ink); }
+.trl-card li b { font-weight: 700; }
+.trl-card li::before { counter-increment: trl; content: counter(trl); width: 20px; height: 20px; border-radius: 50%;
+  background: var(--pop); border: 2px solid var(--ink); font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+  display: grid; place-items: center; box-sizing: border-box; margin-top: 1px; }
+.trl-card ol { counter-reset: trl; }
+@media (max-width: 760px) {
+  .trl-card { flex-basis: 88%; grid-template-columns: 1fr; align-items: start; }
+  .trl-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .trl-chips::-webkit-scrollbar { display: none; }
+  .trl-chip { flex: 0 0 auto; }
+}
+@media (prefers-reduced-motion: reduce) { .trl-card { transition: none; } }

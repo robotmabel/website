@@ -671,3 +671,11 @@ html.ta-immersive #progress, html.ta-immersive .page-hero { display: none; }
   .ta-manip-hint { top: 84px; font-size: 11.5px; }
   .ta-startteleop { top: 11px; }
 }
+
+/* Narrow phones (≤430 px): the dock row (status, host, connect, metrics, reset, E-STOP,
+   full screen) ran 11 px past the screen edge. Drop the read-only metrics and let the
+   buttons wrap rather than push the page sideways. */
+@media (max-width: 430px) {
+  .ta-dock-row { flex-wrap: wrap; justify-content: center; }
+  .ta-metrics, .ta-divider { display: none; }
+}
