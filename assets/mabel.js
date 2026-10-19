@@ -450,19 +450,13 @@
       delete v.dataset.poster;
     }
     if (!v.src) {
-      /* low rendition first (or straight to full if no -lo exists) */
-      v.src = v.dataset.lo || v.dataset.lazyvid;
+      /* Full quality straight away. A clip only starts once it nears the
+         viewport, so loading the full rendition there costs one clip, and the
+         420 px -lo preview it used to play first read as blurry footage. The
+         -lo files stay as a fallback for a clip that has no full rendition. */
+      v.src = v.dataset.lazyvid || v.dataset.lo;
       v.load();
-      if (v.dataset.lo && v.dataset.lazyvid !== v.dataset.lo) {
-        /* The full-quality upgrade waits for the page to finish loading and
-           then for an idle moment. It is a nicety — the -lo rendition is
-           already playing — and racing it against the page's own assets is
-           what turned a 1.3 MB clip into part of a 42-second first paint. */
-        hiQueue.push(v);
-        whenIdle(pumpHi);
-      } else {
-        v.dataset.hiDone = '1';
-      }
+      v.dataset.hiDone = '1';
     }
     var p = v.play(); if (p && p.catch) p.catch(function () {});
   }

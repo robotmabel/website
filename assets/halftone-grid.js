@@ -1,13 +1,15 @@
-/* Live comic halftone over the Home · shop · street grid (index.html #home).
+/* Live comic halftone over the Shop · home · street rows (index.html #home).
  *
- * Every cell with a data-tone gets a <canvas> drawn from its own photo, GIF or
- * clip, re-sampled each frame, so the dots move with the footage. Dots sit on a
+ * Every cell with a data-tone gets a <canvas> drawn from its own photo or clip,
+ * re-sampled each frame, so the dots move with the footage. Dots sit on a
  * staggered (45°) screen, their radius set by how dark the picture is there, and
- * a slow diagonal wave swells and shrinks them so the grid reads like a printed
- * page that is breathing. The pointer is a lens: dots under it shrink to
- * nothing, and holding over a cell wipes the whole tile back to the photo.
- * A tap on a phone does the same. #htToggle turns the effect off for the page
- * (remembered per visitor); prefers-reduced-motion draws it once, still.
+ * a slow diagonal wave swells and shrinks them like a printed page breathing.
+ * The halftone is the ENTRANCE, not the resting state: a tile arrives as dots,
+ * then a lens opens from its centre and wipes it back to the photo, so the
+ * picture stays readable. Hovering a tile (or tapping it on a phone) closes the
+ * lens around the pointer and the dots come back. #htToggle turns the effect off
+ * for the page (remembered per visitor); prefers-reduced-motion skips straight
+ * to the photo.
  */
 (function () {
   var grid = document.getElementById('rgGrid');
@@ -39,17 +41,18 @@
     var tag = fig.querySelector('.rg-tag');
     fig.insertBefore(cv, tag || null);
     var c = { fig: fig, cv: cv, ctx: cv.getContext('2d'), tone: tone, w: 0, h: 0, dpr: 1,
-              visible: false, px: -1e4, py: -1e4, lens: 0, lensTo: 0, drawn: false };
+              visible: false, px: -1e4, py: -1e4, lens: 0, lensTo: 0, drawn: false, intro: 0, clear: false };
+    if (still) { c.lens = c.lensTo = 1; c.opened = true; c.intro = 2; }   // reduced motion: the photo, dots only on hover
     cells.push(c);
+    function at(e) { var r = fig.getBoundingClientRect(); c.px = e.clientX - r.left; c.py = e.clientY - r.top; }
     fig.addEventListener('pointermove', function (e) {
-      var r = fig.getBoundingClientRect(); c.px = e.clientX - r.left; c.py = e.clientY - r.top;
-      if (e.pointerType === 'mouse') c.lensTo = 1;
+      if (e.pointerType !== 'mouse' || !c.intro) return;
+      at(e); c.lensTo = 0; kick();
     });
-    fig.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') c.lensTo = 0; });
+    fig.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse' && c.intro) { at(e); c.lensTo = 1; kick(); } });
     fig.addEventListener('click', function (e) {
-      if (e.pointerType === 'mouse') return;
-      var r = fig.getBoundingClientRect(); c.px = e.clientX - r.left; c.py = e.clientY - r.top;
-      c.lensTo = c.lensTo ? 0 : 1;
+      if (e.pointerType === 'mouse' || !c.intro) return;
+      at(e); c.lensTo = c.lensTo ? 0 : 1; kick();
     });
   });
   if (!cells.length) return;
@@ -156,12 +159,28 @@
         size(c);
         c.lens += (c.lensTo - c.lens) * 0.18;
         if (Math.abs(c.lensTo - c.lens) < 0.002) c.lens = c.lensTo;
-        if (c.lens === 0 && c.lensTo === 0) { c.px = -1e4; c.py = -1e4; }
+        if (c.lens === 0 && c.lensTo === 0 && !c.opened) { c.px = -1e4; c.py = -1e4; }
+        // the entrance: a moment of dots, then the lens opens from the centre
+        if (!c.intro && c.drawn) {
+          c.intro = now + 900 + 160 * cells.indexOf(c) % 1200;
+        }
+        if (c.intro && c.intro > 1 && now >= c.intro && c.lensTo === 0 && !c.opened) {
+          c.opened = true; c.px = c.w / 2; c.py = c.h / 2; c.lensTo = 1;
+        }
+        if (c.lens === 1 && c.lensTo === 1) {   // fully the photo: clear once, stop drawing
+          if (!c.clear) { c.ctx.setTransform(1, 0, 0, 1, 0, 0); c.ctx.clearRect(0, 0, c.cv.width, c.cv.height); c.clear = true; }
+          return;
+        }
+        c.clear = false;
         if (still && c.drawn && c.lens === c.lensTo) return;
         draw(c, t);
       });
     }
-    cells.forEach(function (c) { if (c.visible && (!still || c.lens !== c.lensTo || !c.drawn)) busy = true; });
+    cells.forEach(function (c) {
+      if (!c.visible) return;
+      if (c.lens !== c.lensTo || !c.drawn || !c.opened) busy = true;   // moving lens, or waiting to open
+      else if (!still && c.lens < 1) busy = true;                       // dots on show: keep them breathing
+    });
     if (busy) raf = requestAnimationFrame(frame);
   }
   function kick() { if (!raf && on) raf = requestAnimationFrame(frame); }
