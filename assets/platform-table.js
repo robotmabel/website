@@ -92,7 +92,7 @@
         return sortDir * ((x === true ? 1 : x === false ? 0 : x) -
                           (y === true ? 1 : y === false ? 0 : y));
       });
-      /* ours always sits FIRST: the table shows six rows and scrolls, so a
+      /* ours always sits FIRST: the table shows eight rows and scrolls, so a
          last-place MABEL row would start out of sight */
       rows.sort(function (a, b) { return (b.ours ? 1 : 0) - (a.ours ? 1 : 0); });
 
@@ -103,8 +103,10 @@
               ? '<a href="' + esc(r.link) + '" target="_blank" rel="noopener"><b>' +
                 esc(r.name) + '</b><span class="pt-go">↗</span></a>'
               : '<b>' + esc(r.name) + '</b>') +
-            '<i>' + r.year + ' · ' + esc(r.focus) + '</i>' +
-            (r.note ? '<em>' + esc(r.note) + '</em>' : '') + '</td>' +
+            /* one line per platform: focus and notes live in the hover card;
+               the sub-line (base + arms) shows only on a phone, where those
+               two columns are dropped */
+            '<i class="pt-sub">' + esc(r.base) + ' · ' + esc(r.arms) + ' arms</i></td>' +
           /* data-label carries the column header into the cell so the phone
              layout can turn each row into a card — a CSS-only stack has no
              way to know which column a number came from */
@@ -134,9 +136,9 @@
       fit();
     }
 
-    /* Six rows visible, the rest scroll inside the table (header stays put).
-       Measured, not fixed: rows are taller on a phone, where they become cards. */
-    var VISIBLE = 6;
+    /* Eight rows visible, the rest scroll inside the table (header stays put).
+       Measured, not fixed: rows are taller on a phone, where they carry a sub-line. */
+    var VISIBLE = 8;
     function fit() {
       var box = host.querySelector('.pt-scroll'), trs = tbody.rows;
       if (!box) return;
@@ -145,8 +147,7 @@
       if (trs.length <= VISIBLE) return;
       var top = box.getBoundingClientRect().top;
       var cut = trs[VISIBLE - 1].getBoundingClientRect().bottom - top;
-      // never taller than ~70% of the screen: on a phone six rows are six stacked cards,
-      // and a scroll box taller than the viewport traps the page's own scroll
+      // never taller than ~70% of the screen: a scroll box taller than the viewport traps the page's own scroll
       box.style.maxHeight = Math.ceil(Math.min(cut + 18, window.innerHeight * 0.7)) + 'px';
     }
     window.addEventListener('resize', fit);
@@ -181,7 +182,7 @@
     var card = host.querySelector('.pt-card');
     host.addEventListener('pointerover', function (e) {
       var td = e.target.closest('[data-row]');
-      if (!td) return;
+      if (!td || e.pointerType !== 'mouse') return;   // a phone has no room beside the row
       var r = D.platforms.filter(function (x) { return x.name === td.dataset.row; })[0];
       if (!r) return;
       card.innerHTML =

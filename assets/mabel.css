@@ -713,6 +713,11 @@ section[id], .sub-block[id] { scroll-margin-top: 92px; }
 /* ─── BibTeX ──────────────────────────────────────────────────────── */
 .bib { background: var(--glass-bg); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); border: var(--line-w) solid var(--glass-border); border-radius: 12px; padding: 24px 26px; font-family: var(--font-mono); font-size: 13px; line-height: 1.75; color: var(--ink-soft); position: relative; box-shadow: var(--glass-hi), var(--glass-sh); }
 .bib pre { white-space: pre-wrap; margin: 0; }
+@media (max-width: 700px) {
+  .bib { padding: 14px; font-size: 10.5px; line-height: 1.6; }
+  .bib pre { white-space: pre; overflow-x: auto; }
+  .bib-copy { top: 8px; right: 8px; }
+}
 .bib-copy { position: absolute; top: 14px; right: 14px; padding: 6px 14px; border-radius: 8px; background: var(--ink); color: var(--bone); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; border: none; cursor: pointer; }
 .bib-copy:hover { background: var(--rust); }
 
@@ -2062,6 +2067,8 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
 @media (max-width: 979px) {
   .hero-rig { display: block; inset: 84px 0 auto 0; height: 44vh; min-height: 300px; }
 }
+/* phones: the robot stands where the eyebrow would be; the tag line below says the same */
+@media (max-width: 700px) { .hero-eyebrow { display: none; } }
 
 /* ─── Mobile anatomy: chips left · living model right ─────────────── */
 @media (max-width: 880px) {
@@ -2114,12 +2121,15 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   .arch-fork-label { font-size: 9px; padding: 6px 0 8px; }
   .arch-branch-tag { font-size: 11px; padding-bottom: 4px; }
   .arch-branches { gap: 10px; }
-  /* pillars: 2×2, compact */
-  .contrib-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
-  .contrib-cell { padding: 13px 12px; }
+  /* pillars: one swipeable row — 2×2 left 11 px type in 150 px columns */
+  .contrib-grid { display: grid; grid-template-columns: none !important; grid-auto-flow: column;
+    grid-auto-columns: 80%; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory;
+    scrollbar-width: none; margin: 0 -16px; padding: 4px 16px 12px; scroll-padding: 0 16px; }
+  .contrib-grid::-webkit-scrollbar { display: none; }
+  .contrib-cell { padding: 14px 14px; scroll-snap-align: start; }
   .contrib-cell::before { font-size: 18px; margin-bottom: 4px; }
   .contrib-cell h3 { font-size: 14.5px; margin-bottom: 6px; }
-  .contrib-cell p { font-size: 11.5px; line-height: 1.5; }
+  .contrib-cell p { font-size: 13px; line-height: 1.5; }
   .contrib-cell:hover { transform: none; }
 }
 /* mobile: title stickers pin to the header corner — no wasted line */
@@ -2313,7 +2323,7 @@ html.js .cover-badges { opacity: 0; animation: fadeOnly 1.2s var(--ease-out) 0.9
   box-shadow: 5px 5px 0 rgba(0,0,0,0.6); }
 
 /* ─── Mobile companion: past the hero, the robot docks in the corner ── */
-@media (max-width: 979px) {
+@media (min-width: 701px) and (max-width: 979px) {
   .hero-rig.mini {
     position: fixed !important; inset: auto 8px 74px auto !important;
     width: 128px !important; height: 168px !important; min-height: 0 !important;
@@ -4105,42 +4115,43 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 
 /* ═══ Platform landscape — filterable survey ═══ */
 .pt { border: 3px solid var(--ink); border-radius: 14px; background: var(--panel);
-  box-shadow: 8px 8px 0 var(--ink); padding: clamp(16px,2.4vw,26px); }
+  box-shadow: 6px 6px 0 var(--ink); padding: clamp(12px,1.6vw,18px); }
 .dark-sec .pt { box-shadow: 8px 8px 0 rgba(0,0,0,.8); border-color: var(--gold); }
-.pt-head { margin-bottom: 12px; }
+.pt-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
 .pt-kicker { font-family: var(--font-comic); font-size: 12px; letter-spacing: .08em;
   text-transform: uppercase; color: var(--hi); }
-.pt-title { font-family: var(--font-display); font-size: clamp(24px,3.4vw,34px);
-  line-height: 1; margin: 4px 0 0; color: var(--ink); }
-.pt-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.pt-title { font-family: var(--font-display); font-size: clamp(20px,2.2vw,26px);
+  line-height: 1; margin: 0; color: var(--ink); order: -1; }
+.pt-filters { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
 .pt-chip, .pt-clear { font-family: var(--font-comic); font-size: 12px;
-  letter-spacing: .04em; padding: 6px 11px; cursor: pointer;
+  letter-spacing: .04em; padding: 3px 9px; cursor: pointer;
   border: 2px solid var(--ink); border-radius: 999px; background: var(--bone);
   color: var(--ink); transition: background .14s ease, transform .12s ease; }
 .pt-chip:hover, .pt-clear:hover { transform: translateY(-1px); background: var(--pop); }
 .pt-chip.on { background: var(--hi); color: #FFF9F0; }
 .pt-clear { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
   border-style: dashed; }
-.pt-verdict { font-size: 13.5px; line-height: 1.6; color: var(--ink-soft);
-  margin: 0 0 12px; padding: 9px 13px; border-radius: 8px;
+.pt-verdict { font-size: 12.5px; line-height: 1.45; color: var(--ink-soft);
+  margin: 0 0 8px; padding: 5px 10px; border-radius: 8px;
   background: rgba(255,206,10,.2); border-left: 4px solid var(--pop); }
 .pt-verdict b { color: var(--hi); }
 .pt-scroll { overflow-x: auto; }
 .pt-scroll.capped { overflow-y: auto; overscroll-behavior: contain; border-bottom: 3px solid var(--ink); }
 .pt-scroll.capped thead th { position: sticky; top: 0; z-index: 2; background: var(--panel); }
-.pt-table { width: 100%; border-collapse: collapse; min-width: 760px; font-size: 12.5px; }
+.pt-table { width: 100%; border-collapse: collapse; min-width: 640px; font-size: 12px; }
 .pt-table th { font-family: var(--font-mono); font-size: 9px; letter-spacing: .09em;
   text-transform: uppercase; color: var(--ash); text-align: left;
-  padding: 0 8px 7px 0; border-bottom: 3px solid var(--ink); cursor: pointer;
+  padding: 0 8px 5px 0; border-bottom: 2.5px solid var(--ink); cursor: pointer;
   white-space: nowrap; }
 .pt-table th:hover { color: var(--hi); }
 .pt-table th.sorted { color: var(--hi); }
 .pt-table th.sorted::after { content: " ▲"; font-size: 7px; }
 .pt-table th.sorted[data-dir="down"]::after { content: " ▼"; }
-.pt-table td { padding: 8px 8px 8px 0; vertical-align: top;
+.pt-table td { padding: 4px 8px 4px 0; vertical-align: middle; white-space: nowrap;
   border-bottom: 1px solid rgba(21,24,32,.11); }
 .pt-name b { display: block; font-family: var(--font-head); font-weight: 700;
-  font-size: 13.5px; color: var(--ink); }
+  font-size: 13px; color: var(--ink); }
+.pt-name .pt-sub { display: none; }
 .pt-name i { display: block; font-style: normal; font-family: var(--font-mono);
   font-size: 9.5px; color: var(--ash); line-height: 1.35; }
 .pt-name em { display: block; font-style: normal; font-family: var(--font-mono);
@@ -4155,24 +4166,25 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .pt-closed { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase;
   padding: 2px 7px; border-radius: 4px; border: 2px solid rgba(21,24,32,.3);
   color: var(--ash); }
-.pt-table tr.ours td { background: rgba(255,206,10,.2); border-top: 3px solid var(--ink);
-  border-bottom: 3px solid var(--ink); }
-.pt-table tr.ours .pt-name b { color: var(--hi); font-size: 15px; }
+.pt-table tr.ours td { background: rgba(255,206,10,.2); border-bottom: 2.5px solid var(--ink); }
+.pt-table tr.ours .pt-name b { color: var(--hi); font-size: 14px; }
 .pt-table tbody tr:hover td { background: rgba(242,201,76,.16); }
-.pt-src { font-size: 10.5px; line-height: 1.6; color: var(--ash); margin: 12px 0 0; }
+.pt-src { font-size: 10px; line-height: 1.5; color: var(--ash); margin: 8px 0 0; }
 .pt-src code { font-family: var(--font-mono); font-size: 9.5px;
   background: rgba(21,24,32,.06); padding: 1px 5px; border-radius: 4px;
   word-break: break-all; }
 .pt-err { font-family: var(--font-mono); font-size: 12px; color: var(--rust); }
-@media (max-width: 700px) {
-  .pt-name i, .pt-name em { display: none; }
-  .pt-table { min-width: 620px; font-size: 11.5px; }
-}
 
 /* ═══ Spec grid — the marketing cut of the paper's Table I ═══ */
 .sg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 @media (max-width: 900px) { .sg-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 480px) { .sg-grid { grid-template-columns: 1fr; } }
+@media (max-width: 480px) {
+  .sg-grid { gap: 9px; }
+  .sg-tile { padding: 10px 11px 11px; box-shadow: 3px 3px 0 var(--ink); border-width: 2.5px; }
+  .sg-tile b { font-size: 27px; }
+  .sg-lab { font-size: 11.5px; }
+  .sg-sub { font-size: 10.5px; line-height: 1.35; }
+}
 .sg-tile { border: 3px solid var(--ink); border-radius: 12px; background: var(--panel);
   box-shadow: 5px 5px 0 var(--ink); padding: 14px 15px 15px;
   transition: transform .16s ease, box-shadow .16s ease; }
@@ -4572,29 +4584,34 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 }
 
 /* ── the platform survey on a phone ─────────────────────────────────────
-   Eight columns want 620 px; a phone has 312. Each platform becomes a card
-   with its attributes as labelled rows — same data, read down instead of
-   across. `min-width` is what actually forces the scroll, so clear it. */
+   Still a table, just narrower: Base, Arms and Lift drop out (base + arms
+   ride under the name as a sub-line) and Platform · Hand · Neck · Cost ·
+   Open fit 358 px with no sideways scroll. Two short lines per platform. */
 @media (max-width: 720px) {
-  .pt-scroll { overflow: visible; }
-  .pt-table { min-width: 0 !important; width: 100% !important; }
-  .pt-table, .pt-table tbody, .pt-table tr, .pt-table td, .pt-table th {
-    display: block; width: auto; }
-  .pt-table thead { display: none; }
-  .pt-table tbody { display: grid; gap: 9px; }
-  .pt-table tr { border: 2.5px solid var(--ink); border-radius: 11px;
-    background: var(--panel); padding: 10px 12px 11px; }
-  .pt-table tr.ours { border-color: var(--hi); border-width: 3px;
-    box-shadow: 4px 4px 0 rgba(228,68,42,.24); }
-  .pt-table .pt-name { border: 0; padding: 0 0 7px;
-    border-bottom: 1.5px solid rgba(21,24,32,.16); margin-bottom: 6px; }
-  .pt-table td { display: flex; justify-content: space-between; gap: 12px;
-    align-items: baseline; padding: 3px 0; border: 0; text-align: right;
-    font-family: var(--font-mono); font-size: 12px; }
-  .pt-table td::before { content: attr(data-label); text-align: left;
-    font-family: var(--font-body); font-size: 12px; color: var(--ash);
-    font-weight: 500; flex: none; }
-  .pt-table .pt-name::before { content: none; }
+  .pt { padding: 10px; box-shadow: 4px 4px 0 var(--ink); border-width: 2.5px; }
+  .pt-head { margin-bottom: 6px; }
+  .pt-kicker { font-size: 10px; }
+  .pt-filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+    margin: 0 -10px 6px; padding: 0 10px 2px; }
+  .pt-filters::-webkit-scrollbar { display: none; }
+  .pt-chip, .pt-clear { flex: none; font-size: 11.5px; padding: 4px 9px; }
+  .pt-verdict { font-size: 11.5px; padding: 4px 8px; }
+  .pt-table { min-width: 0; table-layout: fixed; font-size: 11.5px; }
+  .pt-table th:nth-child(2), .pt-table td:nth-child(2),
+  .pt-table th:nth-child(3), .pt-table td:nth-child(3),
+  .pt-table th:nth-child(6), .pt-table td:nth-child(6) { display: none; }
+  .pt-table th { font-size: 8.5px; letter-spacing: .05em; padding-right: 4px; }
+  .pt-table th:nth-child(1) { width: 46%; }
+  .pt-table th:nth-child(4), .pt-table th:nth-child(5) { width: 13%; }
+  .pt-table th:nth-child(7) { width: 14%; }
+  .pt-table td { padding: 5px 4px 5px 0; }
+  .pt-name { white-space: normal; }
+  .pt-name b { font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pt-name .pt-sub { display: block; font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pt-name a { display: flex; min-width: 0; }
+  .pt-go { display: none; }
+  .pt-open, .pt-closed { font-size: 8px; padding: 1px 4px; }
+  .pt-src { font-size: 9.5px; }
 }
 /* the webcam widget's host reserves its space before the module fills it —
    otherwise the page jumps, and an empty box is also a box the
@@ -4857,8 +4874,6 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
 .rg-lead[data-chap-tone="blue"] { background: var(--blue); color: #FFF9F0; }
 .rg-no { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .14em; }
 .rg-lead h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 3.9vw, 60px); line-height: .92; letter-spacing: .01em; }
-.rg-kick { margin: 0 0 4px; font-family: var(--font-comic); font-size: clamp(14px, 1.15vw, 17px); letter-spacing: .06em; text-transform: uppercase; line-height: 1.1; }
-.rg-meta { margin: 0; font-family: var(--font-sans); font-size: 13px; line-height: 1.4; opacity: .85; }
 /* captions: a small pill inset bottom-left; speed in mono top-left */
 .rg-tag { position: absolute; left: 8px; bottom: 8px; z-index: 2; margin: 0; max-width: calc(100% - 16px);
   padding: 4px 9px; border-radius: 999px; border: 1.5px solid var(--ink);
@@ -4880,7 +4895,6 @@ html.js .rg-chap.in .rg-cell > img, html.js .rg-chap.in .rg-cell > video { trans
 html.js .rg-chap.in .rg-cell:hover > img, html.js .rg-chap.in .rg-cell:hover > video { transform: scale(1.04); transition-delay: 0s; }
 html.js .rg-chap.in .rg-lead > * { opacity: 1; transform: none; }
 html.js .rg-chap.in .rg-lead > :nth-child(2) { transition-delay: .45s; }
-html.js .rg-chap.in .rg-lead > :nth-child(3) { transition-delay: .55s; }
 /* the chapter itself must not slide (fade-up), its tiles do the moving */
 html.js .rg-chap.fade-up { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
@@ -4888,15 +4902,19 @@ html.js .rg-chap.fade-up { opacity: 1; transform: none; }
   html.js .rg-chap .rg-cell > img, html.js .rg-chap .rg-cell > video { transform: none; transition: none; }
   html.js .rg-chap .rg-lead > * { opacity: 1; transform: none; transition: none; }
 }
-/* narrow screens: rows wrap into justified lines; the title tile spans the width */
+/* phones: two-column masonry. Justified rows wrap badly at 358 px (a lone
+   tile grows to the full width), so each chapter becomes two columns of
+   full-aspect tiles under a slim title strip. The rows dissolve
+   (display: contents) into a 1 px-row grid, and mabel.js drops each tile
+   into whichever column is shorter, so the two columns end level. */
 @media (max-width: 760px) {
-  .rg-book { --rg-gap: 6px; --rh: 92px; }
-  .rg-line { flex-wrap: wrap; }
-  .rg-lead { flex: 1 1 100%; aspect-ratio: auto; contain: none; display: grid; grid-template-columns: auto 1fr;
-    grid-template-areas: "no no" "h txt"; align-items: end; gap: 6px 16px; }
-  .rg-lead .rg-no { grid-area: no; white-space: nowrap; }
-  .rg-lead h3 { grid-area: h; font-size: 40px; }
-  .rg-lead > div { grid-area: txt; }
+  .rg-book { --rg-gap: 6px; gap: 18px; }
+  .rg-chap { grid-template-columns: 1fr 1fr; grid-auto-rows: 1px; gap: 0 var(--rg-gap); }
+  .rg-line { display: contents; }
+  .rg-cell { align-self: start; }
+  .rg-lead { grid-column: 1 / -1; aspect-ratio: auto; contain: none; display: flex; flex-direction: row-reverse;
+    justify-content: space-between; align-items: baseline; padding: 10px 12px 9px; }
+  .rg-lead h3 { font-size: 30px; }
   .rg-tag { font-size: 11px; padding: 3px 8px; left: 6px; bottom: 6px; max-width: calc(100% - 12px); white-space: normal; border-radius: 10px; }
 }
 .rg-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 14px; margin-top: clamp(18px, 3vh, 28px); }

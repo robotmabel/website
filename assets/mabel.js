@@ -648,3 +648,38 @@
   if (document.readyState === 'complete') start();
   else addEventListener('load', start, { once: true });
 })();
+
+/* Shop, home, street on a phone: two-column masonry (see .rg-chap in mabel.css).
+   Each tile keeps its own aspect ratio, so its height is known from the column
+   width; walk the tiles in order and drop each into the shorter column. The
+   grid's rows are 1 px, so a placement is just a start row and a span. */
+(function () {
+  var book = document.getElementById('rgGrid');
+  if (!book) return;
+  var phone = matchMedia('(max-width: 760px)');
+  function pack() {
+    [].forEach.call(book.querySelectorAll('.rg-chap'), function (chap) {
+      var cells = [].slice.call(chap.querySelectorAll('.rg-cell'));
+      if (!phone.matches) { cells.forEach(function (c) { c.style.gridArea = ''; }); return; }
+      var gap = parseFloat(getComputedStyle(chap).columnGap) || 6;
+      var colW = (chap.clientWidth - gap) / 2, h = [1, 1];
+      cells.forEach(function (c) {
+        if (c.classList.contains('rg-lead')) {
+          c.style.gridArea = '';
+          var lh = Math.ceil(c.getBoundingClientRect().height + gap);
+          c.style.gridArea = h[0] + ' / 1 / span ' + lh + ' / -1';
+          h[0] = h[1] = h[0] + lh;
+          return;
+        }
+        var ar = parseFloat(c.style.getPropertyValue('--ar')) || 1;
+        var span = Math.round(colW / ar + gap), k = h[1] < h[0] ? 1 : 0;
+        c.style.gridArea = h[k] + ' / ' + (k + 1) + ' / span ' + span;
+        h[k] += span;
+      });
+    });
+  }
+  pack();
+  addEventListener('resize', pack);
+  if (document.fonts) document.fonts.ready.then(pack);   // the title strip's height
+})();
+
