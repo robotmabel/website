@@ -4910,10 +4910,10 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   #demo .tab-btn { text-align: center; padding-left: 4px; padding-right: 4px; }
 }
 
-/* ─── Tab reels — one sliding row of illustrated tabs per app (teleop.html, assets/tabreel.js) ───
+/* ─── Tab reels — one sliding row of annotated app screens per app (teleop.html, assets/tabreel.js) ───
    The next card always peeks in from the right so the row reads as "there's more"; the
-   chips above name every tab and jump to it. Illustrations are generated SVGs
-   (scripts/build_app_tabs.py) inlined so they set in the site's own type. */
+   chips above name every tab and jump to it. Each card is a real app screenshot with
+   numbered pins (scripts/build_app_shots.py). */
 .tabreel { position: relative; }
 .trl-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
 .trl-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; min-width: 0; }
@@ -4941,8 +4941,6 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   padding: clamp(14px, 2vw, 22px); opacity: .55; transition: opacity .3s ease; }
 .trl-card.on { opacity: 1; }
 .dark-sec .trl-card { border-color: var(--gold); box-shadow: 6px 6px 0 rgba(0,0,0,.75); }
-.trl-art { min-width: 0; }
-.trl-art svg { display: block; width: 100%; height: auto; }
 .trl-card figcaption { min-width: 0; color: var(--ink); }
 .trl-card .trl-ix { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; color: var(--rust); }
 .trl-card h4 { margin: 4px 0 6px; font-family: var(--font-head); font-weight: 800; font-size: clamp(22px, 2.3vw, 30px); letter-spacing: -0.02em; line-height: 1.05; }
@@ -4961,3 +4959,61 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   .trl-chip { flex: 0 0 auto; }
 }
 @media (prefers-reduced-motion: reduce) { .trl-card { transition: none; } }
+
+/* ─── Annotated screenshots inside the tab reels (teleop.html, scripts/build_app_shots.py) ───
+   A real app screenshot with numbered pins placed on the controls; the list beside it
+   carries the same numbers. Hovering or tapping either one lights up its partner. */
+.trl-track:has(.trl-card.shot) { align-items: flex-start; }
+/* wide screens (studio, Vision Pro): the shot takes the full card, the legend sits below it */
+.trl-card.shot { grid-template-columns: minmax(0, 1fr); align-items: start; }
+.trl-card.shot:not(.side) figcaption { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 6px clamp(16px, 2.4vw, 32px); }
+.trl-card.shot:not(.side) figcaption ol { grid-column: 2; grid-row: 1 / span 3; grid-template-columns: 1fr 1fr; gap: 8px 22px; align-content: start; }
+.trl-card.shot:not(.side) figcaption .trl-one { margin-bottom: 0; }
+.trl-card.shot.side { grid-template-columns: minmax(0, calc(64vh * var(--ar, .5))) minmax(240px, 1fr); align-items: center; }
+.trl-card.shot:not(.side) .shot-frame { max-width: calc(66vh * var(--ar, 1.6)); }
+.shot-frame { position: relative; margin: 0 auto; width: 100%; border-radius: 12px; overflow: visible; }
+.shot-frame img { display: block; width: 100%; height: auto; border-radius: inherit;
+  border: 2px solid var(--ink); background: #0d0f14; }
+.dark-sec .shot-frame img { border-color: rgba(255,255,255,.18); }
+/* phone: a dark bezel; tall shots never grow taller than the viewport */
+.shot-frame.phone img { border: 6px solid #111318; border-radius: 30px; box-shadow: 0 0 0 2px var(--ink); }
+.shot-frame.phone.land img { border-radius: 26px; }
+/* browser: a slim chrome strip above the page */
+.shot-frame.browser { border: 2px solid var(--ink); border-radius: 12px; background: #1b1e26; padding-top: 22px; }
+.shot-frame.browser::before { content: ''; position: absolute; top: 8px; left: 10px; width: 7px; height: 7px; border-radius: 50%;
+  background: #ff5f57; box-shadow: 12px 0 0 #febc2e, 24px 0 0 #28c840; }
+.shot-frame.browser img { border: 0; border-radius: 0 0 10px 10px; }
+.shot-frame.browser .shot-pins { top: 22px; }
+.shot-pins { position: absolute; inset: 0; pointer-events: none; }
+.shot-frame.phone .shot-pins { inset: 6px; }
+.shot-pin { position: absolute; transform: translate(-50%, -50%) scale(0); pointer-events: auto;
+  width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--ink); background: var(--pop); color: var(--ink);
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700; display: grid; place-items: center; padding: 0; cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.85), 2px 3px 0 3px rgba(0,0,0,.35);
+  transition: transform .35s cubic-bezier(.3,1.6,.5,1), background .15s ease; }
+.trl-card.on .shot-pin, .trl-card.no-js .shot-pin { transform: translate(-50%, -50%) scale(1); }
+.trl-card.on .shot-pin:nth-child(2) { transition-delay: .06s; } .trl-card.on .shot-pin:nth-child(3) { transition-delay: .12s; }
+.trl-card.on .shot-pin:nth-child(4) { transition-delay: .18s; } .trl-card.on .shot-pin:nth-child(5) { transition-delay: .24s; }
+.trl-card.on .shot-pin:nth-child(6) { transition-delay: .30s; }
+.shot-pin::after { content: ''; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid var(--pop); opacity: 0; }
+.shot-pin.lit { background: var(--hi); color: #FFF9F0; transform: translate(-50%, -50%) scale(1.18) !important; transition-delay: 0s !important; z-index: 2; }
+.shot-pin.lit::after { animation: pin-ring 1.1s ease-out infinite; }
+@keyframes pin-ring { from { opacity: .9; transform: scale(.7); } to { opacity: 0; transform: scale(1.5); } }
+.trl-card.shot ol li { cursor: default; border-radius: 8px; padding: 3px 4px; margin: -3px -4px; transition: background .15s ease; }
+.trl-card.shot ol li.lit { background: rgba(242, 201, 76, .32); }
+.trl-card.shot ol li.lit::before { background: var(--hi); color: #FFF9F0; }
+.trl-card.shot li::before { width: 22px; height: 22px; font-size: 11px; }
+.trl-card.shot li { grid-template-columns: 24px 1fr; }
+@media (max-width: 760px) {
+  .trl-card.shot, .trl-card.shot.side { grid-template-columns: 1fr; }
+  .trl-card.shot:not(.side) figcaption { grid-template-columns: 1fr; }
+  .trl-card.shot:not(.side) figcaption ol { grid-column: 1; grid-row: auto; grid-template-columns: 1fr; }
+  .trl-card.shot .shot-frame { max-width: min(100%, calc(60vh * var(--ar, .46))); }
+  .shot-pin { width: 20px; height: 20px; font-size: 10px; border-width: 1.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shot-pin { transition: none; } .shot-pin.lit::after { animation: none; }
+}
+.shot-frame.glass img { border-radius: 18px; }
+/* a portrait phone beside its legend needs less than a full-width card */
+.trl-card.shot.side:has(.shot-frame.phone) { flex-basis: min(86%, 760px); }

@@ -69,5 +69,22 @@
       if (e.key === 'ArrowLeft') { go(cur - 1); e.preventDefault(); }
     });
     sync();
+
+    // annotated screenshots: a pin and its numbered line light up together
+    cards.forEach(function (card) {
+      var items = [].slice.call(card.querySelectorAll('[data-n]'));
+      function light(n) {
+        items.forEach(function (el) { el.classList.toggle('lit', el.getAttribute('data-n') === n); });
+      }
+      items.forEach(function (el) {
+        var n = el.getAttribute('data-n');
+        el.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') light(n); });
+        el.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') light(null); });
+        el.addEventListener('focus', function () { if (el.matches(':focus-visible')) light(n); });
+        el.addEventListener('blur', function () { light(null); });
+        // a tap (no hover on touch) toggles the pair
+        el.addEventListener('click', function (e) { if (e.pointerType !== 'mouse') light(el.classList.contains('lit') ? null : n); });
+      });
+    });
   });
 })();

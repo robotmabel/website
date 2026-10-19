@@ -90,7 +90,7 @@ Generated, never drawn by hand, and never a screenshot of a PDF:
 * the accuracy panels → `build_accuracy.py` + `render_accuracy_clips.py`
 * the retargeting tiles → `retargeting_ablation/render_compare.py`
 * the exploded CAD → `build_exploded.py` (the paper's drawing, background cut)
-* the app-tab diagrams on teleop.html → `build_app_tabs.py`
+* the annotated app screenshots on teleop.html → `build_app_shots.py` (pins + copy in `scripts/app_shots.json`)
 
 Each writes into `assets/` and each is re-runnable. A figure that cannot be
 regenerated is a figure that will go stale silently.

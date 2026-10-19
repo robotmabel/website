@@ -1,0 +1,958 @@
+{
+ "studio": [
+  {
+   "slug": "workspace",
+   "tab": "Workspace",
+   "frame": "browser",
+   "title": "One screen, no digging",
+   "one": "The whole cockpit is one workspace around a live 3D twin, with the map, point cloud, LiDAR and cameras all in place.",
+   "alt": "Control Studio: the full workspace with the robot in a 3D point-cloud map, dock and timeline",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 40.4,
+     "y": 2.5,
+     "label": "E-STOP",
+     "what": "Torque ON wakes the robot and reveals the controls; the same button is then the hard stop."
+    },
+    {
+     "n": 2,
+     "x": 53.4,
+     "y": 2.5,
+     "label": "Stiff | Soft",
+     "what": "Stiff tracks your commands; Soft lets the arms yield to a push."
+    },
+    {
+     "n": 3,
+     "x": 73.1,
+     "y": 2.5,
+     "label": "Record",
+     "what": "Records the session as a training episode for the current task."
+    },
+    {
+     "n": 4,
+     "x": 32.9,
+     "y": 7.3,
+     "label": "Drive · Task · Joint",
+     "what": "Picks what the controls move; 3rd | 1st swaps the camera."
+    },
+    {
+     "n": 5,
+     "x": 3.8,
+     "y": 30.0,
+     "label": "View rail",
+     "what": "Toggles map, point cloud, LiDAR, camera frusta, TF and paths."
+    },
+    {
+     "n": 6,
+     "x": 13.9,
+     "y": 68.6,
+     "label": "Cameras",
+     "what": "Head, front-base and both wrist cameras, live."
+    },
+    {
+     "n": 7,
+     "x": 82.0,
+     "y": 7.2,
+     "label": "Dock",
+     "what": "Status, Data, Skills: health, every joint, episodes, saved skills."
+    },
+    {
+     "n": 8,
+     "x": 2.0,
+     "y": 79.4,
+     "label": "Choreography",
+     "what": "Line up nav, policies, animations and poses; Preview in physics, then Execute."
+    }
+   ]
+  },
+  {
+   "slug": "drive",
+   "tab": "Drive",
+   "frame": "browser",
+   "title": "Fly it from its eyes",
+   "one": "First person from the head camera, with the twin tucked in a corner. Keyboard or on-screen sticks.",
+   "alt": "Control Studio in Drive mode, first person from the robot's head camera with two virtual sticks",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 32.9,
+     "y": 7.3,
+     "label": "Drive",
+     "what": "The sticks and keys move the swerve base and the lift."
+    },
+    {
+     "n": 2,
+     "x": 43.1,
+     "y": 7.3,
+     "label": "3rd | 1st",
+     "what": "1st puts you behind the head camera; 3rd flies back out to the twin."
+    },
+    {
+     "n": 3,
+     "x": 7.4,
+     "y": 47.3,
+     "label": "TRANSLATE",
+     "what": "Slides the base forward, back and sideways at once."
+    },
+    {
+     "n": 4,
+     "x": 73.1,
+     "y": 47.3,
+     "label": "ROTATE · LIFT",
+     "what": "Turns on the spot and raises or lowers the whole body."
+    },
+    {
+     "n": 5,
+     "x": 27.1,
+     "y": 60.3,
+     "label": "Keyboard",
+     "what": "WASD drive, Q/E turn, R/F lift; click the floor to set a nav goal."
+    },
+    {
+     "n": 6,
+     "x": 65.1,
+     "y": 9.8,
+     "label": "3D inset",
+     "what": "The twin keeps showing where the body is while you look through its eyes."
+    }
+   ]
+  },
+  {
+   "slug": "task",
+   "tab": "Task",
+   "frame": "browser",
+   "title": "Say where the hand goes",
+   "one": "Drag a target; the planner previews the arm on the twin, and nothing moves until you press Execute.",
+   "alt": "Control Studio in Task mode: a green wrist target beside the robot's hand and a wrist plan ready to execute",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 19.6,
+     "y": 30.5,
+     "label": "Wrist target",
+     "what": "Drag the green ball; IK poses a preview on the twin, not the robot."
+    },
+    {
+     "n": 2,
+     "x": 32.3,
+     "y": 57.0,
+     "label": "Wrist plan · Execute",
+     "what": "Runs the previewed plan as a speed-capped, collision-checked move."
+    },
+    {
+     "n": 3,
+     "x": 45.9,
+     "y": 14.8,
+     "label": "IK reach",
+     "what": "How much body the solver may use: arm, upper body, or whole body with the base."
+    },
+    {
+     "n": 4,
+     "x": 29.3,
+     "y": 11.7,
+     "label": "Webcam Teleop",
+     "what": "Your own arms, tracked by any laptop camera, drive the robot's wrists."
+    },
+    {
+     "n": 5,
+     "x": 7.4,
+     "y": 47.3,
+     "label": "Wrist sticks",
+     "what": "Nudge each hand in the plane; ▲ ▼ raise and lower it."
+    }
+   ]
+  },
+  {
+   "slug": "dock",
+   "tab": "Dock",
+   "frame": "panel",
+   "title": "Every joint, at a glance",
+   "one": "The right-hand dock: robot health on top, then all 59 joints and their history.",
+   "alt": "Control Studio status dock: link, latency, battery and torque tiles, hardware chips, joint bars and trends",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 3.0,
+     "y": 3.2,
+     "label": "Status · Data · Skills",
+     "what": "Live health, recorded episodes, and the saved skill library."
+    },
+    {
+     "n": 2,
+     "x": 3.7,
+     "y": 12.6,
+     "label": "Health tiles",
+     "what": "Link, round-trip latency, battery and torque, readable from across the room."
+    },
+    {
+     "n": 3,
+     "x": 5.0,
+     "y": 30.7,
+     "label": "Hardware",
+     "what": "One chip per module; green while it reports."
+    },
+    {
+     "n": 4,
+     "x": 7.7,
+     "y": 45.7,
+     "label": "Joint state · 59 DOF",
+     "what": "Current against target for every joint, coloured by motor temperature."
+    },
+    {
+     "n": 5,
+     "x": 7.7,
+     "y": 73.1,
+     "label": "Trends",
+     "what": "Rolling joint history per module, position, velocity or torque."
+    }
+   ]
+  },
+  {
+   "slug": "windows",
+   "tab": "Windows",
+   "frame": "browser",
+   "title": "Pop out what you need",
+   "one": "+ Window floats extra views over the twin; drag and resize them anywhere.",
+   "alt": "Control Studio with floating MuJoCo viewer, joint history and TF tree windows and the + Window menu open",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 85.7,
+     "y": 2.5,
+     "label": "+ Window",
+     "what": "Opens the menu of extra views."
+    },
+    {
+     "n": 2,
+     "x": 78.0,
+     "y": 6.2,
+     "label": "View menu",
+     "what": "MuJoCo mirror, any camera, joint history, a 2D occupancy map, the TF tree."
+    },
+    {
+     "n": 3,
+     "x": 3.2,
+     "y": 8.0,
+     "label": "MuJoCo viewer",
+     "what": "A live render of the physics twin, with its own camera."
+    },
+    {
+     "n": 4,
+     "x": 33.2,
+     "y": 8.0,
+     "label": "Joint history",
+     "what": "Per-module graphs over a rolling window of up to five minutes."
+    },
+    {
+     "n": 5,
+     "x": 33.4,
+     "y": 30.4,
+     "label": "TF tree",
+     "what": "Every frame of the robot with its live position."
+    }
+   ]
+  }
+ ],
+ "vp": [
+  {
+   "slug": "robot",
+   "tab": "Robot",
+   "frame": "glass",
+   "title": "The twin, in your room",
+   "one": "The Robot tab is one glass window: the live twin standing in its map, with the drive pad hanging underneath.",
+   "alt": "Vision Pro Robot tab: the 3D twin in a map floating in a living room, drive pad below",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 72.2,
+     "y": 3.8,
+     "label": "Status bar",
+     "what": "Link, latency, Reset, World, Home and the E-STOP, on every tab."
+    },
+    {
+     "n": 2,
+     "x": 41.0,
+     "y": 9.1,
+     "label": "Drive · Joint · Task",
+     "what": "What your controls move; 3rd | 1st flies the camera into its head."
+    },
+    {
+     "n": 3,
+     "x": 11.9,
+     "y": 9.1,
+     "label": "Map · Record",
+     "what": "Live SLAM or a saved map; Record saves the session as an episode."
+    },
+    {
+     "n": 4,
+     "x": 9.4,
+     "y": 27.2,
+     "label": "View tools",
+     "what": "Center, Fit, Follow and Layers for the 3D view."
+    },
+    {
+     "n": 5,
+     "x": 2.8,
+     "y": 34.0,
+     "label": "Tabs",
+     "what": "Robot, Autonomy, Settings, on a glass rail."
+    },
+    {
+     "n": 6,
+     "x": 95.4,
+     "y": 36.2,
+     "label": "Cams · Joints · Trends",
+     "what": "Each opens as its own window you can place anywhere."
+    },
+    {
+     "n": 7,
+     "x": 54.5,
+     "y": 50.0,
+     "label": "The twin",
+     "what": "Orbit it with a pinch; look at the floor and pinch to send it there."
+    },
+    {
+     "n": 8,
+     "x": 36.9,
+     "y": 77.8,
+     "label": "Drive pad",
+     "what": "Translate stick, spring-loaded lift and rotate."
+    }
+   ]
+  },
+  {
+   "slug": "immersive",
+   "tab": "Immersive",
+   "frame": "glass",
+   "title": "Step in: your hands are its hands",
+   "one": "Full immersion puts you behind its eyes and maps your arms, torso and fingers onto its own.",
+   "alt": "Vision Pro full immersion: wrist-camera panels, drive pad, a mini robot and the teleop control deck",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 3.0,
+     "y": 26.0,
+     "label": "Wrist cameras",
+     "what": "Both wrist views float beside you, locked to your head."
+    },
+    {
+     "n": 2,
+     "x": 43.5,
+     "y": 33.5,
+     "label": "Head view",
+     "what": "The robot’s stereo head camera fills the centre at true scale (no video in the simulator)."
+    },
+    {
+     "n": 3,
+     "x": 36.5,
+     "y": 68.0,
+     "label": "Drive pad",
+     "what": "Reposition the base and lift without leaving its view."
+    },
+    {
+     "n": 4,
+     "x": 77.2,
+     "y": 62.0,
+     "label": "Mini robot",
+     "what": "A live model, so you can watch your body being mirrored."
+    },
+    {
+     "n": 5,
+     "x": 22.5,
+     "y": 96.6,
+     "label": "Start Teleop",
+     "what": "Your hands start driving its arms; pinch to grip."
+    },
+    {
+     "n": 6,
+     "x": 35.0,
+     "y": 96.6,
+     "label": "Upper | Whole body",
+     "what": "Arms and torso only, or the base and lift follow you too."
+    },
+    {
+     "n": 7,
+     "x": 50.4,
+     "y": 96.6,
+     "label": "Neck · Torso · Re-anchor",
+     "what": "Freeze or free the neck and torso; re-centre forward."
+    },
+    {
+     "n": 8,
+     "x": 80.6,
+     "y": 4.3,
+     "label": "E-STOP",
+     "what": "Always one glance up."
+    }
+   ]
+  },
+  {
+   "slug": "windows",
+   "tab": "Windows",
+   "frame": "glass",
+   "title": "Spread the data around you",
+   "one": "Any panel leaves the main window and floats where you want it. Four of them, side by side.",
+   "alt": "Four Vision Pro pop-out windows: cameras and LiDAR, joint bars, time series and a 2D occupancy map",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 2.0,
+     "y": 4.9,
+     "label": "Cameras & sensors",
+     "what": "The head camera large, wrist and base cameras below."
+    },
+    {
+     "n": 2,
+     "x": 37.2,
+     "y": 38.8,
+     "label": "LiDAR",
+     "what": "The planar sweep around the robot, live even when the cameras idle."
+    },
+    {
+     "n": 3,
+     "x": 51.6,
+     "y": 11.6,
+     "label": "Joint bars",
+     "what": "Pick a module and read every joint at once."
+    },
+    {
+     "n": 4,
+     "x": 84.0,
+     "y": 11.6,
+     "label": "Pos · Vel · Torque",
+     "what": "Switch what the bars show."
+    },
+    {
+     "n": 5,
+     "x": 2.4,
+     "y": 52.1,
+     "label": "Time series",
+     "what": "Two rolling minutes of position, velocity and torque."
+    },
+    {
+     "n": 6,
+     "x": 69.2,
+     "y": 53.5,
+     "label": "2D map",
+     "what": "Top-down occupancy with the robot’s pose."
+    }
+   ]
+  },
+  {
+   "slug": "autonomy",
+   "tab": "Autonomy",
+   "frame": "glass",
+   "title": "Compose a routine like a video",
+   "one": "Clips on lanes, previewed on the twin before anything moves. Hub holds the assistant, automations and skills.",
+   "alt": "Vision Pro Autonomy tab: a 3D preview of the robot above a timeline of navigation, manipulation and voice clips",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 38.2,
+     "y": 12.9,
+     "label": "Compose | Hub",
+     "what": "The timeline editor, or the assistant, schedules and skills."
+    },
+    {
+     "n": 2,
+     "x": 9.0,
+     "y": 17.9,
+     "label": "Routine",
+     "what": "Open, rename or start a routine."
+    },
+    {
+     "n": 3,
+     "x": 91.5,
+     "y": 17.9,
+     "label": "Execute",
+     "what": "Runs the timeline on the robot."
+    },
+    {
+     "n": 4,
+     "x": 55.0,
+     "y": 30.0,
+     "label": "3D preview",
+     "what": "The twin posed at the playhead."
+    },
+    {
+     "n": 5,
+     "x": 45.4,
+     "y": 64.1,
+     "label": "Transport",
+     "what": "Play it on the twin only."
+    },
+    {
+     "n": 6,
+     "x": 8.3,
+     "y": 71.6,
+     "label": "Library",
+     "what": "Motions, poses, policies and nav moves to drop in."
+    },
+    {
+     "n": 7,
+     "x": 8.0,
+     "y": 79.5,
+     "label": "Lanes",
+     "what": "NAV, MANIP and VOICE run side by side."
+    },
+    {
+     "n": 8,
+     "x": 12.9,
+     "y": 85.9,
+     "label": "Clips",
+     "what": "Drag, trim and stack; blends are added so no joint jumps."
+    }
+   ]
+  },
+  {
+   "slug": "settings",
+   "tab": "Settings",
+   "frame": "glass",
+   "title": "Plus your body",
+   "one": "Connection, safety and limits, plus one card the phone does not need: calibration.",
+   "alt": "Vision Pro Settings: status, robots, assistant, data collection, permissions, calibration profiles and speed cap",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 9.8,
+     "y": 21.6,
+     "label": "Status",
+     "what": "Connection, latency, control mode, tracking, e-stop."
+    },
+    {
+     "n": 2,
+     "x": 9.8,
+     "y": 49.1,
+     "label": "Robots",
+     "what": "Everything found on Wi-Fi, Bluetooth or the relay (names hidden here)."
+    },
+    {
+     "n": 3,
+     "x": 39.6,
+     "y": 21.6,
+     "label": "Assistant",
+     "what": "Your own API key, kept in the headset’s Keychain."
+    },
+    {
+     "n": 4,
+     "x": 39.6,
+     "y": 44.1,
+     "label": "Data collection",
+     "what": "Episodes and tasks recorded so far."
+    },
+    {
+     "n": 5,
+     "x": 39.6,
+     "y": 62.1,
+     "label": "Permissions",
+     "what": "Network, hand tracking, world sensing."
+    },
+    {
+     "n": 6,
+     "x": 69.5,
+     "y": 21.6,
+     "label": "Calibration profiles",
+     "what": "One arms-forward pose scales its reach to yours; saved per pilot."
+    },
+    {
+     "n": 7,
+     "x": 69.5,
+     "y": 42.8,
+     "label": "Speed cap",
+     "what": "The default top speed of the base."
+    }
+   ]
+  }
+ ],
+ "ios": [
+  {
+   "slug": "robot",
+   "tab": "Robot",
+   "frame": "phone",
+   "title": "The twin is the map",
+   "one": "One full-screen 3D twin is both the live map and the controller.",
+   "alt": "iPhone Robot tab: the 3D twin on a grid with Start Teleop above and the tab bar below",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 9.6,
+     "y": 9.4,
+     "label": "Robot",
+     "what": "Pick which robot to drive: the twin or the real one."
+    },
+    {
+     "n": 2,
+     "x": 27.4,
+     "y": 9.4,
+     "label": "Connection",
+     "what": "Wi-Fi, Bluetooth, relay or on-device demo; switch in one tap."
+    },
+    {
+     "n": 3,
+     "x": 91.8,
+     "y": 9.4,
+     "label": "E-STOP",
+     "what": "Cuts torque at once; tap again for Torque ON."
+    },
+    {
+     "n": 4,
+     "x": 32.5,
+     "y": 14.5,
+     "label": "Start Teleop",
+     "what": "Nothing moves until you press it."
+    },
+    {
+     "n": 5,
+     "x": 50.0,
+     "y": 50.0,
+     "label": "The twin",
+     "what": "Its live pose in the map; tap the floor to send it there."
+    },
+    {
+     "n": 6,
+     "x": 41.5,
+     "y": 81.7,
+     "label": "3rd | 1st",
+     "what": "Flies the camera into its head and the live video takes over."
+    },
+    {
+     "n": 7,
+     "x": 69.8,
+     "y": 86.6,
+     "label": "Console",
+     "what": "Pulls up voice, layers, cameras and telemetry."
+    },
+    {
+     "n": 8,
+     "x": 50.0,
+     "y": 95.2,
+     "label": "Tabs",
+     "what": "Robot, Autonomy, Settings."
+    }
+   ]
+  },
+  {
+   "slug": "drive",
+   "tab": "Drive",
+   "frame": "phone land",
+   "title": "Drive from your thumbs",
+   "one": "Turn the phone sideways and the controls spread out. Portrait works too.",
+   "alt": "iPhone landscape Drive mode: translate stick, lift slider and rotate control around the 3D twin",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 19.9,
+     "y": 50.5,
+     "label": "TRANSLATE",
+     "what": "Slides the base any direction on its swerve wheels."
+    },
+    {
+     "n": 2,
+     "x": 52.9,
+     "y": 62.0,
+     "label": "LIFT",
+     "what": "Spring-loaded: hold to raise or lower; the fill shows the height."
+    },
+    {
+     "n": 3,
+     "x": 73.9,
+     "y": 68.3,
+     "label": "ROTATE",
+     "what": "Turns on the spot, kept apart so turning never moves the lift."
+    },
+    {
+     "n": 4,
+     "x": 15.0,
+     "y": 16.1,
+     "label": "Drive · Joint · Task",
+     "what": "What your thumbs move."
+    },
+    {
+     "n": 5,
+     "x": 42.5,
+     "y": 16.1,
+     "label": "Stop Teleop",
+     "what": "Stops and zeroes the base."
+    },
+    {
+     "n": 6,
+     "x": 80.0,
+     "y": 5.0,
+     "label": "E-STOP",
+     "what": "Always top-right."
+    },
+    {
+     "n": 7,
+     "x": 53.2,
+     "y": 86.7,
+     "label": "3rd | 1st",
+     "what": "Drive from behind it or through its eyes."
+    }
+   ]
+  },
+  {
+   "slug": "joint",
+   "tab": "Joint",
+   "frame": "phone",
+   "title": "Pose it joint by joint",
+   "one": "Pick a body part, then set each joint with a slider.",
+   "alt": "iPhone Joint mode: a module rail on the left and left-arm joint sliders",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 7.9,
+     "y": 29.8,
+     "label": "Module rail",
+     "what": "Left or right arm, neck, hands, lift, torso."
+    },
+    {
+     "n": 2,
+     "x": 26.1,
+     "y": 59.9,
+     "label": "Joint sliders",
+     "what": "One per joint, in degrees."
+    },
+    {
+     "n": 3,
+     "x": 17.2,
+     "y": 14.5,
+     "label": "Joint",
+     "what": "The active control space."
+    },
+    {
+     "n": 4,
+     "x": 91.5,
+     "y": 14.5,
+     "label": "Tuning",
+     "what": "Stiff or soft arms, gravity compensation."
+    }
+   ]
+  },
+  {
+   "slug": "task",
+   "tab": "Task",
+   "frame": "phone",
+   "title": "Point where the hand goes",
+   "one": "Drag a target; the planner solves the rest of the body.",
+   "alt": "iPhone Task mode: green wrist targets on the twin with grip sliders on each side",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 40.2,
+     "y": 62.0,
+     "label": "Wrist target",
+     "what": "Drag the green ball, then Execute the plan."
+    },
+    {
+     "n": 2,
+     "x": 7.9,
+     "y": 29.9,
+     "label": "Arm · Upper · Whole",
+     "what": "How much body the planner may use: arms, plus torso, plus the base."
+    },
+    {
+     "n": 3,
+     "x": 7.8,
+     "y": 79.5,
+     "label": "L grip",
+     "what": "Opens and closes the left hand."
+    },
+    {
+     "n": 4,
+     "x": 92.3,
+     "y": 79.5,
+     "label": "R grip",
+     "what": "And the right."
+    }
+   ]
+  },
+  {
+   "slug": "console",
+   "tab": "Console",
+   "frame": "phone",
+   "title": "Everything else, one swipe up",
+   "one": "A glass sheet over the live twin, so the map never goes away.",
+   "alt": "iPhone console sheet: voice, layer toggles, camera projections and point-cloud density",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 29.3,
+     "y": 41.9,
+     "label": "Voice",
+     "what": "Talk through the robot, or listen; the scope shows both levels."
+    },
+    {
+     "n": 2,
+     "x": 50.0,
+     "y": 53.5,
+     "label": "Layers",
+     "what": "Mesh, 2D map, point cloud, LiDAR, cameras, grid, minimap, TF."
+    },
+    {
+     "n": 3,
+     "x": 17.0,
+     "y": 69.8,
+     "label": "Cam 3D",
+     "what": "Which camera feeds are projected into the 3D scene."
+    },
+    {
+     "n": 4,
+     "x": 20.9,
+     "y": 88.5,
+     "label": "Projection size",
+     "what": "How large each camera image hangs in 3D."
+    },
+    {
+     "n": 5,
+     "x": 32.6,
+     "y": 97.2,
+     "label": "Cloud density",
+     "what": "Thin the point cloud for speed."
+    }
+   ]
+  },
+  {
+   "slug": "compose",
+   "tab": "Compose",
+   "frame": "phone",
+   "title": "Edit a routine like a video",
+   "one": "Clips on lanes, previewed on the twin, then run on the robot.",
+   "alt": "iPhone Autonomy Compose: 3D preview above a timeline of navigation, manipulation and voice clips",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 13.9,
+     "y": 18.9,
+     "label": "Routine",
+     "what": "Open, rename or save one."
+    },
+    {
+     "n": 2,
+     "x": 68.9,
+     "y": 18.9,
+     "label": "Auto-blend",
+     "what": "Adds eased blends so no clip boundary makes it jump."
+    },
+    {
+     "n": 3,
+     "x": 85.7,
+     "y": 18.9,
+     "label": "Execute",
+     "what": "Runs it on the robot after a confirm."
+    },
+    {
+     "n": 4,
+     "x": 37.9,
+     "y": 55.3,
+     "label": "Preview",
+     "what": "Plays on the 3D model only."
+    },
+    {
+     "n": 5,
+     "x": 12.2,
+     "y": 62.7,
+     "label": "Library",
+     "what": "Animations, poses, policies, nav moves."
+    },
+    {
+     "n": 6,
+     "x": 59.8,
+     "y": 77.0,
+     "label": "Lanes",
+     "what": "NAV, MANIP, VOICE; higher rows win."
+    }
+   ]
+  },
+  {
+   "slug": "hub",
+   "tab": "Hub",
+   "frame": "phone",
+   "title": "Or just ask it",
+   "one": "The assistant, one-tap routines, and a weekly schedule.",
+   "alt": "iPhone Autonomy Hub: assistant chat, robot control buttons and an automations week grid",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 45.1,
+     "y": 32.4,
+     "label": "Assistant",
+     "what": "Tell it what to do in plain words."
+    },
+    {
+     "n": 2,
+     "x": 35.9,
+     "y": 40.6,
+     "label": "Quick prompts",
+     "what": "One tap: relax, go charge, battery."
+    },
+    {
+     "n": 3,
+     "x": 87.2,
+     "y": 46.1,
+     "label": "Voice",
+     "what": "Speak instead of typing."
+    },
+    {
+     "n": 4,
+     "x": 50.0,
+     "y": 61.3,
+     "label": "Robot control",
+     "what": "Dock, go home, sleep, security, speak through it."
+    },
+    {
+     "n": 5,
+     "x": 55.4,
+     "y": 86.0,
+     "label": "Automations",
+     "what": "Routines it runs on its own, by the week."
+    }
+   ]
+  },
+  {
+   "slug": "settings",
+   "tab": "Settings",
+   "frame": "phone",
+   "title": "The boring, important bit",
+   "one": "Connection, safety and limits, one card each.",
+   "alt": "iPhone Settings: status card and robots list, with robot names hidden",
+   "hotspots": [
+    {
+     "n": 1,
+     "x": 50.0,
+     "y": 29.2,
+     "label": "Status",
+     "what": "Connection, latency, control mode, e-stop."
+    },
+    {
+     "n": 2,
+     "x": 82.3,
+     "y": 14.6,
+     "label": "Demo Mode",
+     "what": "No robot near? The app runs its own simulator."
+    },
+    {
+     "n": 3,
+     "x": 22.0,
+     "y": 78.8,
+     "label": "Robots",
+     "what": "Found on Wi-Fi, Bluetooth or the relay (names hidden here)."
+    },
+    {
+     "n": 4,
+     "x": 84.2,
+     "y": 83.7,
+     "label": "Auto-connect",
+     "what": "Reconnects to the best robot on launch."
+    },
+    {
+     "n": 5,
+     "x": 18.3,
+     "y": 90.5,
+     "label": "Bluetooth",
+     "what": "Drive with no network at all."
+    }
+   ]
+  }
+ ]
+}

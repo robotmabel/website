@@ -148,7 +148,7 @@ page from the same localStorage the order page writes.
 | `assets/accuracy/*` | `scripts/render_accuracy_clips.py` |
 | `assets/retarget/*` | `controller/experiments/retargeting_ablation/render_compare.py` |
 | `assets/data/platforms.json` | `scripts/build_platforms.py` |
-| `assets/apptabs/*.svg` | `scripts/build_app_tabs.py` (diagrams of the iPhone, Vision Pro and Control Studio tabs on teleop.html — redraw when an app's layout changes; no hosts, IPs or robot names) |
+| `assets/appshots/*.jpg` + the reel cards in teleop.html | `scripts/build_app_shots.py --src <png dir>` from `scripts/app_shots.json` (real iPhone, Vision Pro and Control Studio screenshots with numbered pins on each control — re-shoot when an app's layout changes; no hosts, IPs, ports or robot host names in a shot) |
 | `assets/data/harness.json` | `scripts/build_harness.py` (from `claude_harness/data/commands.yaml`) |
 | `assets/data/order.json` | the private catalog generator, from the published BOM |
 | `assets/hw/exploded.{png,webp}` | `scripts/build_exploded.py` |
