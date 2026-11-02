@@ -55,13 +55,29 @@ async def main():
         await cmd('Page.navigate',dict(url=BASE+'/index.html'))
         await until('!!window.__platformTable && !!window.__specGrid')
         await ev("document.documentElement.style.scrollBehavior='auto'")
-        titles=await ev("[...document.querySelectorAll('h2')].map(e=>e.textContent.trim())")
+        titles=await ev("[...document.querySelectorAll('section h2.title')].map(e=>e.textContent.trim())")
         assert titles==['1. Abstract','2. Real robot photos','3. State-of-the-art robots','4. Hardware design','5. Teleoperation','6. Simulation','7. Control, retargeting and motion model','8. Learning and architecture'],titles
         assert not [u for u in requests if '/platforms/' in u], 'Preview media loaded before interaction'
         assert await ev("document.querySelectorAll('.sg-sub').length===0")
         specs=await ev("[...document.querySelectorAll('.sg-tile b')].map(e=>e.textContent.replace(/\\s/g,''))")
         assert specs==['56','17×2','2.23m','≈3.5kg','$8,056','150ms','61.8kg','0.635m'],specs
         print('Section order, paper values and deferred previews: PASS',flush=True)
+        # Full abstract stays visible, and the popup video waits for a real user click.
+        assert await ev("!document.querySelector('#story details')&&document.querySelector('.ov-full-abstract').textContent.includes('56 degrees of freedom (DOF)')")
+        assert not any('/submission-final-v3.mp4' in u for u in requests), 'Submission downloaded before Play'
+        pt=await point("document.querySelector('[data-submission-play]')")
+        await cmd('Input.dispatchMouseEvent',dict(type='mousePressed',button='left',clickCount=1,**pt))
+        await cmd('Input.dispatchMouseEvent',dict(type='mouseReleased',button='left',clickCount=1,**pt))
+        await until("document.querySelector('#submissionDialog').open&&document.querySelector('#submissionDialog video').currentTime>.1")
+        assert await ev("!document.querySelector('#submissionDialog video').muted&&document.querySelector('#submissionDialog video').controls")
+        await cmd('Input.dispatchKeyEvent',dict(type='keyDown',key='Escape',code='Escape'))
+        await until("!document.querySelector('#submissionDialog').open")
+        assert await ev("document.querySelector('#submissionDialog video').paused&&!document.querySelector('#submissionDialog video').getAttribute('src')")
+        await ev("scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'})")
+        await asyncio.sleep(.3)
+        assert await ev("document.querySelector('#pageProgress').value==='100%'"), await ev("[scrollY,innerHeight,document.documentElement.scrollHeight,document.querySelector('#pageProgress').value]")
+        assert await ev("document.querySelector('.ov-scroll-rail a[aria-current]').hash==='#cite'")
+        print('Full paper abstract, video popup with sound/Escape, and reading progress: PASS',flush=True)
         data=await ev('window.__platformTable.data.platforms')
         assert len(data)==22 and all(r.get('preview') for r in data)
         posters=await ev("Promise.all(window.__platformTable.data.platforms.map(async r=>{try{let response=await fetch(r.preview.poster);if(!response.ok)return false;let bitmap=await createImageBitmap(await response.blob());let ok=bitmap.width>0&&bitmap.height>0;bitmap.close();return ok}catch(e){return false}}))")
@@ -87,12 +103,16 @@ async def main():
         await mouse(dict(x=5,y=5));await asyncio.sleep(.3)
         assert await ev('document.querySelector(".pt-preview-card").hidden&&testPreview.paused'), 'Mouse leave did not stop preview'
         print('Hover playback, repeat boundary, mouse leave and Escape: PASS',flush=True)
-        # Gallery and learning controls expose details without growing the whole page.
-        await ev("document.querySelector('[data-photo=home]').click()")
-        assert await ev("!document.querySelector('#photos-home').hidden&&document.querySelector('#photos-shop').hidden")
+        # Restore all original photo chapters and their varied-aspect mosaic.
+        assert await ev("document.querySelectorAll('#rgGrid .rg-chap:not([hidden])').length===3&&document.querySelectorAll('.rg-lead').length===3")
+        assert await ev("getComputedStyle(document.querySelector('.rg-line')).display==='flex'")
+        assert await ev("document.querySelectorAll('h2 .sticker').length===8&&document.querySelectorAll('.contrib-cell[data-pop]').length===3")
+        await until("document.querySelector('#heroRig').classList.contains('on')",30)
+        assert await ev("document.querySelector('#heroRigCanvas').width>0")
+        print('Original hero model, NYC stickers, comic cards and full photo mosaic: PASS',flush=True)
         await ev("document.querySelector('[data-learn=train]').click()")
         assert await ev("document.querySelector('#learningDetail').textContent.includes('120')")
-        await ev("document.querySelector('#loadXray').click()")
+        await ev("document.querySelector('#anat3d').scrollIntoView({block:'center',behavior:'instant'})")
         await until("document.querySelector('#anat3d').classList.contains('loaded')",30)
         await ev("document.querySelector('[data-module=arms]').click()")
         assert await ev("document.querySelector('[data-module=arms]').classList.contains('on')")

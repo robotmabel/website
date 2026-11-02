@@ -126,7 +126,7 @@ function init() {
     const h = sz.y || 1;
     const tanV = Math.tan((camera.fov / 2) * Math.PI / 180);
     const tanH = tanV * camera.aspect;
-    const portrait = camera.aspect < 0.95;      // phone hero: centred, tighter
+    const portrait = window.innerWidth < 980 || camera.aspect < 0.95;      // phone hero: centred, tighter
     const span = h * (portrait ? 0.95 : 1.2);
     const dist = Math.max((h * 0.64) / tanV, (span * 0.62) / tanH);
     const panWorld = portrait ? 0 : 0.46 * tanH * dist;
@@ -793,9 +793,11 @@ function init() {
   new IntersectionObserver((es) => { es.forEach((e) => { visible = e.isIntersecting; }); })
     .observe(box);
 
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const t0 = performance.now();
   renderer.setAnimationLoop(() => {
     if (!root || !visible) return;
+    if (reducedMotion.matches) { renderer.render(scene, camera); return; }
     const t = (performance.now() - t0) / 1000;
     const idleFor = (performance.now() - lastMove) / 1000;
 

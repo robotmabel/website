@@ -1,16 +1,39 @@
 /* Overview interactions keep the summaries short and the evidence inspectable. */
 (function () {
   'use strict';
-  document.querySelectorAll('[data-photo]').forEach(function (button) {
-    button.addEventListener('click', function () {
-      document.querySelectorAll('[data-photo]').forEach(function (b) {
-        b.setAttribute('aria-pressed', String(b === button));
-      });
-      document.querySelectorAll('#robotPhotos .rg-chap').forEach(function (chapter) {
-        chapter.hidden = chapter.dataset.chap !== button.dataset.photo;
-      });
-    });
-  });
+  // Original cursor-following cover model, deferred until the page has settled.
+  if (document.getElementById('heroRig')) {
+    var loadHero = function () { var script=document.createElement('script');script.type='module';script.src='assets/hero-rig.js?v=cover-frame-2';document.body.appendChild(script); };
+    var idle = function () { if(window.requestIdleCallback) requestIdleCallback(loadHero,{timeout:2500});else setTimeout(loadHero,400); };
+    if(document.readyState==='complete') idle();else addEventListener('load',idle,{once:true});
+  }
+  var submission=document.getElementById('submissionDialog');
+  if(submission) {
+    var film=submission.querySelector('video'),opener=null;
+    document.querySelectorAll('[data-submission-play]').forEach(function(button){button.addEventListener('click',function(){
+      opener=button;
+      // Pause the surrounding silent loops while the full film plays with narration.
+      document.querySelectorAll('video').forEach(function(video){if(video!==film && !video.paused){video.dataset.modalPaused='true';video.pause();}});
+      if(!film.getAttribute('src')) film.src=film.dataset.src;
+      submission.showModal();document.body.classList.add('pop-locked');
+      var play=film.play();if(play)play.catch(function(){});
+    });});
+    submission.querySelector('.film-close').addEventListener('click',function(){submission.close();});
+    submission.addEventListener('click',function(event){if(event.target===submission){var r=submission.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)submission.close();}});
+    submission.addEventListener('keydown',function(event){if(event.key==='Escape'){event.preventDefault();submission.close();}});
+    submission.addEventListener('close',function(){film.pause();film.removeAttribute('src');film.load();document.body.classList.remove('pop-locked');document.querySelectorAll('video[data-modal-paused]').forEach(function(video){delete video.dataset.modalPaused;if(!matchMedia('(prefers-reduced-motion: reduce)').matches){var r=video.getBoundingClientRect();if(r.bottom>0&&r.top<innerHeight)video.play().catch(function(){});}});if(opener)opener.focus({preventScroll:true});});
+  }
+  var rail=document.querySelector('.ov-scroll-rail');
+  if(rail){
+    var dots=Array.from(rail.querySelectorAll('a')),progress=document.getElementById('pageProgress'),scheduled=false;
+    function updateProgress(){scheduled=false;var total=document.documentElement.scrollHeight-innerHeight;var fraction=total>0?Math.min(1,Math.max(0,scrollY/total)):1;progress.value=Math.round(fraction*100)+'%';var current=0;
+      dots.forEach(function(dot,i){var section=document.querySelector(dot.hash);if(section&&section.getBoundingClientRect().top<innerHeight*.4)current=i;});
+      if(fraction>.995)current=dots.length-1;
+      dots.forEach(function(dot,i){dot.classList.toggle('passed',i<current);if(i===current)dot.setAttribute('aria-current','location');else dot.removeAttribute('aria-current');});
+    }
+    function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(updateProgress);}}
+    addEventListener('scroll',schedule,{passive:true});addEventListener('resize',schedule);new ResizeObserver(schedule).observe(document.body);updateProgress();
+  }
   var xray = document.getElementById('loadXray');
   var xrayLoading = false;
   function loadXray() {
@@ -22,7 +45,7 @@
       xrayLoading = false; xray.disabled = false; xray.textContent = 'Retry interactive X-ray';
     });
   }
-  if (xray) xray.addEventListener('click', loadXray);
+  if (xray) { xray.addEventListener('click', loadXray); if ('IntersectionObserver' in window) { var xrayObserver=new IntersectionObserver(function(entries){if(entries.some(function(e){return e.isIntersecting;})){loadXray();xrayObserver.disconnect();}},{rootMargin:'250px 0px'});xrayObserver.observe(document.getElementById('anat3d'));}else loadXray(); }
   document.querySelectorAll('.anat-rail button').forEach(function (b) {
     b.addEventListener('click', function () {
       if (!xrayLoading) {

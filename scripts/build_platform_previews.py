@@ -29,13 +29,23 @@ def main():
             else:
                 src = args.cache / row['cache_name']
                 if not src.exists():
-                    if '.m3u8' in row['source_media']:
-                        src = row['source_media']
+                    if 'youtube.com/' in row['source_media'] or 'youtu.be/' in row['source_media']:
+                        command=['yt-dlp','--js-runtimes','node','--remote-components','ejs:github','-f','bv[height<=720][ext=mp4]','-o',str(src)]
+                        if row.get('source_window'):
+                            command+=['--download-sections','*%s-%s'%tuple(row['source_window']),'--force-keyframes-at-cuts']
+                        subprocess.run(command+[row['source_media']],check=True)
+                    elif '.m3u8' in row['source_media']:
+                        # Use one fixed rendition: the adaptive master yielded partial black previews.
+                        manifest = urlopen(row['source_media']).read().decode().splitlines()
+                        rendition = next((manifest[i+1] for i,line in enumerate(manifest) if 'RESOLUTION=640x360,' in line), row['source_media'])
+                        src = rendition
                     else:
                         req = Request(row['source_media'], headers={'User-Agent': 'Mozilla/5.0', 'Referer': row['source_url']})
                         with urlopen(req, timeout=60) as response:
                             src.write_bytes(response.read())
-            subprocess.run(['ffmpeg','-v','error','-y','-ss',str(row['start']),'-i',str(src),'-t',str(row['duration']),'-an','-vf','fps=24,scale=640:360:force_original_aspect_ratio=decrease:force_divisible_by=2,pad=640:360:(ow-iw)/2:(oh-ih)/2,setsar=1','-c:v','libx264','-crf','25','-preset','fast','-threads','2','-pix_fmt','yuv420p','-movflags','+faststart',str(dest)],check=True)
+            temp_dest=dest.with_name('.'+dest.stem+'.tmp.mp4')
+            subprocess.run(['ffmpeg','-v','error','-y','-ss',str(row['start']),'-i',str(src),'-t',str(row['duration']),'-an','-vf','fps=24,scale=640:360:force_original_aspect_ratio=decrease:force_divisible_by=2,pad=640:360:(ow-iw)/2:(oh-ih)/2,setsar=1','-c:v','libx264','-crf','25','-preset','fast','-threads','2','-pix_fmt','yuv420p','-movflags','+faststart',str(temp_dest)],check=True)
+            temp_dest.replace(dest)
         poster = out / (row['key'] + '.jpg')
         if not poster.exists() or not poster.stat().st_size:
             duration = float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','csv=p=0',str(dest)]).decode().strip())

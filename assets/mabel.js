@@ -485,6 +485,7 @@
     v.addEventListener('playing', finish); v.addEventListener('canplaythrough', finish); v.addEventListener('error', finish);
     v.addEventListener('waiting', function () { if (!v.paused) spin(v, true); });
     v.addEventListener('playing', function () { spin(v, false); });
+    v.muted = true; v.playsInline = true;
     v.src = v.dataset.lazyvid || v.dataset.lo;
     v.load();
     v.dataset.hiDone = '1';
@@ -509,8 +510,9 @@
      deciding when to fetch.
 
      The property worth keeping is that a clip you are looking at plays
-     immediately, and it survives: `start` runs on intersection with a 400 px
-     margin, so a clip is loading before it is visible. */
+     immediately, and it survives: the observer and wantsPlay use the same 100 px
+     margin. A larger observer margin loaded the clip while wantsPlay was false,
+     then never triggered another event when it actually became visible. */
   var io = null;
   if ('IntersectionObserver' in window) {
     io = new IntersectionObserver(function (entries) {
@@ -519,7 +521,7 @@
         if (e.isIntersecting) start(v);
         else if (v.src) v.pause();
       });
-    }, { rootMargin: '400px 0px' });
+    }, { rootMargin: '100px 0px' });
     vids.forEach(function (v) { io.observe(v); });
   } else {
     vids.forEach(function (v) { if (wantsPlay(v)) start(v); });

@@ -5134,3 +5134,12 @@ html.js .rg-chap.fade-up { opacity: 1; transform: none; }
   box-shadow: 0 0 0 1px rgba(21,24,32,.25); pointer-events: none; animation: vid-spin .8s linear infinite; }
 @keyframes vid-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .vid-spin { animation-duration: 2.4s; } }
+
+/* Accuracy panels share their row tracks, so clips and plots align at every desktop width. */
+@supports (grid-template-rows:subgrid) {
+ @media(min-width:881px) {
+  .al-grid { grid-template-rows:repeat(9,auto);column-gap:22px;row-gap:0; }
+  .al-panel { display:grid;grid-row:span 9;grid-template-rows:subgrid;row-gap:0;min-width:0; }
+  .al-panel .al-clip { align-self:start; }
+ }
+}

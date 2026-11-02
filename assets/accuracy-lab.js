@@ -60,7 +60,7 @@
     var c = (D.clips || {})[key];
     if (!c) return '';
     return '<figure class="al-clip" data-clip="' + key + '">' +
-      '<video muted loop playsinline preload="none" width="' + (c.w || 900) + '" height="' + (c.h || 720) + '" ' +
+      '<video controls autoplay muted loop playsinline preload="none" width="' + (c.w || 900) + '" height="' + (c.h || 720) + '" ' +
         'data-poster="assets/accuracy/' + esc(c.poster) + '" ' +
         'data-lazyvid="assets/accuracy/' + esc(c.clip) + '"' +
         (c.lo ? ' data-lo="assets/accuracy/' + esc(c.lo) + '"' : '') + '></video>' +
@@ -70,8 +70,8 @@
   function build(D) {
     var R = D.rep, PF = D.path;
     var CLIP = D.clip_s || 9.2;
-    var st = { station: 'HOME', follow: true, t: null, hands: { left: true, right: true } };
-    var pt = { cond: PF.conditions[0].id, follow: true, t: null,
+    var st = { station: 'HOME', follow: true, t: D.clips.repeat ? 0 : null, hands: { left: true, right: true } };
+    var pt = { cond: PF.conditions[0].id, follow: true, t: D.clips.path ? 0 : null,
                on: { left_track: true, right_track: true, left_contour: true, right_contour: true } };
 
     /* every visit, in the order the clip marks them */
@@ -300,6 +300,7 @@
       }
       g.push('<text x="' + ((L + W - RR) / 2) + '" y="' + (H - 3) + '" class="al-tick" text-anchor="middle">seconds along the path</text>');
       g.push('<path d="M' + L + ' ' + T + ' V' + (H - B) + ' H' + (W - RR) + '" class="al-ax"/>');
+      g.push('<defs><clipPath id="accuracyTraceWindow"><rect data-role="trace-window" x="' + L + '" y="0" width="0" height="' + H + '"/></clipPath></defs><g clip-path="url(#accuracyTraceWindow)">');
       SER.forEach(function (s) {
         if (!pt.on[s.key]) return;
         var d = c.series[s.key], col = HC[s.h];
@@ -309,7 +310,7 @@
         g.push('<path class="al-line' + (s.kind === 'contour' ? ' is-contour' : '') + '" data-c="' + s.key + '" style="stroke:' + col + '" d="' +
           c.x.map(function (x, i) { return (i ? 'L' : 'M') + X(x).toFixed(1) + ' ' + Y(d.mean[i]).toFixed(1); }).join('') + '"/>');
       });
-      g.push('<g data-role="ph"></g><g data-role="hov"></g></svg>');
+      g.push('</g><g data-role="ph"></g><g data-role="hov"></g></svg>');
       var old = errBox.querySelector('svg'); if (old) old.remove();
       errBox.insertAdjacentHTML('afterbegin', g.join(''));
       drawn2 = c.id;
@@ -338,6 +339,10 @@
     function drawPlayhead() {
       var now = pathNow(), ph = errBox.querySelector('[data-role="ph"]'), live = Q('pathlive');
       if (!ph || !geom) return;
+      // Reveal measured samples only as the matching robot replay reaches them.
+      var reveal=errBox.querySelector('[data-role="trace-window"]');
+      var upto=(!pt.follow || pt.t==null || now.phase==='holding at the end') ? geom.xmax : (now.x==null ? 0 : now.x);
+      if(reveal)reveal.setAttribute('width',Math.max(0,geom.X(Math.min(geom.xmax,upto))-L).toFixed(2));
       if (now.x == null) {
         ph.innerHTML = '';
         live.innerHTML = pt.follow && pt.t != null ? 'The clip: <b>' + esc(condName(condOf(now.cond))) + '</b>, trial 1 — ' + now.phase + '.'

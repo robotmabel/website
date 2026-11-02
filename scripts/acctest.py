@@ -103,6 +103,25 @@ async def go():
         clips = await ev("Array.from(document.querySelectorAll('#accuracyLab video')).map(function(v){return v.dataset.lazyvid||v.currentSrc})")
         need(any("repeat.mp4" in c for c in clips) and any("path.mp4" in c for c in clips), f"both submission clips are wired {clips}")
 
+        # Scroll into the near-load margin first, then onto the videos: this
+        # catches the observer mismatch that used to leave both replays paused.
+        await ev("document.documentElement.style.scrollBehavior='auto';var clip=document.querySelector('#accuracyLab video');scrollTo(0,clip.getBoundingClientRect().top+scrollY-innerHeight-180)")
+        await asyncio.sleep(.4)
+        await ev("document.querySelector('#accuracyLab video').scrollIntoView({block:'center',behavior:'instant'})")
+        for _ in range(80):
+            await asyncio.sleep(.1)
+            if await ev("[...document.querySelectorAll('#accuracyLab video')].every(v=>v.readyState>=2&&!v.paused&&v.currentTime>.1)"):break
+        need(await ev("[...document.querySelectorAll('#accuracyLab video')].every(v=>v.readyState>=2&&!v.paused&&v.currentTime>.1)"), 'both real replay clocks advance automatically on entry')
+        await ev("window.accuracyTimes=[...document.querySelectorAll('#accuracyLab video')].map(v=>v.currentTime)")
+        await asyncio.sleep(.35)
+        need(await ev("[...document.querySelectorAll('#accuracyLab video')].every((v,i)=>v.currentTime>accuracyTimes[i]||accuracyTimes[i]>v.duration-.5)"), 'both replay clocks keep advancing')
+        for width in [1440,1100,980]:
+            await cmd('Emulation.setDeviceMetricsOverride',dict(width=width,height=1000,deviceScaleFactor=1,mobile=False))
+            await asyncio.sleep(.2)
+            tops=await ev("[...document.querySelectorAll('#accuracyLab video')].map(v=>v.getBoundingClientRect().top)")
+            need(abs(tops[0]-tops[1])<1, f'video top edges align at {width}px ({tops})')
+        await cmd('Emulation.setDeviceMetricsOverride',dict(width=1500,height=1200,deviceScaleFactor=1,mobile=False))
+
         # stop the clips' own clocks so the checks drive time
         await ev("window.__accuracyLab.hold(true); document.querySelectorAll('#accuracyLab video').forEach(function(v){v.pause();}); true")
         await asyncio.sleep(0.6)
@@ -135,6 +154,17 @@ async def go():
             need(cond == cc["id"] and x is not None and abs(x - mid[1]) < 0.15, f"at {mid[0]:.2f} s the plot is {cc['id']} with the playhead at {mid[1]:.2f} s along the path (got {cond}, {x})")
             await ev(f"window.__accuracyLab.at({sy[0][0] - 0.3})")
             need(await ev("window.__accuracyLab.playhead()") is None, f"while the arm moves to the {cc['shape']}'s start there is no playhead")
+
+        # The curves progressively reveal samples, rather than showing the
+        # complete graph under a moving playhead from the first frame.
+        sy=next(c['sync'] for c in PF['conditions'] if c['id']=='spiral_torso0')
+        await ev(f"window.__accuracyLab.at({sy[0][0]-.1})")
+        need(await ev("+document.querySelector('[data-role=trace-window]').getAttribute('width')===0"), 'no path samples appear before tracing starts')
+        await ev(f"window.__accuracyLab.at({sy[len(sy)//3][0]})")
+        early=await ev("+document.querySelector('[data-role=trace-window]').getAttribute('width')")
+        await ev(f"window.__accuracyLab.at({sy[2*len(sy)//3][0]})")
+        late=await ev("+document.querySelector('[data-role=trace-window]').getAttribute('width')")
+        need(0<early<late<392, f'curve reveal grows with the robot clock ({early} → {late})')
 
         # ── hover tooltips, through the input pipeline ──
         async def hover(x, y):
