@@ -48,4 +48,3 @@ get the native play control. The X-ray loads on request.
 `simulator.html?overview=1` displays the camera and orbitable robot-state view
 together. It uses the existing simulation-only public relay. When its MuJoCo
 host is unavailable it explicitly labels the in-browser kinematic fallback.
-

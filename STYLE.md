@@ -154,5 +154,5 @@ preference — the front page was once 8.6 MB with first paint at 42 seconds.
 
 Budget: **700 kB gzipped** and 90 requests per page, checked by
 `scripts/loadtest.py`. index.html retains its documented media allowance. The explicitly opened
-`simulator.html` has a 2.6 MB allowance for the canonical rig and 3D runtime;
+`simulator.html` and `teleop.html` have a 2.6 MB allowance for the canonical rig and 3D runtime;
 the Overview loads that console only after the visitor requests it.
