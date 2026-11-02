@@ -148,6 +148,14 @@ async def go():
             check(await ev("window.__soon.at") == 1 and await ev("document.getElementById('csSlide').getAttribute('src')") != src0, "the next arrow moves the gallery")
             await click("#csDots button:last-child")
             check(await ev("window.__soon.at") == n - 1, "a dot jumps to its photo")
+            # every photo, portrait or landscape, sits in the SAME frame (a portrait shot once grew it to 1.5x)
+            sizes = []
+            for k in range(n):
+                await ev(f"window.__soon.go({k}); true"); await asyncio.sleep(0.25)
+                sizes.append(await ev("(function(){var a=document.querySelector('.cs-slide').getBoundingClientRect(), b=document.getElementById('csSlide').getBoundingClientRect(); return [Math.round(a.width),Math.round(a.height),Math.round(b.width),Math.round(b.height)]})()"))
+            w, h = sizes[0][0], sizes[0][1]
+            check(len({tuple(z) for z in sizes}) == 1 and abs(w / h - 1.5) < 0.02 and sizes[0][2:] == sizes[0][:2],
+                  f"all {n} photos fill one 3:2 frame ({w}x{h}; distinct sizes: {len({tuple(z) for z in sizes})})")
 
             # empty submit: refused, focus on the name
             await click("#csSubmit")

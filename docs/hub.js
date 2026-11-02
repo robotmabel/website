@@ -32,7 +32,7 @@
     ['ARMS / HANDS', '2×7 + 2×17 DOF', 1],
     ['FIRMWARE', 'TEENSY · PICO · CAN', 1],
     ['ROS 2 JAZZY', 'PRESENT', 1],
-    ['MUJOCO SCENES', '40 LOADED', 1],
+    ['MUJOCO SCENES', '35 LOADED', 1],
     ['POLICIES', 'ACT · DiT · π₀', 1],
     ['MANUAL', '10 CHAPTERS', 1],
     ['', null, 0],
@@ -118,7 +118,9 @@
     }
 
     function card(e) {
-      var shot = e.shot
+      var shot = e.video
+        ? '<div class="sh-img"><video muted loop playsinline preload="none" data-src="' + esc(e.video) + '" poster="' + esc(e.shot || '') + '"></video></div>'
+        : e.shot
         ? '<div class="sh-img"><img src="' + esc(e.shot) + '" alt="" loading="lazy"/></div>'
         : '<div class="sh-img sh-none"><span>' + esc(e.kind) + '</span></div>';
       return '<a class="sh k-' + esc(e.kind) + (e.ours ? ' ours' : '') + '" href="' +
@@ -230,4 +232,19 @@
         '</span><b>' + esc(c[2]) + '</b><p>' + esc(c[3]) + '</p></a>';
     }).join('');
   }
+})();
+
+/* shelf clips: fetched and played only while on screen */
+(function () {
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      var v = e.target;
+      if (e.isIntersecting) { if (!v.src && v.dataset.src) v.src = v.dataset.src; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+      else if (!v.paused) v.pause();
+    });
+  }, { rootMargin: '200px' });
+  function watch() { document.querySelectorAll('.sh-img video[data-src]').forEach(function (v) { if (!v.dataset.watched) { v.dataset.watched = '1'; io.observe(v); } }); }
+  new MutationObserver(watch).observe(document.documentElement, { childList: true, subtree: true });
+  watch();
 })();

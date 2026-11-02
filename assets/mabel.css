@@ -5054,3 +5054,9 @@ html.js .rg-chap.fade-up { opacity: 1; transform: none; }
 .shot-frame.glass img { border-radius: 18px; }
 /* a portrait phone beside its legend needs less than a full-width card */
 .trl-card.shot.side:has(.shot-frame.phone) { flex-basis: min(86%, 760px); }
+
+/* the hardware reel above the X-ray viewer (index.html #anatomy): the render's own
+   white ground IS the frame, so no border, no caption bar */
+.xr-reel { margin: clamp(18px, 2.6vh, 30px) 0 clamp(26px, 3.4vh, 40px); }
+.xr-reel video { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 0; border-radius: 14px; background: transparent; }
+.xr-reel figcaption { margin-top: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--ash); }

@@ -4,8 +4,23 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#151820" />
-<title>MABEL — A Mobile Bimanual Platform for Everyday Work</title>
-<meta name="description" content="MABEL is an open-source mobile bimanual robot from $8,056: 17-DOF ORCA hands, a 3-module holonomic swerve base, Apple Vision Pro teleoperation, whole-body control, and Raspberry Pi compute and off-board policy inference." />
+<title>MABEL — the open-source mobile bimanual robot</title>
+<meta name="description" content="MABEL is an open-source anthropomorphic mobile bimanual robot: 56 degrees of freedom, two 17-DOF hands, a lift, an active head and a holonomic base, from $8,056 in parts. CAD, firmware, ROS 2, simulation and teleoperation are open." />
+<!-- seo:begin (scripts/build_seo.py) -->
+<link rel="canonical" href="https://robotmabel.github.io/website/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="MABEL" />
+<meta property="og:title" content="MABEL — the open-source mobile bimanual robot" />
+<meta property="og:description" content="MABEL is an open-source anthropomorphic mobile bimanual robot: 56 degrees of freedom, two 17-DOF hands, a lift, an active head and a holonomic base, from $8,056 in parts. CAD, firmware, ROS 2, simulation and teleoperation are open." />
+<meta property="og:url" content="https://robotmabel.github.io/website/" />
+<meta property="og:image" content="https://robotmabel.github.io/website/assets/og.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="MABEL — the open-source mobile bimanual robot" />
+<meta name="twitter:description" content="MABEL is an open-source anthropomorphic mobile bimanual robot: 56 degrees of freedom, two 17-DOF hands, a lift, an active head and a holonomic base, from $8,056 in parts. CAD, firmware, ROS 2, simulation and teleoperation are open." />
+<meta name="twitter:image" content="https://robotmabel.github.io/website/assets/og.jpg" />
+<!-- seo:end -->
 
 <link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
 <link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
@@ -13,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=b5ab81a4" />
+<link rel="stylesheet" href="assets/mabel.css?v=38c75143" />
 <script>document.documentElement.classList.add('js');</script>
 <script>
 /* The rig used to be preloaded here with <link rel="preload" as="fetch">.
@@ -298,6 +313,10 @@ is already a training demonstration — no separate recording rig.</p></template
       <p class="lede">Nothing here is a black box. Six modules, each on its own bus, built from catalogue and printed parts
         and released under CERN-OHL-S-2.0. Pick one and the rest of MABEL turns to glass.</p>
     </div>
+    <figure class="xr-reel fade-up">
+      <video data-lazyvid="assets/xray/xray-reel.mp4" data-lo="assets/xray/xray-reel-lo.mp4" data-poster="assets/xray/xray-reel.jpg" muted loop playsinline preload="none" aria-label="Exploded walk-through of MABEL, module by module"></video>
+      <figcaption>Module by module: arms, base, lift, body, neck, perception, end effectors.</figcaption>
+    </figure>
     <div class="anat-wrap fade-up">
       <aside>
         <div class="anat-rail">
@@ -330,10 +349,6 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
         <div class="viewer-hint"><span class="dot-live"></span> Drag to orbit · scroll to zoom</div>
       </div>
     </div>
-    <figure class="strip-panel fade-up" style="margin:clamp(22px,3vh,34px) 0 0;">
-      <video data-lazyvid="assets/xray/xray-reel.mp4" data-lo="assets/xray/xray-reel-lo.mp4" data-poster="assets/xray/xray-reel.jpg" muted loop playsinline preload="none" aria-label="Exploded walk-through of MABEL, module by module" style="width:100%; display:block; aspect-ratio:16/9; object-fit:cover;"></video>
-      <figcaption class="strip-cap">Module by module: arms, base, lift, body, neck, perception, end effectors</figcaption>
-    </figure>
     <div class="oh-strip fade-up">
       <a class="oh-card" href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener"><b>CAD</b><span>The whole assembly, open under CERN-OHL-S-2.0</span><i>GitHub ↗</i></a>
       <a class="oh-card" href="docs/bom.html"><b>Bill of materials</b><span>Every part with a vendor and a price: from $8,056</span><i>BOM →</i></a>

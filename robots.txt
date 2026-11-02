@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /website/account.html
+
+Sitemap: https://robotmabel.github.io/website/sitemap.xml

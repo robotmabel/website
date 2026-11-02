@@ -24,21 +24,21 @@
     },
     {
       "kind": "part", "title": "3-module swerve base", "who": "the MABEL authors",
-      "url": "assembly.html", "shot": "../assets/hw/base.png",
+      "url": "assembly.html", "shot": "../assets/hw/shelf-base.jpg",
       "stage": "shipped", "ours": true,
       "blurb": "Delta-layout holonomic base on REV MAXSwerve. Translates in any direction without turning first — the reason the arrow keys strafe.",
       "tags": ["mechanical", "CAN"]
     },
     {
       "kind": "part", "title": "ORCA hand, 17 DoF", "who": "ORCA + the MABEL authors",
-      "url": "assembly.html", "shot": "../assets/hw/hands.png",
+      "url": "assembly.html", "shot": "../assets/hw/shelf-orca.jpg",
       "stage": "shipped", "ours": true,
       "blurb": "Open-source tendon hand, 16 Feetech servos and a wrist on one TTL chain. Printed, not machined.",
       "tags": ["mechanical", "hands"]
     },
     {
-      "kind": "scene", "title": "40 simulation scenes", "who": "the MABEL authors",
-      "url": "../software.html#simulation", "shot": "../assets/sim/scenes/mabel_home.jpg",
+      "kind": "scene", "title": "35 simulation scenes", "who": "the MABEL authors",
+      "url": "../software.html#simulation", "shot": "../assets/sim/sim-montage.jpg", "video": "../assets/sim/sim-montage.mp4",
       "stage": "shipped", "ours": true,
       "blurb": "Homes, cafés, warehouses and four New York streets with scripted traffic. Each one is an MJCF you can drop a policy into.",
       "tags": ["simulation", "MuJoCo"]
@@ -68,7 +68,7 @@
     {
       "title": "A scene we have not thought of",
       "goal": "One MJCF the robot can be dropped into — your kitchen, your lab, your loading bay.",
-      "why": "Forty scenes is not a lot of world. A scene is a single XML file and a PR.",
+      "why": "Thirty-five scenes is not a lot of world. A scene is a single XML file and a PR.",
       "chapter": "../software.html#simulation", "tag": "simulation", "open": true
     },
     {

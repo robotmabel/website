@@ -4,15 +4,30 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#151820" />
-<title>MABEL — Coming soon</title>
-<meta name="description" content="MABEL is coming soon. Tell us who you are, why you need the robot, which parts you want and what it will be used for, and we will write when it opens. Or build your own from the open plans." />
+<title>Coming soon — MABEL, the open-source mobile bimanual robot</title>
+<meta name="description" content="MABEL is coming soon. Leave your details to hear when assembled robots, kits and parts open, or build your own from the open plans." />
+<!-- seo:begin (scripts/build_seo.py) -->
+<link rel="canonical" href="https://robotmabel.github.io/website/order.html" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="MABEL" />
+<meta property="og:title" content="Coming soon — MABEL, the open-source mobile bimanual robot" />
+<meta property="og:description" content="MABEL is coming soon. Leave your details to hear when assembled robots, kits and parts open, or build your own from the open plans." />
+<meta property="og:url" content="https://robotmabel.github.io/website/order.html" />
+<meta property="og:image" content="https://robotmabel.github.io/website/assets/og.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Coming soon — MABEL, the open-source mobile bimanual robot" />
+<meta name="twitter:description" content="MABEL is coming soon. Leave your details to hear when assembled robots, kits and parts open, or build your own from the open plans." />
+<meta name="twitter:image" content="https://robotmabel.github.io/website/assets/og.jpg" />
+<!-- seo:end -->
 <link rel="icon" href="assets/logo.svg?v=3" type="image/svg+xml" />
 <link rel="icon" href="assets/favicon.png?v=3" sizes="32x32" type="image/png" />
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=b5ab81a4" />
+<link rel="stylesheet" href="assets/mabel.css?v=38c75143" />
 <script>document.documentElement.classList.add('js');</script>
 <style>
   /* ── The buy page, while the store is closed: "coming soon" and a form.
@@ -22,8 +37,9 @@
   .cs-main { padding-top: clamp(84px, 9vh, 104px); }
   .cs-stage { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(360px, 1fr); gap: clamp(20px, 3vw, 48px); align-items: start; }
   .cs-visual { position: sticky; top: clamp(84px, 9vh, 104px); }
-  .cs-slide { position: relative; display: grid; place-items: center; aspect-ratio: 3 / 2; }
-  .cs-slide img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; border-radius: 18px; box-shadow: 0 24px 40px rgba(21,24,32,0.18); }
+  /* one frame for every photo: 3:2, filled (portrait shots are cropped, never letterboxed or allowed to grow the frame) */
+  .cs-slide { position: relative; aspect-ratio: 3 / 2; border-radius: 18px; overflow: hidden; background: var(--paper); box-shadow: 0 24px 40px rgba(21,24,32,0.18); }
+  .cs-slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; display: block; }
   .cs-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid rgba(21,24,32,0.35); background: rgba(253,246,226,0.85); color: var(--ink);
     font-size: 24px; line-height: 1; cursor: pointer; display: grid; place-items: center; padding: 0 0 3px; }
   .cs-arrow:hover { border-color: var(--ink); background: var(--panel); }
