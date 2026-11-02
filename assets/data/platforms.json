@@ -545,12 +545,12 @@
    "note": "Raspberry Pi 5 parts subtotal; optional sensors excluded",
    "mobile": true,
    "ours": true,
-   "link": "https://github.com/robotmabel/MABEL",
+   "link": "https://github.com/robotmabel/open_mabel",
    "preview": {
     "video": "assets/platforms/mabel.mp4",
     "poster": "assets/platforms/mabel.jpg",
     "credit": "MABEL project",
-    "source_url": "https://github.com/robotmabel/MABEL",
+    "source_url": "https://github.com/robotmabel/open_mabel",
     "label": "Teleoperated demonstration \u00b7 2.4\u00d7"
    }
   }

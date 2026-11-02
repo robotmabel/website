@@ -225,7 +225,7 @@
     "name": "MABEL",
     "key": "mabel",
     "credit": "MABEL project",
-    "source_url": "https://github.com/robotmabel/MABEL",
+    "source_url": "https://github.com/robotmabel/open_mabel",
     "source_file": "website/assets/home/fridge.mp4",
     "start": 0,
     "duration": 6,

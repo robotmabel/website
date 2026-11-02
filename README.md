@@ -4,7 +4,7 @@ The public site for **MABEL**, the open-source mobile bimanual robot. Static HTM
 served with GitHub Pages straight from `main`.
 
 The robot itself — hardware, firmware, control, simulation, teleop, learning — lives in
-[robotmabel/MABEL](https://github.com/robotmabel/MABEL).
+[robotmabel/open_mabel](https://github.com/robotmabel/open_mabel).
 
 ## Style
 

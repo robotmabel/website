@@ -42,7 +42,7 @@ LINKS = {
     "Astribot S1": "https://www.astribot.com/product",
     "AgiBot Genie G1": "https://www.agibot.com/",
     "Unitree R1-A7-D": "https://www.unitree.com/R1-D",
-    "MABEL": "https://github.com/robotmabel/MABEL",
+    "MABEL": "https://github.com/robotmabel/open_mabel",
 }
 
 # name, year, base, holonomic (True/False/None=unstated), arms "NxM",

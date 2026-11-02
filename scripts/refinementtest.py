@@ -24,7 +24,13 @@ with sync_playwright() as p:
   page.locator('#lpStep').evaluate('(e)=>{e.value=119;e.dispatchEvent(new Event("input",{bubbles:true}));}')
   assert '120 / 120' in page.locator('#lpStepReadout').inner_text()
   assert page.locator('#lpChunkCells > *').count()==120
-  assert '8 / 10' in page.locator('#lpSuccess').inner_text()
+  assert '68,364' in page.locator('[data-learning-dataset]').inner_text()
+  page.locator('[data-split=val]').click()
+  assert '7,725' in page.locator('.lp-split-stats').inner_text()
+  page.locator('[data-split=test]').click()
+  assert '5,989' in page.locator('.lp-split-stats').inner_text()
+  page.locator('[data-split=train]').click()
+  assert '53,379' in page.locator('.lp-split-stats').inner_text()
   page.locator('[data-target="sim"]').click()
   assert 'simulation' in page.locator('#lpTargetLabel').inner_text().lower()
   assert page.locator('#lpStateGroups button').count()==6

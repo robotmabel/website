@@ -438,6 +438,7 @@
   }
 
   function start(v) {
+    if (v.dataset.userPaused) return;
     /* THE POSTER IS NOT LAZY UNLESS YOU MAKE IT LAZY. `preload="none"` holds
        back the video bytes and says nothing about `poster`, which the browser
        fetches the moment the element parses. The 35-tile scene gallery was

@@ -1,26 +1,45 @@
 {
-  "source": "Active RA-L paper \u00b7 Simulation and Learning Infrastructure; Policy Learning",
-  "paper_sha256": "7ccdabca475a3ba79905f4d22b4aa5d8f476670b09c7831b6cc088bb25430160",
+  "source": "hand_pick_n_place_v2 export and act_v2 saved training reports",
+  "source_sha256": {
+    "info": "4c585f5ac1b90974823e3f8c548ecadb7da9e6f6a8b46656c0d732678eae30af",
+    "config": "83c3d2f42f9d1e9ecef6ce07773859d5ae81c3ec9f0d7f49d6869268e62c05db",
+    "report": "e8c59e4ff3be45f625160b47e4717dc37f0c0941cf249760b000a95ad4d7bbb4",
+    "split": "e4b88d1f2c2f65c86fb23eee84ede96c81c89e62100e6fa27cfdb58dd68fb8b2",
+    "stats": "b7fb20af0e46aa5c096d337366f07f17adf00d5468191789499ec18d6f111850"
+  },
   "recording": {
     "camera_hz": 30,
     "control_hz": 50,
     "coordinates": 59,
+    "action_channels": 63,
     "cameras": [
-      "Left head",
-      "Left wrist",
-      "Right wrist"
+      {
+        "key": "head_left",
+        "label": "Left head",
+        "image": "assets/learning/hand-v2-head_left.jpg"
+      },
+      {
+        "key": "wrist_left",
+        "label": "Left wrist",
+        "image": "assets/learning/hand-v2-wrist_left.jpg"
+      },
+      {
+        "key": "wrist_right",
+        "label": "Right wrist",
+        "image": "assets/learning/hand-v2-wrist_right.jpg"
+      }
     ],
-    "image_size": [
-      320,
-      240
+    "image_size_hw": [
+      240,
+      320
     ],
-    "history_seconds": 1,
-    "history_hz": 5
+    "history_seconds": 1.0,
+    "history_hz": 5.0
   },
   "chunk": {
     "steps": 120,
     "hz": 30,
-    "execute_seconds": 1,
+    "execute_seconds": 1.0,
     "temporal_ensembling": false
   },
   "state_groups": [
@@ -49,26 +68,73 @@
       "count": 6
     }
   ],
-  "experiment": {
-    "demonstrations": 81,
-    "episodes": 86,
-    "minutes": 26.8,
-    "split": [
-      46,
-      6,
-      5
+  "dataset": {
+    "id": "hand_pick_n_place_v2",
+    "version": 2,
+    "frames": 68364,
+    "episodes": 117,
+    "takes": 80,
+    "seconds": 2278.8,
+    "minutes": 38.0,
+    "hours": 0.63,
+    "fps": 30,
+    "camera_videos": 4,
+    "export_gb": 1.5,
+    "frame_cache_gb": 5.1,
+    "split_percent": [
+      80,
+      10,
+      10
     ],
-    "train_steps": 8000,
-    "batch_size": 24,
-    "hours": 6,
-    "device": "Apple M1 Max",
-    "successes": 8,
-    "trials": 10,
-    "timeout_seconds": 60,
-    "placement_cm": [
-      20,
-      20
+    "seed": 42,
+    "splits": [
+      {
+        "key": "train",
+        "label": "Train",
+        "takes": 64,
+        "episodes": 90,
+        "frames": 54650,
+        "clips": 53379,
+        "minutes": 30.4
+      },
+      {
+        "key": "val",
+        "label": "Validation",
+        "takes": 8,
+        "episodes": 15,
+        "frames": 7725,
+        "clips": 7492,
+        "minutes": 4.3
+      },
+      {
+        "key": "test",
+        "label": "Test",
+        "takes": 8,
+        "episodes": 12,
+        "frames": 5989,
+        "clips": 5809,
+        "minutes": 3.3
+      }
     ],
-    "scope": "Grasp-and-place with both ORCA hands. Demonstrations were mostly upper-body; the base and lift stayed near their initial configuration."
+    "validation_clips": 384,
+    "eval_every_steps": 500,
+    "quality": {
+      "held_command_rows": 3698,
+      "interpolated_joint_rows": 235,
+      "max_gap_seconds": 0.5,
+      "stale_camera_rows": 46,
+      "unusable_joint_rows": 0,
+      "dropped_clips": {
+        "stale_now": 46,
+        "stale_window": 0,
+        "prop": 0,
+        "short_future": 1638
+      }
+    },
+    "preview": {
+      "episode": 20,
+      "frame": 272,
+      "seconds": 9.067
+    }
   }
 }

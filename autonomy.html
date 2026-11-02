@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=c0b86bcc" />
+<link rel="stylesheet" href="assets/mabel.css?v=3e033111" />
 <style>
   /* Data Curation live-tool CTA */
   .studio-card { padding: clamp(28px, 4vw, 48px); }
@@ -153,12 +153,12 @@
 <div class="crumbs"><a href="index.html">Overview</a> / Autonomy</div>
 <span class="eyebrow">Autonomy</span>
 <h1 class="display-lg">Demonstrate. Train. Deploy.</h1>
-<p class="lede">Teleoperated demonstrations become joint-reference chunks predicted by ACT and executed through the same whole-body controller. The paper evaluates grasp-and-place; the tools below support collection, curation, training and evaluation.</p>
+<p class="lede">Teleoperated demonstrations become joint-reference chunks predicted by ACT and executed through the same whole-body controller. The current v2 dataset covers hand grasping; the tools below support collection, curation, training and evaluation.</p>
 <div class="hero-actions" style="margin-top:22px;">
 <a class="btn btn-primary" href="https://studio.mabelrobot.duckdns.org/" rel="noopener" target="_blank">Data Curation GUI ↗</a>
 <a class="btn btn-ghost" href="https://trainer.mabelrobot.duckdns.org/" rel="noopener" target="_blank">Training GUI ↗</a>
 </div>
-<div class="spec" style="margin-top:28px;"><span>ACT · paper experiment</span><span>59-coordinate representation</span><span>LeRobot v3 · 30 Hz</span><span>Shared whole-body controller</span></div>
+<div class="spec" style="margin-top:28px;"><span>ACT · hand grasping</span><span>59-coordinate representation</span><span>LeRobot v3 · 30 Hz</span><span>Shared whole-body controller</span></div>
 </div>
 </section>
 <!-- ─── DATA STUDIO · live tool ─── -->
@@ -244,7 +244,7 @@
     — its only inputs are <code>/map</code> and the
     <code>map → base_link</code> transform, so it works behind either
     stack below.
-    <a href="https://github.com/robotmabel/MABEL/blob/main/mabel_ws/src/mabel_navigation/mabel_navigation/frontier_explorer.py" rel="noopener" target="_blank">Read the node ↗</a></p>
+    <a href="https://github.com/robotmabel/open_mabel/blob/main/ros/src/mabel_navigation/mabel_navigation/frontier_explorer.py" rel="noopener" target="_blank">Read the node ↗</a></p>
 </div>
 <div class="paper-grid fade-up">
 <div>
@@ -327,7 +327,7 @@
 <p class="lede">The paper records stereo head and both wrist RGB streams at nominal 30 Hz, with available depth, plus timestamped joint feedback, commanded references, base twist and lift-jog commands at nominal 50 Hz. Raw timestamps and validity flags are retained. The demonstrated joint references <code>q*</code> supervise learning; base-twist and lift-jog fields are stored separately from the 59 joint coordinates.</p>
 </div>
 <div class="callout fade-up">
-<p><strong>Paper dataset.</strong> 81 whole-body Vision Pro demonstrations were segmented into 86 episodes totaling 26.8 minutes. Curated episodes are exported to LeRobot v3 on a 30 Hz grid, using the latest available sample from each stream at each export time. <a href="index.html#learning">Inspect the complete learning interface →</a></p>
+<p><strong>Current hand-grasping dataset · v2.</strong> 80 takes, 117 curated episodes and 68,364 frames: 38.0 minutes at 30 fps. The 1.5 GB export stores four camera videos and joint data. Training uses the left head view and both wrists, with 240 × 320 cached images (height × width).</p>
 </div>
 </div></section>
 <!-- ═══ 4 · DATA CURATION ═══ -->
@@ -344,7 +344,7 @@
 <h4>The full studio has the rest</h4>
 <p>The review interface brings camera views, robot state, a filmstrip timeline and episode-quality tools into one workspace. The paper pipeline exports the curated data to LeRobot v3 at 30 Hz; its policy uses the left head view and both wrists.</p>
 <a class="btn btn-primary" href="https://studio.mabelrobot.duckdns.org/" rel="noopener" target="_blank">Open Data Curation ↗</a>
-<a class="btn btn-ghost" href="https://github.com/robotmabel/MABEL/tree/main/learning/data_curation" rel="noopener" target="_blank">Source ↗</a>
+<a class="btn btn-ghost" href="https://github.com/robotmabel/open_mabel/tree/main/learning/data_curation" rel="noopener" target="_blank">Source ↗</a>
 </div>
 </div>
 </div></section>
@@ -353,10 +353,10 @@
 <div class="sec-head fade-up">
 <div><span class="eyebrow">Stage 5</span>
 <h2 class="display-md title">ACT training and <span class="italic accent">architecture tools.</span><img alt="" aria-hidden="true" class="sticker" loading="lazy" src="assets/stickers/empirestate.svg"/></h2></div>
-<p class="lede">The paper uses the left head image and both wrist images at 320 × 240, plus one second of measured joint history sampled at 5 Hz. ACT predicts 120 references at 30 Hz. Training runs for 8,000 steps with batch size 24 on an Apple M1 Max in six hours, split by take into 46/6/5 training/validation/test takes.</p>
+<p class="lede">ACT combines three camera views with one second of joint history to predict four seconds of actions. The v2 dataset is split 80 / 10 / 10 by take with seed 42. Every episode from a take stays in one split.</p>
 </div>
-<div class="table-scroll fade-up">
-<table class="data-table compact"><caption>Trainer Studio example presets below. The paper experiment uses ACT with a 120-step chunk; these tool presets are separate configurations.</caption>
+<div aria-label="Hand-grasping dataset v2" class="lp-paper" data-learning-dataset="v2"></div><div class="table-scroll fade-up">
+<table class="data-table compact"><caption>Trainer Studio example presets. The hand-grasping ACT run uses a 120-step, four-second action chunk.</caption>
 <thead><tr><th style="text-align:left;">Architecture</th><th>Decoder</th><th>Chunk</th><th>Status</th></tr></thead>
 <tbody>
 <tr><td data-l="Architecture"><strong>ACT</strong> — action chunking transformer</td><td data-l="Decoder">transformer + CVAE</td><td data-l="Chunk">100</td><td class="hi" data-l="Status">trains, resumes, evaluates</td></tr>
@@ -433,7 +433,7 @@
 <div class="sec-head fade-up">
 <div><span class="eyebrow">Stage 6</span>
 <h2 class="display-md title">Run it, then <span class="italic accent">judge it.</span><img alt="" aria-hidden="true" class="sticker" loading="lazy" src="assets/stickers/manhole.svg"/></h2></div>
-<p class="lede">The paper’s ACT policy executes joint references through the same whole-body controller used for teleoperation. It predicts four seconds of motion, executes the first second, then re-plans from new observations, without temporal ensembling.</p>
+<p class="lede">ACT action predictions use the same whole-body controller interface as teleoperation. It predicts four seconds of motion, executes the first second, then re-plans from new observations, without temporal ensembling.</p>
 </div>
 <div class="paper-grid fade-up">
 <div>
@@ -441,12 +441,12 @@
 <p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">Predicted joint-reference chunks include the finger and wrist targets. The controller routes them through the same control interface used by the operator, to hardware or the simulation bridge. The 59-coordinate representation counts the coupled lift as one height.</p>
 </div>
 <div>
-<h5 style="font-family:var(--font-comic); font-size:19px; letter-spacing:0.03em; margin:0 0 10px;">Paper evaluation</h5>
-<p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">The policy succeeded in 8 of 10 autonomous grasp-and-place trials, with the object randomly placed in a 20 × 20 cm region and a 60-second limit. This task result is distinct from held-out action-prediction error.</p>
+<h5 style="font-family:var(--font-comic); font-size:19px; letter-spacing:0.03em; margin:0 0 10px;">Validation and final test</h5>
+<p style="font-size:13.5px; line-height:1.65; color:var(--ink-soft);">Training checks use 384 validation clips every 500 steps. The test split stays separate until final evaluation. Overlapping clips are training samples, not additional minutes of demonstrations.</p>
 </div>
 </div>
 <div class="callout fade-up" style="margin-top:clamp(24px,3vh,36px);">
-<p><strong>Scope of the result.</strong> Demonstrations were mostly upper-body, with base and lift near their initial configuration. The experiment validates data collection, training and execution through the shared controller. It does not establish general mobile manipulation or long-horizon autonomy. The architecture editor and community training tools below are broader development interfaces, separate from the evaluated policy.</p>
+<p><strong>Grasp-and-place scope.</strong> The v2 run focuses on the hands and upper body. Its 59-coordinate state and 63-channel action schema retain the full representation; inactive lift, swerve and base-command channels are masked for training. Dataset size and open-loop validation do not establish a new autonomous success rate.</p>
 </div>
 <div class="sec-head fade-up" style="margin-top:clamp(34px,4.5vh,52px);">
 <div><span class="eyebrow">On the floor</span>
@@ -483,18 +483,18 @@
 <div class="wrap">
 <div class="foot-grid">
 <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
-<div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" rel="noopener" target="_blank">GitHub ↗</a><a href="connect.html">Community</a></div></div>
+<div class="foot-mini"><a href="https://github.com/robotmabel/open_mabel" rel="noopener" target="_blank">GitHub ↗</a><a href="connect.html">Community</a></div></div>
 <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a><a href="harness.html">AI harness</a></div>
 <div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="docs/">Assembly guide</a><a href="hardware.html#model">3D model</a><a href="order.html">Order a robot</a></div>
-<div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#cite">Paper</a><a href="https://github.com/robotmabel/MABEL" rel="noopener" target="_blank">GitHub ↗</a></div>
+<div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#cite">Paper</a><a href="https://github.com/robotmabel/open_mabel" rel="noopener" target="_blank">GitHub ↗</a></div>
 </div>
 <div class="foot-bottom"><span>© 2026 The MABEL Authors · Apache-2.0 software · CERN-OHL-S-2.0 hardware · CC BY 4.0 docs</span><span>Built with love · v1.0.0</span></div>
 </div>
 </footer>
 <script src="assets/curation-lab.js"></script>
 <script src="assets/store-nav.js"></script>
-<script src="assets/mabel.js?v=93309937"></script>
+<script src="assets/mabel.js?v=0cab8175"></script>
 <script src="assets/slam-lab.js"></script>
 <script data-mod="./arch-contribute.js" data-when="#archCanvas" defer="" src="assets/defer-module.js"></script>
-</body>
+<script defer="True" src="assets/learning-explorer.js?v=8e908a1d"></script></body>
 </html>

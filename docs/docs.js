@@ -58,7 +58,7 @@ const NAV = [
     <ul class="tree">${items}</ul>
     <div class="foot">
       <a class="sbtn" href="../index.html">&#8592; The project site</a>
-      <a href="https://github.com/robotmabel/MABEL">robotmabel/MABEL &#8599;</a>
+      <a href="https://github.com/robotmabel/open_mabel">robotmabel/open_mabel &#8599;</a>
       <a href="bom.html#explore">Interactive BOM &#8599;</a>
       <p>Build it, break it, tell us which step was wrong.</p>
     </div>`;
@@ -88,9 +88,9 @@ const NAV = [
     ed.className = "editpage";
     ed.innerHTML =
       `Found a step that was wrong? ` +
-      `<a href="https://github.com/robotmabel/MABEL/edit/main/website/docs/${here}"` +
+      `<a href="https://github.com/robotmabel/website/edit/main/docs/${here}"` +
       ` target="_blank" rel="noopener">Edit this page &#8599;</a>` +
-      ` &nbsp;·&nbsp; <a href="https://github.com/robotmabel/MABEL/issues/new"` +
+      ` &nbsp;·&nbsp; <a href="https://github.com/robotmabel/open_mabel/issues/new"` +
       ` target="_blank" rel="noopener">Open an issue &#8599;</a>` +
       ` &nbsp;·&nbsp; <a href="index.html">Community &rarr;</a>`;
     document.querySelector("main").appendChild(ed);
