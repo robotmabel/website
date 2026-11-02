@@ -147,11 +147,11 @@
    "ours": false,
    "link": "https://www.trossenrobotics.com/mobile-ai",
    "preview": {
-    "video": "assets/platforms/trossen.mp4",
-    "poster": "assets/platforms/trossen.jpg",
+    "video": "assets/platforms/trossen-motion-v2.mp4",
+    "poster": "assets/platforms/trossen-motion-v2.jpg",
     "credit": "Trossen Robotics",
-    "source_url": "https://www.trossenrobotics.com/mobile-ai",
-    "label": "Project demonstration"
+    "source_url": "https://www.youtube.com/watch?v=BDENPOcgwdU",
+    "label": "Mobile AI assembly demonstration"
    }
   },
   {
@@ -272,8 +272,8 @@
    "ours": false,
    "link": "https://www.reflexrobotics.com/",
    "preview": {
-    "video": "assets/platforms/reflex.mp4",
-    "poster": "assets/platforms/reflex.jpg",
+    "video": "assets/platforms/reflex-motion-v2.mp4",
+    "poster": "assets/platforms/reflex-motion-v2.jpg",
     "credit": "Reflex Robotics",
     "source_url": "https://www.reflexrobotics.com/",
     "label": "Project demonstration"

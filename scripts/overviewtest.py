@@ -49,6 +49,9 @@ async def main():
             await cmd('Emulation.setTouchEmulationEnabled',dict(enabled=touch))
             await asyncio.sleep(.2)
         async def point(expr):
+            # Let responsive masonry and the sticky header settle before measuring.
+            await ev('('+expr+').scrollIntoView({block:"center",behavior:"instant"})')
+            await asyncio.sleep(.4)
             return await ev('(()=>{let e='+expr+';e.scrollIntoView({block:"center",behavior:"instant"});let b=e.getBoundingClientRect();return {x:b.x+Math.min(b.width/2,80),y:b.y+b.height/2}})()')
         async def mouse(pt):await cmd('Input.dispatchMouseEvent',dict(type='mouseMoved',**pt))
         await cmd('Page.enable');await cmd('Runtime.enable');await cmd('Network.enable');await cmd('Emulation.setFocusEmulationEnabled',{'enabled':True})
@@ -80,6 +83,8 @@ async def main():
         print('Full paper abstract, video popup with sound/Escape, and reading progress: PASS',flush=True)
         data=await ev('window.__platformTable.data.platforms')
         assert len(data)==22 and all(r.get('preview') for r in data)
+        expected=json.loads((Path(__file__).resolve().parents[1]/'assets/data/platform-previews.json').read_text())
+        assert all(r['preview']==expected[r['name']] for r in data), 'Survey uses outdated preview media'
         posters=await ev("Promise.all(window.__platformTable.data.platforms.map(async r=>{try{let response=await fetch(r.preview.poster);if(!response.ok)return false;let bitmap=await createImageBitmap(await response.blob());let ok=bitmap.width>0&&bitmap.height>0;bitmap.close();return ok}catch(e){return false}}))")
         assert all(posters), 'A preview poster is missing or invalid'
         # Every row's own video must decode and advance; no substitute/fallback.
