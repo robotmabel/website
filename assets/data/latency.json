@@ -1,0 +1,93 @@
+{
+  "generated_by": "scripts/build_latency.py",
+  "source": "MILO/experiments/teleop_latency/results_g2g.json",
+  "paper": "Sections/12_experiments.tex \u00b7 Teleoperation Latency",
+  "date": "2026-10-27",
+  "units": "ms",
+  "paths": [
+    {
+      "key": "hotspot",
+      "name": "Robot hotspot",
+      "total": 137.06666666666666,
+      "sd": 5.008076809847602,
+      "label": "137 \u00b1 5 ms",
+      "sub": "Direct Wi-Fi to the robot",
+      "stages": {
+        "capture": 100.59681822458612,
+        "encode": 7.0,
+        "transport": 24.9698486328125,
+        "decode": 2.6999998092651367,
+        "present": 1.8000000000029104
+      },
+      "derived": false,
+      "trials": 3,
+      "trial_seconds": 20,
+      "frames": 1738,
+      "p95": 225.5,
+      "note": "Gray-coded clock filmed by the head camera; both endpoints share one clock. Camera time is the residual after measured downstream stages."
+    },
+    {
+      "key": "lan",
+      "name": "LAN",
+      "total": 149.78333333333333,
+      "sd": 0.22546248764113924,
+      "label": "150 \u00b1 0.2 ms",
+      "sub": "Operator and robot on the local network",
+      "stages": {
+        "capture": 107.97263978322057,
+        "encode": 6.699999999999999,
+        "transport": 30.510693359375,
+        "decode": 1.8000001907348633,
+        "present": 2.8000000000029104
+      },
+      "derived": false,
+      "trials": 3,
+      "trial_seconds": 20,
+      "frames": 1697,
+      "p95": 216.7,
+      "note": "Gray-coded clock filmed by the head camera; both endpoints share one clock. Camera time is the residual after measured downstream stages."
+    },
+    {
+      "key": "tailscale",
+      "name": "Tailscale",
+      "total": 160.6,
+      "sd": 16.00687352358355,
+      "label": "161 \u00b1 16 ms",
+      "sub": "Private VPN connection",
+      "stages": {
+        "capture": 103.59360356330725,
+        "encode": 7.1000000000000005,
+        "transport": 45.206396484375,
+        "decode": 2.549999952316284,
+        "present": 2.150000000001455
+      },
+      "derived": false,
+      "trials": 4,
+      "trial_seconds": 20,
+      "frames": 2162,
+      "p95": 300,
+      "note": "Gray-coded clock filmed by the head camera; both endpoints share one clock. Camera time is the residual after measured downstream stages."
+    },
+    {
+      "key": "relay",
+      "name": "Public relay",
+      "total": 260.40496419270835,
+      "sd": null,
+      "label": "\u2248260 ms",
+      "sub": "Partly derived total; measured encode and transport",
+      "stages": {
+        "capture": 104.05435385703798,
+        "encode": 6.7,
+        "transport": 145.0506103515625,
+        "decode": 2.349999984105428,
+        "present": 2.250000000002425
+      },
+      "derived": true,
+      "trials": null,
+      "trial_seconds": 20,
+      "frames": null,
+      "p95": null,
+      "note": "no light test on this path: capture, decode and present are the means of the light-tested paths (same camera, same browser); encode + transport are this path's measured stamps"
+    }
+  ]
+}

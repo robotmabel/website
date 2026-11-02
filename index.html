@@ -46,7 +46,9 @@
   .studios .card p { flex:1; }
   .studios .card .btn { align-self:flex-start; margin-top:18px; }
 </style>
-<link href="assets/overview.css?v=1315bc6a" rel="stylesheet"/>
+<link href="assets/overview.css?v=0a5c7478" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/page-progress.css?v=fc22a843"/>
+<script src="assets/page-progress.js?v=4b9cfcb1" defer></script>
 </head>
 <body class="overview-page">
 <div id="progress"></div>
@@ -97,14 +99,14 @@
 <p class="hero-sub"><span class="rot">A robot that does the work.</span></p>
 <p class="hero-tag" style="margin-top:28px;">56 functional DOF. Two 17-DOF hands, a holonomic base, and an $8,056 parts subtotal. Open hardware and software.</p>
 <p class="hero-authors">The MABEL Project</p>
-<div class="hero-actions">
-<a class="btn btn-primary" href="#cite">Read the paper</a>
-<button aria-controls="submissionDialog" aria-haspopup="dialog" class="btn btn-ghost" data-submission-play="" type="button">▶ Play video</button>
-<a class="btn btn-ghost" href="https://github.com/robotmabel/MABEL" rel="noopener" target="_blank">GitHub ↗</a>
+<div aria-label="Project resources" class="hero-actions hero-resources">
+<a class="btn hero-paper" href="#cite"><span aria-hidden="true">📄</span> Read paper</a>
+<a aria-controls="submissionDialog" aria-haspopup="dialog" class="btn hero-video" data-submission-play="" href="assets/overview/submission-final-v3-web.mp4" target="_blank"><span aria-hidden="true">🎬</span> Play video</a>
+<a class="hero-source" href="https://github.com/robotmabel/MABEL" rel="noopener" target="_blank"><span aria-hidden="true">🐙</span> GitHub <span aria-hidden="true">↗</span></a>
 </div>
-<div class="hero-actions hero-build">
-<a class="btn btn-primary btn-xl" href="order.html">Buy one · coming soon →</a>
-<a class="btn btn-ghost btn-xl" href="docs/">Build your own · from $8,056</a>
+<div aria-label="Get or build MABEL" class="hero-build hero-paths">
+<a class="hero-path hero-path-buy" href="order.html"><span aria-hidden="true" class="hero-path-icon">🤖</span><span><b>Bring MABEL home</b><small>Ready-built · coming soon</small></span><i aria-hidden="true">→</i></a>
+<a class="hero-path hero-path-build" href="docs/"><span aria-hidden="true" class="hero-path-icon">🛠️</span><span><b>Build your own MABEL</b><small>Open build guide · $8,056 in parts</small></span><i aria-hidden="true">→</i></a>
 </div>
 </div>
 <a aria-label="Scroll to read more" class="scroll-cue" href="#story"><span>Scroll</span><span class="cue-line"></span></a>
@@ -367,5 +369,5 @@
      auth at control.<domain>) — no client-side gate needed. The SIM twin is an
      open demo whose planes can only reach the token-gated simulation relay. -->
 <script src="assets/inline-svg.js"></script>
-<dialog aria-labelledby="submissionTitle" class="ov-submission" id="submissionDialog"><div class="ov-submission-head"><h2 id="submissionTitle">MABEL · Video submission</h2><button aria-label="Close video" class="film-close" type="button">✕</button></div><video aria-label="MABEL final video submission" controls="" data-src="assets/overview/submission-final-v3.mp4" playsinline="" poster="assets/overview/submission-final-v3.jpg" preload="none"></video></dialog><nav aria-label="Page progress" class="ov-scroll-rail"><a aria-label="Front page" href="#hero" title="Front page"><span>Front page</span></a><a aria-label="Abstract" href="#story" title="Abstract"><span>Abstract</span></a><a aria-label="Real robot photos" href="#home" title="Real robot photos"><span>Real robot photos</span></a><a aria-label="State-of-the-art robots" href="#paper" title="State-of-the-art robots"><span>State-of-the-art robots</span></a><a aria-label="Hardware design" href="#anatomy" title="Hardware design"><span>Hardware design</span></a><a aria-label="Teleoperation" href="#demo" title="Teleoperation"><span>Teleoperation</span></a><a aria-label="Simulation" href="#play" title="Simulation"><span>Simulation</span></a><a aria-label="Control stack" href="#architecture" title="Control stack"><span>Control stack</span></a><a aria-label="Learning" href="#learning" title="Learning"><span>Learning</span></a><a aria-label="Paper and citation" href="#cite" title="Paper and citation"><span>Paper and citation</span></a><output aria-label="Page progress" id="pageProgress">0%</output></nav><script src="assets/overview.js?v=a3d43e97"></script></body>
+<dialog aria-labelledby="submissionTitle" class="ov-submission" id="submissionDialog"><div class="ov-submission-head"><h2 id="submissionTitle">MABEL · Video submission</h2><button aria-label="Close video" class="film-close" type="button">✕</button></div><video aria-label="MABEL final video submission" controls="" playsinline="" poster="assets/overview/submission-final-v3.jpg" preload="none" src="assets/overview/submission-final-v3-web.mp4" webkit-playsinline=""></video><div class="ov-submission-foot"><p id="submissionStatus" role="status">Press play to watch the final submission with sound.</p><button class="btn" id="submissionStart" type="button">▶ Start video</button><a href="assets/overview/submission-final-v3-web.mp4" rel="noopener" target="_blank">Open video ↗</a></div></dialog><nav aria-label="Page progress" class="ov-scroll-rail"><a aria-label="Front page" href="#hero" title="Front page"><span>Front page</span></a><a aria-label="Abstract" href="#story" title="Abstract"><span>Abstract</span></a><a aria-label="Real robot photos" href="#home" title="Real robot photos"><span>Real robot photos</span></a><a aria-label="State-of-the-art robots" href="#paper" title="State-of-the-art robots"><span>State-of-the-art robots</span></a><a aria-label="Hardware design" href="#anatomy" title="Hardware design"><span>Hardware design</span></a><a aria-label="Teleoperation" href="#demo" title="Teleoperation"><span>Teleoperation</span></a><a aria-label="Simulation" href="#play" title="Simulation"><span>Simulation</span></a><a aria-label="Control stack" href="#architecture" title="Control stack"><span>Control stack</span></a><a aria-label="Learning" href="#learning" title="Learning"><span>Learning</span></a><a aria-label="Paper and citation" href="#cite" title="Paper and citation"><span>Paper and citation</span></a><output aria-label="Page progress" id="pageProgress">0%</output></nav><script src="assets/overview.js?v=593b08e4"></script></body>
 </html>

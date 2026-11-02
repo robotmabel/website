@@ -67,7 +67,7 @@ async def main():
         print('Section order, paper values and deferred previews: PASS',flush=True)
         # Full abstract stays visible, and the popup video waits for a real user click.
         assert await ev("!document.querySelector('#story details')&&document.querySelector('.ov-full-abstract').textContent.includes('56 degrees of freedom (DOF)')")
-        assert not any('/submission-final-v3.mp4' in u for u in requests), 'Submission downloaded before Play'
+        assert not any('/submission-final-v3' in u for u in requests), 'Submission downloaded before Play'
         pt=await point("document.querySelector('[data-submission-play]')")
         await cmd('Input.dispatchMouseEvent',dict(type='mousePressed',button='left',clickCount=1,**pt))
         await cmd('Input.dispatchMouseEvent',dict(type='mouseReleased',button='left',clickCount=1,**pt))
@@ -75,7 +75,7 @@ async def main():
         assert await ev("!document.querySelector('#submissionDialog video').muted&&document.querySelector('#submissionDialog video').controls")
         await cmd('Input.dispatchKeyEvent',dict(type='keyDown',key='Escape',code='Escape'))
         await until("!document.querySelector('#submissionDialog').open")
-        assert await ev("document.querySelector('#submissionDialog video').paused&&!document.querySelector('#submissionDialog video').getAttribute('src')")
+        assert await ev("document.querySelector('#submissionDialog video').paused&&document.querySelector('#submissionDialog video').currentTime===0")
         await ev("scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'})")
         await asyncio.sleep(.3)
         assert await ev("document.querySelector('#pageProgress').value==='100%'"), await ev("[scrollY,innerHeight,document.documentElement.scrollHeight,document.querySelector('#pageProgress').value]")

@@ -17,7 +17,7 @@ def main():
         for suffix,width,crf in [('',960,24),('-lo',480,27)]:
             subprocess.run(['ffmpeg','-v','error','-y','-ss','59','-i',str(a.video),'-t','6','-an','-vf',f'crop=552:310:70:238,scale={width}:-2,fps=25','-c:v','libx264','-preset','fast','-crf',str(crf),'-pix_fmt','yuv420p','-threads','2','-movflags','+faststart',str(out/('mujoco-left-v3'+suffix+'.mp4'))],check=True)
         subprocess.run(['ffmpeg','-v','error','-y','-i',str(out/'mujoco-left-v3.mp4'),'-frames:v','1','-threads','1','-q:v','3',str(out/'mujoco-left-v3.jpg')],check=True)
-        subprocess.run(['ffmpeg','-v','error','-y','-i',str(a.video),'-map','0:v:0','-map','0:a:0','-c:v','libx264','-preset','fast','-crf','24','-threads','2','-pix_fmt','yuv420p','-c:a','aac','-b:a','128k','-movflags','+faststart',str(out/'submission-final-v3.mp4')],check=True)
+        subprocess.run(['ffmpeg','-v','error','-y','-i',str(a.video),'-map','0:v:0','-map','0:a:0','-c:v','libx264','-profile:v','baseline','-level:v','3.1','-tag:v','avc1','-r','30','-preset','veryfast','-crf','23','-threads','2','-pix_fmt','yuv420p','-c:a','aac','-profile:a','aac_low','-ar','48000','-ac','2','-b:a','128k','-movflags','+faststart',str(out/'submission-final-v3-web.mp4')],check=True)
         subprocess.run(['ffmpeg','-v','error','-y','-ss','6','-i',str(a.video),'-frames:v','1','-vf','scale=960:-2','-threads','1','-q:v','3',str(out/'submission-final-v3.jpg')],check=True)
         return
     def one(row):
