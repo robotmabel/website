@@ -23,7 +23,7 @@
      'papers/iros2026 · Table I'],
     ['5.4', 'kg', 'payload per arm', 'Static actuator-torque limit at full extension',
      'Table I'],
-    ['9,283', '$', 'bill of materials', 'Recommended build, in parts. No machine shop',
+    ['8,056', '$', 'bill of materials', 'Essential build, in parts. No machine shop',
      'BOM/README.md'],
     ['82', 'ms', 'glass to glass', 'Camera photon to operator pixel over a LAN',
      'experiments/glass_to_glass'],
@@ -47,7 +47,7 @@
     ['Power', '24 V, 2 packs, untethered'],
     ['Loop rates', '42 / 200 / 500 Hz — retargeting, QP, torque'],
     ['Video latency', '49 / 82 / 362 ms — same host, LAN, public relay'],
-    ['Bill of materials', '$9,283 recommended · $8,056 essential'],
+    ['Bill of materials', '$8,056 essential · tiers in the BOM'],
     ['Licence', 'MIT'],
   ];
 

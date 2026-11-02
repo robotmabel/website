@@ -17,7 +17,15 @@ generated**: `assets/data/harness.json` comes from `scripts/build_harness.py`,
 which reads `claude_harness/data/commands.yaml` in the repo root. Never type a
 command into the page; edit the registry and re-run the script.
 
-`order.html` is the store, laid out like Apple's buy page: no page header and
+`order.html` is **coming soon** (2026-11-02): no robot price, a gallery in one
+3:2 frame, and an interest form (`assets/coming-soon.js`) that posts to the store
+API's `/api/interest`; `ordertest.py` checks it against a real copy of that API.
+The only figure on it is the Essential build cost (`bomclaims.py`). The webcam
+retargeting demo was removed the same day (it did not work well enough to show).
+SEO: `scripts/build_seo.py` owns every page's title, description, canonical/OG
+block, `sitemap.xml` and `robots.txt` — add a page to its table, re-run it.
+
+The dormant store (kept for re-opening): `order.html` was laid out like Apple's buy page: no page header and
 no side rail, a full-bleed stage with the product at two thirds of the width on
 the left (the renders are transparent PNGs, so it floats), the picks on the
 right ONE AT A TIME — how it ships, body, compute,
@@ -88,11 +96,6 @@ in its docstring. `scripts/run_all.sh` runs the lot.
 | `stickers.py` | stickers sitting on top of text |
 | `poptest.py` `hovertest.py` `bomgroup.py` | the pop-ups, the BOM hover card, its grouping |
 | `filmtest.py` `vidswap.py` | captions and cross-fades on the film players |
-| `camtest.py` | the webcam retargeter: target DIRECTIONS, the palm frame, gaze, roll, hold-on-loss, the engine→rig frame fit, and the step's cost in ms |
-| `retarget-gen` · `retarget-eq` | the webcam demo's arm map is a PORT of the robot's deployed retargeter (`assets/deployed-retarget.js`). Its data generator and the parity check against the robot's own Python (every commanded joint, frame by frame, to 1e-6 rad) live in the private repo beside this one (`../web_gui/retarget_lab/tools/`), and run only when it is there |
-| `frametest.mjs` | the operator→robot palm frame, in node, against hands whose orientation is known by construction |
-| `gesturetest.mjs` | the finger counts and the two-hand heart |
-| `sync_bodyteleop.py --check` | the vendored retargeter drifting from the studio's |
 | `labrig.py` `labtable.py` `labcity.py` | the motion lab's facing, its lift stroke, its table, and a skyline that used to run out |
 | `hwtest.py` | the hardware slider: parts, prices, outbound links, deep links |
 | `curtest.py` | the curation lab: the defects it finds are the ones really in the data |
@@ -138,8 +141,6 @@ page from the same localStorage the order page writes.
 | `assets/curation/*` | `render_curation_clips.py` |
 | `assets/tipover_table.json` | `controller/experiments/exp_tipover_web.py` |
 | `assets/data/hw-modules.json` | `scripts/build_hw_modules.py` (from `BOM/data/*.csv`) |
-| `assets/bodyteleop-core.js` | `scripts/sync_bodyteleop.py` (from the Control Studio) |
-| `assets/data/deployed-retarget.json` | `../web_gui/retarget_lab/tools/export_webcam_retarget.py` (private repo: the MJCF + the teleop engine at the Retarget Lab's deploy preset) — fetched only when the camera is switched on |
 | `assets/mabel_rig.glb`, `mabel_joints.json` | `mabel_ws/.../urdf_to_glb.py` |
 | `assets/hw/exploded.png` | `scripts/build_exploded.py` (cuts the paper's CAD out of its white) |
 | `assets/hw/callout.{svg,png,json}` | `simulation/.../render_callout.py` |

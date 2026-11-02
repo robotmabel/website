@@ -163,7 +163,7 @@
     <div class="contrib-grid fade-up">
       <div class="contrib-cell" data-pop data-art="price" data-fx="VHOOM!" data-pop-title="Cheap, dexterous, whole-body" data-pop-kicker="01 · THE ROBOT">
         <h3>Cheap, dexterous, whole-body</h3>
-        <p>From $8,056 in parts ($9,283 recommended). Two 17-DOF hands, two 7-DOF arms, a 3-DOF active head, and a holonomic
+        <p>From $8,056 in parts. Two 17-DOF hands, two 7-DOF arms, a 3-DOF active head, and a holonomic
         swerve base — a 0–2.23 m fingertip band on a 0.49 m footprint. The only open platform that is
         holonomic, hand-dexterous, and neck-articulated under $10k.</p>
       <template class="pop-more"><p>Dexterity is normally where an open platform gives up. Hands get replaced by a
@@ -456,7 +456,7 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
   <div class="fade-up" id="specGrid"></div>
 </div></section>
 
-<!-- ─── TRY IT TODAY · 01 the sim from the robot's eyes, 02 webcam whole-body retargeting ─── -->
+<!-- ─── TRY IT TODAY · the sim from the robot's eyes ─── -->
 <section class="soft-sec pad-y" id="play">
   <div class="wrap">
     <div class="sec-head fade-up">
@@ -464,8 +464,7 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
         <span class="eyebrow">Curious? · no install</span>
         <h2 class="display-md title">Fly it <span class="italic accent">today.</span><img src="assets/stickers/taxi.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-7deg);" loading="lazy" /></h2>
       </div>
-      <p class="lede">Two ways in, both right here in this tab: drive the twin from the robot&rsquo;s own eyes,
-        or switch on your webcam and pilot the whole body yourself.</p>
+      <p class="lede">Drive the twin from the robot&rsquo;s own eyes, right here in this tab.</p>
     </div>
 
     <div class="try-step fade-up">
@@ -485,13 +484,6 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
       </div>
     </div>
 
-    <span id="webcam" class="anchor-alias"></span>
-    <div class="try-step fade-up" style="margin-top:clamp(44px,7vh,72px);">
-      <span class="try-num">02</span>
-      <div><h3>Be the operator</h3>
-        <p>No headset, no joystick. Turn the camera on and MABEL follows you through the exact retargeter the robot runs, ported to your browser and checked against the robot&rsquo;s own code joint for joint. Keep your hands in view: an arm follows only while its hand is tracked. Nothing is uploaded.</p></div>
-    </div>
-    <div data-retarget-cam></div>
   </div>
 </section>
 
@@ -503,7 +495,7 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
         <span class="eyebrow">Under the hood</span>
         <h2 class="display-md title">One platform, <span class="italic accent">end to end.</span><img src="assets/stickers/streetlight.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(6deg);" loading="lazy" /></h2>
       </div>
-      <p class="lede">Every one of those pilots — headset, phone, browser, webcam — speaks to the
+      <p class="lede">Every one of those pilots — headset, phone, browser — speaks to the
         same stack. MABEL is vertically integrated: operator intent and learned policies enter at the top and
         descend through onboard intelligence, a single ROS&nbsp;2 graph, and per-MCU firmware until they
         become torque at 56 joints — while joint state, odometry, and vision flow back up. A MuJoCo twin
@@ -634,11 +626,11 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
 <script src="assets/burst-variety.js?v=4bc405a8"></script>
 <script src="assets/rail-loop.js?v=546ee8f7"></script>
 <script src="assets/stack-map.js"></script>
-<script src="assets/spec-grid.js?v=374ff114"></script>
+<script src="assets/spec-grid.js?v=14d6c237"></script>
 <script src="assets/platform-table.js?v=fab495ec"></script>
 <script src="assets/store-nav.js"></script>
 <script src="assets/mabel.js?v=9fdb3a66"></script>
-<script src="assets/comic-pop.js?v=ac71d2fb"></script>
+<script src="assets/comic-pop.js?v=ba6e9586"></script>
 <script>
 (function () {
   /* power on the simulator: swap the poster for the live console iframe */
@@ -707,7 +699,6 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
 <!-- Control Studio links: the REAL studio is passkey-gated SERVER-side (basic
      auth at control.<domain>) — no client-side gate needed. The SIM twin is an
      open demo whose planes can only reach the token-gated simulation relay. -->
-<script defer src="assets/defer-module.js" data-mod="./retarget-cam.js" data-when="[data-retarget-cam]"></script>
 <script src="assets/inline-svg.js"></script>
 </body>
 </html>
