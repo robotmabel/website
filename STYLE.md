@@ -153,5 +153,6 @@ preference — the front page was once 8.6 MB with first paint at 42 seconds.
   900 px files in a 393 px card.
 
 Budget: **700 kB gzipped** and 90 requests per page, checked by
-`scripts/loadtest.py`. index.html has a documented exception for the hero rig,
-which arrives after the load event.
+`scripts/loadtest.py`. index.html retains its documented media allowance. The explicitly opened
+`simulator.html` has a 2.6 MB allowance for the canonical rig and 3D runtime;
+the Overview loads that console only after the visitor requests it.
