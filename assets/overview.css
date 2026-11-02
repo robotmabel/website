@@ -145,13 +145,15 @@
 .hero-resources .hero-video { background:var(--ink);color:var(--bone); }
 .hero-resources .hero-video:hover { background:var(--ink-soft); }
 .hero-resources [aria-hidden=true] { font-size:22px;line-height:1; }
+.comic-icon { display:inline-block;width:28px;height:28px;flex:0 0 auto;vertical-align:middle;overflow:visible; }
+.hero-path .comic-icon { width:44px;height:44px; }
+.hero-path .comic-icon-robot { width:46px; }
 .hero-source { display:inline-flex;align-items:center;gap:9px;min-height:44px;font:21px var(--font-comic);color:var(--ink);text-decoration:none;border-bottom:2px solid var(--ink); }
 .hero-source:hover { color:var(--hi);border-color:var(--hi); }
 .hero-paths { display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;max-width:730px; }
 .hero-path { display:flex;align-items:center;gap:12px;flex:1 1 260px;min-width:0;padding:14px 16px;border:2px solid var(--ink);border-radius:10px;box-shadow:4px 4px 0 var(--ink);background:var(--panel);text-decoration:none;color:var(--ink);transition:transform .16s,box-shadow .16s; }
 .hero-path-buy { background:var(--yellow); }
 .hero-path:hover { transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink); }
-.hero-path-icon { font-size:29px;line-height:1; }
 .hero-path b { display:block;font:24px var(--font-comic);letter-spacing:.02em; }
 .hero-path small { display:block;font:13px var(--font-head);margin-top:3px; }
 .hero-path i { margin-left:auto;font-size:26px;font-style:normal; }
@@ -174,6 +176,8 @@
 .lp-architecture { width:100%;margin:0;padding:16px;align-self:start; }
 .lp-caption { display:inline-block;margin:0 0 18px;font-size:14px; }
 .lp-diagram { display:grid;grid-template-columns:120px minmax(0,1fr) minmax(150px,1fr);gap:20px;align-items:center; }
+.lp-targets button { display:inline-flex;align-items:center;justify-content:center;gap:7px; }
+.lp-targets .comic-icon { width:24px;height:24px; }
 .lp-camera { display:block;width:100%;padding:0;margin:0 0 8px;border:2px solid var(--ink);border-radius:7px;overflow:hidden;background:var(--panel);color:var(--ink);cursor:pointer; }
 .lp-camera img { display:block;width:100%;aspect-ratio:4/3;object-fit:cover; }
 .lp-camera b { display:block;padding:4px 5px;font:16px var(--font-comic); }

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <!-- Small editorial icons: the site's ink, newsprint, comic red and cab yellow. -->
+  <symbol id="paper" viewBox="0 0 64 64">
+    <path d="M15 10h31l9 10v35H15z" fill="#151820"/>
+    <g stroke="#151820" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 6h30l10 10v35H10z" fill="#FFF9F0"/>
+      <path d="M40 6v12h10" fill="#F2C94C"/>
+      <path d="M17 15h15v7H17z" fill="#E4442A" stroke="none"/>
+      <path d="M17 28h26M17 34h9M32 34h11M17 40h9M32 40h11M17 46h26" fill="none"/>
+      <path d="M53 5v5m-4-2h8" stroke="#E4442A" stroke-width="2.5"/>
+    </g>
+  </symbol>
+  <symbol id="video" viewBox="0 0 64 64">
+    <path d="M10 17h48v39H10z" fill="#151820"/>
+    <g stroke="#151820" stroke-width="3" stroke-linejoin="round">
+      <rect x="6" y="12" width="48" height="39" rx="5" fill="#FFF9F0"/>
+      <path d="M7 23h46v18H7z" fill="#E4442A"/>
+      <path d="m27 26 10 6-10 6z" fill="#FFF9F0" stroke-width="2"/>
+    </g>
+    <g fill="#151820">
+      <path d="M13 16h5v4h-5zm12 0h5v4h-5zm12 0h5v4h-5zm8 0h4v4h-4zM13 44h5v4h-5zm12 0h5v4h-5zm12 0h5v4h-5zm8 0h4v4h-4z"/>
+    </g>
+    <path d="m49 3 3 4 6-1-2 5 4 4-6 1-2 5-3-5-6-1 4-4-1-6z" fill="#F2C94C" stroke="#151820" stroke-width="2" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="source" viewBox="0 0 64 64">
+    <circle cx="35" cy="35" r="25" fill="#151820"/>
+    <circle cx="30" cy="30" r="25" fill="#FFF9F0" stroke="#151820" stroke-width="3"/>
+    <path d="M21 17v27m0-11c0-12 18-3 18-15" fill="none" stroke="#151820" stroke-width="4" stroke-linecap="round"/>
+    <g stroke="#151820" stroke-width="3">
+      <circle cx="21" cy="16" r="5" fill="#E4442A"/>
+      <circle cx="21" cy="44" r="5" fill="#F2C94C"/>
+      <circle cx="39" cy="16" r="5" fill="#E4442A"/>
+    </g>
+    <path d="m44 36 5 4-5 4m-8-8-5 4 5 4" fill="none" stroke="#151820" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="tools" viewBox="0 0 64 64">
+    <g stroke="#151820" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 14h12l29 29-9 9-30-30z" fill="#151820"/>
+      <path d="m13 11 10 2 27 29-8 8-29-28z" fill="#E4442A"/>
+      <path d="m12 7 14 14-7 7L5 14z" fill="#F2C94C"/>
+      <path d="M43 7a13 13 0 0 0-15 16L9 42a6 6 0 0 0 9 9l19-19A13 13 0 0 0 54 17l-9 8-7-7z" fill="#FFF9F0"/>
+      <circle cx="15" cy="46" r="2" fill="#151820" stroke="none"/>
+      <path d="M6 29H2m5-5-3-2M54 39l5 1m-6 4 4 3" stroke="#E4442A" stroke-width="2.5"/>
+    </g>
+  </symbol>
+  <symbol id="twin" viewBox="0 0 64 64">
+    <path d="m34 7 22 13v28L34 61 12 48V20z" fill="#151820"/>
+    <g stroke="#151820" stroke-width="3" stroke-linejoin="round">
+      <path d="m29 3 22 13v27L29 56 7 43V16z" fill="#FFF9F0"/>
+      <path d="m7 16 22 13 22-13M29 29v27" fill="none"/>
+      <path d="m29 3 22 13-22 13L7 16z" fill="#F2C94C"/>
+      <path d="m15 29 7 4v11l-7-4z" fill="#E4442A" stroke-width="2"/>
+      <path d="m37 30 7-4m-7 11 7-4m-7 11 7-4" fill="none" stroke-width="2"/>
+    </g>
+  </symbol>
+</svg>
