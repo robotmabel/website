@@ -320,7 +320,10 @@
     host.querySelector('.pt-scroll').addEventListener('scroll', onScroll);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', hideCard);
-    reducedMotion.addEventListener('change', hideCard);
+    reducedMotion.addEventListener('change', function () {
+      var video = card.querySelector('video');
+      if (video && reducedMotion.matches) video.pause();
+    });
 
     render();
     window.__platformTable = {

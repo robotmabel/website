@@ -113,6 +113,7 @@ async def main():
         # Reduced motion keeps the poster and native play control without autoplay.
         await metrics(1440)
         await cmd('Emulation.setEmulatedMedia',dict(features=[dict(name='prefers-reduced-motion',value='reduce')]))
+        await ev("new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))")
         await ev("document.querySelector('tr[data-row=\"Sunday Memo\"] .pt-preview-trigger').focus()")
         await until("!!document.querySelector('.pt-preview-card video')")
         assert await ev("document.querySelector('.pt-preview-card video').paused")
