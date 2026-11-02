@@ -918,6 +918,10 @@ class App {
   /** Default target: the last one used, else the relay sim on the public site
       or auto-discovery on a LAN / the bridge-served console. */
   connectAuto() {
+    if (this.overview) {
+      this._selectTarget(this._findTarget('sim-relay') || this._findTarget('sim-auto'));
+      return;
+    }
     let id = null; try { id = localStorage.getItem('mabel-target'); } catch (e) {}
     let t = (id && this._findTarget(id)) || null;
     if (!t) {
@@ -2664,7 +2668,8 @@ class App {
         }
       }
       if (this.bodyStage) this.bodyStage.render();
-    } else if (this.view === 'nav') {
+    }
+    if (this.view === 'nav' || this.overview) {
       // REAL robot on the live map: the robot sits at the SLAM /odom estimate.
       // Otherwise (sim / offline demo) the LOCAL twin pose drives — so the
       // pure-pursuit visibly walks the robot along the A* path on the floor.
@@ -2705,8 +2710,20 @@ function pushSafe(app) { try { app.pushFrame(); } catch (e) { /* never kill the 
   try {
     const manifest = await fetch('assets/mabel_joints.json').then((r) => r.json());
     const app = new App(manifest);
+    app.overview = new URLSearchParams(location.search).has('overview');
     window.__ta = app;          // exposed for the smoke-test harness
     await app.start();
+    if (app.overview) {
+      app.connectAuto();
+      const status = document.getElementById('overviewSimStatus');
+      const update = () => {
+        if (!status) return;
+        const live = app.sim.remote && app.link.connected && app._aliveAt && performance.now() - app._aliveAt < 4000;
+        status.textContent = live ? 'Live MuJoCo state' : 'MuJoCo host unavailable · browser kinematic twin';
+        status.dataset.live = String(!!live);
+      };
+      update(); setInterval(update, 1000);
+    }
   } catch (e) {
     console.error('teleop console failed to start', e);
     const l = $('#taApp .ta-loading'); if (l) l.textContent = 'FAILED TO LOAD — see console';

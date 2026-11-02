@@ -1,6 +1,6 @@
 /* The numbers, front and centre.
  *
- * The marketing cut of the paper's Table I — the ten figures that mean
+ * The marketing cut of the active RA-L paper — eight figures that mean
  * something to someone deciding whether to build one, as tiles rather than a
  * spec sheet. The full table is one click away for the people who want the
  * loop rates and the camera layout, so nothing is hidden, only ranked.
@@ -13,24 +13,16 @@
   var host = document.getElementById('specGrid');
   if (!host) return;
 
-  /* value, unit, label, the line under it, and the file it comes from */
+  /* value, unit, label, provenance (shown in the expanded specification) */
   var HERO = [
-    ['56', '', 'functional DOF', '59 actuators — the hands account for 34 of them',
-     'simulation/mabel_mujoco/models/mabel_full.xml'],
-    ['17', '× 2', 'DOF per hand', 'Tendon-routed ORCA hands. Most platforms ship a 1-DOF jaw',
-     'BOM §4'],
-    ['2.23', 'm', 'vertical reach', 'Floor socket to top shelf, over the 0.635 m lift stroke',
-     'papers/iros2026 · Table I'],
-    ['5.4', 'kg', 'payload per arm', 'Static actuator-torque limit at full extension',
-     'Table I'],
-    ['8,056', '$', 'bill of materials', 'Essential build, in parts. No machine shop',
-     'BOM/README.md'],
-    ['82', 'ms', 'glass to glass', 'Camera photon to operator pixel over a LAN',
-     'experiments/glass_to_glass'],
-    ['61.8', 'kg', 'mass', 'On a 0.49 × 0.49 m footprint, fully untethered at 24 V',
-     'mabel_full.xml'],
-    ['MIT', '', 'licence', 'Hardware, firmware, control, simulation — all of it',
-     'LICENSE'],
+    ['56', '', 'functional DOF', 'RA-L · MABEL specifications'],
+    ['17', '× 2', 'DOF per hand', 'RA-L · Mechatronic design'],
+    ['2.23', 'm', 'vertical reach', 'RA-L · Abstract and workspace'],
+    ['≈3.5', 'kg', 'model load limit / arm', 'RA-L · MABEL specifications'],
+    ['8,056', '$', 'parts subtotal', 'RA-L · Raspberry Pi 5 configuration'],
+    ['150', 'ms', 'LAN glass to glass', 'RA-L · Teleoperation latency'],
+    ['61.8', 'kg', 'mass', 'RA-L · MABEL specifications'],
+    ['0.635', 'm', 'lift stroke', 'RA-L · Mechatronic design'],
   ];
 
   /* the rest of Table I, for the people who came for the loop rates */
@@ -38,17 +30,14 @@
     ['Functional DOF', '56'], ['Actuators', '59'],
     ['Lift stroke', '0 – 0.635 m'], ['Height', '1.16 – 1.80 m'],
     ['Vertical reach', '0 – 2.23 m'], ['Horizontal reach', '0.87 m from the shoulder'],
-    ['Payload per arm', '5.4 kg'], ['Mass', '61.8 kg'],
+    ['Model load limit per arm', '≈3.5 kg (static torque bound)'], ['Mass', '61.8 kg'],
     ['Footprint', '0.49 × 0.49 m — support polygon 0.34 × 0.35 m'],
     ['Head', 'Stereo RGB on a 3-DOF neck'],
-    ['Wrist / chest', '2 × RGB-D, 1 × RGB'],
-    ['Base', '2 × RGB-D, 2-D lidar'],
-    ['Compute', 'NVIDIA Jetson — Orin Nano to AGX Thor by tier'],
-    ['Power', '24 V, 2 packs, untethered'],
-    ['Loop rates', '42 / 200 / 500 Hz — retargeting, QP, torque'],
-    ['Video latency', '49 / 82 / 362 ms — same host, LAN, public relay'],
-    ['Bill of materials', '$8,056 essential · tiers in the BOM'],
-    ['Licence', 'MIT'],
+    ['Head and hand pose stream', '60 Hz'],
+    ['Battery life', '≈4 hours'],
+    ['Video latency (mean ± s.d.)', '137 ± 5 ms hotspot · 150 ± 0.2 ms LAN · 161 ± 16 ms Tailscale'],
+    ['Public relay latency', '≈260 ms (partly derived)'],
+    ['Parts subtotal', '$8,056 · Raspberry Pi 5, excluding optional sensors'],
   ];
 
   var esc = function (s) {
@@ -60,11 +49,10 @@
   host.innerHTML =
     '<div class="sg-grid">' +
       HERO.map(function (h) {
-        return '<div class="sg-tile" title="' + esc(h[4]) + '">' +
+        return '<div class="sg-tile" title="' + esc(h[3]) + '">' +
           '<b>' + (h[1] === '$' ? '<i>$</i>' : '') + esc(h[0]) +
             (h[1] && h[1] !== '$' ? '<i>' + esc(h[1]) + '</i>' : '') + '</b>' +
           '<span class="sg-lab">' + esc(h[2]) + '</span>' +
-          '<span class="sg-sub">' + esc(h[3]) + '</span>' +
         '</div>';
       }).join('') +
     '</div>' +
@@ -75,10 +63,11 @@
         return '<tr><th>' + esc(r[0]) + '</th><td>' + esc(r[1]) + '</td></tr>';
       }).join('') +
     '</tbody></table>' +
-    '<p class="sg-src">Derived from the canonical MuJoCo model, the bill of ' +
-      'materials, and the measured latency runs — the same sources the paper ' +
-      'uses. Reach figures are to the fingertip; payload is the static ' +
-      'actuator-torque limit, not a sustained rating.</p></div>';
+    '<p class="sg-src">Values follow the active RA-L paper’s specification ' +
+      'table, mechatronic design, workspace and latency results. Reach is to ' +
+      'the fingertip. The approximate 3.5 kg model load limit is a static ' +
+      'torque bound, not a tested payload rating. The $8,056 parts subtotal ' +
+      'uses a Raspberry Pi 5 and excludes optional sensors.</p></div>';
 
   var btn = host.querySelector('.sg-more');
   var full = host.querySelector('.sg-full');

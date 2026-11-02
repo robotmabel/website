@@ -1,0 +1,28 @@
+#overviewSimStatus { display: none; }
+.overview-sim #overviewSimStatus { display: block; position: absolute; top: 0; left: 0;
+  right: 0; z-index: 20; padding: 8px 12px; background: var(--ink); color: var(--gold);
+  font: 11px var(--font-mono); text-align: center; }
+.overview-sim .ta-app { border-radius: 0; }
+.overview-sim .ta-view[data-view=teleop] { display: block; top: 30px; right: 50%; bottom: var(--ta-dock-h, 100px); }
+.overview-sim .ta-view[data-view=nav] { display: block; top: 30px; left: 50%; bottom: var(--ta-dock-h, 100px); border-left: 2px solid var(--gold); }
+.overview-sim .ta-view[data-view=body] { display: none; }
+.overview-sim .ta-view[data-view=nav]::after { content: '3D state viewer · drag to orbit'; position: absolute;
+  left: 12px; bottom: 12px; z-index: 2; color: var(--bone); font: 11px var(--font-mono); pointer-events: none; }
+.overview-sim .ta-rooms, .overview-sim .ta-navhud, .overview-sim .ta-tabs { display: none; }
+.overview-sim .ta-view[data-view=nav] .ta-top { display: none; }
+.overview-sim .ta-pip { display: none; }
+.overview-sim .ta-mini { display: none; }
+.overview-sim .ta-novid .inner { padding: 15px; max-width: 36ch; }
+.overview-sim .ta-novid .inner b { font-size: 15px; }
+.overview-sim .ta-viewbtns { top: 12px; bottom: auto; }
+.overview-sim .ta-joy { width: 100px; height: 100px; }
+.overview-sim .ta-top { padding: 12px; }
+@media (max-width: 720px) {
+  .overview-sim .ta-view[data-view=teleop] { right: 0; bottom: calc(50% + 25px); }
+  .overview-sim .ta-view[data-view=nav] { left: 0; top: calc(50% - 25px); border-left: 0; border-top: 2px solid var(--gold); }
+  .overview-sim .ta-joy { width: 82px; height: 82px; bottom: 12px; }
+  .overview-sim .ta-novid .inner p { font-size: 11px; margin: 5px 0; }
+  .overview-sim .ta-novid .inner b { font-size: 12px; }
+  .overview-sim .ta-viewbtns { right: 10px; }
+  .overview-sim .ta-vbtn { font-size: 10px; }
+}

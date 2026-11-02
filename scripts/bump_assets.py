@@ -12,7 +12,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Every shared stylesheet/script the pages reference. Missing one here means
 # a deployed page can pair with a cached older copy of it — which is exactly
 # how a verified bom-table.js fix appeared to do nothing in the browser.
-TRACKED = ["assets/mabel.css", "assets/mabel.js", "assets/bom/bom_data.js", "assets/spec-grid.js",
+TRACKED = ["assets/overview.css", "assets/overview.js", "assets/simulation-overview.css", "assets/teleop-app.css", "assets/teleop-app.js", "assets/stack-map.js", "assets/mabel.css", "assets/mabel.js", "assets/bom/bom_data.js", "assets/spec-grid.js",
            "assets/comic-pop.js", "assets/tipover-lab.js",
            "assets/bom-table.js", "assets/bom-pie.js", "assets/reach-globe.js",
            "assets/wbc-viewer.js", "assets/robot-viewer.js", "assets/hero-rig.js",
@@ -52,6 +52,12 @@ def main():
                 ref = path
             s = re.sub(r'(%s="%s)(\?v=[a-f0-9]+)?"' % (attr, re.escape(ref)),
                        r'\1?v=' + v + '"', s)
+        if not indocs:
+            for path in ["assets/teleop-app.js"]:
+                v = vers[path]
+                ref = "./" + path.split("/")[-1]
+                s = re.sub(r'(data-mod="%s)(\?v=[^" ]+)?"' % re.escape(ref),
+                           r'\1?v=' + v + '"', s)
         if s != o:
             open(f, "w").write(s); n += 1
     print("stamped %d pages: %s" % (n, ", ".join(f"{k.split('/')[-1]}={v}" for k, v in vers.items() if v)))

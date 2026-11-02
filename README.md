@@ -22,3 +22,30 @@ python3 -m http.server 8741      # from website/
 ./scripts/run_all.sh             # 32 checks, all must pass
 python3 scripts/bump_assets.py   # cache-bust the ?v= stamps
 ```
+
+## Overview media and sources
+
+The numbered Overview follows the active RA-L manuscript and the reviewed v21 video.
+The compact specifications use the paper’s 3.5 kg model load limit, $8,056 Pi 5
+parts subtotal, 150 ms LAN latency (137 ms on the robot hotspot), and 61.8 kg mass.
+The model load limit is a static torque bound, not a tested payload rating.
+
+Regenerate the submitted-video excerpts and robot hover clips with:
+
+```bash
+python3 scripts/build_overview_media.py --video /path/to/MABEL_RAL_v21_clean_master.mp4
+python3 scripts/build_platform_previews.py --source-root /path/to/MABEL
+python3 scripts/build_platforms.py
+python3 scripts/bump_assets.py
+python3 scripts/overviewtest.py http://localhost:8741
+```
+
+`platform_preview_sources.json` records each selected source, window, credit and
+playback-rate label. Hover previews have their own interaction lifecycle: they
+load on hover, focus or tap and unload when dismissed. Reduced-motion visitors
+get the native play control. The X-ray loads on request.
+
+`simulator.html?overview=1` displays the camera and orbitable robot-state view
+together. It uses the existing simulation-only public relay. When its MuJoCo
+host is unavailable it explicitly labels the in-browser kinematic fallback.
+

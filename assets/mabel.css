@@ -5060,3 +5060,34 @@ html.js .rg-chap.fade-up { opacity: 1; transform: none; }
 .xr-reel { margin: clamp(18px, 2.6vh, 30px) 0 clamp(26px, 3.4vh, 40px); }
 .xr-reel video { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 0; border-radius: 14px; background: transparent; }
 .xr-reel figcaption { margin-top: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--ash); }
+
+/* Robot comparison: clips load only when a visitor opens a preview. */
+.pt-hint { margin: 0 0 10px; color: var(--ash); font-size: 12px; }
+.pt-preview-trigger { display: inline-flex; align-items: center; gap: 7px;
+  max-width: 100%; padding: 4px 0; border: 0; border-radius: 3px;
+  background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+.pt-preview-trigger:hover b, .pt-previewing .pt-preview-trigger b { color: var(--hi); }
+.pt-preview-trigger:focus-visible { outline: 2px solid var(--hi); outline-offset: 3px; }
+.pt-play { flex: none; font-size: 9px; color: var(--hi); }
+.pt-preview-card { position: fixed; z-index: 1200; width: 380px;
+  max-width: calc(100vw - 24px); max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain;
+  pointer-events: auto; border: 2px solid var(--gold); padding: 12px; }
+.pt-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-bottom: 8px; }
+.pt-card-head > div { min-width: 0; }
+.pt-card-close { flex: none; width: 36px; height: 36px; padding: 0;
+  border: 1px solid var(--gold); border-radius: 6px; background: var(--ink);
+  color: var(--bone); font-size: 24px; line-height: 1; cursor: pointer; }
+.pt-card-close:hover, .pt-card-close:focus-visible { background: var(--ink-soft); }
+.pt-preview-video { display: block; width: 100%; aspect-ratio: 16 / 9;
+  object-fit: contain; background: var(--ink); border-radius: 5px; }
+.pt-video-credit { display: block; margin: 7px 0 10px; font-family: var(--font-mono);
+  color: var(--gold); font-size: 10px; line-height: 1.5; text-decoration: underline; }
+.pt-preview-card .pt-card-link { color: var(--gold); }
+.pt-preview-card dd { overflow-wrap: anywhere; }
+@media (max-width: 720px) {
+  .pt-preview-trigger { display: flex; width: 100%; min-height: 44px; }
+  .pt-preview-trigger b { min-width: 0; }
+  .pt-card-close { width: 44px; height: 44px; }
+}

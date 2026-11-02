@@ -96,6 +96,10 @@ async def go():
                 if await ev("document.readyState === 'complete'"):
                     break
             await asyncio.sleep(1.5)
+            # A closed disclosure intentionally keeps its clips unloaded. Open
+            # it before the media audit, as a visitor does; Chromium can report
+            # nonzero placeholder bounds for content inside closed details.
+            await ev("document.querySelectorAll('details').forEach(function(d){ d.open = true; })")
             await ev("window.__loadDeferred && window.__loadDeferred()")
             await asyncio.sleep(1.0)
             # SCROLL THE WHOLE PAGE, the way a reader does. Every clip here is

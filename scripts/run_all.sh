@@ -72,6 +72,7 @@ run account     $P scripts/accounttest.py $B/account.html
 run wiki        $P scripts/wikitest.py
 run page-weight $P scripts/loadtest.py
 run platforms   $P scripts/pttest.py $B/index.html
+run overview    $P scripts/overviewtest.py $B
 run stack-map   $P scripts/smtest.py $B/index.html
 run accuracy    $P scripts/acctest.py $B/hardware.html
 run retarget-tv $P scripts/rktest.py $B/software.html
