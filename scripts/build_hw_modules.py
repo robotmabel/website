@@ -13,6 +13,7 @@ or a link in it comes from the CSVs.
     python3 scripts/build_hw_modules.py
 """
 import csv
+import hashlib
 import json
 import os
 import urllib.parse
@@ -276,7 +277,10 @@ def main():
         rec["parts"] = parts
         rec["options"] = opts
         rec["price"] = round(total, 2)
-        rec["img"] = f"assets/hw/{m['id']}.png"
+        shot = f"assets/hw/{m['id']}.webp"
+        if not os.path.isfile(os.path.join(SITE, shot)): shot = f"assets/hw/{m['id']}.png"
+        with open(os.path.join(SITE, shot), "rb") as image_file:
+            rec["img"] = shot + "?v=" + hashlib.sha256(image_file.read()).hexdigest()[:10]
         art = os.path.join(SITE, "assets", "hw", f"{m['id']}.svg")
         if os.path.isfile(art):
             rec["art"] = f"assets/hw/{m['id']}.svg"

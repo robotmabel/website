@@ -1,28 +1,33 @@
-#overviewSimStatus { display: none; }
-.overview-sim #overviewSimStatus { display: block; position: absolute; top: 0; left: 0;
-  right: 0; z-index: 20; padding: 8px 12px; background: var(--ink); color: var(--gold);
-  font: 11px var(--font-mono); text-align: center; }
-.overview-sim .ta-app { border-radius: 0; }
-.overview-sim .ta-view[data-view=teleop] { display: block; top: 30px; right: 50%; bottom: var(--ta-dock-h, 100px); }
-.overview-sim .ta-view[data-view=nav] { display: block; top: 30px; left: 50%; bottom: var(--ta-dock-h, 100px); border-left: 2px solid var(--gold); }
-.overview-sim .ta-view[data-view=body] { display: none; }
-.overview-sim .ta-view[data-view=nav]::after { content: '3D state viewer · drag to orbit'; position: absolute;
-  left: 12px; bottom: 12px; z-index: 2; color: var(--bone); font: 11px var(--font-mono); pointer-events: none; }
-.overview-sim .ta-rooms, .overview-sim .ta-navhud, .overview-sim .ta-tabs { display: none; }
-.overview-sim .ta-view[data-view=nav] .ta-top { display: none; }
-.overview-sim .ta-pip { display: none; }
-.overview-sim .ta-mini { display: none; }
-.overview-sim .ta-novid .inner { padding: 15px; max-width: 36ch; }
-.overview-sim .ta-novid .inner b { font-size: 15px; }
-.overview-sim .ta-viewbtns { top: 12px; bottom: auto; }
-.overview-sim .ta-joy { width: 100px; height: 100px; }
-.overview-sim .ta-top { padding: 12px; }
-@media (max-width: 720px) {
-  .overview-sim .ta-view[data-view=teleop] { right: 0; bottom: calc(50% + 25px); }
-  .overview-sim .ta-view[data-view=nav] { left: 0; top: calc(50% - 25px); border-left: 0; border-top: 2px solid var(--gold); }
-  .overview-sim .ta-joy { width: 82px; height: 82px; bottom: 12px; }
-  .overview-sim .ta-novid .inner p { font-size: 11px; margin: 5px 0; }
-  .overview-sim .ta-novid .inner b { font-size: 12px; }
-  .overview-sim .ta-viewbtns { right: 10px; }
-  .overview-sim .ta-vbtn { font-size: 10px; }
+/* Teleop first, with an orbitable picture-in-picture robot view. */
+#overviewSimStatus { display:none; }
+.overview-sim .sim-shell .ta-wrap { padding:0;max-width:none; }
+.overview-sim .ta-app { border-radius:0; }
+.overview-sim .ta-view[data-view=teleop] { display:block;inset:0; }
+.overview-sim .ta-view[data-view=nav] { display:block;position:absolute;inset:12px 12px auto auto;width:clamp(150px,27vw,300px);height:clamp(140px,23vw,240px);z-index:12;border:1px solid var(--ash);border-radius:12px;overflow:hidden;box-shadow:0 3px 15px var(--ink);background:var(--ink); }
+.overview-sim .ta-view[data-view=nav].pip-expanded { inset:12px;width:auto;height:auto; }
+.overview-sim .ta-view[data-view=body],.overview-sim .ta-rooms,.overview-sim .ta-navhud,.overview-sim .ta-tabs,.overview-sim .ta-view[data-view=nav] .ta-top,.overview-sim .ta-viewbtns,.overview-sim .ta-pip,.overview-sim .ta-mini,.overview-sim #taStartTeleop,.overview-sim .ta-hostpick { display:none; }
+.overview-sim .ta-top { padding:12px;justify-content:flex-start;right:auto; }
+.overview-sim .ta-view[data-view=teleop] .ta-top .ta-seg[data-ck] { position:static;transform:none; }
+.overview-sim .ta-seg button { font-family:var(--font-head);font-weight:600; }
+.overview-sim .ta-top > .ta-title,.overview-sim .ta-joy > .lab { display:none; }
+.overview-sim .ta-novid .inner { padding:16px;max-width:300px; }
+.overview-sim .ta-novid .inner b { font:600 18px var(--font-head); }
+.overview-sim .ta-novid .inner p,.overview-sim .ta-novid .inner button { display:none; }
+.overview-sim .ta-video.ta-camoff::after { display:none; }
+.overview-sim .ta-joy { width:96px;height:96px;bottom:calc(var(--ta-dock-h,80px) + 16px); }
+.overview-sim .ta-dock { bottom:var(--sim-dock-bottom,14px);width:max-content;max-width:calc(100% - 24px);font-family:var(--font-head); }
+.overview-sim .ta-pill span:last-child { display:inline; }
+.overview-sim .sim-pip-expand { position:absolute;right:7px;top:7px;z-index:20;width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--ash);border-radius:7px;background:var(--ink);color:var(--bone);cursor:pointer; }
+.overview-sim .sim-pip-expand svg { width:17px;height:17px; }
+.sim-queue-locked .ta-joy,.sim-queue-locked .ta-cluster { pointer-events:none; }
+.sim-queue-join[hidden] { display:none; }
+.sim-queue-join { white-space:nowrap; }
+.ta-sbtn:disabled { opacity:.35;cursor:default; }
+@media(max-width:720px) {
+ .overview-sim .ta-dock { width:calc(100% - 24px);padding:8px; }
+ .overview-sim .ta-view[data-view=nav] { width:min(150px,42vw);height:clamp(126px,44vw,155px);top:10px;right:10px; }
+ .overview-sim .ta-joy { width:76px;height:76px; }
+ .overview-sim .ta-dock-row { gap:6px; }
+ .overview-sim .ta-dock-row .ta-pill { max-width:155px;letter-spacing:0;font-size:10px; }
+ .overview-sim .ta-dock-row .ta-sbtn,.overview-sim .ta-dock-row .ta-estop { padding-inline:11px;font-size:12px; }
 }

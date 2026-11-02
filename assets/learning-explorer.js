@@ -21,6 +21,10 @@
     '<dl><div><dt>Held-command rows during dropouts</dt><dd>'+number(V.quality.held_command_rows)+'</dd></div><div><dt>Joint rows filled by interpolation</dt><dd>'+number(V.quality.interpolated_joint_rows)+'</dd></div><div><dt>Maximum accepted gap</dt><dd>'+V.quality.max_gap_seconds+' s</dd></div><div><dt>Rows with a stale camera frame</dt><dd>'+V.quality.stale_camera_rows+'</dd></div></dl>' +
     '<p>No rows exceeded the joint/log gap limit. Sample filtering still excludes '+V.quality.dropped_clips.stale_now+' stale-frame starts and '+number(V.quality.dropped_clips.short_future)+' starts with insufficient future actions.</p><p>Cache images: '+D.recording.image_size_hw.join(' × ')+' (height × width). The export retains four views; ACT uses left head and both wrists.</p></details>' +
     '<div class="lp-dataset-links"><a href="assets/data/learning-pipeline.json">Dataset summary ↗</a><a href="autonomy.html#learning">Learning details →</a></div>';
+   // Supporting metadata stays available without crowding the overview card.
+   var extra=target.querySelector('.lp-dataset-details');
+   extra.insertBefore(target.querySelector('.lp-dataset-meta'),extra.children[1]);
+   extra.append(target.querySelector('.lp-mini'),target.querySelector('.lp-dataset-links'));
    function split(key) {
     var row=V.splits.find(function (r) { return r.key===key; });
     target.querySelectorAll('[data-split]').forEach(function (b) { b.setAttribute('aria-pressed',String(b.dataset.split===key)); });

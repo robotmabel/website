@@ -93,7 +93,7 @@
    ],
    "options": [],
    "price": 1912.11,
-   "img": "assets/hw/base.png"
+   "img": "assets/hw/base.webp?v=508e17dbf8"
   },
   {
    "id": "lift",
@@ -182,7 +182,7 @@
    ],
    "options": [],
    "price": 484.2,
-   "img": "assets/hw/lift.png"
+   "img": "assets/hw/lift.webp?v=13fe35fff1"
   },
   {
    "id": "body",
@@ -292,7 +292,7 @@
    ],
    "options": [],
    "price": 2202.36,
-   "img": "assets/hw/body.png"
+   "img": "assets/hw/body.webp?v=48b71fca57"
   },
   {
    "id": "arms",
@@ -396,7 +396,7 @@
    ],
    "options": [],
    "price": 18283.32,
-   "img": "assets/hw/arms.png"
+   "img": "assets/hw/arms.webp?v=ece1ea914a"
   },
   {
    "id": "hands",
@@ -489,7 +489,7 @@
    ],
    "options": [],
    "price": 8329.3,
-   "img": "assets/hw/hands.png"
+   "img": "assets/hw/hands.webp?v=dd67ddabf8"
   },
   {
    "id": "head",
@@ -555,7 +555,7 @@
    ],
    "options": [],
    "price": 748.39,
-   "img": "assets/hw/head.png"
+   "img": "assets/hw/head.webp?v=93dba3512f"
   },
   {
    "id": "sensors",
@@ -732,7 +732,7 @@
     }
    ],
    "price": 383.98,
-   "img": "assets/hw/sensors.png",
+   "img": "assets/hw/sensors.webp?v=d44f30c61a",
    "art": "assets/hw/sensors.svg"
   },
   {
@@ -1043,7 +1043,7 @@
     }
    ],
    "price": 1740.84,
-   "img": "assets/hw/electronics.png"
+   "img": "assets/hw/electronics.webp?v=6d33e34bd9"
   }
  ]
 }

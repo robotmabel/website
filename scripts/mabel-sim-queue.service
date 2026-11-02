@@ -1,0 +1,21 @@
+[Unit]
+Description=MABEL public simulation two-minute queue
+After=network-online.target rathole.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/mabel-sim-queue
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/mabel-sim-queue/venv/bin/python /opt/mabel-sim-queue/sim_queue_server.py --host 127.0.0.1 --port 7011 --lease-seconds 120
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

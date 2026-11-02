@@ -17,7 +17,7 @@
   box.innerHTML =
     '<button class="film-close" aria-label="Close">✕</button>' +
     '<figure class="film-stage">' +
-      '<video controls playsinline preload="metadata"></video>' +
+      '<video loop controls playsinline preload="metadata"></video>' +
       '<figcaption></figcaption>' +
     '</figure>';
   document.body.appendChild(box);

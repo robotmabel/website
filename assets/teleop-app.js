@@ -143,6 +143,7 @@ class Link {
   }
   connect(url) {
     this.url = url; this.want = true;
+    this.app._queueEdgeAt = 0; this.app.simSession?.connecting(url);
     clearTimeout(this._retryT); clearTimeout(this._helloTimer);
     // A NEW connection is not "alive" until THIS robot proves itself again — reset
     // the liveness stamp so switching targets (e.g. sim → thor) can't inherit the
@@ -172,6 +173,7 @@ class Link {
         this._pingSent = performance.now();
         this.send('ping', { t: Date.now() / 1000 });
       }, PING_S * 1000);
+      this.app.simSession?.socketOpen();
       this.app.onLink(true);
     };
     this.ws.onmessage = (ev) => {
@@ -181,7 +183,8 @@ class Link {
       // path reaches the robot — not just the relay edge. _aliveAt gates the
       // "connected" UI so a token-gated VPS that accepts the socket but can't
       // reach a down robot never reads as connected.
-      if (msg.type === 'robot_state') { this.app._aliveAt = performance.now(); this.app.applyRobotState(p); }
+      if (msg.type === 'sim_queue') { this.app._queueEdgeAt = performance.now(); this.app.simSession?.receive(p); }
+      else if (msg.type === 'robot_state') { this.app._aliveAt = performance.now(); this.app.applyRobotState(p); }
       else if (msg.type === 'pong') { this.app._aliveAt = performance.now(); this.rtt = performance.now() - this._pingSent; UI.set('rtt', `${this.rtt.toFixed(0)} ms`); }
       else if (msg.type === 'hello') { this.app._aliveAt = performance.now(); this.app.onHello(p); this.send('list_maps', {}); }
       else if (msg.type === 'map_list') this.app.onMapList(p);
@@ -194,19 +197,21 @@ class Link {
     // is down — drop the socket so it doesn't masquerade as "connected" and the
     // failover/retry can try another path.
     this._helloTimer = setTimeout(() => {
-      if (this.connected && !(this.app._aliveAt && performance.now() - this.app._aliveAt < 4000)) {
+      if (this.connected && !(this.app._aliveAt && performance.now() - this.app._aliveAt < 4000) && !(this.app._queueEdgeAt && performance.now() - this.app._queueEdgeAt < 3000)) {
         try { this.ws && this.ws.close(); } catch (e) {}
       }
     }, 4500);
   }
   _down() {
     clearTimeout(this._helloTimer);
+    this.app._queueEdgeAt = 0; this.app.simSession?.socketClosed();
     if (this.connected) this.app.onLink(false);
     this.connected = false; this.rtt = null; this.app._aliveAt = 0;
     clearInterval(this._pingT);
   }
   _retry() { if (this.want) this._retryT = setTimeout(() => this._open(), 2000); }
   send(type, payload) {
+    if (this.app.simSession && !this.app.simSession.canSend(type)) return;
     if (!this.connected || !this.ws || this.ws.readyState !== 1) return;
     try { this.ws.send(JSON.stringify({ type, payload })); } catch (e) {}
   }
@@ -231,6 +236,7 @@ class MapStream {
   connect(url) {
     if (this.url === url && this.want) return;
     this.url = url; this.want = true;
+    this.app._queueEdgeAt = 0; this.app.simSession?.connecting(url);
     clearTimeout(this._retryT);
     if (this.ws) { const o = this.ws; this.ws = null; o.onmessage = o.onclose = o.onerror = null; try { o.close(); } catch (e) {} }
     this._open();
@@ -764,6 +770,7 @@ class App {
     });
     $('#taEstop').addEventListener('click', () => {
       this.estop = !this.estop;
+      if (this.simSession?.enabled) this.link.send('queue_estop', {active: this.estop});
       this.shell.classList.toggle('estopped', this.estop);
       $('#taEstop').classList.toggle('latched', this.estop);
       $('#taEstop').textContent = this.estop ? 'RELEASE' : 'E-STOP';
@@ -820,10 +827,10 @@ class App {
     if (path === 'relay') {
       const h = host.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
       const key = this._relayKey();
-      // The sim demo uses /teleop; the real robot uses /real/teleop (set per
+      // The sim demo uses the dedicated /sim/teleop route; the real robot uses /real/teleop (set per
       // target). Caddy passes /real/* straight to the bridge, which enforces the
       // secret access code carried here in ?key=.
-      const rp = (this._curTarget && this._curTarget.relayPath) || '/teleop';
+      const rp = (this._curTarget && this._curTarget.relayPath) || '/sim/teleop';
       return tag(`wss://${h}${rp}${key ? `?key=${encodeURIComponent(key)}` : ''}`);
     }
     // localhost / 127.0.0.1 are "potentially trustworthy" origins, so the
@@ -883,7 +890,7 @@ class App {
         { id: 'sim-auto',  method: 'auto',  label: 'Auto-discover', detail: 'find it on this network' },
         { id: 'sim-wifi',  method: 'wifi',  label: 'Wi-Fi',  detail: SIM_WIFI_HOSTS[0] || '', hosts: SIM_WIFI_HOSTS },
         { id: 'sim-vpn',   method: 'vpn',   label: 'VPN',    detail: `${SIM_VPN_IP} · Tailscale`, host: SIM_VPN_IP, dns: DEFAULT_VPN },
-        { id: 'sim-relay', method: 'relay', label: 'Relay',  detail: `${DEFAULT_RELAY} · /teleop`, host: DEFAULT_RELAY, key: DEFAULT_RELAY_KEY, relayPath: '/teleop' },
+        { id: 'sim-relay', method: 'relay', label: 'Relay',  detail: `${DEFAULT_RELAY} · /sim/teleop`, host: DEFAULT_RELAY, key: DEFAULT_RELAY_KEY, relayPath: '/sim/teleop' },
       ].filter(_routeHasHost),
     };
     let rc = ''; try { rc = localStorage.getItem('mabel-real-code') || ''; } catch (e) {}
@@ -1592,7 +1599,7 @@ class App {
     // /camera for the real robot showed the SIM's 960x720 render, not the real 640x360 ZED.
     const isReal = remote && this.link.url.includes('/real/');
     const base = remote
-      ? `https://${host}/${isReal ? 'real-video/camera' : 'camera'}`
+      ? `https://${host}/${isReal ? 'real-video/camera' : this.link.url.includes('/sim/teleop') ? 'sim/camera' : 'camera'}`
       : `http://${host}:8080/camera`;
     const set = (sel, path) => {
       const img = $(sel); if (!img) return;
@@ -1617,8 +1624,8 @@ class App {
           // A served camera streams JPEG (onload); an unwired one 404s (onerror)
           // -> show a per-camera "NOT CONNECTED" overlay so a dead tile is obvious
           // rather than just blank. Cleared again the moment a frame arrives.
-          img.onerror = () => { if (tile) tile.classList.add('ta-camoff'); };
-          img.onload  = () => { if (tile) tile.classList.remove('ta-camoff'); };
+          img.onerror = () => { if (tile) tile.classList.add('ta-camoff');if(this.overview&&path==='main')$('#taNoVid').style.display='grid'; };
+          img.onload  = () => { if (tile) tile.classList.remove('ta-camoff');if(this.overview&&path==='main')$('#taNoVid').style.display='none'; };
           if (tile) tile.classList.remove('ta-camoff');   // optimistic; onerror re-flags
           img.src = want; img.style.display = '';
         } else {
@@ -1629,7 +1636,7 @@ class App {
       }
     };
     set('#taCamMain', 'main'); set('#taCamL', 'wrist_left'); set('#taCamR', 'wrist_right');
-    $('#taNoVid').style.display = on ? 'none' : '';
+    if(!this.overview||!on)$('#taNoVid').style.display = on ? 'none' : '';
     // H.264/WebCodecs overlay (LAN only): HIGH-RES, low-latency. Renders to a <canvas>
     // over each MJPEG <img>; the img stays as the automatic fallback (relay, or a
     // browser without WebCodecs, or if the H.264 WS stalls).
@@ -1662,7 +1669,7 @@ class App {
           ? `ws://${host}:8080/camera/${path}/h264`
           : (isReal
               ? `wss://${host}/real-video/camera/${path}/h264`
-              : `wss://${host}/camera/${path}/h264?key=${encodeURIComponent(DEFAULT_RELAY_KEY)}`);
+              : `wss://${host}/${this.link.url.includes('/sim/teleop') ? 'sim/camera' : 'camera'}/${path}/h264?key=${encodeURIComponent(DEFAULT_RELAY_KEY)}`);
         const s = new H264Stream({
           wsUrl,
           canvas,
@@ -2084,6 +2091,7 @@ class App {
     };
     canvas.addEventListener('pointerdown', (ev) => {
       downAt = [ev.clientX, ev.clientY];
+      if(this.overview)return; // The small viewer is for orbiting, not goal placement.
       this._headingDrag = false;
       // Grab the heading dial when a goal is shown and the knob/ring is under the pointer.
       if (this.goalRing && this.goalRing.visible && this._headingHits) {
@@ -2108,6 +2116,7 @@ class App {
       }
     });
     canvas.addEventListener('pointerup', (ev) => {
+      if(this.overview)return;
       if (endHeading()) return;                              // was turning the dial, not placing a goal
       if (!downAt || Math.hypot(ev.clientX - downAt[0], ev.clientY - downAt[1]) > 6) return;  // it was an orbit
       setRay(ev);
@@ -2146,11 +2155,11 @@ class App {
     $$('[data-viewbtns="nav"] .ta-vbtn', v).forEach((b) =>
       b.addEventListener('click', () => this._fitNav(b.dataset.vb)));
 
-    this._loadRoom(this.rooms[0]);
+    if(!this.overview)this._loadRoom(this.rooms[0]);
     $('.ta-stage', v).classList.add('loaded');     // room is up → clear "BUILDING ROOM"
     // The articulated robot streams in after — the room already shows without it,
     // and a slow/stuck rig GLB no longer blocks the Navigate view.
-    new Rig().load(this.navStage, this.manifest).then((r) => { this.navRig = r; })
+    new Rig().load(this.navStage, this.manifest).then((r) => { this.navRig = r;if(this.overview){this._fitView(this.navStage,r,'fit');const c=r.center0,d=r.maxd;this.navStage.camera.position.set(c.x-d*1.2,c.y+d*.6,c.z+d*1.5);this.navStage.controls.update();this.navStage.scene.add(new THREE.AmbientLight(0xffffff,.8));this._navFollow=true;this._navPrev=null;} })
       .catch((e) => console.warn('nav rig load failed:', e));
   }
 
@@ -2453,7 +2462,7 @@ class App {
   }
 
   pushFrame() {
-    if (this.estop) return;
+    if (this.estop || (this.simSession?.enabled && !this.simSession.driver)) return;
     this.link.seq += 1;
     // Base linear wire signs — set to match the ROBOT's OBSERVED motion (verified
     // on the live setup, which is the source of truth over the bridge-code comments):
@@ -2703,6 +2712,73 @@ class App {
   }
 }
 
+/* Public simulation sessions. The physical-robot connection is left unchanged. */
+function installSimulationSession(app) {
+  const dock=$('.ta-dock-row'),pill=$('#taPill');if(!dock||!pill)return;
+  const join=document.createElement('button');join.type='button';join.className='ta-sbtn sim-queue-join';join.textContent='Join queue';join.hidden=true;
+  dock.insertBefore(join,$('#taReset'));
+  const session={enabled:!!app.overview,driver:false,want:false,seen:false,role:'viewer',ready:false,position:null,remaining:0,updated:0};
+  app.simSession=session;
+  const readOnly=new Set(['ping','list_maps','queue_watch','queue_join','queue_leave','queue_estop']);
+  session.canSend=(type)=>!session.enabled||session.driver||readOnly.has(type);
+  const stop=()=>{app._setFlying(false);app.nav={f:0,s:0,w:0,liftRate:0};app.armRaise={left:0,right:0};app.jointsDirty=false;};
+  session.paint=()=>{
+    join.hidden=!session.enabled;app.shell.classList.toggle('sim-queue-locked',session.enabled&&!session.driver);
+    if(!session.enabled)return;
+    const elapsed=(performance.now()-session.updated)/1000;
+    const seconds=Math.max(0,Math.ceil(session.remaining-elapsed));
+    const clock=Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+    const label=session.driver?'Your turn · '+clock:session.role==='waiting'?'Queue · #'+session.position:session.ready?'Watching':'Simulator offline';
+    const text=pill.querySelector('span:last-child');if(text&&text.textContent!==label)text.textContent=label;
+    pill.classList.toggle('link',session.driver);pill.classList.toggle('wait',!session.ready||session.role==='waiting');
+    pill.title=session.driver?'Two-minute simulation session':session.role==='waiting'?'Your place is held until the simulator is ready':'Watch the simulation or join the waiting queue';
+    join.textContent=session.driver?'End turn':session.role==='waiting'?'Leave queue':'Join queue';
+    join.disabled=!app.link.connected||!session.seen;
+    if(app.overview){const b=$('#taNoVid .inner b');if(b)b.textContent=session.ready?'Connecting camera…':'Simulator offline';if(!session.ready)$('#taNoVid').style.display='grid';}
+    $('#taReset').disabled=!session.driver;
+  };
+  session.connecting=(url)=>{
+    const enabled=!!app.overview||new URL(url).pathname==='/sim/teleop';
+    if(!enabled){session.want=false;$('#taReset').disabled=false;}
+    session.enabled=enabled;session.seen=false;session.driver=false;session.role='viewer';session.ready=false;
+    session.paint();
+  };
+  session.socketOpen=()=>{if(!session.enabled)return;app.link.send('queue_watch',{});if(session.want)app.link.send('queue_join',{});};
+  session.socketClosed=()=>{session.driver=false;session.seen=false;session.ready=false;session.role='viewer';if(session.enabled)stop();session.paint();};
+  session.receive=(state)=>{
+    const wasDriver=session.driver;
+    session.enabled=true;session.seen=true;session.role=state.role;session.driver=state.role==='driver';session.ready=state.backend_ready;session.position=state.position;session.remaining=state.remaining_seconds;session.updated=performance.now();
+    if(wasDriver&&!session.driver){stop();if(state.role==='viewer')session.want=false;}
+    if(!wasDriver&&session.driver){app._setFlying(true);app._announceSpec(true);}
+    session.paint();
+  };
+  join.addEventListener('click',()=>{
+    if(session.driver||session.role==='waiting'){session.want=false;stop();app.link.send('queue_leave',{});}
+    else{session.want=true;app.link.send('queue_join',{});}
+  });
+  $('#taStartTeleop')?.addEventListener('click',(event)=>{
+    if(session.enabled&&!session.driver){event.stopImmediatePropagation();event.preventDefault();session.want=true;app.link.send('queue_join',{});}
+  },true);
+  document.addEventListener('keydown',(event)=>{
+    if(!session.enabled||session.driver||event.target.closest('button,input,select,textarea,a'))return;
+    if(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(event.code)){event.preventDefault();event.stopImmediatePropagation();}
+  },true);
+  const paint=app._paintLink.bind(app);app._paintLink=(...args)=>{paint(...args);session.paint();};
+  setInterval(session.paint,250);session.paint();
+  if(app.overview){
+    const preview=$('[data-view="nav"]');
+    const expand=document.createElement('button');expand.type='button';expand.className='sim-pip-expand';expand.setAttribute('aria-label','Expand 3D viewer');expand.title='Expand 3D viewer';expand.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9V4h5m6 0h5v5M4 15v5h5m6 0h5v-5"/></svg>';
+    preview.appendChild(expand);expand.addEventListener('click',(event)=>{event.stopPropagation();preview.classList.toggle('pip-expanded');expand.setAttribute('aria-label',preview.classList.contains('pip-expanded')?'Minimize 3D viewer':'Expand 3D viewer');dispatchEvent(new Event('resize'));});
+    addEventListener('message',(event)=>{
+      if(event.origin!==location.origin||event.source!==parent||event.data?.type!=='mabel-sim-viewport')return;
+      const offset=Math.max(14,Math.min(innerHeight-100,Number(event.data.bottom)||14));
+      document.documentElement.style.setProperty('--sim-dock-bottom',offset+'px');
+    });
+    $('#overviewSimStatus')?.setAttribute('aria-hidden','true');
+    $$('.ta-joy').forEach((el)=>el.setAttribute('aria-label',el.classList.contains('l')?'Translate the robot':'Rotate the robot and adjust lift'));
+  }
+}
+
 function pushSafe(app) { try { app.pushFrame(); } catch (e) { /* never kill the raf */ } }
 
 /* ════ boot ══════════════════════════════════════════════════════════ */
@@ -2711,9 +2787,16 @@ function pushSafe(app) { try { app.pushFrame(); } catch (e) { /* never kill the 
     const manifest = await fetch('assets/mabel_joints.json').then((r) => r.json());
     const app = new App(manifest);
     app.overview = new URLSearchParams(location.search).has('overview');
+    installSimulationSession(app);
     window.__ta = app;          // exposed for the smoke-test harness
     await app.start();
+    if(!app.overview){
+      const wrap=app.shell.closest('.ta-wrap'),dock=$('#taDock');
+      const placeDock=()=>{if(!wrap||!dock)return;const r=wrap.getBoundingClientRect();dock.style.bottom=(document.fullscreenElement?14:Math.max(14,Math.min(r.height-100,r.bottom-innerHeight+14)))+'px';};
+      addEventListener('scroll',placeDock,{passive:true});addEventListener('resize',placeDock);addEventListener('fullscreenchange',placeDock);placeDock();
+    }
     if (app.overview) {
+      parent.postMessage({type:'mabel-sim-ready'},location.origin);
       app.connectAuto();
       const status = document.getElementById('overviewSimStatus');
       const update = () => {

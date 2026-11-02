@@ -28,5 +28,5 @@
   new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)attempt(e.target);});},{threshold:.05}).observe(book);
   // Returning to a tab can pause media without changing its intersection state.
   addEventListener('pageshow',schedule);addEventListener('focus',schedule);document.addEventListener('visibilitychange',schedule);
-  book.addEventListener('scroll',schedule,{passive:true});
+  book.addEventListener('scroll',schedule,{passive:true,capture:true});
 })();

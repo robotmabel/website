@@ -452,6 +452,19 @@
     drawScatter();
     drawErr();
     if (window.__lazyVid) window.__lazyVid(host);
+    // Set the DOM properties too: Safari needs a muted inline video before
+    // loading its source. Retry when decoding or returning to this section.
+    var clips=Array.from(host.querySelectorAll('video'));
+    function resume(v){var r=v.getBoundingClientRect();if(document.hidden||r.bottom<=0||r.top>=innerHeight)return;var promise=v.play();if(promise)promise.catch(function(){});}
+    clips.forEach(function(v){
+      v.autoplay=true;v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.setAttribute('webkit-playsinline','');
+      ['loadeddata','canplay'].forEach(function(ev){v.addEventListener(ev,function(){resume(v);});});
+    });
+    new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)resume(e.target);});},{threshold:.1}).observe(clips[0]);
+    if(clips[1])new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)resume(e.target);});},{threshold:.1}).observe(clips[1]);
+    ['pageshow','focus'].forEach(function(ev){window.addEventListener(ev,function(){clips.forEach(resume);});});
+    document.addEventListener('visibilitychange',function(){clips.forEach(resume);});
+    document.addEventListener('pointerup',function(){clips.forEach(function(v){if(v.paused&&v.currentTime===0)resume(v);});},{passive:true});
 
     window.__accuracyLab = {
       data: D, limit: LIM, visits: visits,
