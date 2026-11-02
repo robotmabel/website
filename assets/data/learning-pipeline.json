@@ -1,0 +1,74 @@
+{
+  "source": "Active RA-L paper \u00b7 Simulation and Learning Infrastructure; Policy Learning",
+  "paper_sha256": "7ccdabca475a3ba79905f4d22b4aa5d8f476670b09c7831b6cc088bb25430160",
+  "recording": {
+    "camera_hz": 30,
+    "control_hz": 50,
+    "coordinates": 59,
+    "cameras": [
+      "Left head",
+      "Left wrist",
+      "Right wrist"
+    ],
+    "image_size": [
+      320,
+      240
+    ],
+    "history_seconds": 1,
+    "history_hz": 5
+  },
+  "chunk": {
+    "steps": 120,
+    "hz": 30,
+    "execute_seconds": 1,
+    "temporal_ensembling": false
+  },
+  "state_groups": [
+    {
+      "name": "Arms",
+      "count": 14
+    },
+    {
+      "name": "Hands + wrists",
+      "count": 34
+    },
+    {
+      "name": "Neck",
+      "count": 3
+    },
+    {
+      "name": "Torso",
+      "count": 1
+    },
+    {
+      "name": "Lift",
+      "count": 1
+    },
+    {
+      "name": "Swerve",
+      "count": 6
+    }
+  ],
+  "experiment": {
+    "demonstrations": 81,
+    "episodes": 86,
+    "minutes": 26.8,
+    "split": [
+      46,
+      6,
+      5
+    ],
+    "train_steps": 8000,
+    "batch_size": 24,
+    "hours": 6,
+    "device": "Apple M1 Max",
+    "successes": 8,
+    "trials": 10,
+    "timeout_seconds": 60,
+    "placement_cm": [
+      20,
+      20
+    ],
+    "scope": "Grasp-and-place with both ORCA hands. Demonstrations were mostly upper-body; the base and lift stayed near their initial configuration."
+  }
+}

@@ -29,6 +29,7 @@
     document.querySelectorAll('[data-submission-play]').forEach(function(button){button.addEventListener('click',function(event){
       if(typeof submission.showModal!=='function')return;
       event.preventDefault();opener=button;
+      if(film.dataset.submissionPoster){film.poster=film.dataset.submissionPoster;delete film.dataset.submissionPoster;}
       document.querySelectorAll('video').forEach(function(video){if(video!==film&&!video.paused){video.dataset.modalPaused='true';video.pause();}});
       submission.showModal();document.body.classList.add('pop-locked');
       // The MP4 source is already selected before this gesture; retain it between opens.
@@ -68,27 +69,7 @@
       }
     });
   });
-  var stages = {
-    collect: ['Collect demonstrations', 'Vision Pro teleoperation records stereo head and wrist RGB, available depth, timestamped joint feedback, commanded references, base twist and lift-jog commands. Raw timestamps and validity flags are retained.'],
-    export: ['Export to LeRobot v3', 'Curated episodes are exported on a 30 Hz grid using the latest available sample from each stream. The joint representation has 59 coordinates; base-twist and lift-jog commands are stored separately.'],
-    train: ['Train ACT', 'Each camera image is encoded separately and fused with the joint state. ACT predicts 120 joint-reference steps, spanning four seconds at 30 Hz; the demonstrated references supervise training.'],
-    deploy: ['Execute through the shared controller', 'The policy sends predicted joint references through the same whole-body controller used during teleoperation. In the paper experiment, the first second of each predicted chunk is executed before replanning.']
-  };
-  var panel = document.getElementById('learningDetail');
-  function selectLearning(key) {
-    if (!panel || !stages[key]) return;
-    panel.replaceChildren();
-    var h = document.createElement('h3'), p = document.createElement('p');
-    h.textContent = stages[key][0]; p.textContent = stages[key][1];
-    panel.append(h, p);
-    document.querySelectorAll('[data-learn]').forEach(function (b) {
-      b.setAttribute('aria-pressed', String(b.dataset.learn === key));
-    });
-  }
-  document.querySelectorAll('[data-learn]').forEach(function (b) {
-    b.addEventListener('click', function () { selectLearning(b.dataset.learn); });
-  });
-  selectLearning('collect');
+
   var links = Array.from(document.querySelectorAll('.ov-nav a'));
   if ('IntersectionObserver' in window) {
     var observer = new IntersectionObserver(function (entries) {

@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=900dcbea" />
+<link rel="stylesheet" href="assets/mabel.css?v=c0b86bcc" />
 <link rel="stylesheet" href="assets/teleop-app.css?v=20261018-dockwrap" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
@@ -49,418 +49,383 @@
 <script src="assets/page-progress.js?v=4b9cfcb1" defer></script>
 </head>
 <body class="sec-page">
-
 <div id="progress"></div>
-
 <header class="nav" id="nav">
-  <a href="index.html" class="nav-logo"><img src="assets/head-icon.svg" alt="" class="nav-head" /> MABEL</a>
-  <nav class="nav-links">
-    <a href="index.html">Overview</a>
-        <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
-    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="harness.html">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#what">What a harness is</a><a href="harness.html#registry">The registry</a><a href="harness.html#gates">Gates</a><a href="harness.html#surface">All 25 commands</a><a href="harness.html#limits">What it won’t do</a></div></div>
-    <a href="connect.html">Links</a>
-    <a href="index.html#cite" class="ext">Paper ↗</a>
-        <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
-    <a href="docs/" class="nav-cta">DIY guide</a>
-  </nav>
-  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+<a class="nav-logo" href="index.html"><img alt="" class="nav-head" src="assets/head-icon.svg"/> MABEL</a>
+<nav class="nav-links">
+<a href="index.html">Overview</a>
+<div class="nav-group"><button class="nav-grp-btn" data-href="hardware.html" type="button">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body &amp; head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+<div class="nav-group"><button class="nav-grp-btn" data-href="software.html" type="button">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+<div class="nav-group"><button class="nav-grp-btn" data-href="simulation.html" type="button">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
+<div class="nav-group on"><button class="nav-grp-btn" data-href="teleop.html" type="button">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
+<div class="nav-group"><button class="nav-grp-btn" data-href="autonomy.html" type="button">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
+<div class="nav-group"><button class="nav-grp-btn" data-href="harness.html" type="button">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#what">What a harness is</a><a href="harness.html#registry">The registry</a><a href="harness.html#gates">Gates</a><a href="harness.html#surface">All 25 commands</a><a href="harness.html#limits">What it won’t do</a></div></div>
+<a href="connect.html">Links</a>
+<a class="ext" href="index.html#cite">Paper ↗</a>
+<a aria-label="Buy one now" class="nav-build" href="order.html"><span>BUY<br/>ONE NOW!</span></a>
+<a class="nav-cta" href="docs/">DIY guide</a>
+</nav>
+<button aria-label="Menu" class="hbg" id="hbg"><span></span><span></span><span></span></button>
 </header>
-<div class="store-dock" id="storeDock" aria-label="Account and cart">
-  <a class="store-dock-btn" id="storeAcct" href="account.html" aria-label="Account" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
-  <a class="store-dock-btn" id="storeCart" href="order.html?open=cart" aria-label="Cart" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="store-dock-n" id="storeCartN" hidden>0</span></a>
+<div aria-label="Account and cart" class="store-dock" id="storeDock">
+<a aria-label="Account" class="store-dock-btn" href="account.html" id="storeAcct" title="Account"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"></path></svg></a>
+<a aria-label="Cart" class="store-dock-btn" href="order.html?open=cart" id="storeCart" title="Cart"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg><span class="store-dock-n" hidden="" id="storeCartN">0</span></a>
 </div>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a href="index.html#cite" class="ext">Paper ↗</a>
-    <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
-    <a href="docs/" class="nav-cta">DIY guide</a>
+<a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a class="ext" href="index.html#cite">Paper ↗</a>
+<a aria-label="Buy one now" class="nav-build" href="order.html"><span>BUY<br/>ONE NOW!</span></a>
+<a class="nav-cta" href="docs/">DIY guide</a>
 </nav>
-
-<aside class="sidenav" aria-label="Teleop section navigation">
-  <div class="sidenav-title">Teleop</div>
-  <a href="#try">Browser</a><a href="#controlcenter">Control Studio</a><a href="#vp-app">Vision Pro</a><a href="#ios-app">iPhone</a><a href="#safety">Safety</a>
+<aside aria-label="Teleop section navigation" class="sidenav">
+<div class="sidenav-title">Teleop</div>
+<a href="#try">Browser</a><a href="#controlcenter">Control Studio</a><a href="#vp-app">Vision Pro</a><a href="#ios-app">iPhone</a><a href="#safety">Safety</a>
 </aside>
-
 <!-- ─── HERO ─── -->
 <section class="page-hero" style="padding-bottom:30px;"><div class="page-hero-inner">
-  <div class="crumbs"><a href="index.html">Overview</a> / Teleop</div>
-  <span class="eyebrow">Teleop</span>
-  <h1 class="display-lg">Wear the robot.</h1>
-  <p class="lede">Drive MABEL three ways — a <strong>browser console</strong> you can try right now, an <strong>iPhone</strong> in your pocket, and an <strong>Apple Vision Pro</strong> you reach through. All three speak one wire protocol to the same bridge, and point at the MuJoCo twin or the real robot with no change. Every session is also a training demo.</p>
-  <div class="app-links" style="margin-top:26px;"><a href="#try" class="btn">Web GUI teleop →</a><a href="https://github.com/robotmabel/MABEL/releases" target="_blank" rel="noopener" class="btn">Download the iOS app ↗</a><a href="https://github.com/robotmabel/MABEL/releases" target="_blank" rel="noopener" class="btn">Download the Vision Pro app ↗</a></div>
-  <div class="spec" style="margin-top:28px;"><span>No-install browser console</span><span>iPhone · Vision Pro</span><span>One wire protocol</span><span>Sim or real</span><span>→ feeds <a href="autonomy.html" style="color:inherit;">autonomy</a></span></div>
+<div class="crumbs"><a href="index.html">Overview</a> / Teleop</div>
+<span class="eyebrow">Teleop</span>
+<h1 class="display-lg">Wear the robot.</h1>
+<p class="lede">Drive MABEL three ways — a <strong>browser console</strong> you can try right now, an <strong>iPhone</strong> in your pocket, and an <strong>Apple Vision Pro</strong> you reach through. All three speak one wire protocol to the same bridge, and point at the MuJoCo twin or the real robot with no change. Every session is also a training demo.</p>
+<div class="app-links" style="margin-top:26px;"><a class="btn" href="#try">Web GUI teleop →</a><a class="btn" href="https://github.com/robotmabel/MABEL/releases" rel="noopener" target="_blank">Download the iOS app ↗</a><a class="btn" href="https://github.com/robotmabel/MABEL/releases" rel="noopener" target="_blank">Download the Vision Pro app ↗</a></div>
+<div class="spec" style="margin-top:28px;"><span>No-install browser console</span><span>iPhone · Vision Pro</span><span>One wire protocol</span><span>Sim or real</span><span>→ feeds <a href="autonomy.html" style="color:inherit;">autonomy</a></span></div>
 </div></section>
-
 <!-- ═══ TRY IT — THE BROWSER CONSOLE (live) ═══ -->
 <section class="pad-y" id="try" style="padding-top:8px;"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">Try it now · no install</span><h2 class="display-md title">Drive it in <span class="italic accent">your browser.</span><img src="assets/stickers/bodega.svg" alt="" class="sticker" aria-hidden="true" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-6deg);" loading="lazy" /></h2></div>
-    <p class="lede">Three views — <strong>Teleop</strong>, <strong>Body</strong>, <strong>Navigate</strong> — over one robot. Press <strong>Connect</strong> to reach a live bridge; with none reachable, an in-browser kinematic twin keeps every control live. Same <code>teleop_frame</code> protocol as the iPhone and Vision&nbsp;Pro apps.</p></div>
+<div class="sec-head fade-up"><div><span class="eyebrow">Try it now · no install</span><h2 class="display-md title">Drive it in <span class="italic accent">your browser.</span><img alt="" aria-hidden="true" class="sticker" loading="lazy" src="assets/stickers/bodega.svg" style="width:88px; vertical-align:middle; margin-left:12px; transform:rotate(-6deg);"/></h2></div>
+<p class="lede">Three views — <strong>Teleop</strong>, <strong>Body</strong>, <strong>Navigate</strong> — over one robot. Press <strong>Connect</strong> to reach a live bridge; with none reachable, an in-browser kinematic twin keeps every control live. Same <code>teleop_frame</code> protocol as the iPhone and Vision Pro apps.</p></div>
 </div>
 </section>
-
 <section class="ta-wrap" id="taSection">
-  <div class="ta-app" id="taApp">
-
-    <!-- ── PILOT ────────────────────────────────────────────────── -->
-    <div class="ta-view on" data-view="teleop">
-      <div class="ta-video">
-        <span class="panel-speech tail-br" style="top:6%; left:5%; z-index:7;">Grab the sticks!</span>
-        <img id="taCamMain" alt="" style="display:none;" />
-        <!-- H.264/WebCodecs canvas (LAN low-latency); overlays the MJPEG <img>, shown only while decoding -->
-        <canvas id="taCanvasMain" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas>
-        <div class="ta-novid" id="taNoVid"><div class="inner">
-          <b>Drive MABEL in your browser</b>
-          <p id="taNoVidMsg">Joysticks, body control, and navigation over a live MuJoCo simulation — the same wire protocol as the iPhone and Vision&nbsp;Pro apps. The hosted sim may be offline; either way the controls stay live on the in-browser model.</p>
-          <button class="ta-trylive" id="taTryLive">▶&nbsp; Try it live</button>
-        </div></div>
-      </div>
-      <div class="ta-pip l"><img id="taCamL" alt="" /><canvas id="taCanvasL" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas><span class="tag">L WRIST</span></div>
-      <div class="ta-pip r"><img id="taCamR" alt="" /><canvas id="taCanvasR" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas><span class="tag">R WRIST</span></div>
-
-      <div class="ta-top">
-        <span class="ta-title">PILOT</span>
-        <div class="ta-seg" data-ck>
-          <button class="on" data-mode="drive">Drive</button>
-          <button data-mode="arms">Arms</button>
-        </div>
-        <span class="ta-title" data-ta="speed">0.00 m/s</span>
-      </div>
-
-      <!-- Start / Stop teleop — gates the joysticks (mirrors the iOS app's
+<div class="ta-app" id="taApp">
+<!-- ── PILOT ────────────────────────────────────────────────── -->
+<div class="ta-view on" data-view="teleop">
+<div class="ta-video">
+<span class="panel-speech tail-br" style="top:6%; left:5%; z-index:7;">Grab the sticks!</span>
+<img alt="" id="taCamMain" style="display:none;"/>
+<!-- H.264/WebCodecs canvas (LAN low-latency); overlays the MJPEG <img>, shown only while decoding -->
+<canvas id="taCanvasMain" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas>
+<div class="ta-novid" id="taNoVid"><div class="inner">
+<b>Drive MABEL in your browser</b>
+<p id="taNoVidMsg">Joysticks, body control, and navigation over a live MuJoCo simulation — the same wire protocol as the iPhone and Vision Pro apps. The hosted sim may be offline; either way the controls stay live on the in-browser model.</p>
+<button class="ta-trylive" id="taTryLive">▶  Try it live</button>
+</div></div>
+</div>
+<div class="ta-pip l"><img alt="" id="taCamL"/><canvas id="taCanvasL" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas><span class="tag">L WRIST</span></div>
+<div class="ta-pip r"><img alt="" id="taCamR"/><canvas id="taCanvasR" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;"></canvas><span class="tag">R WRIST</span></div>
+<div class="ta-top">
+<span class="ta-title">PILOT</span>
+<div class="ta-seg" data-ck="">
+<button class="on" data-mode="drive">Drive</button>
+<button data-mode="arms">Arms</button>
+</div>
+<span class="ta-title" data-ta="speed">0.00 m/s</span>
+</div>
+<!-- Start / Stop teleop — gates the joysticks (mirrors the iOS app's
            play/stop teleop button: controls are hidden until you press start) -->
-      <button class="ta-startteleop" id="taStartTeleop" type="button">
-        <svg class="ic-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor" stroke="none"/></svg>
-        <svg class="ic-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="9"/><rect x="9" y="9" width="6" height="6" rx="1.2" fill="currentColor" stroke="none"/></svg>
-        <span class="lab">Start Teleop</span>
-      </button>
-
-      <!-- drive sticks -->
-      <div class="ta-joy l" data-joy="navL" data-show="drive"><span class="knob"></span><span class="lab">TRANSLATE</span></div>
-      <div class="ta-joy r accent" data-joy="navR" data-show="drive"><span class="knob"></span><span class="lab">ROTATE · LIFT</span></div>
-
-      <!-- arm clusters -->
-      <div class="ta-cluster l" data-show="arms" style="display:none;">
-        <div class="ta-nudge"><button data-side="left" data-dir="1">⌃</button><button data-side="left" data-dir="-1">⌄</button><span class="lab">RAISE</span></div>
-        <div class="ta-joy" style="position:static;" data-joy="armL"><span class="knob"></span><span class="lab">L WRIST</span></div>
-        <div class="ta-grip" data-side="left"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">L GRIP</span></div>
-      </div>
-      <div class="ta-cluster r" data-show="arms" style="display:none;">
-        <div class="ta-nudge"><button data-side="right" data-dir="1">⌃</button><button data-side="right" data-dir="-1">⌄</button><span class="lab">RAISE</span></div>
-        <div class="ta-joy accent" style="position:static;" data-joy="armR"><span class="knob"></span><span class="lab">R WRIST</span></div>
-        <div class="ta-grip" data-side="right"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">R GRIP</span></div>
-      </div>
-
-      <!-- synced miniature -->
-      <div class="ta-mini">
-        <div class="ta-stage"><canvas></canvas><div class="ta-loading">RIG</div></div>
-        <span class="tag">ROBOT STATE</span>
-      </div>
-    </div>
-
-    <!-- ── MANIPULATION ─────────────────────────────────────────── -->
-    <div class="ta-view" data-view="body">
-      <div class="ta-stage"><canvas></canvas><div class="ta-loading">LOADING MABEL</div></div>
-
-      <div class="ta-top">
-        <span class="ta-title">MANIPULATE</span>
-        <span></span>
-      </div>
-
-      <!-- Stiff / Soft — the control law on the joints -->
-      <div class="ta-feelbar">
-        <div class="ta-seg" data-feel>
-          <button class="on" data-val="impedance">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+<button class="ta-startteleop" id="taStartTeleop" type="button">
+<svg class="ic-play" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor" stroke="none"></path></svg>
+<svg class="ic-stop" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" style="display:none;" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><rect fill="currentColor" height="6" rx="1.2" stroke="none" width="6" x="9" y="9"></rect></svg>
+<span class="lab">Start Teleop</span>
+</button>
+<!-- drive sticks -->
+<div class="ta-joy l" data-joy="navL" data-show="drive"><span class="knob"></span><span class="lab">TRANSLATE</span></div>
+<div class="ta-joy r accent" data-joy="navR" data-show="drive"><span class="knob"></span><span class="lab">ROTATE · LIFT</span></div>
+<!-- arm clusters -->
+<div class="ta-cluster l" data-show="arms" style="display:none;">
+<div class="ta-nudge"><button data-dir="1" data-side="left">⌃</button><button data-dir="-1" data-side="left">⌄</button><span class="lab">RAISE</span></div>
+<div class="ta-joy" data-joy="armL" style="position:static;"><span class="knob"></span><span class="lab">L WRIST</span></div>
+<div class="ta-grip" data-side="left"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">L GRIP</span></div>
+</div>
+<div class="ta-cluster r" data-show="arms" style="display:none;">
+<div class="ta-nudge"><button data-dir="1" data-side="right">⌃</button><button data-dir="-1" data-side="right">⌄</button><span class="lab">RAISE</span></div>
+<div class="ta-joy accent" data-joy="armR" style="position:static;"><span class="knob"></span><span class="lab">R WRIST</span></div>
+<div class="ta-grip" data-side="right"><div class="track"><div class="fill"></div></div><span class="val lab">0%</span><span class="lab">R GRIP</span></div>
+</div>
+<!-- synced miniature -->
+<div class="ta-mini">
+<div class="ta-stage"><canvas></canvas><div class="ta-loading">RIG</div></div>
+<span class="tag">ROBOT STATE</span>
+</div>
+</div>
+<!-- ── MANIPULATION ─────────────────────────────────────────── -->
+<div class="ta-view" data-view="body">
+<div class="ta-stage"><canvas></canvas><div class="ta-loading">LOADING MABEL</div></div>
+<div class="ta-top">
+<span class="ta-title">MANIPULATE</span>
+<span></span>
+</div>
+<!-- Stiff / Soft — the control law on the joints -->
+<div class="ta-feelbar">
+<div class="ta-seg" data-feel="">
+<button class="on" data-val="impedance">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24"><rect height="9" rx="2" width="14" x="5" y="11"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
             Stiff</button>
-          <button data-val="compliance">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1V4.5a1.5 1.5 0 0 1 3 0V10m0-.5V6a1.5 1.5 0 0 1 3 0v7a6 6 0 0 1-6 6h-1.5a5 5 0 0 1-4-2l-2.5-3.5a1.6 1.6 0 0 1 2.4-2L9 14"/></svg>
+<button data-val="compliance">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1V4.5a1.5 1.5 0 0 1 3 0V10m0-.5V6a1.5 1.5 0 0 1 3 0v7a6 6 0 0 1-6 6h-1.5a5 5 0 0 1-4-2l-2.5-3.5a1.6 1.6 0 0 1 2.4-2L9 14"></path></svg>
             Soft</button>
+</div>
+</div>
+<!-- context hint — changes with Stiff/Soft + Task/Joint -->
+<div class="ta-manip-hint" id="taManipHint">Drag the green ball to pose the arm; spin a ring to set the wrist.</div>
+<!-- compact RIGHT-side control panel — all toggles visible at a glance -->
+<aside class="ta-side ta-manip-side" id="taManipSide">
+<!-- SPACE (Stiff only) -->
+<div class="ta-seg sm full" data-space="" data-spacepanel="">
+<button class="on" data-sv="task">Task</button>
+<button data-sv="joint">Joint</button>
+</div>
+<!-- CONTROL REGION (task space OR soft) -->
+<div class="ta-panel pc" data-regionpanel="">
+<span class="ta-seglabel">REGION</span>
+<div class="ta-seg sm full" data-region="">
+<button class="on" data-rv="arm">Arms</button>
+<button data-rv="upper_body">Upper</button>
+<button data-rv="whole_body">Whole</button>
+</div>
+</div>
+<!-- TASK → stiffness + hand grips -->
+<div class="ta-panel pc" data-taskonly="">
+<div class="row"><span class="k">STIFFNESS</span><span class="v" data-stiff-out="">32 Nm/rad</span></div>
+<input class="ta-slider" data-stiff="" max="1" min="0.1" step="0.01" type="range" value="0.7"/>
+<div class="ta-grip2">
+<label><span class="k">L HAND</span><input class="ta-slider" data-grip="left" max="1" min="0" step="0.01" type="range" value="0"/></label>
+<label><span class="k">R HAND</span><input class="ta-slider" data-grip="right" max="1" min="0" step="0.01" type="range" value="0"/></label>
+</div>
+</div>
+<!-- JOINT → group tabs + sliders (2 columns for arms/hands) -->
+<div class="ta-panel pc ta-joints" data-jointonly="" style="display:none;">
+<div class="ta-jtabs" data-jtabs=""></div>
+<div class="ta-jlist" data-jlist=""></div>
+</div>
+<!-- SOFT → view-only note -->
+<div class="ta-panel pc ta-soft-note" data-softnote="" style="display:none;">
+<b>View only.</b> The body is compliant — pose MABEL by hand (real or sim). This view mirrors the live state.
         </div>
-      </div>
-
-      <!-- context hint — changes with Stiff/Soft + Task/Joint -->
-      <div class="ta-manip-hint" id="taManipHint">Drag the green ball to pose the arm; spin a ring to set the wrist.</div>
-
-      <!-- compact RIGHT-side control panel — all toggles visible at a glance -->
-      <aside class="ta-side ta-manip-side" id="taManipSide">
-        <!-- SPACE (Stiff only) -->
-        <div class="ta-seg sm full" data-space data-spacepanel>
-          <button class="on" data-sv="task">Task</button>
-          <button data-sv="joint">Joint</button>
-        </div>
-        <!-- CONTROL REGION (task space OR soft) -->
-        <div class="ta-panel pc" data-regionpanel>
-          <span class="ta-seglabel">REGION</span>
-          <div class="ta-seg sm full" data-region>
-            <button class="on" data-rv="arm">Arms</button>
-            <button data-rv="upper_body">Upper</button>
-            <button data-rv="whole_body">Whole</button>
-          </div>
-        </div>
-        <!-- TASK → stiffness + hand grips -->
-        <div class="ta-panel pc" data-taskonly>
-          <div class="row"><span class="k">STIFFNESS</span><span class="v" data-stiff-out>32 Nm/rad</span></div>
-          <input class="ta-slider" type="range" data-stiff min="0.1" max="1" step="0.01" value="0.7" />
-          <div class="ta-grip2">
-            <label><span class="k">L HAND</span><input class="ta-slider" data-grip="left" type="range" min="0" max="1" step="0.01" value="0" /></label>
-            <label><span class="k">R HAND</span><input class="ta-slider" data-grip="right" type="range" min="0" max="1" step="0.01" value="0" /></label>
-          </div>
-        </div>
-        <!-- JOINT → group tabs + sliders (2 columns for arms/hands) -->
-        <div class="ta-panel pc ta-joints" data-jointonly style="display:none;">
-          <div class="ta-jtabs" data-jtabs></div>
-          <div class="ta-jlist" data-jlist></div>
-        </div>
-        <!-- SOFT → view-only note -->
-        <div class="ta-panel pc ta-soft-note" data-softnote style="display:none;">
-          <b>View only.</b> The body is compliant — pose MABEL by hand (real or sim). This view mirrors the live state.
-        </div>
-      </aside>
-
-      <!-- viewport buttons: re-center · fit -->
-      <div class="ta-viewbtns" data-viewbtns="body">
-        <button class="ta-vbtn" data-vb="recenter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21"/></svg>Re-center</button>
-        <button class="ta-vbtn" data-vb="fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>Fit</button>
-      </div>
-    </div>
-
-    <!-- ── NAVIGATE ─────────────────────────────────────────────── -->
-    <div class="ta-view" data-view="nav">
-      <div class="ta-stage"><canvas></canvas><div class="ta-loading">BUILDING ROOM</div></div>
-
-      <div class="ta-top">
-        <span class="ta-title" data-ta="navroom">—</span>
-        <span class="ta-title" data-ta="navpts">—</span>
-      </div>
-
-      <div class="ta-rooms"></div>
-
-      <!-- viewport buttons: re-center · fit · follow robot -->
-      <div class="ta-viewbtns" data-viewbtns="nav">
-        <button class="ta-vbtn" data-vb="recenter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21"/></svg>Re-center</button>
-        <button class="ta-vbtn" data-vb="fit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg>Fit</button>
-        <button class="ta-vbtn" data-vb="followcam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>Follow robot</button>
-      </div>
-
-      <!-- bottom: Go / Clear the A* path (pure-pursuit follows) -->
-      <div class="ta-navhud">
-        <button class="ta-btn primary" id="taFollow" disabled>Go</button>
-        <button class="ta-btn ghost" id="taClearGoal" title="Clear goal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
-      </div>
-    </div>
-
-    <!-- ── E-STOP veil ──────────────────────────────────────────── -->
-    <div class="ta-estop-veil"><span class="tag">E-STOP — OUTPUTS HALTED</span></div>
-  </div>
-
-  <!-- ── THE DOCK — floating liquid glass, two rows: views on top, status below ── -->
-  <div class="ta-dock" id="taDock">
-    <nav class="ta-tabs" data-tabs>
-      <button class="on" data-go="teleop">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="4"/><path d="M7 12h3M8.5 10.5v3"/><circle cx="16" cy="11" r="1"/><circle cx="18.5" cy="13.5" r="1"/></svg>
+</aside>
+<!-- viewport buttons: re-center · fit -->
+<div class="ta-viewbtns" data-viewbtns="body">
+<button class="ta-vbtn" data-vb="recenter"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.7" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21"></path></svg>Re-center</button>
+<button class="ta-vbtn" data-vb="fit"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"></path></svg>Fit</button>
+</div>
+</div>
+<!-- ── NAVIGATE ─────────────────────────────────────────────── -->
+<div class="ta-view" data-view="nav">
+<div class="ta-stage"><canvas></canvas><div class="ta-loading">BUILDING ROOM</div></div>
+<div class="ta-top">
+<span class="ta-title" data-ta="navroom">—</span>
+<span class="ta-title" data-ta="navpts">—</span>
+</div>
+<div class="ta-rooms"></div>
+<!-- viewport buttons: re-center · fit · follow robot -->
+<div class="ta-viewbtns" data-viewbtns="nav">
+<button class="ta-vbtn" data-vb="recenter"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.7" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21"></path></svg>Re-center</button>
+<button class="ta-vbtn" data-vb="fit"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"></path></svg>Fit</button>
+<button class="ta-vbtn" data-vb="followcam"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><circle cx="12" cy="10" r="3"></circle><path d="M5 20a7 7 0 0 1 14 0"></path></svg>Follow robot</button>
+</div>
+<!-- bottom: Go / Clear the A* path (pure-pursuit follows) -->
+<div class="ta-navhud">
+<button class="ta-btn primary" disabled="" id="taFollow">Go</button>
+<button class="ta-btn ghost" id="taClearGoal" title="Clear goal">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewbox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"></path></svg></button>
+</div>
+</div>
+<!-- ── E-STOP veil ──────────────────────────────────────────── -->
+<div class="ta-estop-veil"><span class="tag">E-STOP — OUTPUTS HALTED</span></div>
+</div>
+<!-- ── THE DOCK — floating liquid glass, two rows: views on top, status below ── -->
+<div class="ta-dock" id="taDock">
+<nav class="ta-tabs" data-tabs="">
+<button class="on" data-go="teleop">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24"><rect height="10" rx="4" width="20" x="2" y="7"></rect><path d="M7 12h3M8.5 10.5v3"></path><circle cx="16" cy="11" r="1"></circle><circle cx="18.5" cy="13.5" r="1"></circle></svg>
         Pilot
       </button>
-      <button data-go="body">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.3"/><path d="M12 7.5v5M5 9l7 1 7-1M12 12.5l-4 7M12 12.5l4 7"/></svg>
+<button data-go="body">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24"><circle cx="12" cy="5" r="2.3"></circle><path d="M12 7.5v5M5 9l7 1 7-1M12 12.5l-4 7M12 12.5l4 7"></path></svg>
         Manipulate
       </button>
-      <button data-go="nav">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l6-2.5 6 2.5 6-2.5V5l-6 2.5L9 5 3 7.5z"/><path d="M9 5v12M15 7.5v12"/></svg>
+<button data-go="nav">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24"><path d="M3 19l6-2.5 6 2.5 6-2.5V5l-6 2.5L9 5 3 7.5z"></path><path d="M9 5v12M15 7.5v12"></path></svg>
         Navigate
       </button>
-    </nav>
-    <div class="ta-dock-row">
-      <span class="ta-pill" id="taPill"><span class="dot"></span><span>LOCAL SIM</span></span>
-      <label class="ta-host" title="Wi-Fi auto-discovers — leave blank and the console races the bridge on this machine, the host it was served from, and your last-used LAN IP, connecting to whichever answers (the browser analog of the Vision Pro app's Bonjour scan). Type a LAN IP only to force one.">
-        <span>WI-FI</span><input id="taHostLocal" type="text" placeholder="auto-discover" spellcheck="false" autocomplete="off" aria-label="Local Wi-Fi host (auto-discovers)" /></label>
-      <label class="ta-host" title="From any network: the Mac's Tailscale IP (tailscale ip -4) — or, from this https page, its ts.net name (tailscale status). One-time setup — Tailscale on the Mac and this device, same account.">
-        <span>VPN</span><input id="taHostVpn" type="text" placeholder="100.x.y.z · mac.ts.net" spellcheck="false" autocomplete="off" aria-label="Tailscale VPN host" /></label>
-      <label class="ta-host ta-host-relay" title="From anywhere on the public internet: the secure relay hostname (e.g. mabel.duckdns.org). The robot dials OUT to a token-gated VPS — no VPN app, no open inbound port. See relay/README.md.">
-        <span>RELAY</span><input id="taHostRelay" type="text" placeholder="mabel.duckdns.org" spellcheck="false" autocomplete="off" aria-label="Secure relay host" /></label>
-      <label class="ta-host ta-host-key" title="The relay access token (APP_TOKEN). Every request must carry it as ?key= or the VPS returns 403 before reaching the robot. Treat it like a password.">
-        <span>KEY</span><input id="taRelayKey" type="text" placeholder="access token" spellcheck="false" autocomplete="off" aria-label="Relay access token" /></label>
-      <div class="ta-hostpick" id="taHostPick">
-        <button class="ta-connect" id="taConnect" type="button" aria-haspopup="true" aria-expanded="false" title="Choose which robot / sim to drive"><span class="hp-lbl">Connect</span><span class="hp-cv">▾</span></button>
-        <div class="ta-hostmenu" id="taHostMenu" role="menu" hidden></div>
-      </div>
-      <div class="ta-metrics">
-        <span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
-        <span class="ta-metric">LAT<b data-ta="lat">—</b></span>
-        <span class="ta-metric">BATT<b data-ta="batt">—</b></span>
-      </div>
-      <span class="ta-divider"></span>
-      <button class="ta-sbtn" id="taReset">Reset</button>
-      <button class="ta-estop" id="taEstop">E-STOP</button>
-      <button class="ta-sbtn ta-fs" id="taFs" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></button>
-    </div>
-  </div>
+</nav>
+<div class="ta-dock-row">
+<span class="ta-pill" id="taPill"><span class="dot"></span><span>LOCAL SIM</span></span>
+<label class="ta-host" title="Wi-Fi auto-discovers — leave blank and the console races the bridge on this machine, the host it was served from, and your last-used LAN IP, connecting to whichever answers (the browser analog of the Vision Pro app's Bonjour scan). Type a LAN IP only to force one.">
+<span>WI-FI</span><input aria-label="Local Wi-Fi host (auto-discovers)" autocomplete="off" id="taHostLocal" placeholder="auto-discover" spellcheck="false" type="text"/></label>
+<label class="ta-host" title="From any network: the Mac's Tailscale IP (tailscale ip -4) — or, from this https page, its ts.net name (tailscale status). One-time setup — Tailscale on the Mac and this device, same account.">
+<span>VPN</span><input aria-label="Tailscale VPN host" autocomplete="off" id="taHostVpn" placeholder="100.x.y.z · mac.ts.net" spellcheck="false" type="text"/></label>
+<label class="ta-host ta-host-relay" title="From anywhere on the public internet: the secure relay hostname (e.g. mabel.duckdns.org). The robot dials OUT to a token-gated VPS — no VPN app, no open inbound port. See relay/README.md.">
+<span>RELAY</span><input aria-label="Secure relay host" autocomplete="off" id="taHostRelay" placeholder="mabel.duckdns.org" spellcheck="false" type="text"/></label>
+<label class="ta-host ta-host-key" title="The relay access token (APP_TOKEN). Every request must carry it as ?key= or the VPS returns 403 before reaching the robot. Treat it like a password.">
+<span>KEY</span><input aria-label="Relay access token" autocomplete="off" id="taRelayKey" placeholder="access token" spellcheck="false" type="text"/></label>
+<div class="ta-hostpick" id="taHostPick">
+<button aria-expanded="false" aria-haspopup="true" class="ta-connect" id="taConnect" title="Choose which robot / sim to drive" type="button"><span class="hp-lbl">Connect</span><span class="hp-cv">▾</span></button>
+<div class="ta-hostmenu" hidden="" id="taHostMenu" role="menu"></div>
+</div>
+<div class="ta-metrics">
+<span class="ta-metric">RTT<b data-ta="rtt">—</b></span>
+<span class="ta-metric">LAT<b data-ta="lat">—</b></span>
+<span class="ta-metric">BATT<b data-ta="batt">—</b></span>
+</div>
+<span class="ta-divider"></span>
+<button class="ta-sbtn" id="taReset">Reset</button>
+<button class="ta-estop" id="taEstop">E-STOP</button>
+<button class="ta-sbtn ta-fs" id="taFs" title="Full screen"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"></path></svg></button>
+</div>
+</div>
 </section>
-
 <!-- ─── CONTROL CENTER · live tool ─── -->
-<section class="dark-sec pad-y" id="controlcenter">
-  <div class="wrap">
-    <div class="card studio-card fade-up">
-      <span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · open demo</span>
-      <h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">The full studio: <span class="italic accent">Control Studio.</span></h2>
-      <p class="lede" style="margin:0 0 26px; max-width:62ch;">The console above is the simple one. The <strong>Control Studio</strong> is the full cockpit the robot serves for real sessions — one workspace around a 3D viewer: drive, task and joint control, a timeline, the dock, and all 59 joints live. Slide through it below.</p>
-      <div class="studio-actions">
-          <a href="https://control-sim.mabelrobot.duckdns.org" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:0;">Open the Control Studio ↗</a>
-        </div>
-      <div class="spec" style="margin-top:24px;">
-        <span>3D viewer</span><span>Drive · Task · Joint</span><span>59-DOF telemetry</span><span>Timeline</span><span>Webcam teleop</span>
-      </div>
-    </div>
-    <div style="margin-top:clamp(26px,4vh,40px);"></div>
-    <div class="tabreel fade-up" data-tabreel aria-label="Control Studio views">
-    <div class="trl-track">
-      <!-- appshots:studio -->
-      <figure class="trl-card shot" data-tab="Workspace" style="--ar:1.600"><div class="shot-frame browser"><img src="assets/appshots/studio-workspace.jpg" width="1600" height="1000" loading="lazy" decoding="async" alt="Control Studio: the full workspace with the robot in a 3D point-cloud map, dock and timeline" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:40.4%;top:2.5%" aria-label="1: E-STOP">1</button><button type="button" class="shot-pin" data-n="2" style="left:53.4%;top:2.5%" aria-label="2: Stiff | Soft">2</button><button type="button" class="shot-pin" data-n="3" style="left:73.1%;top:2.5%" aria-label="3: Record">3</button><button type="button" class="shot-pin" data-n="4" style="left:32.9%;top:7.3%" aria-label="4: Drive · Task · Joint">4</button><button type="button" class="shot-pin" data-n="5" style="left:3.8%;top:30.0%" aria-label="5: View rail">5</button><button type="button" class="shot-pin" data-n="6" style="left:13.9%;top:68.6%" aria-label="6: Cameras">6</button><button type="button" class="shot-pin" data-n="7" style="left:82.0%;top:7.2%" aria-label="7: Dock">7</button><button type="button" class="shot-pin" data-n="8" style="left:2.0%;top:79.4%" aria-label="8: Choreography">8</button></div></div><figcaption><span class="trl-ix">01 · WORKSPACE</span><h4>One screen, no digging</h4><p class="trl-one">The whole cockpit is one workspace around a live 3D twin, with the map, point cloud, LiDAR and cameras all in place.</p><ol><li data-n="1"><span><b>E-STOP</b>: Torque ON wakes the robot and reveals the controls; the same button is then the hard stop.</span></li><li data-n="2"><span><b>Stiff | Soft</b>: Stiff tracks your commands; Soft lets the arms yield to a push.</span></li><li data-n="3"><span><b>Record</b>: Records the session as a training episode for the current task.</span></li><li data-n="4"><span><b>Drive · Task · Joint</b>: Picks what the controls move; 3rd | 1st swaps the camera.</span></li><li data-n="5"><span><b>View rail</b>: Toggles map, point cloud, LiDAR, camera frusta, TF and paths.</span></li><li data-n="6"><span><b>Cameras</b>: Head, front-base and both wrist cameras, live.</span></li><li data-n="7"><span><b>Dock</b>: Status, Data, Skills: health, every joint, episodes, saved skills.</span></li><li data-n="8"><span><b>Choreography</b>: Line up nav, policies, animations and poses; Preview in physics, then Execute.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot" data-tab="Drive" style="--ar:1.600"><div class="shot-frame browser"><img src="assets/appshots/studio-drive.jpg" width="1600" height="1000" loading="lazy" decoding="async" alt="Control Studio in Drive mode, first person from the robot&#x27;s head camera with two virtual sticks" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:32.9%;top:7.3%" aria-label="1: Drive">1</button><button type="button" class="shot-pin" data-n="2" style="left:43.1%;top:7.3%" aria-label="2: 3rd | 1st">2</button><button type="button" class="shot-pin" data-n="3" style="left:7.4%;top:47.3%" aria-label="3: TRANSLATE">3</button><button type="button" class="shot-pin" data-n="4" style="left:73.1%;top:47.3%" aria-label="4: ROTATE · LIFT">4</button><button type="button" class="shot-pin" data-n="5" style="left:27.1%;top:60.3%" aria-label="5: Keyboard">5</button><button type="button" class="shot-pin" data-n="6" style="left:65.1%;top:9.8%" aria-label="6: 3D inset">6</button></div></div><figcaption><span class="trl-ix">02 · DRIVE</span><h4>Fly it from its eyes</h4><p class="trl-one">First person from the head camera, with the twin tucked in a corner. Keyboard or on-screen sticks.</p><ol><li data-n="1"><span><b>Drive</b>: The sticks and keys move the swerve base and the lift.</span></li><li data-n="2"><span><b>3rd | 1st</b>: 1st puts you behind the head camera; 3rd flies back out to the twin.</span></li><li data-n="3"><span><b>TRANSLATE</b>: Slides the base forward, back and sideways at once.</span></li><li data-n="4"><span><b>ROTATE · LIFT</b>: Turns on the spot and raises or lowers the whole body.</span></li><li data-n="5"><span><b>Keyboard</b>: WASD drive, Q/E turn, R/F lift; click the floor to set a nav goal.</span></li><li data-n="6"><span><b>3D inset</b>: The twin keeps showing where the body is while you look through its eyes.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot" data-tab="Task" style="--ar:1.600"><div class="shot-frame browser"><img src="assets/appshots/studio-task.jpg" width="1600" height="1000" loading="lazy" decoding="async" alt="Control Studio in Task mode: a green wrist target beside the robot&#x27;s hand and a wrist plan ready to execute" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:19.6%;top:30.5%" aria-label="1: Wrist target">1</button><button type="button" class="shot-pin" data-n="2" style="left:32.3%;top:57.0%" aria-label="2: Wrist plan · Execute">2</button><button type="button" class="shot-pin" data-n="3" style="left:45.9%;top:14.8%" aria-label="3: IK reach">3</button><button type="button" class="shot-pin" data-n="4" style="left:29.3%;top:11.7%" aria-label="4: Webcam Teleop">4</button><button type="button" class="shot-pin" data-n="5" style="left:7.4%;top:47.3%" aria-label="5: Wrist sticks">5</button></div></div><figcaption><span class="trl-ix">03 · TASK</span><h4>Say where the hand goes</h4><p class="trl-one">Drag a target; the planner previews the arm on the twin, and nothing moves until you press Execute.</p><ol><li data-n="1"><span><b>Wrist target</b>: Drag the green ball; IK poses a preview on the twin, not the robot.</span></li><li data-n="2"><span><b>Wrist plan · Execute</b>: Runs the previewed plan as a speed-capped, collision-checked move.</span></li><li data-n="3"><span><b>IK reach</b>: How much body the solver may use: arm, upper body, or whole body with the base.</span></li><li data-n="4"><span><b>Webcam Teleop</b>: Your own arms, tracked by any laptop camera, drive the robot&#x27;s wrists.</span></li><li data-n="5"><span><b>Wrist sticks</b>: Nudge each hand in the plane; ▲ ▼ raise and lower it.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot side" data-tab="Dock" style="--ar:0.420"><div class="shot-frame panel"><img src="assets/appshots/studio-dock.jpg" width="600" height="1428" loading="lazy" decoding="async" alt="Control Studio status dock: link, latency, battery and torque tiles, hardware chips, joint bars and trends" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:3.0%;top:3.2%" aria-label="1: Status · Data · Skills">1</button><button type="button" class="shot-pin" data-n="2" style="left:3.7%;top:12.6%" aria-label="2: Health tiles">2</button><button type="button" class="shot-pin" data-n="3" style="left:5.0%;top:30.7%" aria-label="3: Hardware">3</button><button type="button" class="shot-pin" data-n="4" style="left:7.7%;top:45.7%" aria-label="4: Joint state · 59 DOF">4</button><button type="button" class="shot-pin" data-n="5" style="left:7.7%;top:73.1%" aria-label="5: Trends">5</button></div></div><figcaption><span class="trl-ix">04 · DOCK</span><h4>Every joint, at a glance</h4><p class="trl-one">The right-hand dock: robot health on top, then all 59 joints and their history.</p><ol><li data-n="1"><span><b>Status · Data · Skills</b>: Live health, recorded episodes, and the saved skill library.</span></li><li data-n="2"><span><b>Health tiles</b>: Link, round-trip latency, battery and torque, readable from across the room.</span></li><li data-n="3"><span><b>Hardware</b>: One chip per module; green while it reports.</span></li><li data-n="4"><span><b>Joint state · 59 DOF</b>: Current against target for every joint, coloured by motor temperature.</span></li><li data-n="5"><span><b>Trends</b>: Rolling joint history per module, position, velocity or torque.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot" data-tab="Windows" style="--ar:1.600"><div class="shot-frame browser"><img src="assets/appshots/studio-windows.jpg" width="1600" height="1000" loading="lazy" decoding="async" alt="Control Studio with floating MuJoCo viewer, joint history and TF tree windows and the + Window menu open" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:85.7%;top:2.5%" aria-label="1: + Window">1</button><button type="button" class="shot-pin" data-n="2" style="left:78.0%;top:6.2%" aria-label="2: View menu">2</button><button type="button" class="shot-pin" data-n="3" style="left:3.2%;top:8.0%" aria-label="3: MuJoCo viewer">3</button><button type="button" class="shot-pin" data-n="4" style="left:33.2%;top:8.0%" aria-label="4: Joint history">4</button><button type="button" class="shot-pin" data-n="5" style="left:33.4%;top:30.4%" aria-label="5: TF tree">5</button></div></div><figcaption><span class="trl-ix">05 · WINDOWS</span><h4>Pop out what you need</h4><p class="trl-one">+ Window floats extra views over the twin; drag and resize them anywhere.</p><ol><li data-n="1"><span><b>+ Window</b>: Opens the menu of extra views.</span></li><li data-n="2"><span><b>View menu</b>: MuJoCo mirror, any camera, joint history, a 2D occupancy map, the TF tree.</span></li><li data-n="3"><span><b>MuJoCo viewer</b>: A live render of the physics twin, with its own camera.</span></li><li data-n="4"><span><b>Joint history</b>: Per-module graphs over a rolling window of up to five minutes.</span></li><li data-n="5"><span><b>TF tree</b>: Every frame of the robot with its live position.</span></li></ol></figcaption></figure>
-      <!-- /appshots:studio -->
-    </div>
-  </div>
-  </div>
+<section class="pad-y" id="demonstrations"><div class="wrap"><div class="sec-head"><h2 class="display-md title">Teleoperated <span class="italic accent">demonstrations</span></h2><p class="lede">Individual household tasks from the video submission. Sony footage; speeds are marked. These clips show human teleoperation.</p></div><div aria-busy="true" aria-label="Sony teleoperated demonstrations" class="dg-grid" data-demo-gallery="task"></div></div></section><section class="dark-sec pad-y" id="controlcenter">
+<div class="wrap">
+<div class="card studio-card fade-up">
+<span class="eyebrow" style="color:var(--rust); display:block; margin-bottom:16px;">Live tool · open demo</span>
+<h2 class="display-md title" style="color:var(--bone); margin:0 0 14px;">The full studio: <span class="italic accent">Control Studio.</span></h2>
+<p class="lede" style="margin:0 0 26px; max-width:62ch;">The console above is the simple one. The <strong>Control Studio</strong> is the full cockpit the robot serves for real sessions — one workspace around a 3D viewer: drive, task and joint control, a timeline, the dock, and all 59 coordinates live. Slide through it below.</p>
+<div class="studio-actions">
+<a class="btn btn-primary" href="https://control-sim.mabelrobot.duckdns.org" rel="noopener" style="margin-top:0;" target="_blank">Open the Control Studio ↗</a>
+</div>
+<div class="spec" style="margin-top:24px;">
+<span>3D viewer</span><span>Drive · Task · Joint</span><span>59-coordinate telemetry</span><span>Timeline</span><span>Webcam teleop</span>
+</div>
+</div>
+<div style="margin-top:clamp(26px,4vh,40px);"></div>
+<div aria-label="Control Studio views" class="tabreel fade-up" data-tabreel="">
+<div class="trl-track">
+<!-- appshots:studio -->
+<figure class="trl-card shot" data-tab="Workspace" style="--ar:1.600"><div class="shot-frame browser"><img alt="Control Studio: the full workspace with the robot in a 3D point-cloud map, dock and timeline" decoding="async" height="1000" loading="lazy" src="assets/appshots/studio-workspace.jpg" width="1600"/><div class="shot-pins"><button aria-label="1: E-STOP" class="shot-pin" data-n="1" style="left:40.4%;top:2.5%" type="button">1</button><button aria-label="2: Stiff | Soft" class="shot-pin" data-n="2" style="left:53.4%;top:2.5%" type="button">2</button><button aria-label="3: Record" class="shot-pin" data-n="3" style="left:73.1%;top:2.5%" type="button">3</button><button aria-label="4: Drive · Task · Joint" class="shot-pin" data-n="4" style="left:32.9%;top:7.3%" type="button">4</button><button aria-label="5: View rail" class="shot-pin" data-n="5" style="left:3.8%;top:30.0%" type="button">5</button><button aria-label="6: Cameras" class="shot-pin" data-n="6" style="left:13.9%;top:68.6%" type="button">6</button><button aria-label="7: Dock" class="shot-pin" data-n="7" style="left:82.0%;top:7.2%" type="button">7</button><button aria-label="8: Choreography" class="shot-pin" data-n="8" style="left:2.0%;top:79.4%" type="button">8</button></div></div><figcaption><span class="trl-ix">01 · WORKSPACE</span><h4>One screen, no digging</h4><p class="trl-one">The whole cockpit is one workspace around a live 3D twin, with the map, point cloud, LiDAR and cameras all in place.</p><ol><li data-n="1"><span><b>E-STOP</b>: Torque ON wakes the robot and reveals the controls; the same button is then the hard stop.</span></li><li data-n="2"><span><b>Stiff | Soft</b>: Stiff tracks your commands; Soft lets the arms yield to a push.</span></li><li data-n="3"><span><b>Record</b>: Records the session as a training episode for the current task.</span></li><li data-n="4"><span><b>Drive · Task · Joint</b>: Picks what the controls move; 3rd | 1st swaps the camera.</span></li><li data-n="5"><span><b>View rail</b>: Toggles map, point cloud, LiDAR, camera frusta, TF and paths.</span></li><li data-n="6"><span><b>Cameras</b>: Head, front-base and both wrist cameras, live.</span></li><li data-n="7"><span><b>Dock</b>: Status, Data, Skills: health, every joint, episodes, saved skills.</span></li><li data-n="8"><span><b>Choreography</b>: Line up nav, policies, animations and poses; Preview in physics, then Execute.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot" data-tab="Drive" style="--ar:1.600"><div class="shot-frame browser"><img alt="Control Studio in Drive mode, first person from the robot's head camera with two virtual sticks" decoding="async" height="1000" loading="lazy" src="assets/appshots/studio-drive.jpg" width="1600"/><div class="shot-pins"><button aria-label="1: Drive" class="shot-pin" data-n="1" style="left:32.9%;top:7.3%" type="button">1</button><button aria-label="2: 3rd | 1st" class="shot-pin" data-n="2" style="left:43.1%;top:7.3%" type="button">2</button><button aria-label="3: TRANSLATE" class="shot-pin" data-n="3" style="left:7.4%;top:47.3%" type="button">3</button><button aria-label="4: ROTATE · LIFT" class="shot-pin" data-n="4" style="left:73.1%;top:47.3%" type="button">4</button><button aria-label="5: Keyboard" class="shot-pin" data-n="5" style="left:27.1%;top:60.3%" type="button">5</button><button aria-label="6: 3D inset" class="shot-pin" data-n="6" style="left:65.1%;top:9.8%" type="button">6</button></div></div><figcaption><span class="trl-ix">02 · DRIVE</span><h4>Fly it from its eyes</h4><p class="trl-one">First person from the head camera, with the twin tucked in a corner. Keyboard or on-screen sticks.</p><ol><li data-n="1"><span><b>Drive</b>: The sticks and keys move the swerve base and the lift.</span></li><li data-n="2"><span><b>3rd | 1st</b>: 1st puts you behind the head camera; 3rd flies back out to the twin.</span></li><li data-n="3"><span><b>TRANSLATE</b>: Slides the base forward, back and sideways at once.</span></li><li data-n="4"><span><b>ROTATE · LIFT</b>: Turns on the spot and raises or lowers the whole body.</span></li><li data-n="5"><span><b>Keyboard</b>: WASD drive, Q/E turn, R/F lift; click the floor to set a nav goal.</span></li><li data-n="6"><span><b>3D inset</b>: The twin keeps showing where the body is while you look through its eyes.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot" data-tab="Task" style="--ar:1.600"><div class="shot-frame browser"><img alt="Control Studio in Task mode: a green wrist target beside the robot's hand and a wrist plan ready to execute" decoding="async" height="1000" loading="lazy" src="assets/appshots/studio-task.jpg" width="1600"/><div class="shot-pins"><button aria-label="1: Wrist target" class="shot-pin" data-n="1" style="left:19.6%;top:30.5%" type="button">1</button><button aria-label="2: Wrist plan · Execute" class="shot-pin" data-n="2" style="left:32.3%;top:57.0%" type="button">2</button><button aria-label="3: IK reach" class="shot-pin" data-n="3" style="left:45.9%;top:14.8%" type="button">3</button><button aria-label="4: Webcam Teleop" class="shot-pin" data-n="4" style="left:29.3%;top:11.7%" type="button">4</button><button aria-label="5: Wrist sticks" class="shot-pin" data-n="5" style="left:7.4%;top:47.3%" type="button">5</button></div></div><figcaption><span class="trl-ix">03 · TASK</span><h4>Say where the hand goes</h4><p class="trl-one">Drag a target; the planner previews the arm on the twin, and nothing moves until you press Execute.</p><ol><li data-n="1"><span><b>Wrist target</b>: Drag the green ball; IK poses a preview on the twin, not the robot.</span></li><li data-n="2"><span><b>Wrist plan · Execute</b>: Runs the previewed plan as a speed-capped, collision-checked move.</span></li><li data-n="3"><span><b>IK reach</b>: How much body the solver may use: arm, upper body, or whole body with the base.</span></li><li data-n="4"><span><b>Webcam Teleop</b>: Your own arms, tracked by any laptop camera, drive the robot's wrists.</span></li><li data-n="5"><span><b>Wrist sticks</b>: Nudge each hand in the plane; ▲ ▼ raise and lower it.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot side" data-tab="Dock" style="--ar:0.420"><div class="shot-frame panel"><img alt="Control Studio status dock: link, latency, battery and torque tiles, hardware chips, joint bars and trends" decoding="async" height="1428" loading="lazy" src="assets/appshots/studio-dock.jpg" width="600"/><div class="shot-pins"><button aria-label="1: Status · Data · Skills" class="shot-pin" data-n="1" style="left:3.0%;top:3.2%" type="button">1</button><button aria-label="2: Health tiles" class="shot-pin" data-n="2" style="left:3.7%;top:12.6%" type="button">2</button><button aria-label="3: Hardware" class="shot-pin" data-n="3" style="left:5.0%;top:30.7%" type="button">3</button><button aria-label="4: Joint state · 59 coordinates" class="shot-pin" data-n="4" style="left:7.7%;top:45.7%" type="button">4</button><button aria-label="5: Trends" class="shot-pin" data-n="5" style="left:7.7%;top:73.1%" type="button">5</button></div></div><figcaption><span class="trl-ix">04 · DOCK</span><h4>Every joint, at a glance</h4><p class="trl-one">The right-hand dock: robot health on top, then all 59 coordinates and their history.</p><ol><li data-n="1"><span><b>Status · Data · Skills</b>: Live health, recorded episodes, and the saved skill library.</span></li><li data-n="2"><span><b>Health tiles</b>: Link, round-trip latency, battery and torque, readable from across the room.</span></li><li data-n="3"><span><b>Hardware</b>: One chip per module; green while it reports.</span></li><li data-n="4"><span><b>Joint state · 59 coordinates</b>: Current against target for every joint, coloured by motor temperature.</span></li><li data-n="5"><span><b>Trends</b>: Rolling joint history per module, position, velocity or torque.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot" data-tab="Windows" style="--ar:1.600"><div class="shot-frame browser"><img alt="Control Studio with floating MuJoCo viewer, joint history and TF tree windows and the + Window menu open" decoding="async" height="1000" loading="lazy" src="assets/appshots/studio-windows.jpg" width="1600"/><div class="shot-pins"><button aria-label="1: + Window" class="shot-pin" data-n="1" style="left:85.7%;top:2.5%" type="button">1</button><button aria-label="2: View menu" class="shot-pin" data-n="2" style="left:78.0%;top:6.2%" type="button">2</button><button aria-label="3: MuJoCo viewer" class="shot-pin" data-n="3" style="left:3.2%;top:8.0%" type="button">3</button><button aria-label="4: Joint history" class="shot-pin" data-n="4" style="left:33.2%;top:8.0%" type="button">4</button><button aria-label="5: TF tree" class="shot-pin" data-n="5" style="left:33.4%;top:30.4%" type="button">5</button></div></div><figcaption><span class="trl-ix">05 · WINDOWS</span><h4>Pop out what you need</h4><p class="trl-one">+ Window floats extra views over the twin; drag and resize them anywhere.</p><ol><li data-n="1"><span><b>+ Window</b>: Opens the menu of extra views.</span></li><li data-n="2"><span><b>View menu</b>: MuJoCo mirror, any camera, joint history, a 2D occupancy map, the TF tree.</span></li><li data-n="3"><span><b>MuJoCo viewer</b>: A live render of the physics twin, with its own camera.</span></li><li data-n="4"><span><b>Joint history</b>: Per-module graphs over a rolling window of up to five minutes.</span></li><li data-n="5"><span><b>TF tree</b>: Every frame of the robot with its live position.</span></li></ol></figcaption></figure>
+<!-- /appshots:studio -->
+</div>
+</div>
+</div>
 </section>
-
 <!-- ═══ DESIGNED TO BE SAFE ═══ -->
-<span id="vp-app" class="anchor-alias"></span>
+<span class="anchor-alias" id="vp-app"></span>
 <section class="dark-sec pad-y" id="visionpro"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">Apple Vision Pro · visionOS</span><h2 class="display-md title" style="color:var(--bone);">Reach in. <span class="italic accent">It follows.</span></h2>
-    <div class="app-links"><a href="https://github.com/robotmabel/mabel/releases" target="_blank" rel="noopener" class="btn">Get the visionOS app ↗</a><a href="software.html#retargeting" class="btn">How retargeting works →</a></div></div>
-    <p class="lede">Three tabs as glass: <strong>Robot</strong>, <strong>Autonomy</strong>, <strong>Settings</strong>. Step into full immersion and MABEL&rsquo;s stereo view wraps around you while your own arms, torso and fingers drive its. Slide through what each one does.</p></div>
-  <div class="tele-duo fade-up" style="margin-bottom:30px;">
-    <figure class="tele-clip"><video muted loop playsinline preload="none" poster="assets/wild/v-avp.jpg" data-lo="assets/wild/v-avp-lo.mp4" data-lazyvid="assets/wild/v-avp.mp4" aria-label="Operator in a Vision Pro; the real robot mirrors both arms"></video><span class="burst sm" aria-hidden="true">Sync!</span><figcaption>The operator moves — the real robot moves with them</figcaption></figure>
-    <figure class="tele-clip"><video muted loop playsinline preload="none" poster="assets/wild/d-vp3.jpg" data-lo="assets/wild/d-vp3-lo.mp4" data-lazyvid="assets/wild/d-vp3.mp4" aria-label="Full-mirror Vision Pro session"></video><figcaption>Full mirror — 27 joints per hand at 60 Hz</figcaption></figure>
-  </div>
-  <div class="tabreel fade-up" data-tabreel aria-label="Vision Pro app tabs">
-    <div class="trl-track">
-      <!-- appshots:vp -->
-      <figure class="trl-card shot side" data-tab="Robot" style="--ar:1.265"><div class="shot-frame glass"><img src="assets/appshots/vp-robot.jpg" width="1600" height="1265" loading="lazy" decoding="async" alt="Vision Pro Robot tab: the 3D twin in a map floating in a living room, drive pad below" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:72.2%;top:3.8%" aria-label="1: Status bar">1</button><button type="button" class="shot-pin" data-n="2" style="left:41.0%;top:9.1%" aria-label="2: Drive · Joint · Task">2</button><button type="button" class="shot-pin" data-n="3" style="left:11.9%;top:9.1%" aria-label="3: Map · Record">3</button><button type="button" class="shot-pin" data-n="4" style="left:9.4%;top:27.2%" aria-label="4: View tools">4</button><button type="button" class="shot-pin" data-n="5" style="left:2.8%;top:34.0%" aria-label="5: Tabs">5</button><button type="button" class="shot-pin" data-n="6" style="left:95.4%;top:36.2%" aria-label="6: Cams · Joints · Trends">6</button><button type="button" class="shot-pin" data-n="7" style="left:54.5%;top:50.0%" aria-label="7: The twin">7</button><button type="button" class="shot-pin" data-n="8" style="left:36.9%;top:77.8%" aria-label="8: Drive pad">8</button></div></div><figcaption><span class="trl-ix">01 · ROBOT</span><h4>The twin, in your room</h4><p class="trl-one">The Robot tab is one glass window: the live twin standing in its map, with the drive pad hanging underneath.</p><ol><li data-n="1"><span><b>Status bar</b>: Link, latency, Reset, World, Home and the E-STOP, on every tab.</span></li><li data-n="2"><span><b>Drive · Joint · Task</b>: What your controls move; 3rd | 1st flies the camera into its head.</span></li><li data-n="3"><span><b>Map · Record</b>: Live SLAM or a saved map; Record saves the session as an episode.</span></li><li data-n="4"><span><b>View tools</b>: Center, Fit, Follow and Layers for the 3D view.</span></li><li data-n="5"><span><b>Tabs</b>: Robot, Autonomy, Settings, on a glass rail.</span></li><li data-n="6"><span><b>Cams · Joints · Trends</b>: Each opens as its own window you can place anywhere.</span></li><li data-n="7"><span><b>The twin</b>: Orbit it with a pinch; look at the floor and pinch to send it there.</span></li><li data-n="8"><span><b>Drive pad</b>: Translate stick, spring-loaded lift and rotate.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot" data-tab="Immersive" style="--ar:1.459"><div class="shot-frame glass"><img src="assets/appshots/vp-immersive.jpg" width="1600" height="1097" loading="lazy" decoding="async" alt="Vision Pro full immersion: wrist-camera panels, drive pad, a mini robot and the teleop control deck" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:3.0%;top:26.0%" aria-label="1: Wrist cameras">1</button><button type="button" class="shot-pin" data-n="2" style="left:43.5%;top:33.5%" aria-label="2: Head view">2</button><button type="button" class="shot-pin" data-n="3" style="left:36.5%;top:68.0%" aria-label="3: Drive pad">3</button><button type="button" class="shot-pin" data-n="4" style="left:77.2%;top:62.0%" aria-label="4: Mini robot">4</button><button type="button" class="shot-pin" data-n="5" style="left:22.5%;top:96.6%" aria-label="5: Start Teleop">5</button><button type="button" class="shot-pin" data-n="6" style="left:35.0%;top:96.6%" aria-label="6: Upper | Whole body">6</button><button type="button" class="shot-pin" data-n="7" style="left:50.4%;top:96.6%" aria-label="7: Neck · Torso · Re-anchor">7</button><button type="button" class="shot-pin" data-n="8" style="left:80.6%;top:4.3%" aria-label="8: E-STOP">8</button></div></div><figcaption><span class="trl-ix">02 · IMMERSIVE</span><h4>Step in: your hands are its hands</h4><p class="trl-one">Full immersion puts you behind its eyes and maps your arms, torso and fingers onto its own.</p><ol><li data-n="1"><span><b>Wrist cameras</b>: Both wrist views float beside you, locked to your head.</span></li><li data-n="2"><span><b>Head view</b>: The robot’s stereo head camera fills the centre at true scale (no video in the simulator).</span></li><li data-n="3"><span><b>Drive pad</b>: Reposition the base and lift without leaving its view.</span></li><li data-n="4"><span><b>Mini robot</b>: A live model, so you can watch your body being mirrored.</span></li><li data-n="5"><span><b>Start Teleop</b>: Your hands start driving its arms; pinch to grip.</span></li><li data-n="6"><span><b>Upper | Whole body</b>: Arms and torso only, or the base and lift follow you too.</span></li><li data-n="7"><span><b>Neck · Torso · Re-anchor</b>: Freeze or free the neck and torso; re-centre forward.</span></li><li data-n="8"><span><b>E-STOP</b>: Always one glance up.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot side" data-tab="Windows" style="--ar:0.962"><div class="shot-frame glass"><img src="assets/appshots/vp-windows.jpg" width="1600" height="1663" loading="lazy" decoding="async" alt="Four Vision Pro pop-out windows: cameras and LiDAR, joint bars, time series and a 2D occupancy map" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:2.0%;top:4.9%" aria-label="1: Cameras &amp; sensors">1</button><button type="button" class="shot-pin" data-n="2" style="left:37.2%;top:38.8%" aria-label="2: LiDAR">2</button><button type="button" class="shot-pin" data-n="3" style="left:51.6%;top:11.6%" aria-label="3: Joint bars">3</button><button type="button" class="shot-pin" data-n="4" style="left:84.0%;top:11.6%" aria-label="4: Pos · Vel · Torque">4</button><button type="button" class="shot-pin" data-n="5" style="left:2.4%;top:52.1%" aria-label="5: Time series">5</button><button type="button" class="shot-pin" data-n="6" style="left:69.2%;top:53.5%" aria-label="6: 2D map">6</button></div></div><figcaption><span class="trl-ix">03 · WINDOWS</span><h4>Spread the data around you</h4><p class="trl-one">Any panel leaves the main window and floats where you want it. Four of them, side by side.</p><ol><li data-n="1"><span><b>Cameras &amp; sensors</b>: The head camera large, wrist and base cameras below.</span></li><li data-n="2"><span><b>LiDAR</b>: The planar sweep around the robot, live even when the cameras idle.</span></li><li data-n="3"><span><b>Joint bars</b>: Pick a module and read every joint at once.</span></li><li data-n="4"><span><b>Pos · Vel · Torque</b>: Switch what the bars show.</span></li><li data-n="5"><span><b>Time series</b>: Two rolling minutes of position, velocity and torque.</span></li><li data-n="6"><span><b>2D map</b>: Top-down occupancy with the robot’s pose.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot" data-tab="Autonomy" style="--ar:1.613"><div class="shot-frame glass"><img src="assets/appshots/vp-autonomy.jpg" width="1600" height="992" loading="lazy" decoding="async" alt="Vision Pro Autonomy tab: a 3D preview of the robot above a timeline of navigation, manipulation and voice clips" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:38.2%;top:12.9%" aria-label="1: Compose | Hub">1</button><button type="button" class="shot-pin" data-n="2" style="left:9.0%;top:17.9%" aria-label="2: Routine">2</button><button type="button" class="shot-pin" data-n="3" style="left:91.5%;top:17.9%" aria-label="3: Execute">3</button><button type="button" class="shot-pin" data-n="4" style="left:55.0%;top:30.0%" aria-label="4: 3D preview">4</button><button type="button" class="shot-pin" data-n="5" style="left:45.4%;top:64.1%" aria-label="5: Transport">5</button><button type="button" class="shot-pin" data-n="6" style="left:8.3%;top:71.6%" aria-label="6: Library">6</button><button type="button" class="shot-pin" data-n="7" style="left:8.0%;top:79.5%" aria-label="7: Lanes">7</button><button type="button" class="shot-pin" data-n="8" style="left:12.9%;top:85.9%" aria-label="8: Clips">8</button></div></div><figcaption><span class="trl-ix">04 · AUTONOMY</span><h4>Compose a routine like a video</h4><p class="trl-one">Clips on lanes, previewed on the twin before anything moves. Hub holds the assistant, automations and skills.</p><ol><li data-n="1"><span><b>Compose | Hub</b>: The timeline editor, or the assistant, schedules and skills.</span></li><li data-n="2"><span><b>Routine</b>: Open, rename or start a routine.</span></li><li data-n="3"><span><b>Execute</b>: Runs the timeline on the robot.</span></li><li data-n="4"><span><b>3D preview</b>: The twin posed at the playhead.</span></li><li data-n="5"><span><b>Transport</b>: Play it on the twin only.</span></li><li data-n="6"><span><b>Library</b>: Motions, poses, policies and nav moves to drop in.</span></li><li data-n="7"><span><b>Lanes</b>: NAV, MANIP and VOICE run side by side.</span></li><li data-n="8"><span><b>Clips</b>: Drag, trim and stack; blends are added so no joint jumps.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot" data-tab="Settings" style="--ar:1.524"><div class="shot-frame glass"><img src="assets/appshots/vp-settings.jpg" width="1600" height="1050" loading="lazy" decoding="async" alt="Vision Pro Settings: status, robots, assistant, data collection, permissions, calibration profiles and speed cap" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:9.8%;top:21.6%" aria-label="1: Status">1</button><button type="button" class="shot-pin" data-n="2" style="left:9.8%;top:49.1%" aria-label="2: Robots">2</button><button type="button" class="shot-pin" data-n="3" style="left:39.6%;top:21.6%" aria-label="3: Assistant">3</button><button type="button" class="shot-pin" data-n="4" style="left:39.6%;top:44.1%" aria-label="4: Data collection">4</button><button type="button" class="shot-pin" data-n="5" style="left:39.6%;top:62.1%" aria-label="5: Permissions">5</button><button type="button" class="shot-pin" data-n="6" style="left:69.5%;top:21.6%" aria-label="6: Calibration profiles">6</button><button type="button" class="shot-pin" data-n="7" style="left:69.5%;top:42.8%" aria-label="7: Speed cap">7</button></div></div><figcaption><span class="trl-ix">05 · SETTINGS</span><h4>Plus your body</h4><p class="trl-one">Connection, safety and limits, plus one card the phone does not need: calibration.</p><ol><li data-n="1"><span><b>Status</b>: Connection, latency, control mode, tracking, e-stop.</span></li><li data-n="2"><span><b>Robots</b>: Everything found on Wi-Fi, Bluetooth or the relay (names hidden here).</span></li><li data-n="3"><span><b>Assistant</b>: Your own API key, kept in the headset’s Keychain.</span></li><li data-n="4"><span><b>Data collection</b>: Episodes and tasks recorded so far.</span></li><li data-n="5"><span><b>Permissions</b>: Network, hand tracking, world sensing.</span></li><li data-n="6"><span><b>Calibration profiles</b>: One arms-forward pose scales its reach to yours; saved per pilot.</span></li><li data-n="7"><span><b>Speed cap</b>: The default top speed of the base.</span></li></ol></figcaption></figure>
-      <!-- /appshots:vp -->
-    </div>
-  </div>
+<div class="sec-head fade-up"><div><span class="eyebrow">Apple Vision Pro · visionOS</span><h2 class="display-md title" style="color:var(--bone);">Reach in. <span class="italic accent">It follows.</span></h2>
+<div class="app-links"><a class="btn" href="https://github.com/robotmabel/mabel/releases" rel="noopener" target="_blank">Get the visionOS app ↗</a><a class="btn" href="software.html#retargeting">How retargeting works →</a></div></div>
+<p class="lede">Three tabs as glass: <strong>Robot</strong>, <strong>Autonomy</strong>, <strong>Settings</strong>. Step into full immersion and MABEL’s stereo view wraps around you while your own arms, torso and fingers drive its. Slide through what each one does.</p></div>
+<div class="tele-duo fade-up" style="margin-bottom:30px;">
+<figure class="tele-clip"><video aria-label="Operator in a Vision Pro; the real robot mirrors both arms" data-lazyvid="assets/wild/v-avp.mp4" data-lo="assets/wild/v-avp-lo.mp4" loop="" muted="" playsinline="" poster="assets/wild/v-avp.jpg" preload="none"></video><span aria-hidden="true" class="burst sm">Sync!</span><figcaption>The operator moves — the real robot moves with them</figcaption></figure>
+<figure class="tele-clip"><video aria-label="Full-mirror Vision Pro session" data-lazyvid="assets/wild/d-vp3.mp4" data-lo="assets/wild/d-vp3-lo.mp4" loop="" muted="" playsinline="" poster="assets/wild/d-vp3.jpg" preload="none"></video><figcaption>Full mirror — 27 joints per hand at 60 Hz</figcaption></figure>
+</div>
+<div aria-label="Vision Pro app tabs" class="tabreel fade-up" data-tabreel="">
+<div class="trl-track">
+<!-- appshots:vp -->
+<figure class="trl-card shot side" data-tab="Robot" style="--ar:1.265"><div class="shot-frame glass"><img alt="Vision Pro Robot tab: the 3D twin in a map floating in a living room, drive pad below" decoding="async" height="1265" loading="lazy" src="assets/appshots/vp-robot.jpg" width="1600"/><div class="shot-pins"><button aria-label="1: Status bar" class="shot-pin" data-n="1" style="left:72.2%;top:3.8%" type="button">1</button><button aria-label="2: Drive · Joint · Task" class="shot-pin" data-n="2" style="left:41.0%;top:9.1%" type="button">2</button><button aria-label="3: Map · Record" class="shot-pin" data-n="3" style="left:11.9%;top:9.1%" type="button">3</button><button aria-label="4: View tools" class="shot-pin" data-n="4" style="left:9.4%;top:27.2%" type="button">4</button><button aria-label="5: Tabs" class="shot-pin" data-n="5" style="left:2.8%;top:34.0%" type="button">5</button><button aria-label="6: Cams · Joints · Trends" class="shot-pin" data-n="6" style="left:95.4%;top:36.2%" type="button">6</button><button aria-label="7: The twin" class="shot-pin" data-n="7" style="left:54.5%;top:50.0%" type="button">7</button><button aria-label="8: Drive pad" class="shot-pin" data-n="8" style="left:36.9%;top:77.8%" type="button">8</button></div></div><figcaption><span class="trl-ix">01 · ROBOT</span><h4>The twin, in your room</h4><p class="trl-one">The Robot tab is one glass window: the live twin standing in its map, with the drive pad hanging underneath.</p><ol><li data-n="1"><span><b>Status bar</b>: Link, latency, Reset, World, Home and the E-STOP, on every tab.</span></li><li data-n="2"><span><b>Drive · Joint · Task</b>: What your controls move; 3rd | 1st flies the camera into its head.</span></li><li data-n="3"><span><b>Map · Record</b>: Live SLAM or a saved map; Record saves the session as an episode.</span></li><li data-n="4"><span><b>View tools</b>: Center, Fit, Follow and Layers for the 3D view.</span></li><li data-n="5"><span><b>Tabs</b>: Robot, Autonomy, Settings, on a glass rail.</span></li><li data-n="6"><span><b>Cams · Joints · Trends</b>: Each opens as its own window you can place anywhere.</span></li><li data-n="7"><span><b>The twin</b>: Orbit it with a pinch; look at the floor and pinch to send it there.</span></li><li data-n="8"><span><b>Drive pad</b>: Translate stick, spring-loaded lift and rotate.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot" data-tab="Immersive" style="--ar:1.459"><div class="shot-frame glass"><img alt="Vision Pro full immersion: wrist-camera panels, drive pad, a mini robot and the teleop control deck" decoding="async" height="1097" loading="lazy" src="assets/appshots/vp-immersive.jpg" width="1600"/><div class="shot-pins"><button aria-label="1: Wrist cameras" class="shot-pin" data-n="1" style="left:3.0%;top:26.0%" type="button">1</button><button aria-label="2: Head view" class="shot-pin" data-n="2" style="left:43.5%;top:33.5%" type="button">2</button><button aria-label="3: Drive pad" class="shot-pin" data-n="3" style="left:36.5%;top:68.0%" type="button">3</button><button aria-label="4: Mini robot" class="shot-pin" data-n="4" style="left:77.2%;top:62.0%" type="button">4</button><button aria-label="5: Start Teleop" class="shot-pin" data-n="5" style="left:22.5%;top:96.6%" type="button">5</button><button aria-label="6: Upper | Whole body" class="shot-pin" data-n="6" style="left:35.0%;top:96.6%" type="button">6</button><button aria-label="7: Neck · Torso · Re-anchor" class="shot-pin" data-n="7" style="left:50.4%;top:96.6%" type="button">7</button><button aria-label="8: E-STOP" class="shot-pin" data-n="8" style="left:80.6%;top:4.3%" type="button">8</button></div></div><figcaption><span class="trl-ix">02 · IMMERSIVE</span><h4>Step in: your hands are its hands</h4><p class="trl-one">Full immersion puts you behind its eyes and maps your arms, torso and fingers onto its own.</p><ol><li data-n="1"><span><b>Wrist cameras</b>: Both wrist views float beside you, locked to your head.</span></li><li data-n="2"><span><b>Head view</b>: The robot’s stereo head camera fills the centre at true scale (no video in the simulator).</span></li><li data-n="3"><span><b>Drive pad</b>: Reposition the base and lift without leaving its view.</span></li><li data-n="4"><span><b>Mini robot</b>: A live model, so you can watch your body being mirrored.</span></li><li data-n="5"><span><b>Start Teleop</b>: Your hands start driving its arms; pinch to grip.</span></li><li data-n="6"><span><b>Upper | Whole body</b>: Arms and torso only, or the base and lift follow you too.</span></li><li data-n="7"><span><b>Neck · Torso · Re-anchor</b>: Freeze or free the neck and torso; re-centre forward.</span></li><li data-n="8"><span><b>E-STOP</b>: Always one glance up.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot side" data-tab="Windows" style="--ar:0.962"><div class="shot-frame glass"><img alt="Four Vision Pro pop-out windows: cameras and LiDAR, joint bars, time series and a 2D occupancy map" decoding="async" height="1663" loading="lazy" src="assets/appshots/vp-windows.jpg" width="1600"/><div class="shot-pins"><button aria-label="1: Cameras &amp; sensors" class="shot-pin" data-n="1" style="left:2.0%;top:4.9%" type="button">1</button><button aria-label="2: LiDAR" class="shot-pin" data-n="2" style="left:37.2%;top:38.8%" type="button">2</button><button aria-label="3: Joint bars" class="shot-pin" data-n="3" style="left:51.6%;top:11.6%" type="button">3</button><button aria-label="4: Pos · Vel · Torque" class="shot-pin" data-n="4" style="left:84.0%;top:11.6%" type="button">4</button><button aria-label="5: Time series" class="shot-pin" data-n="5" style="left:2.4%;top:52.1%" type="button">5</button><button aria-label="6: 2D map" class="shot-pin" data-n="6" style="left:69.2%;top:53.5%" type="button">6</button></div></div><figcaption><span class="trl-ix">03 · WINDOWS</span><h4>Spread the data around you</h4><p class="trl-one">Any panel leaves the main window and floats where you want it. Four of them, side by side.</p><ol><li data-n="1"><span><b>Cameras &amp; sensors</b>: The head camera large, wrist and base cameras below.</span></li><li data-n="2"><span><b>LiDAR</b>: The planar sweep around the robot, live even when the cameras idle.</span></li><li data-n="3"><span><b>Joint bars</b>: Pick a module and read every joint at once.</span></li><li data-n="4"><span><b>Pos · Vel · Torque</b>: Switch what the bars show.</span></li><li data-n="5"><span><b>Time series</b>: Two rolling minutes of position, velocity and torque.</span></li><li data-n="6"><span><b>2D map</b>: Top-down occupancy with the robot’s pose.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot" data-tab="Autonomy" style="--ar:1.613"><div class="shot-frame glass"><img alt="Vision Pro Autonomy tab: a 3D preview of the robot above a timeline of navigation, manipulation and voice clips" decoding="async" height="992" loading="lazy" src="assets/appshots/vp-autonomy.jpg" width="1600"/><div class="shot-pins"><button aria-label="1: Compose | Hub" class="shot-pin" data-n="1" style="left:38.2%;top:12.9%" type="button">1</button><button aria-label="2: Routine" class="shot-pin" data-n="2" style="left:9.0%;top:17.9%" type="button">2</button><button aria-label="3: Execute" class="shot-pin" data-n="3" style="left:91.5%;top:17.9%" type="button">3</button><button aria-label="4: 3D preview" class="shot-pin" data-n="4" style="left:55.0%;top:30.0%" type="button">4</button><button aria-label="5: Transport" class="shot-pin" data-n="5" style="left:45.4%;top:64.1%" type="button">5</button><button aria-label="6: Library" class="shot-pin" data-n="6" style="left:8.3%;top:71.6%" type="button">6</button><button aria-label="7: Lanes" class="shot-pin" data-n="7" style="left:8.0%;top:79.5%" type="button">7</button><button aria-label="8: Clips" class="shot-pin" data-n="8" style="left:12.9%;top:85.9%" type="button">8</button></div></div><figcaption><span class="trl-ix">04 · AUTONOMY</span><h4>Compose a routine like a video</h4><p class="trl-one">Clips on lanes, previewed on the twin before anything moves. Hub holds the assistant, automations and skills.</p><ol><li data-n="1"><span><b>Compose | Hub</b>: The timeline editor, or the assistant, schedules and skills.</span></li><li data-n="2"><span><b>Routine</b>: Open, rename or start a routine.</span></li><li data-n="3"><span><b>Execute</b>: Runs the timeline on the robot.</span></li><li data-n="4"><span><b>3D preview</b>: The twin posed at the playhead.</span></li><li data-n="5"><span><b>Transport</b>: Play it on the twin only.</span></li><li data-n="6"><span><b>Library</b>: Motions, poses, policies and nav moves to drop in.</span></li><li data-n="7"><span><b>Lanes</b>: NAV, MANIP and VOICE run side by side.</span></li><li data-n="8"><span><b>Clips</b>: Drag, trim and stack; blends are added so no joint jumps.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot" data-tab="Settings" style="--ar:1.524"><div class="shot-frame glass"><img alt="Vision Pro Settings: status, robots, assistant, data collection, permissions, calibration profiles and speed cap" decoding="async" height="1050" loading="lazy" src="assets/appshots/vp-settings.jpg" width="1600"/><div class="shot-pins"><button aria-label="1: Status" class="shot-pin" data-n="1" style="left:9.8%;top:21.6%" type="button">1</button><button aria-label="2: Robots" class="shot-pin" data-n="2" style="left:9.8%;top:49.1%" type="button">2</button><button aria-label="3: Assistant" class="shot-pin" data-n="3" style="left:39.6%;top:21.6%" type="button">3</button><button aria-label="4: Data collection" class="shot-pin" data-n="4" style="left:39.6%;top:44.1%" type="button">4</button><button aria-label="5: Permissions" class="shot-pin" data-n="5" style="left:39.6%;top:62.1%" type="button">5</button><button aria-label="6: Calibration profiles" class="shot-pin" data-n="6" style="left:69.5%;top:21.6%" type="button">6</button><button aria-label="7: Speed cap" class="shot-pin" data-n="7" style="left:69.5%;top:42.8%" type="button">7</button></div></div><figcaption><span class="trl-ix">05 · SETTINGS</span><h4>Plus your body</h4><p class="trl-one">Connection, safety and limits, plus one card the phone does not need: calibration.</p><ol><li data-n="1"><span><b>Status</b>: Connection, latency, control mode, tracking, e-stop.</span></li><li data-n="2"><span><b>Robots</b>: Everything found on Wi-Fi, Bluetooth or the relay (names hidden here).</span></li><li data-n="3"><span><b>Assistant</b>: Your own API key, kept in the headset’s Keychain.</span></li><li data-n="4"><span><b>Data collection</b>: Episodes and tasks recorded so far.</span></li><li data-n="5"><span><b>Permissions</b>: Network, hand tracking, world sensing.</span></li><li data-n="6"><span><b>Calibration profiles</b>: One arms-forward pose scales its reach to yours; saved per pilot.</span></li><li data-n="7"><span><b>Speed cap</b>: The default top speed of the base.</span></li></ol></figcaption></figure>
+<!-- /appshots:vp -->
+</div>
+</div>
 </div></section>
-
-<span id="ios-app" class="anchor-alias"></span>
+<span class="anchor-alias" id="ios-app"></span>
 <section class="pad-y" id="ios"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">iPhone · iOS</span><h2 class="display-md title">Your robot, <span class="italic accent">in your pocket.</span></h2>
-    <div class="app-links"><a href="https://github.com/robotmabel/mabel/releases" target="_blank" rel="noopener" class="btn">Get the iOS app ↗</a><a href="autonomy.html#mapping" class="btn">How navigation works →</a></div></div>
-    <p class="lede">Three tabs, one thumb: <strong>Robot</strong>, <strong>Autonomy</strong>, <strong>Settings</strong>. It finds MABEL on Wi-Fi, Bluetooth or the secure relay, and falls back to an on-device demo robot, so every control works with no robot in the room. Slide through what each one does.</p></div>
-
-  <div class="tabreel fade-up" data-tabreel aria-label="iPhone app tabs">
-    <div class="trl-track">
-      <!-- appshots:ios -->
-      <figure class="trl-card shot side" data-tab="Robot" style="--ar:0.460"><div class="shot-frame phone"><img src="assets/appshots/ios-robot.jpg" width="900" height="1957" loading="lazy" decoding="async" alt="iPhone Robot tab: the 3D twin on a grid with Start Teleop above and the tab bar below" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:9.6%;top:9.4%" aria-label="1: Robot">1</button><button type="button" class="shot-pin" data-n="2" style="left:27.4%;top:9.4%" aria-label="2: Connection">2</button><button type="button" class="shot-pin" data-n="3" style="left:91.8%;top:9.4%" aria-label="3: E-STOP">3</button><button type="button" class="shot-pin" data-n="4" style="left:32.5%;top:14.5%" aria-label="4: Start Teleop">4</button><button type="button" class="shot-pin" data-n="5" style="left:50.0%;top:50.0%" aria-label="5: The twin">5</button><button type="button" class="shot-pin" data-n="6" style="left:41.5%;top:81.7%" aria-label="6: 3rd | 1st">6</button><button type="button" class="shot-pin" data-n="7" style="left:69.8%;top:86.6%" aria-label="7: Console">7</button><button type="button" class="shot-pin" data-n="8" style="left:50.0%;top:95.2%" aria-label="8: Tabs">8</button></div></div><figcaption><span class="trl-ix">01 · ROBOT</span><h4>The twin is the map</h4><p class="trl-one">One full-screen 3D twin is both the live map and the controller.</p><ol><li data-n="1"><span><b>Robot</b>: Pick which robot to drive: the twin or the real one.</span></li><li data-n="2"><span><b>Connection</b>: Wi-Fi, Bluetooth, relay or on-device demo; switch in one tap.</span></li><li data-n="3"><span><b>E-STOP</b>: Cuts torque at once; tap again for Torque ON.</span></li><li data-n="4"><span><b>Start Teleop</b>: Nothing moves until you press it.</span></li><li data-n="5"><span><b>The twin</b>: Its live pose in the map; tap the floor to send it there.</span></li><li data-n="6"><span><b>3rd | 1st</b>: Flies the camera into its head and the live video takes over.</span></li><li data-n="7"><span><b>Console</b>: Pulls up voice, layers, cameras and telemetry.</span></li><li data-n="8"><span><b>Tabs</b>: Robot, Autonomy, Settings.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot" data-tab="Drive" style="--ar:2.174"><div class="shot-frame phone land"><img src="assets/appshots/ios-drive.jpg" width="1400" height="644" loading="lazy" decoding="async" alt="iPhone landscape Drive mode: translate stick, lift slider and rotate control around the 3D twin" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:19.9%;top:50.5%" aria-label="1: TRANSLATE">1</button><button type="button" class="shot-pin" data-n="2" style="left:52.9%;top:62.0%" aria-label="2: LIFT">2</button><button type="button" class="shot-pin" data-n="3" style="left:73.9%;top:68.3%" aria-label="3: ROTATE">3</button><button type="button" class="shot-pin" data-n="4" style="left:15.0%;top:16.1%" aria-label="4: Drive · Joint · Task">4</button><button type="button" class="shot-pin" data-n="5" style="left:42.5%;top:16.1%" aria-label="5: Stop Teleop">5</button><button type="button" class="shot-pin" data-n="6" style="left:80.0%;top:5.0%" aria-label="6: E-STOP">6</button><button type="button" class="shot-pin" data-n="7" style="left:53.2%;top:86.7%" aria-label="7: 3rd | 1st">7</button></div></div><figcaption><span class="trl-ix">02 · DRIVE</span><h4>Drive from your thumbs</h4><p class="trl-one">Turn the phone sideways and the controls spread out. Portrait works too.</p><ol><li data-n="1"><span><b>TRANSLATE</b>: Slides the base any direction on its swerve wheels.</span></li><li data-n="2"><span><b>LIFT</b>: Spring-loaded: hold to raise or lower; the fill shows the height.</span></li><li data-n="3"><span><b>ROTATE</b>: Turns on the spot, kept apart so turning never moves the lift.</span></li><li data-n="4"><span><b>Drive · Joint · Task</b>: What your thumbs move.</span></li><li data-n="5"><span><b>Stop Teleop</b>: Stops and zeroes the base.</span></li><li data-n="6"><span><b>E-STOP</b>: Always top-right.</span></li><li data-n="7"><span><b>3rd | 1st</b>: Drive from behind it or through its eyes.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot side" data-tab="Joint" style="--ar:0.460"><div class="shot-frame phone"><img src="assets/appshots/ios-joint.jpg" width="900" height="1957" loading="lazy" decoding="async" alt="iPhone Joint mode: a module rail on the left and left-arm joint sliders" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:7.9%;top:29.8%" aria-label="1: Module rail">1</button><button type="button" class="shot-pin" data-n="2" style="left:26.1%;top:59.9%" aria-label="2: Joint sliders">2</button><button type="button" class="shot-pin" data-n="3" style="left:17.2%;top:14.5%" aria-label="3: Joint">3</button><button type="button" class="shot-pin" data-n="4" style="left:91.5%;top:14.5%" aria-label="4: Tuning">4</button></div></div><figcaption><span class="trl-ix">03 · JOINT</span><h4>Pose it joint by joint</h4><p class="trl-one">Pick a body part, then set each joint with a slider.</p><ol><li data-n="1"><span><b>Module rail</b>: Left or right arm, neck, hands, lift, torso.</span></li><li data-n="2"><span><b>Joint sliders</b>: One per joint, in degrees.</span></li><li data-n="3"><span><b>Joint</b>: The active control space.</span></li><li data-n="4"><span><b>Tuning</b>: Stiff or soft arms, gravity compensation.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot side" data-tab="Task" style="--ar:0.460"><div class="shot-frame phone"><img src="assets/appshots/ios-task.jpg" width="900" height="1957" loading="lazy" decoding="async" alt="iPhone Task mode: green wrist targets on the twin with grip sliders on each side" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:40.2%;top:62.0%" aria-label="1: Wrist target">1</button><button type="button" class="shot-pin" data-n="2" style="left:7.9%;top:29.9%" aria-label="2: Arm · Upper · Whole">2</button><button type="button" class="shot-pin" data-n="3" style="left:7.8%;top:79.5%" aria-label="3: L grip">3</button><button type="button" class="shot-pin" data-n="4" style="left:92.3%;top:79.5%" aria-label="4: R grip">4</button></div></div><figcaption><span class="trl-ix">04 · TASK</span><h4>Point where the hand goes</h4><p class="trl-one">Drag a target; the planner solves the rest of the body.</p><ol><li data-n="1"><span><b>Wrist target</b>: Drag the green ball, then Execute the plan.</span></li><li data-n="2"><span><b>Arm · Upper · Whole</b>: How much body the planner may use: arms, plus torso, plus the base.</span></li><li data-n="3"><span><b>L grip</b>: Opens and closes the left hand.</span></li><li data-n="4"><span><b>R grip</b>: And the right.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot side" data-tab="Console" style="--ar:0.460"><div class="shot-frame phone"><img src="assets/appshots/ios-console.jpg" width="900" height="1957" loading="lazy" decoding="async" alt="iPhone console sheet: voice, layer toggles, camera projections and point-cloud density" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:29.3%;top:41.9%" aria-label="1: Voice">1</button><button type="button" class="shot-pin" data-n="2" style="left:50.0%;top:53.5%" aria-label="2: Layers">2</button><button type="button" class="shot-pin" data-n="3" style="left:17.0%;top:69.8%" aria-label="3: Cam 3D">3</button><button type="button" class="shot-pin" data-n="4" style="left:20.9%;top:88.5%" aria-label="4: Projection size">4</button><button type="button" class="shot-pin" data-n="5" style="left:32.6%;top:97.2%" aria-label="5: Cloud density">5</button></div></div><figcaption><span class="trl-ix">05 · CONSOLE</span><h4>Everything else, one swipe up</h4><p class="trl-one">A glass sheet over the live twin, so the map never goes away.</p><ol><li data-n="1"><span><b>Voice</b>: Talk through the robot, or listen; the scope shows both levels.</span></li><li data-n="2"><span><b>Layers</b>: Mesh, 2D map, point cloud, LiDAR, cameras, grid, minimap, TF.</span></li><li data-n="3"><span><b>Cam 3D</b>: Which camera feeds are projected into the 3D scene.</span></li><li data-n="4"><span><b>Projection size</b>: How large each camera image hangs in 3D.</span></li><li data-n="5"><span><b>Cloud density</b>: Thin the point cloud for speed.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot side" data-tab="Compose" style="--ar:0.460"><div class="shot-frame phone"><img src="assets/appshots/ios-compose.jpg" width="900" height="1957" loading="lazy" decoding="async" alt="iPhone Autonomy Compose: 3D preview above a timeline of navigation, manipulation and voice clips" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:13.9%;top:18.9%" aria-label="1: Routine">1</button><button type="button" class="shot-pin" data-n="2" style="left:68.9%;top:18.9%" aria-label="2: Auto-blend">2</button><button type="button" class="shot-pin" data-n="3" style="left:85.7%;top:18.9%" aria-label="3: Execute">3</button><button type="button" class="shot-pin" data-n="4" style="left:37.9%;top:55.3%" aria-label="4: Preview">4</button><button type="button" class="shot-pin" data-n="5" style="left:12.2%;top:62.7%" aria-label="5: Library">5</button><button type="button" class="shot-pin" data-n="6" style="left:59.8%;top:77.0%" aria-label="6: Lanes">6</button></div></div><figcaption><span class="trl-ix">06 · COMPOSE</span><h4>Edit a routine like a video</h4><p class="trl-one">Clips on lanes, previewed on the twin, then run on the robot.</p><ol><li data-n="1"><span><b>Routine</b>: Open, rename or save one.</span></li><li data-n="2"><span><b>Auto-blend</b>: Adds eased blends so no clip boundary makes it jump.</span></li><li data-n="3"><span><b>Execute</b>: Runs it on the robot after a confirm.</span></li><li data-n="4"><span><b>Preview</b>: Plays on the 3D model only.</span></li><li data-n="5"><span><b>Library</b>: Animations, poses, policies, nav moves.</span></li><li data-n="6"><span><b>Lanes</b>: NAV, MANIP, VOICE; higher rows win.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot side" data-tab="Hub" style="--ar:0.460"><div class="shot-frame phone"><img src="assets/appshots/ios-hub.jpg" width="900" height="1957" loading="lazy" decoding="async" alt="iPhone Autonomy Hub: assistant chat, robot control buttons and an automations week grid" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:45.1%;top:32.4%" aria-label="1: Assistant">1</button><button type="button" class="shot-pin" data-n="2" style="left:35.9%;top:40.6%" aria-label="2: Quick prompts">2</button><button type="button" class="shot-pin" data-n="3" style="left:87.2%;top:46.1%" aria-label="3: Voice">3</button><button type="button" class="shot-pin" data-n="4" style="left:50.0%;top:61.3%" aria-label="4: Robot control">4</button><button type="button" class="shot-pin" data-n="5" style="left:55.4%;top:86.0%" aria-label="5: Automations">5</button></div></div><figcaption><span class="trl-ix">07 · HUB</span><h4>Or just ask it</h4><p class="trl-one">The assistant, one-tap routines, and a weekly schedule.</p><ol><li data-n="1"><span><b>Assistant</b>: Tell it what to do in plain words.</span></li><li data-n="2"><span><b>Quick prompts</b>: One tap: relax, go charge, battery.</span></li><li data-n="3"><span><b>Voice</b>: Speak instead of typing.</span></li><li data-n="4"><span><b>Robot control</b>: Dock, go home, sleep, security, speak through it.</span></li><li data-n="5"><span><b>Automations</b>: Routines it runs on its own, by the week.</span></li></ol></figcaption></figure>
-      <figure class="trl-card shot side" data-tab="Settings" style="--ar:0.460"><div class="shot-frame phone"><img src="assets/appshots/ios-settings.jpg" width="900" height="1957" loading="lazy" decoding="async" alt="iPhone Settings: status card and robots list, with robot names hidden" /><div class="shot-pins"><button type="button" class="shot-pin" data-n="1" style="left:50.0%;top:29.2%" aria-label="1: Status">1</button><button type="button" class="shot-pin" data-n="2" style="left:82.3%;top:14.6%" aria-label="2: Demo Mode">2</button><button type="button" class="shot-pin" data-n="3" style="left:22.0%;top:78.8%" aria-label="3: Robots">3</button><button type="button" class="shot-pin" data-n="4" style="left:84.2%;top:83.7%" aria-label="4: Auto-connect">4</button><button type="button" class="shot-pin" data-n="5" style="left:18.3%;top:90.5%" aria-label="5: Bluetooth">5</button></div></div><figcaption><span class="trl-ix">08 · SETTINGS</span><h4>The boring, important bit</h4><p class="trl-one">Connection, safety and limits, one card each.</p><ol><li data-n="1"><span><b>Status</b>: Connection, latency, control mode, e-stop.</span></li><li data-n="2"><span><b>Demo Mode</b>: No robot near? The app runs its own simulator.</span></li><li data-n="3"><span><b>Robots</b>: Found on Wi-Fi, Bluetooth or the relay (names hidden here).</span></li><li data-n="4"><span><b>Auto-connect</b>: Reconnects to the best robot on launch.</span></li><li data-n="5"><span><b>Bluetooth</b>: Drive with no network at all.</span></li></ol></figcaption></figure>
-      <!-- /appshots:ios -->
-    </div>
-  </div>
+<div class="sec-head fade-up"><div><span class="eyebrow">iPhone · iOS</span><h2 class="display-md title">Your robot, <span class="italic accent">in your pocket.</span></h2>
+<div class="app-links"><a class="btn" href="https://github.com/robotmabel/mabel/releases" rel="noopener" target="_blank">Get the iOS app ↗</a><a class="btn" href="autonomy.html#mapping">How navigation works →</a></div></div>
+<p class="lede">Three tabs, one thumb: <strong>Robot</strong>, <strong>Autonomy</strong>, <strong>Settings</strong>. It finds MABEL on Wi-Fi, Bluetooth or the secure relay, and falls back to an on-device demo robot, so every control works with no robot in the room. Slide through what each one does.</p></div>
+<div aria-label="iPhone app tabs" class="tabreel fade-up" data-tabreel="">
+<div class="trl-track">
+<!-- appshots:ios -->
+<figure class="trl-card shot side" data-tab="Robot" style="--ar:0.460"><div class="shot-frame phone"><img alt="iPhone Robot tab: the 3D twin on a grid with Start Teleop above and the tab bar below" decoding="async" height="1957" loading="lazy" src="assets/appshots/ios-robot.jpg" width="900"/><div class="shot-pins"><button aria-label="1: Robot" class="shot-pin" data-n="1" style="left:9.6%;top:9.4%" type="button">1</button><button aria-label="2: Connection" class="shot-pin" data-n="2" style="left:27.4%;top:9.4%" type="button">2</button><button aria-label="3: E-STOP" class="shot-pin" data-n="3" style="left:91.8%;top:9.4%" type="button">3</button><button aria-label="4: Start Teleop" class="shot-pin" data-n="4" style="left:32.5%;top:14.5%" type="button">4</button><button aria-label="5: The twin" class="shot-pin" data-n="5" style="left:50.0%;top:50.0%" type="button">5</button><button aria-label="6: 3rd | 1st" class="shot-pin" data-n="6" style="left:41.5%;top:81.7%" type="button">6</button><button aria-label="7: Console" class="shot-pin" data-n="7" style="left:69.8%;top:86.6%" type="button">7</button><button aria-label="8: Tabs" class="shot-pin" data-n="8" style="left:50.0%;top:95.2%" type="button">8</button></div></div><figcaption><span class="trl-ix">01 · ROBOT</span><h4>The twin is the map</h4><p class="trl-one">One full-screen 3D twin is both the live map and the controller.</p><ol><li data-n="1"><span><b>Robot</b>: Pick which robot to drive: the twin or the real one.</span></li><li data-n="2"><span><b>Connection</b>: Wi-Fi, Bluetooth, relay or on-device demo; switch in one tap.</span></li><li data-n="3"><span><b>E-STOP</b>: Cuts torque at once; tap again for Torque ON.</span></li><li data-n="4"><span><b>Start Teleop</b>: Nothing moves until you press it.</span></li><li data-n="5"><span><b>The twin</b>: Its live pose in the map; tap the floor to send it there.</span></li><li data-n="6"><span><b>3rd | 1st</b>: Flies the camera into its head and the live video takes over.</span></li><li data-n="7"><span><b>Console</b>: Pulls up voice, layers, cameras and telemetry.</span></li><li data-n="8"><span><b>Tabs</b>: Robot, Autonomy, Settings.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot" data-tab="Drive" style="--ar:2.174"><div class="shot-frame phone land"><img alt="iPhone landscape Drive mode: translate stick, lift slider and rotate control around the 3D twin" decoding="async" height="644" loading="lazy" src="assets/appshots/ios-drive.jpg" width="1400"/><div class="shot-pins"><button aria-label="1: TRANSLATE" class="shot-pin" data-n="1" style="left:19.9%;top:50.5%" type="button">1</button><button aria-label="2: LIFT" class="shot-pin" data-n="2" style="left:52.9%;top:62.0%" type="button">2</button><button aria-label="3: ROTATE" class="shot-pin" data-n="3" style="left:73.9%;top:68.3%" type="button">3</button><button aria-label="4: Drive · Joint · Task" class="shot-pin" data-n="4" style="left:15.0%;top:16.1%" type="button">4</button><button aria-label="5: Stop Teleop" class="shot-pin" data-n="5" style="left:42.5%;top:16.1%" type="button">5</button><button aria-label="6: E-STOP" class="shot-pin" data-n="6" style="left:80.0%;top:5.0%" type="button">6</button><button aria-label="7: 3rd | 1st" class="shot-pin" data-n="7" style="left:53.2%;top:86.7%" type="button">7</button></div></div><figcaption><span class="trl-ix">02 · DRIVE</span><h4>Drive from your thumbs</h4><p class="trl-one">Turn the phone sideways and the controls spread out. Portrait works too.</p><ol><li data-n="1"><span><b>TRANSLATE</b>: Slides the base any direction on its swerve wheels.</span></li><li data-n="2"><span><b>LIFT</b>: Spring-loaded: hold to raise or lower; the fill shows the height.</span></li><li data-n="3"><span><b>ROTATE</b>: Turns on the spot, kept apart so turning never moves the lift.</span></li><li data-n="4"><span><b>Drive · Joint · Task</b>: What your thumbs move.</span></li><li data-n="5"><span><b>Stop Teleop</b>: Stops and zeroes the base.</span></li><li data-n="6"><span><b>E-STOP</b>: Always top-right.</span></li><li data-n="7"><span><b>3rd | 1st</b>: Drive from behind it or through its eyes.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot side" data-tab="Joint" style="--ar:0.460"><div class="shot-frame phone"><img alt="iPhone Joint mode: a module rail on the left and left-arm joint sliders" decoding="async" height="1957" loading="lazy" src="assets/appshots/ios-joint.jpg" width="900"/><div class="shot-pins"><button aria-label="1: Module rail" class="shot-pin" data-n="1" style="left:7.9%;top:29.8%" type="button">1</button><button aria-label="2: Joint sliders" class="shot-pin" data-n="2" style="left:26.1%;top:59.9%" type="button">2</button><button aria-label="3: Joint" class="shot-pin" data-n="3" style="left:17.2%;top:14.5%" type="button">3</button><button aria-label="4: Tuning" class="shot-pin" data-n="4" style="left:91.5%;top:14.5%" type="button">4</button></div></div><figcaption><span class="trl-ix">03 · JOINT</span><h4>Pose it joint by joint</h4><p class="trl-one">Pick a body part, then set each joint with a slider.</p><ol><li data-n="1"><span><b>Module rail</b>: Left or right arm, neck, hands, lift, torso.</span></li><li data-n="2"><span><b>Joint sliders</b>: One per joint, in degrees.</span></li><li data-n="3"><span><b>Joint</b>: The active control space.</span></li><li data-n="4"><span><b>Tuning</b>: Stiff or soft arms, gravity compensation.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot side" data-tab="Task" style="--ar:0.460"><div class="shot-frame phone"><img alt="iPhone Task mode: green wrist targets on the twin with grip sliders on each side" decoding="async" height="1957" loading="lazy" src="assets/appshots/ios-task.jpg" width="900"/><div class="shot-pins"><button aria-label="1: Wrist target" class="shot-pin" data-n="1" style="left:40.2%;top:62.0%" type="button">1</button><button aria-label="2: Arm · Upper · Whole" class="shot-pin" data-n="2" style="left:7.9%;top:29.9%" type="button">2</button><button aria-label="3: L grip" class="shot-pin" data-n="3" style="left:7.8%;top:79.5%" type="button">3</button><button aria-label="4: R grip" class="shot-pin" data-n="4" style="left:92.3%;top:79.5%" type="button">4</button></div></div><figcaption><span class="trl-ix">04 · TASK</span><h4>Point where the hand goes</h4><p class="trl-one">Drag a target; the planner solves the rest of the body.</p><ol><li data-n="1"><span><b>Wrist target</b>: Drag the green ball, then Execute the plan.</span></li><li data-n="2"><span><b>Arm · Upper · Whole</b>: How much body the planner may use: arms, plus torso, plus the base.</span></li><li data-n="3"><span><b>L grip</b>: Opens and closes the left hand.</span></li><li data-n="4"><span><b>R grip</b>: And the right.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot side" data-tab="Console" style="--ar:0.460"><div class="shot-frame phone"><img alt="iPhone console sheet: voice, layer toggles, camera projections and point-cloud density" decoding="async" height="1957" loading="lazy" src="assets/appshots/ios-console.jpg" width="900"/><div class="shot-pins"><button aria-label="1: Voice" class="shot-pin" data-n="1" style="left:29.3%;top:41.9%" type="button">1</button><button aria-label="2: Layers" class="shot-pin" data-n="2" style="left:50.0%;top:53.5%" type="button">2</button><button aria-label="3: Cam 3D" class="shot-pin" data-n="3" style="left:17.0%;top:69.8%" type="button">3</button><button aria-label="4: Projection size" class="shot-pin" data-n="4" style="left:20.9%;top:88.5%" type="button">4</button><button aria-label="5: Cloud density" class="shot-pin" data-n="5" style="left:32.6%;top:97.2%" type="button">5</button></div></div><figcaption><span class="trl-ix">05 · CONSOLE</span><h4>Everything else, one swipe up</h4><p class="trl-one">A glass sheet over the live twin, so the map never goes away.</p><ol><li data-n="1"><span><b>Voice</b>: Talk through the robot, or listen; the scope shows both levels.</span></li><li data-n="2"><span><b>Layers</b>: Mesh, 2D map, point cloud, LiDAR, cameras, grid, minimap, TF.</span></li><li data-n="3"><span><b>Cam 3D</b>: Which camera feeds are projected into the 3D scene.</span></li><li data-n="4"><span><b>Projection size</b>: How large each camera image hangs in 3D.</span></li><li data-n="5"><span><b>Cloud density</b>: Thin the point cloud for speed.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot side" data-tab="Compose" style="--ar:0.460"><div class="shot-frame phone"><img alt="iPhone Autonomy Compose: 3D preview above a timeline of navigation, manipulation and voice clips" decoding="async" height="1957" loading="lazy" src="assets/appshots/ios-compose.jpg" width="900"/><div class="shot-pins"><button aria-label="1: Routine" class="shot-pin" data-n="1" style="left:13.9%;top:18.9%" type="button">1</button><button aria-label="2: Auto-blend" class="shot-pin" data-n="2" style="left:68.9%;top:18.9%" type="button">2</button><button aria-label="3: Execute" class="shot-pin" data-n="3" style="left:85.7%;top:18.9%" type="button">3</button><button aria-label="4: Preview" class="shot-pin" data-n="4" style="left:37.9%;top:55.3%" type="button">4</button><button aria-label="5: Library" class="shot-pin" data-n="5" style="left:12.2%;top:62.7%" type="button">5</button><button aria-label="6: Lanes" class="shot-pin" data-n="6" style="left:59.8%;top:77.0%" type="button">6</button></div></div><figcaption><span class="trl-ix">06 · COMPOSE</span><h4>Edit a routine like a video</h4><p class="trl-one">Clips on lanes, previewed on the twin, then run on the robot.</p><ol><li data-n="1"><span><b>Routine</b>: Open, rename or save one.</span></li><li data-n="2"><span><b>Auto-blend</b>: Adds eased blends so no clip boundary makes it jump.</span></li><li data-n="3"><span><b>Execute</b>: Runs it on the robot after a confirm.</span></li><li data-n="4"><span><b>Preview</b>: Plays on the 3D model only.</span></li><li data-n="5"><span><b>Library</b>: Animations, poses, policies, nav moves.</span></li><li data-n="6"><span><b>Lanes</b>: NAV, MANIP, VOICE; higher rows win.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot side" data-tab="Hub" style="--ar:0.460"><div class="shot-frame phone"><img alt="iPhone Autonomy Hub: assistant chat, robot control buttons and an automations week grid" decoding="async" height="1957" loading="lazy" src="assets/appshots/ios-hub.jpg" width="900"/><div class="shot-pins"><button aria-label="1: Assistant" class="shot-pin" data-n="1" style="left:45.1%;top:32.4%" type="button">1</button><button aria-label="2: Quick prompts" class="shot-pin" data-n="2" style="left:35.9%;top:40.6%" type="button">2</button><button aria-label="3: Voice" class="shot-pin" data-n="3" style="left:87.2%;top:46.1%" type="button">3</button><button aria-label="4: Robot control" class="shot-pin" data-n="4" style="left:50.0%;top:61.3%" type="button">4</button><button aria-label="5: Automations" class="shot-pin" data-n="5" style="left:55.4%;top:86.0%" type="button">5</button></div></div><figcaption><span class="trl-ix">07 · HUB</span><h4>Or just ask it</h4><p class="trl-one">The assistant, one-tap routines, and a weekly schedule.</p><ol><li data-n="1"><span><b>Assistant</b>: Tell it what to do in plain words.</span></li><li data-n="2"><span><b>Quick prompts</b>: One tap: relax, go charge, battery.</span></li><li data-n="3"><span><b>Voice</b>: Speak instead of typing.</span></li><li data-n="4"><span><b>Robot control</b>: Dock, go home, sleep, security, speak through it.</span></li><li data-n="5"><span><b>Automations</b>: Routines it runs on its own, by the week.</span></li></ol></figcaption></figure>
+<figure class="trl-card shot side" data-tab="Settings" style="--ar:0.460"><div class="shot-frame phone"><img alt="iPhone Settings: status card and robots list, with robot names hidden" decoding="async" height="1957" loading="lazy" src="assets/appshots/ios-settings.jpg" width="900"/><div class="shot-pins"><button aria-label="1: Status" class="shot-pin" data-n="1" style="left:50.0%;top:29.2%" type="button">1</button><button aria-label="2: Demo Mode" class="shot-pin" data-n="2" style="left:82.3%;top:14.6%" type="button">2</button><button aria-label="3: Robots" class="shot-pin" data-n="3" style="left:22.0%;top:78.8%" type="button">3</button><button aria-label="4: Auto-connect" class="shot-pin" data-n="4" style="left:84.2%;top:83.7%" type="button">4</button><button aria-label="5: Bluetooth" class="shot-pin" data-n="5" style="left:18.3%;top:90.5%" type="button">5</button></div></div><figcaption><span class="trl-ix">08 · SETTINGS</span><h4>The boring, important bit</h4><p class="trl-one">Connection, safety and limits, one card each.</p><ol><li data-n="1"><span><b>Status</b>: Connection, latency, control mode, e-stop.</span></li><li data-n="2"><span><b>Demo Mode</b>: No robot near? The app runs its own simulator.</span></li><li data-n="3"><span><b>Robots</b>: Found on Wi-Fi, Bluetooth or the relay (names hidden here).</span></li><li data-n="4"><span><b>Auto-connect</b>: Reconnects to the best robot on launch.</span></li><li data-n="5"><span><b>Bluetooth</b>: Drive with no network at all.</span></li></ol></figcaption></figure>
+<!-- /appshots:ios -->
+</div>
+</div>
 </div></section>
-
 <section class="soft-sec pad-y" id="safety"><div class="wrap">
-  <div class="sec-head fade-up"><div><span class="eyebrow">Safety</span><h2 class="display-md title">Safe by construction, <span class="italic accent">not by manual.</span></h2></div>
-    <p class="lede">Safety isn't a settings page you're trusted to read — it's the spine of the interface. Three promises hold on every screen, on both devices, whether you're an operator or a first-time guest.</p></div>
-  <div class="card-grid">
-    <div class="card fade-up"><span class="card-num">A</span><div><h4>Stop, instantly</h4><p>A red <strong>STOP</strong> rides every screen and never scrolls away — one tap freezes all motion. Sleep the phone, lift the headset, or lose the link and the robot freezes <em>itself</em>: a heartbeat means it only moves while a human is actively holding on.</p></div></div>
-    <div class="card fade-up d1"><span class="card-num">B</span><div><h4>Never too fast, never past a limit</h4><p>A speed dial scales everything from a crawl to full tilt. Hard speed caps live on the robot itself, every joint stops short of its mechanical limit, and letting go <em>holds the pose</em> under gravity comp — nothing springs back at you.</p></div></div>
-    <div class="card fade-up d2"><span class="card-num">C</span><div><h4>Only the right hands, when armed</h4><p>One driver holds the controls at a time; the robot must be explicitly <strong>armed</strong> to move; a stored access code gates every connection; and a live health panel flags a hot motor or a joint near its limit before it bites.</p></div></div>
-  </div>
+<div class="sec-head fade-up"><div><span class="eyebrow">Safety</span><h2 class="display-md title">Safe by construction, <span class="italic accent">not by manual.</span></h2></div>
+<p class="lede">Safety isn't a settings page you're trusted to read — it's the spine of the interface. Three promises hold on every screen, on both devices, whether you're an operator or a first-time guest.</p></div>
+<div class="card-grid">
+<div class="card fade-up"><span class="card-num">A</span><div><h4>Stop, instantly</h4><p>A red <strong>STOP</strong> rides every screen and never scrolls away — one tap freezes all motion. Sleep the phone, lift the headset, or lose the link and the robot freezes <em>itself</em>: a heartbeat means it only moves while a human is actively holding on.</p></div></div>
+<div class="card fade-up d1"><span class="card-num">B</span><div><h4>Never too fast, never past a limit</h4><p>A speed dial scales everything from a crawl to full tilt. Hard speed caps live on the robot itself, every joint stops short of its mechanical limit, and letting go <em>holds the pose</em> under gravity comp — nothing springs back at you.</p></div></div>
+<div class="card fade-up d2"><span class="card-num">C</span><div><h4>Only the right hands, when armed</h4><p>One driver holds the controls at a time; the robot must be explicitly <strong>armed</strong> to move; a stored access code gates every connection; and a live health panel flags a hot motor or a joint near its limit before it bites.</p></div></div>
+</div>
 </div></section>
-
 <!-- ─── CTA ─── -->
 <section class="soft-sec pad-y" id="paper-figs">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Networking</span>
-        <h2 class="display-md title">Networking: drive it from <span class="italic accent">anywhere.</span></h2>
-      </div>
-      <p class="lede">The operator can be on the other side of the planet. Pick a city: the budget is the great circle at fibre speed, the relay hops, and the measured on-robot pipeline — nothing hand-waved.</p>
-    </div>
-    <div class="rg-wrap fade-up" style="margin-bottom:clamp(24px,3vh,38px);">
-      <div id="reachGlobe"></div>
-    </div>
-        <figure class="frames-fig fade-up">
-      <div class="fr2">
-        <div class="fr2-photo">
-          <img src="assets/teleop/frames-photo.jpg" loading="lazy" width="1628" height="1075"
-               alt="The operator in a Vision Pro beside MABEL. Six coordinate triads are drawn on the pair — the head frame on each, and a wrist frame on each hand — with dashed lines pairing the operator's to the robot's." />
-          <div class="fr2-key" aria-hidden="true">
-            <span class="fr2-ax x">x</span><span class="fr2-ax y">y</span><span class="fr2-ax z">z</span>
-            <b>F<sub>d</sub></b> head <b>F<sub>h</sub></b> wrists
+<div class="wrap">
+<div class="sec-head fade-up">
+<div>
+<span class="eyebrow">Networking</span>
+<h2 class="display-md title">Networking: drive it from <span class="italic accent">anywhere.</span></h2>
+</div>
+<p class="lede">The operator can be on the other side of the planet. Pick a city: the budget is the great circle at fibre speed, the relay hops, and the measured on-robot pipeline — nothing hand-waved.</p>
+</div>
+<div class="rg-wrap fade-up" style="margin-bottom:clamp(24px,3vh,38px);">
+<div id="reachGlobe"></div>
+</div>
+<figure class="frames-fig fade-up">
+<div class="fr2">
+<div class="fr2-photo">
+<img alt="The operator in a Vision Pro beside MABEL. Six coordinate triads are drawn on the pair — the head frame on each, and a wrist frame on each hand — with dashed lines pairing the operator's to the robot's." height="1075" loading="lazy" src="assets/teleop/frames-photo.jpg" width="1628"/>
+<div aria-hidden="true" class="fr2-key">
+<span class="fr2-ax x">x</span><span class="fr2-ax y">y</span><span class="fr2-ax z">z</span>
+<b>F<sub>d</sub></b> head <b>F<sub>h</sub></b> wrists
             <b>F<sub>e</sub></b> elbows
           </div>
-          <figcaption>The frames the headset reports, and where they land. Head,
-            both wrists, both elbows &mdash; paired, not copied. Photograph and
+<figcaption>The frames the headset reports, and where they land. Head,
+            both wrists, both elbows — paired, not copied. Photograph and
             annotation from the paper.</figcaption>
-        </div>
-        <ol class="fr2-steps">
-          <li><b>Clutch</b> Anchor at your shoulders, scale by your own span.
+</div>
+<ol class="fr2-steps">
+<li><b>Clutch</b> Anchor at your shoulders, scale by your own span.
             <i>a tall and a short operator drive it the same</i></li>
-          <li><b>Permute</b> One matrix, det&nbsp;=&nbsp;+1.
-            <code>x&#8202;=&#8202;z<sub>a</sub> &nbsp; y&#8202;=&#8202;y<sub>a</sub> &nbsp; z&#8202;=&#8202;&#8722;x<sub>a</sub></code>
-            <i>so your left hand stays your left</i></li>
-          <li><b>Gain</b> &times;1.3 forward, &times;1.3 left, &times;1.4 up.
+<li><b>Permute</b> One matrix, det = +1.
+            <code>x = z<sub>a</sub>   y = y<sub>a</sub>   z = −x<sub>a</sub></code>
+<i>so your left hand stays your left</i></li>
+<li><b>Gain</b> ×1.3 forward, ×1.3 left, ×1.4 up.
             <i>the lift, torso and base carry the long reaches</i></li>
-        </ol>
-      </div>
-      <p class="fr2-bite"><b>The one that bites:</b> a palm frame built from anatomy is
-        chirality-mirrored &mdash; palmar on the right hand, dorsal on the left. The robot's is
+</ol>
+</div>
+<p class="fr2-bite"><b>The one that bites:</b> a palm frame built from anatomy is
+        chirality-mirrored — palmar on the right hand, dorsal on the left. The robot's is
         palmar on both, so the left one is flipped first. Cost of forgetting, measured:
-        178.6&deg;.</p>
-      <figcaption>Your body and MABEL's do not agree about which way is forward, how long an
+        178.6°.</p>
+<figcaption>Your body and MABEL's do not agree about which way is forward, how long an
         arm is, or how wide a torso should be. Three steps reconcile them, and none is
-        learned &mdash; the clutch is your own shoulder width, the permutation is one matrix,
+        learned — the clutch is your own shoulder width, the permutation is one matrix,
         and the gain is six numbers in <code>config.py</code>.</figcaption>
-    </figure>
-
+</figure>
 <div class="lat-bars fade-up" id="latencyBars"></div>
-    <div class="callout fade-up" style="margin-top:clamp(28px,4vh,44px);">
-      <p><strong>Which headset?</strong> The <strong>Apple Vision Pro</strong> runs the native visionOS
+<div class="callout fade-up" style="margin-top:clamp(28px,4vh,44px);">
+<p><strong>Which headset?</strong> The <strong>Apple Vision Pro</strong> runs the native visionOS
       app — ARKit head pose plus a 27-joint skeleton per hand, and it is simultaneously visualizer,
       controller, and demonstration recorder. Other headsets (a <strong>PICO</strong>, a Quest) drive
       MABEL through the zero-install <a href="simulator.html" style="color:var(--rust);">browser client</a>
       instead — same wire protocol, no app store. All retargeting runs server-side either way.</p>
-    </div>
-  </div>
+</div>
+</div>
 </section>
-
 <footer>
-  <div class="wrap">
-    <div class="foot-grid">
-      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
-        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="connect.html">Community</a></div></div>
-      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a><a href="harness.html">AI harness</a></div>
-      <div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="docs/">Assembly guide</a><a href="hardware.html#model">3D model</a><a href="order.html">Order a robot</a></div>
-      <div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#cite">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
-    </div>
-    <div class="foot-bottom"><span>© 2026 The MABEL Authors · Apache-2.0 software · CERN-OHL-S-2.0 hardware · CC BY 4.0 docs</span><span>Built with love · v1.0.0</span></div>
-  </div>
+<div class="wrap">
+<div class="foot-grid">
+<div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+<div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" rel="noopener" target="_blank">GitHub ↗</a><a href="connect.html">Community</a></div></div>
+<div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a><a href="harness.html">AI harness</a></div>
+<div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="docs/">Assembly guide</a><a href="hardware.html#model">3D model</a><a href="order.html">Order a robot</a></div>
+<div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#cite">Paper</a><a href="https://github.com/robotmabel/MABEL" rel="noopener" target="_blank">GitHub ↗</a></div>
+</div>
+<div class="foot-bottom"><span>© 2026 The MABEL Authors · Apache-2.0 software · CERN-OHL-S-2.0 hardware · CC BY 4.0 docs</span><span>Built with love · v1.0.0</span></div>
+</div>
 </footer>
-
 <script src="assets/latency-bars.js?v=1b3a91bf"></script>
 <script src="assets/reach-globe.js?v=e251d7bb"></script>
 <script src="assets/burst-variety.js?v=4bc405a8"></script>
 <script src="assets/store-nav.js"></script>
 <script src="assets/mabel.js?v=93309937"></script>
-<script defer src="assets/defer-module.js" data-mod="./teleop-app.js?v=d5d96577" data-when=".ta-stage"></script>
-<script defer src="assets/tabreel.js?v=24fb81fc"></script>
-</body>
+<script data-mod="./teleop-app.js?v=d5d96577" data-when=".ta-stage" defer="" src="assets/defer-module.js"></script>
+<script defer="" src="assets/tabreel.js?v=24fb81fc"></script>
+<script defer="True" src="assets/demo-gallery.js?v=97763c9d"></script></body>
 </html>

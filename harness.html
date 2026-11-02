@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=900dcbea" />
+<link rel="stylesheet" href="assets/mabel.css?v=c0b86bcc" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -36,225 +36,214 @@
 <script src="assets/page-progress.js?v=4b9cfcb1" defer></script>
 </head>
 <body class="sec-page">
-
 <div id="progress"></div>
-
 <header class="nav" id="nav">
-  <a href="index.html" class="nav-logo"><img src="assets/head-icon.svg" alt="" class="nav-head" /> MABEL</a>
-  <nav class="nav-links">
-    <a href="index.html">Overview</a>
-        <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
-    <div class="nav-group on"><button type="button" class="nav-grp-btn" data-href="harness.html">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#what">What a harness is</a><a href="harness.html#registry">The registry</a><a href="harness.html#gates">Gates</a><a href="harness.html#surface">All 25 commands</a><a href="harness.html#limits">What it won’t do</a></div></div>
-    <a href="connect.html">Links</a>
-    <a href="index.html#cite" class="ext">Paper ↗</a>
-        <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
-    <a href="docs/" class="nav-cta">DIY guide</a>
-  </nav>
-  <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+<a class="nav-logo" href="index.html"><img alt="" class="nav-head" src="assets/head-icon.svg"/> MABEL</a>
+<nav class="nav-links">
+<a href="index.html">Overview</a>
+<div class="nav-group"><button class="nav-grp-btn" data-href="hardware.html" type="button">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body &amp; head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
+<div class="nav-group"><button class="nav-grp-btn" data-href="software.html" type="button">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#ros">ROS stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#firmware">Firmware</a><a href="software.html#simulation">Simulation</a></div></div>
+<div class="nav-group"><button class="nav-grp-btn" data-href="simulation.html" type="button">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
+<div class="nav-group"><button class="nav-grp-btn" data-href="teleop.html" type="button">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
+<div class="nav-group"><button class="nav-grp-btn" data-href="autonomy.html" type="button">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
+<div class="nav-group on"><button class="nav-grp-btn" data-href="harness.html" type="button">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#what">What a harness is</a><a href="harness.html#registry">The registry</a><a href="harness.html#gates">Gates</a><a href="harness.html#surface">All 25 commands</a><a href="harness.html#limits">What it won’t do</a></div></div>
+<a href="connect.html">Links</a>
+<a class="ext" href="index.html#cite">Paper ↗</a>
+<a aria-label="Buy one now" class="nav-build" href="order.html"><span>BUY<br/>ONE NOW!</span></a>
+<a class="nav-cta" href="docs/">DIY guide</a>
+</nav>
+<button aria-label="Menu" class="hbg" id="hbg"><span></span><span></span><span></span></button>
 </header>
-<div class="store-dock" id="storeDock" aria-label="Account and cart">
-  <a class="store-dock-btn" id="storeAcct" href="account.html" aria-label="Account" title="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
-  <a class="store-dock-btn" id="storeCart" href="order.html?open=cart" aria-label="Cart" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="store-dock-n" id="storeCartN" hidden>0</span></a>
+<div aria-label="Account and cart" class="store-dock" id="storeDock">
+<a aria-label="Account" class="store-dock-btn" href="account.html" id="storeAcct" title="Account"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"></path></svg></a>
+<a aria-label="Cart" class="store-dock-btn" href="order.html?open=cart" id="storeCart" title="Cart"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg><span class="store-dock-n" hidden="" id="storeCartN">0</span></a>
 </div>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a href="index.html#cite" class="ext">Paper ↗</a>
-    <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
-    <a href="docs/" class="nav-cta">DIY guide</a>
+<a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a class="ext" href="index.html#cite">Paper ↗</a>
+<a aria-label="Buy one now" class="nav-build" href="order.html"><span>BUY<br/>ONE NOW!</span></a>
+<a class="nav-cta" href="docs/">DIY guide</a>
 </nav>
-
-<aside class="sidenav" aria-label="Harness section navigation">
-  <div class="sidenav-title">AI harness</div>
-  <a href="#what">What it is</a><a href="#registry">The registry</a><a href="#gates">Gates</a><a href="#surface">All 25 commands</a><a href="#limits">What it won't do</a><a href="#use">Use it</a>
+<aside aria-label="Harness section navigation" class="sidenav">
+<a href="#walkthrough">Recorded walkthrough</a><div class="sidenav-title">AI harness</div>
+<a href="#what">What it is</a><a href="#registry">The registry</a><a href="#gates">Gates</a><a href="#surface">All 25 commands</a><a href="#limits">What it won't do</a><a href="#use">Use it</a>
 </aside>
-
 <!-- ─── PAGE HERO ─── -->
 <section class="page-hero">
-  <div class="page-hero-inner">
-    <div class="crumbs"><a href="index.html">Overview</a> / AI harness</div>
-    <span class="eyebrow">The AI harness</span>
-    <h1 class="display-lg">The repo answers<br/>for itself.</h1>
-    <p class="lede">A command layer for AI assistants working on MABEL.
-      Every answer is read from a registry, every fact cites a source file,
-      and a gate fails when that file changes.</p>
-    <div class="spec">
-      <span>25 commands</span><span>one namespace</span><span>237 gated facts</span><span>0 drift</span>
-    </div>
-    <div class="hero-actions" style="margin-top:22px;">
-      <a href="#surface" class="btn btn-primary">See all 25</a>
-      <a href="https://github.com/robotmabel/MABEL/tree/main/claude_harness" target="_blank" rel="noopener" class="btn btn-ghost">The harness on GitHub &#8599;</a>
-    </div>
-  </div>
+<div class="page-hero-inner">
+<div class="crumbs"><a href="index.html">Overview</a> / AI harness</div>
+<span class="eyebrow">The AI harness</span>
+<h1 class="display-lg">The repo answers<br/>for itself.</h1>
+<p class="lede">A command layer for assistants working on MABEL. Watch Claude Code inspect the public checkout, follow the source files it reads, and explore the full harness command reference.</p>
+<div class="spec"><span>25 command guides</span><span>Claude Code replay</span><span>source inspection</span><span>public checkout</span></div>
+<div class="hero-actions" style="margin-top:22px;"><a class="btn btn-primary" href="#walkthrough">▶ Watch onboarding</a><a class="btn btn-ghost" href="#surface">Explore the 25 commands</a></div>
+</div>
 </section>
-
 <!-- ─── 1 · WHAT IT IS ─── -->
-<section class="pad-y" id="what">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">What a harness is</span>
-        <h2 class="display-md title">Look it up.<br/><span class="italic accent">Don&rsquo;t recall it.</span></h2>
-      </div>
-      <p class="lede">A harness is the environment around an agent: the tools it can reach,
+<section class="pad-y" id="walkthrough"><div class="wrap">
+<div class="sec-head"><h2 class="display-md title">Claude Code <span class="italic accent">walkthrough</span></h2><p class="lede">Start with <code>/onboarding</code>, then explore every command. The explanation follows the video; choose a chapter to jump straight to its recorded run.</p></div>
+<div class="hw-walk" id="harnessWalkthrough">
+<div class="hw-screen"><video aria-label="Recorded Claude Code command walkthrough" controls="" playsinline="" preload="none"></video><p class="hw-caption">Actual Claude Code visible output from <code>open_mabel</code>, rendered as a condensed terminal replay. Full responses are available in the transcript.</p><div class="hw-transport"><button data-hw-prev="" disabled="" type="button">← Previous</button><label>Command <select aria-label="Recorded command chapter" disabled=""></select></label><button data-hw-next="" disabled="" type="button">Next →</button></div><p class="hw-status" data-hw-status="" role="status">Loading the recorded command guide…</p></div>
+<aside aria-label="Current command explanation" class="hw-explanation"><div class="hw-kicker"><span data-hw-count="">1 / 25</span><span>Public checkout · read only</span></div><h3 data-hw-command="">/onboarding</h3><p data-hw-purpose=""></p><h4 data-hw-phase="">Starting this command</h4><p class="hw-inspection" data-hw-inspection=""></p><details><summary>Full recorded response</summary><pre data-hw-answer=""></pre></details><button class="btn btn-ghost" data-hw-copy="" type="button">Copy command</button></aside>
+</div>
+<p class="hw-scope">This recording uses portable documentation commands installed for the public checkout. Launches, host probes, calibration and vault updates are explained without execution; the private lab registry is absent. Responses preserve the public README at recording time, including its older scene count. Current paper specifications are shown elsewhere on this site.</p>
+<div class="hw-downloads"><a download="" href="assets/harness/public-command-pack.zip">↓ Public command pack</a><a download="" href="assets/data/harness-recording.json">↓ Full transcript &amp; chapter timings</a><a download="" href="assets/harness/claude-code-walkthrough.mp4">↓ Replay video</a></div>
+</div></section><section class="pad-y" id="what">
+<div class="wrap">
+<div class="sec-head fade-up">
+<div>
+<span class="eyebrow">What a harness is</span>
+<h2 class="display-md title">Look it up.<br/><span class="italic accent">Don’t recall it.</span></h2>
+</div>
+<p class="lede">A harness is the environment around an agent: the tools it can reach,
         the state it can see, and the checks on its output. Following
-        <a href="https://arxiv.org/abs/2606.08610" target="_blank" rel="noopener">HARBOR</a>,
+        <a href="https://arxiv.org/abs/2606.08610" rel="noopener" target="_blank">HARBOR</a>,
         we apply it to the repository itself.</p>
-    </div>
-    <div class="card-grid fade-up" style="margin-top:30px;">
-      <div class="card"><span class="card-num">01</span><h3>One registry</h3>
-        <p>Eleven YAML files hold the robot&rsquo;s facts: hosts, ports, control paths,
+</div>
+<div class="card-grid fade-up" style="margin-top:30px;">
+<div class="card"><span class="card-num">01</span><h3>One registry</h3>
+<p>Eleven YAML files hold the robot’s facts: hosts, ports, control paths,
           safety limits, firmware, APIs.</p></div>
-      <div class="card"><span class="card-num">02</span><h3>One namespace</h3>
-        <p>Every command is <code>/mabel-&lt;verb&gt;</code>.</p></div>
-      <div class="card"><span class="card-num">03</span><h3>One gate</h3>
-        <p><code>/mabel-drift</code> checks that every cited file still exists and still
+<div class="card"><span class="card-num">02</span><h3>One namespace</h3>
+<p>Every command is <code>/mabel-&lt;verb&gt;</code>.</p></div>
+<div class="card"><span class="card-num">03</span><h3>One gate</h3>
+<p><code>/mabel-drift</code> checks that every cited file still exists and still
           contains its fact. Drift fails like a test.</p></div>
-    </div>
-  </div>
+</div>
+</div>
 </section>
-
 <!-- ─── 2 · THE REGISTRY ─── -->
 <section class="soft-sec pad-y" id="registry">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">The registry</span>
-        <h2 class="display-md title">Every answer<br/>cites <span class="italic accent">a file.</span></h2>
-      </div>
-      <p class="lede">Commands render the registry in <code>claude_harness/data/</code>.
+<div class="wrap">
+<div class="sec-head fade-up">
+<div>
+<span class="eyebrow">The registry</span>
+<h2 class="display-md title">Every answer<br/>cites <span class="italic accent">a file.</span></h2>
+</div>
+<p class="lede">Commands render the registry in <code>claude_harness/data/</code>.
         Each entry records its source path. An entry without one is rejected.</p>
-    </div>
-    <div class="table-scroll fit fade-up" style="margin-top:26px;">
-      <table class="data-table">
-        <thead><tr><th style="text-align:left;">File</th><th style="text-align:left;">Holds</th></tr></thead>
-        <tbody>
-          <tr><td data-l="File"><code>commands.yaml</code></td><td data-l="Holds" style="text-align:left;">The command surface; this page is generated from it</td></tr>
-          <tr><td data-l="File"><code>hosts.yaml</code></td><td data-l="Holds" style="text-align:left;">The robot computer, the relay, the dev host: addresses, roles, access</td></tr>
-          <tr><td data-l="File"><code>network.yaml</code></td><td data-l="Holds" style="text-align:left;">43 ports, their protocols, and the relay route</td></tr>
-          <tr><td data-l="File"><code>control.yaml</code></td><td data-l="Holds" style="text-align:left;">14 control methods, 11 launch targets, 9 studios</td></tr>
-          <tr><td data-l="File"><code>safety.yaml</code></td><td data-l="Holds" style="text-align:left;">E-stop, watchdogs, motion limits, arbitration, each with its implementation</td></tr>
-          <tr><td data-l="File"><code>firmware.yaml</code></td><td data-l="Holds" style="text-align:left;">MCU, bus, protocol and build/flash commands per subsystem</td></tr>
-          <tr><td data-l="File"><code>controller_api.yaml</code></td><td data-l="Holds" style="text-align:left;">The <code>mabel</code> control library&rsquo;s public API</td></tr>
-          <tr><td data-l="File"><code>hardware_api.yaml</code></td><td data-l="Holds" style="text-align:left;">The <code>mabel_hw</code> HAL: drivers, RPC, cameras, config</td></tr>
-          <tr><td data-l="File"><code>subsystems.yaml</code></td><td data-l="Holds" style="text-align:left;">Each top-level directory and the data flow between them</td></tr>
-          <tr><td data-l="File"><code>docs.yaml</code> &middot; <code>glossary.yaml</code></td><td data-l="Holds" style="text-align:left;">45 technical papers; project vocabulary</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+</div>
+<div class="table-scroll fit fade-up" style="margin-top:26px;">
+<table class="data-table">
+<thead><tr><th style="text-align:left;">File</th><th style="text-align:left;">Holds</th></tr></thead>
+<tbody>
+<tr><td data-l="File"><code>commands.yaml</code></td><td data-l="Holds" style="text-align:left;">The command surface; this page is generated from it</td></tr>
+<tr><td data-l="File"><code>hosts.yaml</code></td><td data-l="Holds" style="text-align:left;">The robot computer, the relay, the dev host: addresses, roles, access</td></tr>
+<tr><td data-l="File"><code>network.yaml</code></td><td data-l="Holds" style="text-align:left;">43 ports, their protocols, and the relay route</td></tr>
+<tr><td data-l="File"><code>control.yaml</code></td><td data-l="Holds" style="text-align:left;">14 control methods, 11 launch targets, 9 studios</td></tr>
+<tr><td data-l="File"><code>safety.yaml</code></td><td data-l="Holds" style="text-align:left;">E-stop, watchdogs, motion limits, arbitration, each with its implementation</td></tr>
+<tr><td data-l="File"><code>firmware.yaml</code></td><td data-l="Holds" style="text-align:left;">MCU, bus, protocol and build/flash commands per subsystem</td></tr>
+<tr><td data-l="File"><code>controller_api.yaml</code></td><td data-l="Holds" style="text-align:left;">The <code>mabel</code> control library’s public API</td></tr>
+<tr><td data-l="File"><code>hardware_api.yaml</code></td><td data-l="Holds" style="text-align:left;">The <code>mabel_hw</code> HAL: drivers, RPC, cameras, config</td></tr>
+<tr><td data-l="File"><code>subsystems.yaml</code></td><td data-l="Holds" style="text-align:left;">Each top-level directory and the data flow between them</td></tr>
+<tr><td data-l="File"><code>docs.yaml</code> · <code>glossary.yaml</code></td><td data-l="Holds" style="text-align:left;">45 technical papers; project vocabulary</td></tr>
+</tbody>
+</table>
+</div>
+</div>
 </section>
-
 <!-- ─── 3 · GATES ─── -->
 <section class="pad-y" id="gates">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Gates</span>
-        <h2 class="display-md title">Checks that <span class="italic accent">fail.</span></h2>
-      </div>
-      <p class="lede">Documentation goes stale silently. Each gate turns one kind of staleness
+<div class="wrap">
+<div class="sec-head fade-up">
+<div>
+<span class="eyebrow">Gates</span>
+<h2 class="display-md title">Checks that <span class="italic accent">fail.</span></h2>
+</div>
+<p class="lede">Documentation goes stale silently. Each gate turns one kind of staleness
         into a failure, and states what it does not cover.</p>
-    </div>
-    <div class="table-scroll fit fade-up ahx-gates" style="margin-top:26px;">
-      <table class="data-table">
-        <thead><tr><th style="text-align:left;">Gate</th><th style="text-align:left;">What it catches</th></tr></thead>
-        <tbody>
-          <tr><td data-l="Gate">citation</td><td data-l="Catches" style="text-align:left;">A fact whose source file was deleted, moved, or no longer contains it.</td></tr>
-          <tr><td data-l="Gate">surface &rarr;</td><td data-l="Catches" style="text-align:left;">A listed command with no definition in the repo.</td></tr>
-          <tr><td data-l="Gate">surface &larr;</td><td data-l="Catches" style="text-align:left;">A command in the repo that the registry does not list.</td></tr>
-          <tr><td data-l="Gate">view</td><td data-l="Catches" style="text-align:left;">A command pointing at a renamed engine view.</td></tr>
-          <tr><td data-l="Gate">papers</td><td data-l="Catches" style="text-align:left;">A subsystem whose <code>docs/*.tex</code> is missing.</td></tr>
-          <tr><td data-l="Gate">safety sources</td><td data-l="Catches" style="text-align:left;">A safety mechanism citing a file that no longer implements it.</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="callout fade-up" style="margin-top:26px;">
-      <b>Limit.</b> <code>drift</code> checks citations, not architecture. It passed during the
+</div>
+<div class="table-scroll fit fade-up ahx-gates" style="margin-top:26px;">
+<table class="data-table">
+<thead><tr><th style="text-align:left;">Gate</th><th style="text-align:left;">What it catches</th></tr></thead>
+<tbody>
+<tr><td data-l="Gate">citation</td><td data-l="Catches" style="text-align:left;">A fact whose source file was deleted, moved, or no longer contains it.</td></tr>
+<tr><td data-l="Gate">surface →</td><td data-l="Catches" style="text-align:left;">A listed command with no definition in the repo.</td></tr>
+<tr><td data-l="Gate">surface ←</td><td data-l="Catches" style="text-align:left;">A command in the repo that the registry does not list.</td></tr>
+<tr><td data-l="Gate">view</td><td data-l="Catches" style="text-align:left;">A command pointing at a renamed engine view.</td></tr>
+<tr><td data-l="Gate">papers</td><td data-l="Catches" style="text-align:left;">A subsystem whose <code>docs/*.tex</code> is missing.</td></tr>
+<tr><td data-l="Gate">safety sources</td><td data-l="Catches" style="text-align:left;">A safety mechanism citing a file that no longer implements it.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout fade-up" style="margin-top:26px;">
+<b>Limit.</b> <code>drift</code> checks citations, not architecture. It passed during the
       neck migration while the invariant it documents was violated. Invariants are enforced by
       tests in <code>hardware_bridge/tests/</code>.
     </div>
-  </div>
+</div>
 </section>
-
 <!-- ─── 4 · THE SURFACE ─── -->
 <section class="soft-sec pad-y" id="surface">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">The surface</span>
-        <h2 class="display-md title">Twenty-five commands,<br/>one <span class="italic accent">namespace.</span></h2>
-      </div>
-      <p class="lede">Generated from the command registry. Filter by task, or search for a port,
-        bus or file.</p>
-    </div>
-    <div class="fade-up" style="margin-top:26px;" id="ahxSurface"></div>
-    <h3 class="display-sm fade-up" style="margin:38px 0 0;">Badges</h3>
-    <div class="ahx-legend fade-up" id="ahxLegend"></div>
-    <p class="ahx-stamp fade-up" id="ahxStamp"></p>
-  </div>
+<div class="wrap">
+<div class="sec-head fade-up">
+<div>
+<span class="eyebrow">The surface</span>
+<h2 class="display-md title">Twenty-five commands,<br/>one <span class="italic accent">namespace.</span></h2>
+</div>
+<p class="lede">The full lab harness reference, generated from its command registry. The portable public guides used in the replay describe these tasks through available source files; they do not include the private execution engine.</p>
+</div>
+<div class="fade-up" id="ahxSurface" style="margin-top:26px;"></div>
+<h3 class="display-sm fade-up" style="margin:38px 0 0;">Badges</h3>
+<div class="ahx-legend fade-up" id="ahxLegend"></div>
+<p class="ahx-stamp fade-up" id="ahxStamp"></p>
+</div>
 </section>
-
 <!-- ─── 5 · LIMITS ─── -->
 <section class="pad-y" id="limits">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Deliberately absent</span>
-        <h2 class="display-md title">What it <span class="italic accent">won&rsquo;t</span> do.</h2>
-      </div>
-      <p class="lede">Design choices, recorded in the registry and printed by
+<div class="wrap">
+<div class="sec-head fade-up">
+<div>
+<span class="eyebrow">Deliberately absent</span>
+<h2 class="display-md title">What it <span class="italic accent">won’t</span> do.</h2>
+</div>
+<p class="lede">Design choices, recorded in the registry and printed by
         <code>/mabel-help</code>.</p>
-    </div>
-    <ul class="check fade-up" id="ahxNotBuilt" style="margin-top:22px;"></ul>
-  </div>
+</div>
+<ul class="check fade-up" id="ahxNotBuilt" style="margin-top:22px;"></ul>
+</div>
 </section>
-
 <!-- ─── 6 · USE IT ─── -->
 <section class="soft-sec pad-y" id="use">
-  <div class="wrap">
-    <div class="sec-head fade-up">
-      <div>
-        <span class="eyebrow">Use it</span>
-        <h2 class="display-md title">Clone it.<br/><span class="italic accent">Ask it.</span></h2>
-      </div>
-      <p class="lede">The harness ships with the repository. Any assistant that reads
-        <code>.claude/commands/</code> loads the 25 commands. Plain questions, such as
-        &ldquo;what&rsquo;s on port 9090?&rdquo;, reach the same registry.</p>
-    </div>
-    <div class="card-grid fade-up" style="margin-top:30px;">
-      <div class="card"><span class="card-num">First</span><h3><code>/mabel-onboard</code></h3>
-        <p>The robot, the subsystem map, the hosts, the wire contract, the two fixed rules.</p></div>
-      <div class="card"><span class="card-num">Then</span><h3><code>/mabel-safety</code></h3>
-        <p>Read before driving. Every base command passes one safety function.</p></div>
-      <div class="card"><span class="card-num">Any time</span><h3><code>/mabel-help</code></h3>
-        <p>The full surface, including what it will not do.</p></div>
-    </div>
-    <div class="fade-up" style="margin-top:26px; display:flex; gap:12px; flex-wrap:wrap;">
-      <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" class="btn btn-primary">Clone MABEL &#8599;</a>
-      <a href="docs/" class="btn btn-ghost">The replication wiki &rarr;</a>
-      <a href="software.html" class="btn btn-ghost">What it is describing &rarr;</a>
-    </div>
-  </div>
+<div class="wrap">
+<div class="sec-head fade-up">
+<div>
+<span class="eyebrow">Use it</span>
+<h2 class="display-md title">Install the guides.<br/><span class="italic accent">Explore the source.</span></h2>
+</div>
+<p class="lede">Download the public command pack and extract it into your <code>open_mabel</code> checkout. Open Claude Code there and run <code>/onboarding</code>. The pack contains 25 read-only source tours plus onboarding aliases.</p>
+</div>
+<div class="card-grid fade-up" style="margin-top:30px;">
+<div class="card"><span class="card-num">First</span><h3><code>/mabel-onboard</code></h3>
+<p>The robot, public subsystem map, model ownership and next commands.</p></div>
+<div class="card"><span class="card-num">Then</span><h3><code>/mabel-safety</code></h3>
+<p>Inspect the controller’s motion gate and the files that implement it.</p></div>
+<div class="card"><span class="card-num">Any time</span><h3><code>/mabel-help</code></h3>
+<p>Locate public documentation and identify full-harness components absent from this checkout.</p></div>
+</div>
+<pre class="hw-install"><code>cd open_mabel
+unzip /path/to/public-command-pack.zip
+claude
+# Then type /onboarding</code></pre><div class="fade-up" style="margin-top:26px; display:flex; gap:12px; flex-wrap:wrap;"><a class="btn btn-primary" download="" href="assets/harness/public-command-pack.zip">Download command pack ↓</a>
+<a class="btn btn-ghost" href="https://github.com/robotmabel/MABEL" rel="noopener" target="_blank">Clone MABEL ↗</a>
+<a class="btn btn-ghost" href="docs/">The replication wiki →</a>
+<a class="btn btn-ghost" href="software.html">What it is describing →</a>
+</div>
+</div>
 </section>
-
 <footer>
-  <div class="wrap">
-    <div class="foot-grid">
-      <div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
-        <div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a><a href="connect.html">Community</a></div></div>
-      <div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a><a href="harness.html">AI harness</a></div>
-      <div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="docs/">Assembly guide</a><a href="hardware.html#model">3D model</a><a href="order.html">Order a robot</a></div>
-      <div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#cite">Paper</a><a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener">GitHub ↗</a></div>
-    </div>
-    <div class="foot-bottom"><span>© 2026 The MABEL Authors · Apache-2.0 software · CERN-OHL-S-2.0 hardware · CC BY 4.0 docs</span><span>Built with love · v1.0.0</span></div>
-  </div>
+<div class="wrap">
+<div class="foot-grid">
+<div><div class="foot-brand">MABEL</div><p class="foot-brand-sub">Mobile Animated Bimanual Extensible Platform. Open hardware, open software, open from day one.</p>
+<div class="foot-mini"><a href="https://github.com/robotmabel/MABEL" rel="noopener" target="_blank">GitHub ↗</a><a href="connect.html">Community</a></div></div>
+<div class="foot-col"><h6>Explore</h6><a href="hardware.html">Hardware</a><a href="software.html">Software</a><a href="simulation.html">Simulation</a><a href="teleop.html">Teleop</a><a href="software.html#controller">Controller</a><a href="autonomy.html#mapping">Navigation</a><a href="autonomy.html">Autonomy</a><a href="harness.html">AI harness</a></div>
+<div class="foot-col"><h6>Build</h6><a href="docs/bom.html#explore">Bill of materials</a><a href="docs/">Assembly guide</a><a href="hardware.html#model">3D model</a><a href="order.html">Order a robot</a></div>
+<div class="foot-col"><h6>Project</h6><a href="connect.html">Links</a><a href="index.html#cite">Paper</a><a href="https://github.com/robotmabel/MABEL" rel="noopener" target="_blank">GitHub ↗</a></div>
+</div>
+<div class="foot-bottom"><span>© 2026 The MABEL Authors · Apache-2.0 software · CERN-OHL-S-2.0 hardware · CC BY 4.0 docs</span><span>Built with love · v1.0.0</span></div>
+</div>
 </footer>
-
 <script src="assets/harness-surface.js"></script>
 <script src="assets/store-nav.js"></script>
 <script src="assets/mabel.js?v=93309937"></script>
-</body>
+<script defer="True" src="assets/harness-walkthrough.js?v=756be4f6"></script></body>
 </html>

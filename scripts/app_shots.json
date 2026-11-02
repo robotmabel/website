@@ -168,7 +168,7 @@
    "tab": "Dock",
    "frame": "panel",
    "title": "Every joint, at a glance",
-   "one": "The right-hand dock: robot health on top, then all 59 joints and their history.",
+   "one": "The right-hand dock: robot health on top, then all 59 coordinates and their history.",
    "alt": "Control Studio status dock: link, latency, battery and torque tiles, hardware chips, joint bars and trends",
    "hotspots": [
     {
@@ -196,7 +196,7 @@
      "n": 4,
      "x": 7.7,
      "y": 45.7,
-     "label": "Joint state · 59 DOF",
+     "label": "Joint state · 59 coordinates",
      "what": "Current against target for every joint, coloured by motor temperature."
     },
     {

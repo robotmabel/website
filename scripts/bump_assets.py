@@ -12,7 +12,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Every shared stylesheet/script the pages reference. Missing one here means
 # a deployed page can pair with a cached older copy of it — which is exactly
 # how a verified bom-table.js fix appeared to do nothing in the browser.
-TRACKED = ["assets/latency-bars.js", "assets/page-progress.css", "assets/page-progress.js", "assets/accuracy-lab.js", "assets/overview.css", "assets/overview.js", "assets/simulation-overview.css", "assets/teleop-app.css", "assets/teleop-app.js", "assets/stack-map.js", "assets/mabel.css", "assets/mabel.js", "assets/bom/bom_data.js", "assets/spec-grid.js",
+TRACKED = ["assets/demo-gallery.js", "assets/harness-walkthrough.js", "assets/learning-explorer.js", "assets/latency-bars.js", "assets/page-progress.css", "assets/page-progress.js", "assets/accuracy-lab.js", "assets/overview.css", "assets/overview.js", "assets/simulation-overview.css", "assets/teleop-app.css", "assets/teleop-app.js", "assets/stack-map.js", "assets/mabel.css", "assets/mabel.js", "assets/bom/bom_data.js", "assets/spec-grid.js",
            "assets/comic-pop.js", "assets/tipover-lab.js",
            "assets/bom-table.js", "assets/bom-pie.js", "assets/reach-globe.js",
            "assets/wbc-viewer.js", "assets/robot-viewer.js", "assets/hero-rig.js",

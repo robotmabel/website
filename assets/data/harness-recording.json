@@ -1,0 +1,935 @@
+{
+  "recorded": "2026-11-02",
+  "title": "Claude Code in the public open_mabel checkout",
+  "method": "Actual Claude Code CLI visible messages and source-inspection calls; rendered as a condensed terminal replay. No private model reasoning or raw tool results are included.",
+  "duration": 592.276,
+  "video": "assets/harness/claude-code-walkthrough.mp4",
+  "poster": "assets/harness/claude-code-walkthrough.jpg",
+  "chapters": [
+    {
+      "key": "mabel-onboard",
+      "command": "/onboarding",
+      "start": 0,
+      "end": 23.134,
+      "purpose": "Guided orientation for someone who just cloned the repo: what the robot is, the subsystem map, the hosts, the one wire contract every client speaks, and the two rules that never bend (hardware_bridge is the sole hardware owner; controller/ is the sole gate on motion).",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 1,
+          "kind": "inspection",
+          "text": "Bash ls && wc -l README.md && grep -n -i -E \"hardware_bridge|controller/|canonical|host|wire|contract|simulation|apps/|learning|server/|onboard\" README.md | head -60"
+        },
+        {
+          "at": 1.934,
+          "kind": "inspection",
+          "text": "Bash sed -n 1,12p README.md && sed -n 348,362p README.md && ls .claude 2>/dev/null; ls .claude/commands 2>/dev/null"
+        },
+        {
+          "at": 2.534,
+          "kind": "inspection",
+          "text": "Bash grep -n -i -E \"sole|only process|open\" hardware_bridge/README.md | head -8"
+        },
+        {
+          "at": 3.134,
+          "kind": "answer",
+          "text": "**/mabel-onboard** gives a first orientation to MABEL. MABEL is an open-source mobile robot with 56 joints and two arms, teleoperated with an Apple Vision Pro (`README.md:3-6`).\n\n**Roles** (`README.md:42-53`):\n- `simulation/`: the main MuJoCo model plus 30 scenes. `simulation_bridge/` is its simulated twin of the hardware layer.\n- `controller/`: whole-body control and the safety gate.\n- `hardware_bridge/`: the only process that opens a device (`hardware_bridge/README.md:3,15`).\n- `server/`: one wire contract, `server/wire_protocol.py` on ws :9090.\n- `apps/visionos/`: the Vision Pro teleop app.\n- `learning/`: data curation and policy training.\n\n**Rules** (`README.md:352-357`):\n1. `hardware_bridge/` is the sole hardware owner.\n2. `controller/` is the sole gate on motion, and every base twist goes through `safe_base_step`.\n3. The model file `simulation/mabel_mujoco/models/mabel_full.xml` is the single source of truth (`README.md:329`).\n\n**Unavailable:** this checkout has no private list of lab robot hosts. The README names only a relay server in general terms (`README.md:294`). I ran nothing.\n\n**Next:** `bash server/run.sh` (not executed) starts the simulation, then:\n`/mabel-map` \u00b7 `/mabel-safety` \u00b7 `/mabel-launch`"
+        }
+      ],
+      "answer": "**/mabel-onboard** gives a first orientation to MABEL. MABEL is an open-source mobile robot with 56 joints and two arms, teleoperated with an Apple Vision Pro (`README.md:3-6`).\n\n**Roles** (`README.md:42-53`):\n- `simulation/`: the main MuJoCo model plus 30 scenes. `simulation_bridge/` is its simulated twin of the hardware layer.\n- `controller/`: whole-body control and the safety gate.\n- `hardware_bridge/`: the only process that opens a device (`hardware_bridge/README.md:3,15`).\n- `server/`: one wire contract, `server/wire_protocol.py` on ws :9090.\n- `apps/visionos/`: the Vision Pro teleop app.\n- `learning/`: data curation and policy training.\n\n**Rules** (`README.md:352-357`):\n1. `hardware_bridge/` is the sole hardware owner.\n2. `controller/` is the sole gate on motion, and every base twist goes through `safe_base_step`.\n3. The model file `simulation/mabel_mujoco/models/mabel_full.xml` is the single source of truth (`README.md:329`).\n\n**Unavailable:** this checkout has no private list of lab robot hosts. The README names only a relay server in general terms (`README.md:294`). I ran nothing.\n\n**Next:** `bash server/run.sh` (not executed) starts the simulation, then:\n`/mabel-map` \u00b7 `/mabel-safety` \u00b7 `/mabel-launch`",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-help",
+      "command": "/mabel-help",
+      "start": 23.134,
+      "end": 47.302,
+      "purpose": "The whole harness surface \u2014 every command, its arguments, what it reads and whether it can touch hardware \u2014 rendered from claude_harness/data/commands.yaml, which is the same file the website page and the drift gate read. Pass a group id to show one section.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 24.134,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 24.902,
+          "kind": "inspection",
+          "text": "Glob ~/open_mabel"
+        },
+        {
+          "at": 25.502000000000002,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 26.102000000000004,
+          "kind": "inspection",
+          "text": "Glob ~/open_mabel"
+        },
+        {
+          "at": 26.702000000000005,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 27.302000000000007,
+          "kind": "answer",
+          "text": "**`/mabel-help` can't show its command list from this checkout.** It is meant to print every harness command, its arguments, what it reads and whether it can touch hardware, all taken from `claude_harness/data/commands.yaml`. That file isn't here; I searched for `claude_harness/data/*` and `**/commands.yaml` and found neither. I won't fill the gap from memory.\n\n**What I checked:**\n- `README.md:36-56`: the folder layout. `simulation/` holds the main MuJoCo model, `controller/` is the control library, `hardware_bridge/` is the only process that opens devices, `server/` is the teleop gateway, `ros/` is the ROS 2 workspace, `apps/visionos/` is the Vision Pro app, and `learning/` covers data curation through policy training.\n- `README.md:327-344`: the robot-model rule. `simulation/mabel_mujoco/models/mabel_full.xml` is the single source of truth. After editing it, regenerate the URDF, the web and Vision Pro rigs, the arm posture table, and the tip-over checks, in that order.\n\n**Next step:** Get the harness pack that includes `claude_harness/data/commands.yaml`, then run `/mabel-help` again. Until then, the setup steps are `README.md:63` (install) and `README.md:88` (simulation). I didn't run either.\n\n**Unavailable:** the command list, group filtering, the hardware-access flags and the private host list."
+        }
+      ],
+      "answer": "**`/mabel-help` can't show its command list from this checkout.** It is meant to print every harness command, its arguments, what it reads and whether it can touch hardware, all taken from `claude_harness/data/commands.yaml`. That file isn't here; I searched for `claude_harness/data/*` and `**/commands.yaml` and found neither. I won't fill the gap from memory.\n\n**What I checked:**\n- `README.md:36-56`: the folder layout. `simulation/` holds the main MuJoCo model, `controller/` is the control library, `hardware_bridge/` is the only process that opens devices, `server/` is the teleop gateway, `ros/` is the ROS 2 workspace, `apps/visionos/` is the Vision Pro app, and `learning/` covers data curation through policy training.\n- `README.md:327-344`: the robot-model rule. `simulation/mabel_mujoco/models/mabel_full.xml` is the single source of truth. After editing it, regenerate the URDF, the web and Vision Pro rigs, the arm posture table, and the tip-over checks, in that order.\n\n**Next step:** Get the harness pack that includes `claude_harness/data/commands.yaml`, then run `/mabel-help` again. Until then, the setup steps are `README.md:63` (install) and `README.md:88` (simulation). I didn't run either.\n\n**Unavailable:** the command list, group filtering, the hardware-access flags and the private host list.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-map",
+      "command": "/mabel-map",
+      "start": 47.302,
+      "end": 70.23,
+      "purpose": "Every top-level directory grouped by the role it plays, plus how data moves between them. The answer to \"where does X live?\" and to \"what are all these folders?\".",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 48.30200000000001,
+          "kind": "inspection",
+          "text": "Bash ls -d */ && grep -n \"\" README.md | head -120"
+        },
+        {
+          "at": 49.00600000000001,
+          "kind": "inspection",
+          "text": "Bash grep -n -i -E \"canonical|^## (Architecture|Step 12)|data flow|\u2192\" README.md | sed -n '1,40p'; ls .claude/commands 2>/dev/null"
+        },
+        {
+          "at": 49.63000000000001,
+          "kind": "inspection",
+          "text": "Bash sed -n '327,375p' README.md"
+        },
+        {
+          "at": 50.23000000000001,
+          "kind": "answer",
+          "text": "**/mabel-map** shows each top-level folder and how data moves between them. I only read `README.md` and ran nothing.\n\n**MABEL** is an open-source 56-DOF mobile bimanual robot, teleoperated from an Apple Vision Pro (`README.md:3-6`).\n\n**Folders by role** (`README.md:38-55`):\n- **Hardware:** `hardware/`, `electrical/`, `firmware/`, `sensors/`, `calibration/`\n- **Runtime:** `hardware_bridge/` is the only process that opens a device; `controller/` is the only gate on motion; `server/` is the teleop gateway on ws `:9090`\n- **Simulation:** `simulation/` (the MuJoCo model), `simulation_bridge/` (its simulated twin)\n- **Clients:** `apps/visionos/`, `web_gui/`, `ros/`\n- **Training and results:** `learning/`, `experiments/`\n\n**Data flow** (`README.md:358-363`): commands go device \u2192 server \u2192 controller \u2192 hardware_bridge. State comes back through the server. Video skips the server.\n\n**Model rule:** `simulation/mabel_mujoco/models/mabel_full.xml` is the single source of truth. After editing it, rebuild the other files in the order given at `README.md:333-340`.\n\n**Next step (not run):** `bash server/run.sh`, or try `/mabel-pipelines`, `/mabel-launch` or `/mabel-glossary`.\n\n**Not included:** this checkout has no private host list."
+        }
+      ],
+      "answer": "**/mabel-map** shows each top-level folder and how data moves between them. I only read `README.md` and ran nothing.\n\n**MABEL** is an open-source 56-DOF mobile bimanual robot, teleoperated from an Apple Vision Pro (`README.md:3-6`).\n\n**Folders by role** (`README.md:38-55`):\n- **Hardware:** `hardware/`, `electrical/`, `firmware/`, `sensors/`, `calibration/`\n- **Runtime:** `hardware_bridge/` is the only process that opens a device; `controller/` is the only gate on motion; `server/` is the teleop gateway on ws `:9090`\n- **Simulation:** `simulation/` (the MuJoCo model), `simulation_bridge/` (its simulated twin)\n- **Clients:** `apps/visionos/`, `web_gui/`, `ros/`\n- **Training and results:** `learning/`, `experiments/`\n\n**Data flow** (`README.md:358-363`): commands go device \u2192 server \u2192 controller \u2192 hardware_bridge. State comes back through the server. Video skips the server.\n\n**Model rule:** `simulation/mabel_mujoco/models/mabel_full.xml` is the single source of truth. After editing it, rebuild the other files in the order given at `README.md:333-340`.\n\n**Next step (not run):** `bash server/run.sh`, or try `/mabel-pipelines`, `/mabel-launch` or `/mabel-glossary`.\n\n**Not included:** this checkout has no private host list.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-glossary",
+      "command": "/mabel-glossary",
+      "start": 70.23,
+      "end": 93.242,
+      "purpose": "MABEL's own vocabulary \u2014 swerve, WBC, ORCA, rathole, MJCF, retargeting, relay separation, the three different things called \"the bridge\". Words that mean something specific here and something else everywhere else.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 71.23000000000002,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 72.04200000000002,
+          "kind": "inspection",
+          "text": "Bash ls && git ls-files | grep -iE 'bridge|wbc|orca|rathole|retarget|mjcf|\\.xml$' | head -40"
+        },
+        {
+          "at": 72.64200000000001,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 73.242,
+          "kind": "answer",
+          "text": "**/mabel-glossary** defines words that mean something specific in MABEL. I only read README.md, so there are no source-file citations.\n\n- **Swerve**: the three-module REV MAXSwerve base (README.md:3, 215).\n- **ORCA**: the 17-DOF ORCA-derived hands (README.md:5, 236).\n- **WBC**: whole-body control in `controller/`. `wbc_stability.py` checks the tip-over centre-of-mass constants (README.md:44, 340).\n- **Retargeting**: turns operator motion into robot joint targets, in `controller/mabel/teleop_engine/` and `hand_retargeting/` (README.md:378).\n- **MJCF**: `simulation/mabel_mujoco/models/mabel_full.xml`, the single source of truth for the model (README.md:329, 357).\n- **Rathole / relay**: the robot dials out to a VPS running rathole and Caddy, and clients connect through a token-gated `wss://` relay (README.md:291).\n- **Relay separation**: video goes straight to devices and skips `server/` (README.md:362).\n- **Three \"bridges\"**: `hardware_bridge/` (the sole hardware owner), `simulation_bridge/` (its MuJoCo twin) and `server/sim_teleop_bridge.py` (README.md:43, 48, 375).\n\n**Next step:** read `server/docs/relay.md` or `hardware_bridge/README.md`. Nothing was executed, and the private host registry isn't in this checkout."
+        }
+      ],
+      "answer": "**/mabel-glossary** defines words that mean something specific in MABEL. I only read README.md, so there are no source-file citations.\n\n- **Swerve**: the three-module REV MAXSwerve base (README.md:3, 215).\n- **ORCA**: the 17-DOF ORCA-derived hands (README.md:5, 236).\n- **WBC**: whole-body control in `controller/`. `wbc_stability.py` checks the tip-over centre-of-mass constants (README.md:44, 340).\n- **Retargeting**: turns operator motion into robot joint targets, in `controller/mabel/teleop_engine/` and `hand_retargeting/` (README.md:378).\n- **MJCF**: `simulation/mabel_mujoco/models/mabel_full.xml`, the single source of truth for the model (README.md:329, 357).\n- **Rathole / relay**: the robot dials out to a VPS running rathole and Caddy, and clients connect through a token-gated `wss://` relay (README.md:291).\n- **Relay separation**: video goes straight to devices and skips `server/` (README.md:362).\n- **Three \"bridges\"**: `hardware_bridge/` (the sole hardware owner), `simulation_bridge/` (its MuJoCo twin) and `server/sim_teleop_bridge.py` (README.md:43, 48, 375).\n\n**Next step:** read `server/docs/relay.md` or `hardware_bridge/README.md`. Nothing was executed, and the private host registry isn't in this checkout.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-find",
+      "command": "/mabel-find",
+      "start": 93.242,
+      "end": 117.83,
+      "purpose": "One search across every registry at once \u2014 ports, hosts, control paths, studios, subsystems, glossary, safety, the controller API \u2014 with the file each hit came from. \"Where is 9090 used?\" is one query, not seven.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 94.242,
+          "kind": "inspection",
+          "text": "Bash ls && grep -n -i -E \"registry|port|find|glossary|safety\" README.md | head -40"
+        },
+        {
+          "at": 95.03,
+          "kind": "inspection",
+          "text": "Bash ls docs; grep -rIl -i -E \"registry|glossary\" --include=*.md --include=*.py --include=*.yaml . 2>/dev/null | head; grep -rIn -E \"\\b9090\\b|--control-port\" --include=*.py --include=*.md --include=*.sh . | head -8; sed -n 276,286p README.md"
+        },
+        {
+          "at": 95.63,
+          "kind": "inspection",
+          "text": "Bash grep -rIl -i -E \"registry|glossary\" . 2>/dev/null | grep -v '^./.git/' | head; grep -rIn -E \"\\b9090\\b\" . 2>/dev/null | grep -v '^./.git/' | head -5"
+        },
+        {
+          "at": 96.22999999999999,
+          "kind": "inspection",
+          "text": "Bash grep -n -i \"registry\" hardware_bridge/hardware_bridge.py | head -5"
+        },
+        {
+          "at": 97.82999999999998,
+          "kind": "answer",
+          "text": "I ran `/mabel-find` read-only. It works by searching the repo, because this public checkout has no unified registry index. No files were created and no hosts were contacted.\n\n**What the command is for:** one search across ports, hosts, control paths, studios, subsystems, glossary, safety and the controller API, showing the file behind each hit.\n\n**What I checked:**\n- `README.md`: subsystem layout at line 44; Control Center on port 8094 at line 276; `--control-port 9095` at line 156; safety rules at lines 281\u2013284.\n- `hardware_bridge/hardware_bridge.py:31-34`: re-exports the device `_REGISTRY` from `mabel_hw.ros.bridge`.\n- **Port 9090:** I found no real use. The only matches are numbers inside CAD/SVG files under `electrical/`.\n\n**Not available:** there is no glossary, host registry or studio index file, and no generated registry. Private lab hosts are not in this pack, and I did not fill them in from memory.\n\n**Next step:** read the safety section in `hardware_bridge/README.md`, then `controller/README.md`. To see bring-up options without starting anything, use `bash server/real_run.sh -h` (shown, not run)."
+        }
+      ],
+      "answer": "I ran `/mabel-find` read-only. It works by searching the repo, because this public checkout has no unified registry index. No files were created and no hosts were contacted.\n\n**What the command is for:** one search across ports, hosts, control paths, studios, subsystems, glossary, safety and the controller API, showing the file behind each hit.\n\n**What I checked:**\n- `README.md`: subsystem layout at line 44; Control Center on port 8094 at line 276; `--control-port 9095` at line 156; safety rules at lines 281\u2013284.\n- `hardware_bridge/hardware_bridge.py:31-34`: re-exports the device `_REGISTRY` from `mabel_hw.ros.bridge`.\n- **Port 9090:** I found no real use. The only matches are numbers inside CAD/SVG files under `electrical/`.\n\n**Not available:** there is no glossary, host registry or studio index file, and no generated registry. Private lab hosts are not in this pack, and I did not fill them in from memory.\n\n**Next step:** read the safety section in `hardware_bridge/README.md`, then `controller/README.md`. To see bring-up options without starting anything, use `bash server/real_run.sh -h` (shown, not run).",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-launch",
+      "command": "/mabel-launch",
+      "start": 117.83,
+      "end": 141.004,
+      "purpose": "The exact command that starts each subsystem \u2014 sim teleop, the real robot, the MuJoCo HAL alone, the ROS twin, the hand bench \u2014 with its host, its conda environment, and the ports it opens. Prints by default. `--run` executes it, and a real-robot target additionally requires an explicit go-ahead in the session: the robot moves when this succeeds.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 118.82999999999998,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 119.80399999999999,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 120.40399999999998,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 121.00399999999998,
+          "kind": "answer",
+          "text": "**`/mabel-launch`** lists the command that starts each MABEL subsystem. This was a read-only run: I didn't execute anything, didn't create files, and didn't contact any hosts.\n\n**What I read:** `README.md` only (lines 83\u2013118, 263\u2013284). I didn't open any source files.\n\n| Target | Command | Ports / env |\n|---|---|---|\n| Sim teleop | `bash server/run.sh` (`README.md:91`) | gateway `:9090`, studio `:8097` (`README.md:94-96`) |\n| Viewer only, no gateway | `mjpython scripts/keyboard_teleop.py` in `simulation/mabel_mujoco` (`README.md:112-113`) | \u2014 |\n| Real robot | `cd ros && ./dev_up.sh`, then `bash server/real_run.sh` (`README.md:268,274`) | Control Center `:8094`; ROS 2 Jazzy conda env (`README.md:268,277`) |\n\n**Not found:** the README gives no separate commands for the MuJoCo HAL alone, the ROS twin, or the hand bench. This public checkout has no host registry, so the robot's host isn't listed.\n\n**Next step:** read `server/run.sh -h` / `server/real_run.sh -h`. `--run` isn't available in this read-only session. Running the real-robot target makes the robot move, so it would need your explicit go-ahead."
+        }
+      ],
+      "answer": "**`/mabel-launch`** lists the command that starts each MABEL subsystem. This was a read-only run: I didn't execute anything, didn't create files, and didn't contact any hosts.\n\n**What I read:** `README.md` only (lines 83\u2013118, 263\u2013284). I didn't open any source files.\n\n| Target | Command | Ports / env |\n|---|---|---|\n| Sim teleop | `bash server/run.sh` (`README.md:91`) | gateway `:9090`, studio `:8097` (`README.md:94-96`) |\n| Viewer only, no gateway | `mjpython scripts/keyboard_teleop.py` in `simulation/mabel_mujoco` (`README.md:112-113`) | \u2014 |\n| Real robot | `cd ros && ./dev_up.sh`, then `bash server/real_run.sh` (`README.md:268,274`) | Control Center `:8094`; ROS 2 Jazzy conda env (`README.md:268,277`) |\n\n**Not found:** the README gives no separate commands for the MuJoCo HAL alone, the ROS twin, or the hand bench. This public checkout has no host registry, so the robot's host isn't listed.\n\n**Next step:** read `server/run.sh -h` / `server/real_run.sh -h`. `--run` isn't available in this read-only session. Running the real-robot target makes the robot move, so it would need your explicit go-ahead.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-status",
+      "command": "/mabel-status",
+      "start": 141.004,
+      "end": 164.128,
+      "purpose": "Live TCP probe of every port the registry knows about and every host it lists \u2014 what is listening here, right now, and whether thor and the VPS answer. A port being down almost always means its launcher is not running, not that anything is broken.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 142.00399999999996,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel"
+        },
+        {
+          "at": 142.92799999999997,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 143.52799999999996,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/server/real_run.sh"
+        },
+        {
+          "at": 144.12799999999996,
+          "kind": "answer",
+          "text": "**/mabel-status: read-only walkthrough (I made no probes or connections)**\n\n**What it's for:** It checks which ports are listening right now and whether the thor host and the VPS respond. A closed port usually means its launcher isn't running, not that something is broken.\n\n**What I inspected:**\n- `README.md:156` shows the curation collector's `--control-port 9095`.\n- `server/real_run.sh:126-129` sets the default ports: Control Center `8094` (`MABEL_CC_PORT`), websocket `9090` (`MABEL_WS_PORT`) and HTTP `8080` (`MABEL_HTTP_PORT`).\n- `server/real_run.sh:156-163` says hand serial ports are looked up through a registry in `hardware_bridge/config.py`. That registry maps hand serial ports, not network hosts.\n\n**Not available:** This public checkout has no host registry, so I can't check thor or the VPS. I also didn't use any lab addresses from memory.\n\n**Next step (run it yourself, not done here):** start `server/real_run.sh`, then check locally, for example `nc -z localhost 8094 9090 8080 9095`."
+        }
+      ],
+      "answer": "**/mabel-status: read-only walkthrough (I made no probes or connections)**\n\n**What it's for:** It checks which ports are listening right now and whether the thor host and the VPS respond. A closed port usually means its launcher isn't running, not that something is broken.\n\n**What I inspected:**\n- `README.md:156` shows the curation collector's `--control-port 9095`.\n- `server/real_run.sh:126-129` sets the default ports: Control Center `8094` (`MABEL_CC_PORT`), websocket `9090` (`MABEL_WS_PORT`) and HTTP `8080` (`MABEL_HTTP_PORT`).\n- `server/real_run.sh:156-163` says hand serial ports are looked up through a registry in `hardware_bridge/config.py`. That registry maps hand serial ports, not network hosts.\n\n**Not available:** This public checkout has no host registry, so I can't check thor or the VPS. I also didn't use any lab addresses from memory.\n\n**Next step (run it yourself, not done here):** start `server/real_run.sh`, then check locally, for example `nc -z localhost 8094 9090 8080 9095`.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-health",
+      "command": "/mabel-health",
+      "start": 164.128,
+      "end": 187.396,
+      "purpose": "The robot's own health, which a port probe cannot see: which CAN and serial buses are up, which actuator IDs answer on each, the lift and hand chains, watchdog and e-stop state, and the tail of each subsystem log. Read-only over SSH \u2014 it enumerates and reports, and never commands an actuator.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 165.12799999999996,
+          "kind": "inspection",
+          "text": "Bash ls && grep -n -i -E \"health|can0|can bus|serial|watchdog|e-stop|estop|actuator id\" README.md | head -40"
+        },
+        {
+          "at": 165.98599999999996,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/hardware_bridge"
+        },
+        {
+          "at": 166.58599999999996,
+          "kind": "inspection",
+          "text": "Bash sed -n 275,290p README.md; echo ---; sed -n 345,360p README.md; echo ---; grep -n -i -E \"watchdog|can0|estop|e-stop|health|ping|scan\" hardware_bridge/README.md | head -20"
+        },
+        {
+          "at": 167.39599999999996,
+          "kind": "answer",
+          "text": "**`/mabel-health`** is a read-only robot health report: which buses are up, which actuator IDs respond, the lift and hand chains, watchdog and e-stop state, and the latest log lines. I only read files; I didn't connect to anything or run any commands.\n\n**What I read:**\n- `README.md:351-353`: `hardware_bridge/` is the only thing allowed to open a bus or serial port, so health data comes from there.\n- `hardware_bridge/README.md:126-139`: health topics such as `/mabel/hw/base/estop`, `/arms/motor_health` and `/<side>_hand/{temperatures,voltages,motor_health}`.\n- `hardware_bridge/README.md:146,268-275`: watchdogs on each command topic, a 50 Hz resend of the base setpoint, and e-stop overrides gamepad, which overrides ROS.\n\n**Next step (I didn't run this):** `python3 -m mabel_hw.drivers.orcahand.cli --model left` (`hardware_bridge/README.md:212`) scans the hand bus. Check the Control Center at `http://<robot-ip>:8094` first.\n\n**Not available:** this public checkout has no host list, so the SSH probe can't run. I also didn't look for a log-tail script, so that part isn't confirmed."
+        }
+      ],
+      "answer": "**`/mabel-health`** is a read-only robot health report: which buses are up, which actuator IDs respond, the lift and hand chains, watchdog and e-stop state, and the latest log lines. I only read files; I didn't connect to anything or run any commands.\n\n**What I read:**\n- `README.md:351-353`: `hardware_bridge/` is the only thing allowed to open a bus or serial port, so health data comes from there.\n- `hardware_bridge/README.md:126-139`: health topics such as `/mabel/hw/base/estop`, `/arms/motor_health` and `/<side>_hand/{temperatures,voltages,motor_health}`.\n- `hardware_bridge/README.md:146,268-275`: watchdogs on each command topic, a 50 Hz resend of the base setpoint, and e-stop overrides gamepad, which overrides ROS.\n\n**Next step (I didn't run this):** `python3 -m mabel_hw.drivers.orcahand.cli --model left` (`hardware_bridge/README.md:212`) scans the hand bus. Check the Control Center at `http://<robot-ip>:8094` first.\n\n**Not available:** this public checkout has no host list, so the SSH probe can't run. I also didn't look for a log-tail script, so that part isn't confirmed.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-studios",
+      "command": "/mabel-studios",
+      "start": 187.396,
+      "end": 209.954,
+      "purpose": "The nine browser studios \u2014 the sim and real control centers, Genesis, Unity, data curation, the LeRobot trainer, the community queue, the neck designer \u2014 with the port each binds and the URL that reaches it from outside.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 188.39599999999996,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 189.35399999999996,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/web_gui/README.md"
+        },
+        {
+          "at": 189.95399999999995,
+          "kind": "answer",
+          "text": "**What /mabel-studios covers:** MABEL's browser studios, the port each one uses, and how to open it.\n\n**What the files say:**\n- **Real Control Center:** `:8094`, served from the robot and started by `server/real_run.sh` (`web_gui/README.md:8`). Reach it at `http://<robot-ip>:8094` (`README.md:277`).\n- **Simulation Control Center:** `:8097`, started by `server/run.sh` (`web_gui/README.md:9`, `README.md:95-96`).\n- **Data Curation:** `127.0.0.1:8093` (`README.md:179`).\n- **Training Studio (LeRobot):** `:8095` (`README.md:192`).\n- **Control Lab:** `:8115`. **Retarget Lab:** `:8120` (`web_gui/README.md:10-11`).\n- All of them talk to the gateway on ws `:9090` (`README.md:45`).\n\n**What I couldn't confirm:** README.md and `web_gui/README.md` don't list ports for the Genesis, Unity, community-queue or neck-designer studios. The neck folder `hardware/neck_studio/exports/` is mentioned only (`README.md:218`). Nothing in either README gives an outside or relay URL. That needs the private host registry, which isn't in this checkout.\n\n**Next step:** read `server/run.sh` to see how the sim studio starts. I didn't run anything."
+        }
+      ],
+      "answer": "**What /mabel-studios covers:** MABEL's browser studios, the port each one uses, and how to open it.\n\n**What the files say:**\n- **Real Control Center:** `:8094`, served from the robot and started by `server/real_run.sh` (`web_gui/README.md:8`). Reach it at `http://<robot-ip>:8094` (`README.md:277`).\n- **Simulation Control Center:** `:8097`, started by `server/run.sh` (`web_gui/README.md:9`, `README.md:95-96`).\n- **Data Curation:** `127.0.0.1:8093` (`README.md:179`).\n- **Training Studio (LeRobot):** `:8095` (`README.md:192`).\n- **Control Lab:** `:8115`. **Retarget Lab:** `:8120` (`web_gui/README.md:10-11`).\n- All of them talk to the gateway on ws `:9090` (`README.md:45`).\n\n**What I couldn't confirm:** README.md and `web_gui/README.md` don't list ports for the Genesis, Unity, community-queue or neck-designer studios. The neck folder `hardware/neck_studio/exports/` is mentioned only (`README.md:218`). Nothing in either README gives an outside or relay URL. That needs the private host registry, which isn't in this checkout.\n\n**Next step:** read `server/run.sh` to see how the sim studio starts. I didn't run anything.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-safety",
+      "command": "/mabel-safety",
+      "start": 209.954,
+      "end": 233.634,
+      "purpose": "What stops the robot and what bounds its motion \u2014 e-stop, the watchdogs and their timeouts, the tip-over and speed limits, command arbitration, relay security \u2014 each citing the file that implements it. Read this before the first time you drive anything.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 210.95399999999995,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel"
+        },
+        {
+          "at": 211.83399999999995,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 212.43399999999994,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/controller/mabel/teleop_engine/safety.py"
+        },
+        {
+          "at": 213.03399999999993,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/controller/mabel/motion_model/tip_over.py"
+        },
+        {
+          "at": 213.63399999999993,
+          "kind": "answer",
+          "text": "`/mabel-safety` explains what stops MABEL and what limits its motion. I only read files; nothing was run, created, or connected to.\n\n- **Operator rules:** In `README.md:281-283`, arms start limp and torque has to be turned on by the operator. Every base command passes a tip-over gate. Locate the e-stop before enabling torque.\n- **Tip-over and speed limits:** In `controller/mabel/motion_model/tip_over.py:38-50`, the top speeds are 0.8 m/s straight-line, 2.0 rad/s turning and 0.06 m/s lift. The allowed speed drops as the lift rises (`:52-103`).\n- **Watchdog:** In `controller/mabel/teleop_engine/safety.py:107-111`, if the stream, head, hand or arm signals go stale, the robot glides back to \"HOME (safe)\". The timeout values are set elsewhere; I didn't check them.\n- **Not covered:** I didn't read command arbitration, the e-stop hardware, or relay security (`server/docs/relay.md`). The private lab host list isn't in this pack.\n\n**Next step:** Read `hardware_bridge/README.md`, then check the tip-over limits with `python3 controller/experiments/wbc_stability.py` (I didn't run it)."
+        }
+      ],
+      "answer": "`/mabel-safety` explains what stops MABEL and what limits its motion. I only read files; nothing was run, created, or connected to.\n\n- **Operator rules:** In `README.md:281-283`, arms start limp and torque has to be turned on by the operator. Every base command passes a tip-over gate. Locate the e-stop before enabling torque.\n- **Tip-over and speed limits:** In `controller/mabel/motion_model/tip_over.py:38-50`, the top speeds are 0.8 m/s straight-line, 2.0 rad/s turning and 0.06 m/s lift. The allowed speed drops as the lift rises (`:52-103`).\n- **Watchdog:** In `controller/mabel/teleop_engine/safety.py:107-111`, if the stream, head, hand or arm signals go stale, the robot glides back to \"HOME (safe)\". The timeout values are set elsewhere; I didn't check them.\n- **Not covered:** I didn't read command arbitration, the e-stop hardware, or relay security (`server/docs/relay.md`). The private lab host list isn't in this pack.\n\n**Next step:** Read `hardware_bridge/README.md`, then check the tip-over limits with `python3 controller/experiments/wbc_stability.py` (I didn't run it).",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-network",
+      "command": "/mabel-network",
+      "start": 233.634,
+      "end": 257.348,
+      "purpose": "Every host, IP, port and protocol, plus the relay path a browser takes to reach the robot \u2014 Caddy, rathole, the DuckDNS domain \u2014 and which client speaks to which server on which port.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 234.63399999999993,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 235.54799999999992,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel"
+        },
+        {
+          "at": 236.1479999999999,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 236.7479999999999,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/server/relay/rathole-client.toml.template"
+        },
+        {
+          "at": 237.3479999999999,
+          "kind": "answer",
+          "text": "**/mabel-network** maps the network path from a client to the robot. A client connects directly over LAN or Tailscale. From anywhere else, the robot opens an outbound tunnel to a VPS running rathole and Caddy, and clients connect through a token-gated `wss://` relay (`README.md:290-291`).\n\n**What I read**\n- **README.md**: the teleop gateway is a WebSocket on `:9090` (`README.md:45`). The VPS and robot setup commands are at `README.md:294-299`.\n- **server/relay/rathole-client.toml.template**:\n  - The robot connects to `<domain>:2333` (`:10`).\n  - `mabel_control` forwards to `:9090` and `mabel_video` to `:8080` (MJPEG). Both are disabled by default and only run on the real robot (`:13-26`).\n  - The SLAM map uses `/map` on `:9090`. The separate map socket on `:9092` only works on the LAN and is never sent through the relay (`:28-31`).\n  - The simulator uses its own services: `:8097` for the studio, plus separate sim control and video services (`:33-56`).\n\n**Next step:** read `server/docs/relay.md` for the Caddy routes, the VPS ports `:7000`/`:7006`/`:7007`, and the security notes. Commands to show only: `setup-vps.sh` and `start_teleop.sh --relay`.\n\n**Not available:** this public checkout has no list of lab hosts or IP addresses, and I didn't add any from memory."
+        }
+      ],
+      "answer": "**/mabel-network** maps the network path from a client to the robot. A client connects directly over LAN or Tailscale. From anywhere else, the robot opens an outbound tunnel to a VPS running rathole and Caddy, and clients connect through a token-gated `wss://` relay (`README.md:290-291`).\n\n**What I read**\n- **README.md**: the teleop gateway is a WebSocket on `:9090` (`README.md:45`). The VPS and robot setup commands are at `README.md:294-299`.\n- **server/relay/rathole-client.toml.template**:\n  - The robot connects to `<domain>:2333` (`:10`).\n  - `mabel_control` forwards to `:9090` and `mabel_video` to `:8080` (MJPEG). Both are disabled by default and only run on the real robot (`:13-26`).\n  - The SLAM map uses `/map` on `:9090`. The separate map socket on `:9092` only works on the LAN and is never sent through the relay (`:28-31`).\n  - The simulator uses its own services: `:8097` for the studio, plus separate sim control and video services (`:33-56`).\n\n**Next step:** read `server/docs/relay.md` for the Caddy routes, the VPS ports `:7000`/`:7006`/`:7007`, and the security notes. Commands to show only: `setup-vps.sh` and `start_teleop.sh --relay`.\n\n**Not available:** this public checkout has no list of lab hosts or IP addresses, and I didn't add any from memory.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-hosts",
+      "command": "/mabel-hosts",
+      "start": 257.348,
+      "end": 281.224,
+      "purpose": "The physical infrastructure: thor (the Jetson on the robot), mabel-vps (the Oracle relay), the Mac development host \u2014 their addresses, their roles, and how each is reached on LAN, over Tailscale, or through the relay.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 258.3479999999999,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel"
+        },
+        {
+          "at": 259.4239999999999,
+          "kind": "inspection",
+          "text": "Glob ~/open_mabel"
+        },
+        {
+          "at": 260.02399999999994,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 260.62399999999997,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/server/docs/relay.md"
+        },
+        {
+          "at": 261.224,
+          "kind": "answer",
+          "text": "**/mabel-hosts** covers MABEL's network setup: the robot host, a relay VPS, and how clients reach the robot. This public checkout does not include the private lab host registry, so I can't give real hostnames, IPs or Tailscale names. I didn't fill them in from memory.\n\n**Files I read:**\n- `README.md:290-302`: on the LAN or Tailscale, the app connects straight to the robot. From anywhere else, the robot dials out to a VPS running rathole and Caddy, and clients connect through a `wss://` relay that requires a token.\n- `server/docs/relay.md:3-34`: Caddy listens on :443 and rejects any request without `?key=<APP_TOKEN>` with a 403. The robot's rathole client carries the gateway (:9090) and cameras (:8080) through the tunnel, which uses a separate `TUNNEL_TOKEN`. Setting `MABEL_TOKEN` makes the token required on LAN and Tailscale too.\n- `firmware/swerve_drive/src/main.cpp:27`: the swerve firmware expects commands from a \"Jetson Thor\".\n\n**Next step (not run):** on the VPS, `sudo RELAY_DOMAIN=<domain> \u2026 bash setup-vps.sh`. On the robot, copy `server/relay/rathole-client.toml.template` to `server/relay/rathole-client.toml` and fill in the domain and token.\n\n**Not available here:** real host addresses, SSH aliases and anything about the Mac development host."
+        }
+      ],
+      "answer": "**/mabel-hosts** covers MABEL's network setup: the robot host, a relay VPS, and how clients reach the robot. This public checkout does not include the private lab host registry, so I can't give real hostnames, IPs or Tailscale names. I didn't fill them in from memory.\n\n**Files I read:**\n- `README.md:290-302`: on the LAN or Tailscale, the app connects straight to the robot. From anywhere else, the robot dials out to a VPS running rathole and Caddy, and clients connect through a `wss://` relay that requires a token.\n- `server/docs/relay.md:3-34`: Caddy listens on :443 and rejects any request without `?key=<APP_TOKEN>` with a 403. The robot's rathole client carries the gateway (:9090) and cameras (:8080) through the tunnel, which uses a separate `TUNNEL_TOKEN`. Setting `MABEL_TOKEN` makes the token required on LAN and Tailscale too.\n- `firmware/swerve_drive/src/main.cpp:27`: the swerve firmware expects commands from a \"Jetson Thor\".\n\n**Next step (not run):** on the VPS, `sudo RELAY_DOMAIN=<domain> \u2026 bash setup-vps.sh`. On the robot, copy `server/relay/rathole-client.toml.template` to `server/relay/rathole-client.toml` and fill in the domain and token.\n\n**Not available here:** real host addresses, SSH aliases and anything about the Mac development host.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-firmware",
+      "command": "/mabel-firmware",
+      "start": 281.224,
+      "end": 304.838,
+      "purpose": "Per-subsystem firmware: which MCU runs it, which bus and protocol it speaks, at what rate, and the exact build, flash and probe commands \u2014 PlatformIO for the Teensy pair, mpremote for the Pico lift, the host-driven Python drivers for the hands and the legacy neck, and the shared SocketCAN bring-up. Prints commands; flashing is yours to run.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 282.224,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 283.038,
+          "kind": "inspection",
+          "text": "Glob ~/open_mabel"
+        },
+        {
+          "at": 283.63800000000003,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 284.23800000000006,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/firmware/swerve_drive/platformio.ini"
+        },
+        {
+          "at": 284.8380000000001,
+          "kind": "answer",
+          "text": "**/mabel-firmware** shows how each subsystem's firmware is built, flashed and probed. It only prints the commands. Running them is up to you.\n\n**Files I read:**\n- `README.md:226-244` (Step 7) lists the commands:\n  - Swerve base (Teensy 4.1): `cd firmware/swerve_drive && pio run -e teensy41 -t upload`\n  - Arms, torso and neck: `cd firmware/openarm_dual && pio run -t upload`, then copy `config/robot.json` to the SD card.\n  - Lift (Pico, MicroPython): `firmware/lift/tools/deploy.sh`, which needs `mpremote`.\n  - ORCA hands: nothing to flash. Run `python3 firmware/orca_hand/feetech/scripts/scan.py` to check the 17 servo IDs per hand.\n  - CAN: `firmware/can_up.sh --ping`\n- `firmware/swerve_drive/platformio.ini:1-8` targets Teensy 4.1 with Arduino, NativeEthernet and FlexCAN_T4, and sets the serial monitor to 115200 baud.\n\n**Warning:** Before first use, check each DaMiao motor's `(p_max, v_max, t_max)` in the vendor tool. If they don't match, every value on the wire is silently rescaled (`README.md:243`).\n\n**Next step:** Read `firmware/README.md` for per-bus details.\n\n**Not covered:** I didn't confirm loop rates or the legacy neck driver, because the two-file limit stopped me before those sources. No lab hosts or measurements are included."
+        }
+      ],
+      "answer": "**/mabel-firmware** shows how each subsystem's firmware is built, flashed and probed. It only prints the commands. Running them is up to you.\n\n**Files I read:**\n- `README.md:226-244` (Step 7) lists the commands:\n  - Swerve base (Teensy 4.1): `cd firmware/swerve_drive && pio run -e teensy41 -t upload`\n  - Arms, torso and neck: `cd firmware/openarm_dual && pio run -t upload`, then copy `config/robot.json` to the SD card.\n  - Lift (Pico, MicroPython): `firmware/lift/tools/deploy.sh`, which needs `mpremote`.\n  - ORCA hands: nothing to flash. Run `python3 firmware/orca_hand/feetech/scripts/scan.py` to check the 17 servo IDs per hand.\n  - CAN: `firmware/can_up.sh --ping`\n- `firmware/swerve_drive/platformio.ini:1-8` targets Teensy 4.1 with Arduino, NativeEthernet and FlexCAN_T4, and sets the serial monitor to 115200 baud.\n\n**Warning:** Before first use, check each DaMiao motor's `(p_max, v_max, t_max)` in the vendor tool. If they don't match, every value on the wire is silently rescaled (`README.md:243`).\n\n**Next step:** Read `firmware/README.md` for per-bus details.\n\n**Not covered:** I didn't confirm loop rates or the legacy neck driver, because the two-file limit stopped me before those sources. No lab hosts or measurements are included.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-diagram",
+      "command": "/mabel-diagram",
+      "start": 304.838,
+      "end": 327.898,
+      "purpose": "A Mermaid diagram of either the relay topology (browser to Caddy to rathole to host) or the subsystem data flow, emitted as text you can paste into GitHub, Obsidian or mermaid.live.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 305.8380000000001,
+          "kind": "inspection",
+          "text": "Bash grep -n -i -E \"caddy|rathole|relay|mermaid|simulation/|controller/|hardware_bridge/|apps/|learning/|server/|ros/\" README.md | head -40; ls"
+        },
+        {
+          "at": 306.6980000000001,
+          "kind": "inspection",
+          "text": "Grep rathole|reverse_proxy|Caddyfile"
+        },
+        {
+          "at": 307.2980000000001,
+          "kind": "inspection",
+          "text": "Bash sed -n 286,302p README.md; ls server/relay; grep -n -i -E \"rathole|caddy|wss|9090|token|bind_addr|local_addr\" server/docs/relay.md | head -25"
+        },
+        {
+          "at": 307.89800000000014,
+          "kind": "answer",
+          "text": "**/mabel-diagram** gives you a Mermaid diagram of how a remote client reaches the robot through the relay. I only read files and ran nothing.\n\n```mermaid\nflowchart LR\n  C[Client / Vision Pro] -- \"wss://&lt;domain&gt;/teleop?key=TOKEN\" --> Cd[Caddy :443<br/>TLS + token gate]\n  C -- \"https://&lt;domain&gt;/camera/*?key=\" --> Cd\n  Cd --> R7000[127.0.0.1:7000] & R7001[127.0.0.1:7001]\n  R7000 & R7001 --- RS[rathole server]\n  RC[rathole client on robot host] -- dials out, TUNNEL_TOKEN --> RS\n  RC --> G[gateway :9090] & Cam[cameras :8080]\n```\n\n**Sources:**\n- `README.md:288-302`: the robot connects out to a VPS running rathole and Caddy.\n- `server/docs/relay.md:14-33`: the diagram, the two tokens, and that requests without the token get a 403.\n- `server/relay/`: the templates and `setup-vps.sh`.\n\n**Next step:** read `server/docs/relay.md:84-91` for the separate physical-robot and simulator routes, then paste the diagram into mermaid.live. Setup commands are in `README.md:294-299`; I didn't run them.\n\n**Unavailable:** this checkout has no private host registry, so the diagram uses placeholders like `<domain>`. I didn't draw the diagram of data moving between subsystems."
+        }
+      ],
+      "answer": "**/mabel-diagram** gives you a Mermaid diagram of how a remote client reaches the robot through the relay. I only read files and ran nothing.\n\n```mermaid\nflowchart LR\n  C[Client / Vision Pro] -- \"wss://&lt;domain&gt;/teleop?key=TOKEN\" --> Cd[Caddy :443<br/>TLS + token gate]\n  C -- \"https://&lt;domain&gt;/camera/*?key=\" --> Cd\n  Cd --> R7000[127.0.0.1:7000] & R7001[127.0.0.1:7001]\n  R7000 & R7001 --- RS[rathole server]\n  RC[rathole client on robot host] -- dials out, TUNNEL_TOKEN --> RS\n  RC --> G[gateway :9090] & Cam[cameras :8080]\n```\n\n**Sources:**\n- `README.md:288-302`: the robot connects out to a VPS running rathole and Caddy.\n- `server/docs/relay.md:14-33`: the diagram, the two tokens, and that requests without the token get a 403.\n- `server/relay/`: the templates and `setup-vps.sh`.\n\n**Next step:** read `server/docs/relay.md:84-91` for the separate physical-robot and simulator routes, then paste the diagram into mermaid.live. Setup commands are in `README.md:294-299`; I didn't run them.\n\n**Unavailable:** this checkout has no private host registry, so the diagram uses placeholders like `<domain>`. I didn't draw the diagram of data moving between subsystems.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-control",
+      "command": "/mabel-control",
+      "start": 327.898,
+      "end": 351.43,
+      "purpose": "All eleven ways to drive the robot \u2014 Vision Pro, iPhone, the browser studios, the webcam retargeter, keyboard and gamepad, ROS, Nav2 \u2014 and the exact path each command takes from device to motor. Every one of them is a client of one wire contract; none publishes to a command topic directly.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 328.89800000000014,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 329.63000000000017,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 330.2300000000002,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/server/wire_protocol.py"
+        },
+        {
+          "at": 330.8300000000002,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/server/wire_protocol.py"
+        },
+        {
+          "at": 331.43000000000023,
+          "kind": "answer",
+          "text": "**/mabel-control** shows how each input device sends motion commands to the robot. Every source goes through one wire contract. None of them publishes to a command topic directly.\n\n**Files inspected**\n- `README.md:352-364`: `hardware_bridge/` is the only code that touches hardware, and `controller/` is the only gate on motion. The path is device \u2192 `server/` (ws :9090) \u2192 `controller/` \u2192 `hardware_bridge/` \u2192 robot. Every base twist passes through `safe_base_step(...)`.\n- `server/wire_protocol.py:168-183`: `TeleopMethod` has four modes: `JOINT`, `NAVIGATION`, `WRIST` and `RETARGET`. `LEGACY_MODES` maps older app mode names onto them.\n\n**Device entry points:** Vision Pro (`apps/visionos/`, `README.md:122-129`); browser, keyboard, gamepad and webcam via `http://localhost:8097` (`README.md:94-97`); `mjpython scripts/keyboard_teleop.py` (`README.md:113`); Nav2 via `server/real_run.sh` (`README.md:274`).\n\n**Next step (not run):** `open apps/visionos/MabelTeleop.xcodeproj`, or read `server/sim_teleop_bridge.py`.\n\n**Unavailable:** I could only confirm six of the \"eleven\" sources in these files. I didn't check the iPhone app or how ROS clients connect. No private host registry ships with this checkout."
+        }
+      ],
+      "answer": "**/mabel-control** shows how each input device sends motion commands to the robot. Every source goes through one wire contract. None of them publishes to a command topic directly.\n\n**Files inspected**\n- `README.md:352-364`: `hardware_bridge/` is the only code that touches hardware, and `controller/` is the only gate on motion. The path is device \u2192 `server/` (ws :9090) \u2192 `controller/` \u2192 `hardware_bridge/` \u2192 robot. Every base twist passes through `safe_base_step(...)`.\n- `server/wire_protocol.py:168-183`: `TeleopMethod` has four modes: `JOINT`, `NAVIGATION`, `WRIST` and `RETARGET`. `LEGACY_MODES` maps older app mode names onto them.\n\n**Device entry points:** Vision Pro (`apps/visionos/`, `README.md:122-129`); browser, keyboard, gamepad and webcam via `http://localhost:8097` (`README.md:94-97`); `mjpython scripts/keyboard_teleop.py` (`README.md:113`); Nav2 via `server/real_run.sh` (`README.md:274`).\n\n**Next step (not run):** `open apps/visionos/MabelTeleop.xcodeproj`, or read `server/sim_teleop_bridge.py`.\n\n**Unavailable:** I could only confirm six of the \"eleven\" sources in these files. I didn't check the iPhone app or how ROS clients connect. No private host registry ships with this checkout.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-api",
+      "command": "/mabel-api",
+      "start": 351.43,
+      "end": 376.328,
+      "purpose": "The public API of the `mabel` control library by subpackage \u2014 the facade, the input sources, retargeting, the motion model, dynamics, the whole-body controller \u2014 with the paper behind each and the two safety rules that no caller may route around.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 352.43000000000023,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 353.32800000000026,
+          "kind": "inspection",
+          "text": "Glob ~/open_mabel"
+        },
+        {
+          "at": 353.9280000000003,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/controller/mabel/__init__.py"
+        },
+        {
+          "at": 354.5280000000003,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/controller/mabel/safety/__init__.py"
+        },
+        {
+          "at": 355.1280000000003,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 355.72800000000035,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 356.3280000000004,
+          "kind": "answer",
+          "text": "**`/mabel-api`** is a read-only tour of the public API of the `mabel` library in `controller/mabel/`. I didn't run anything or create any files, including the plan file plan mode asks for.\n\n**What I read:** `README.md`, `controller/mabel/__init__.py` and `controller/mabel/safety/__init__.py`.\n\n- **Facade:** `MabelTeleop` turns an `OperatorPose` into a `RobotCommand` (`__init__.py:32-34`).\n- **Inputs:** `sources/` (Vision Pro, wire and mock streams).\n- **Retargeting:** `whole_body_retargeting/` and `hand_retargeting/`.\n- **Motion model:** `motion_model/`, the tip-over limit on base motion.\n- **Dynamics:** `dynamic_models/`.\n- **Whole-body controller:** `whole_body_controller/`, with `plant.py` as the one switch between sim and real (`__init__.py:13-28`).\n\n**The two rules no caller can bypass** (`README.md:352-356`):\n1. Only `hardware_bridge/` talks to hardware.\n2. Every command goes through `controller/`, and every base movement passes `safe_base_step(...)`.\n\n**Papers:** `README.md:370-379` only maps paper sections to code; it doesn't name the papers.\n\n**Next step (not run):** `pip install -e controller/`, then `python3 -m pytest controller/tests -q`.\n\n**Not available:** there's no private host registry in this checkout."
+        }
+      ],
+      "answer": "**`/mabel-api`** is a read-only tour of the public API of the `mabel` library in `controller/mabel/`. I didn't run anything or create any files, including the plan file plan mode asks for.\n\n**What I read:** `README.md`, `controller/mabel/__init__.py` and `controller/mabel/safety/__init__.py`.\n\n- **Facade:** `MabelTeleop` turns an `OperatorPose` into a `RobotCommand` (`__init__.py:32-34`).\n- **Inputs:** `sources/` (Vision Pro, wire and mock streams).\n- **Retargeting:** `whole_body_retargeting/` and `hand_retargeting/`.\n- **Motion model:** `motion_model/`, the tip-over limit on base motion.\n- **Dynamics:** `dynamic_models/`.\n- **Whole-body controller:** `whole_body_controller/`, with `plant.py` as the one switch between sim and real (`__init__.py:13-28`).\n\n**The two rules no caller can bypass** (`README.md:352-356`):\n1. Only `hardware_bridge/` talks to hardware.\n2. Every command goes through `controller/`, and every base movement passes `safe_base_step(...)`.\n\n**Papers:** `README.md:370-379` only maps paper sections to code; it doesn't name the papers.\n\n**Next step (not run):** `pip install -e controller/`, then `python3 -m pytest controller/tests -q`.\n\n**Not available:** there's no private host registry in this checkout.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-motion-model",
+      "command": "/mabel-motion-model",
+      "start": 376.328,
+      "end": 400.358,
+      "purpose": "The tip-over model in full: the ZMP formulation, the closed-form projection, the centre-of-mass constants measured from the MJCF, the validation numbers, and the rule for re-deriving all of it when the model changes (wbc_stability.py, check E4).",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 377.3280000000004,
+          "kind": "inspection",
+          "text": "Glob **/wbc_stability.py"
+        },
+        {
+          "at": 377.95800000000037,
+          "kind": "inspection",
+          "text": "Grep README.md"
+        },
+        {
+          "at": 378.5580000000004,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/controller/experiments/wbc_stability.py"
+        },
+        {
+          "at": 379.1580000000004,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 379.75800000000044,
+          "kind": "inspection",
+          "text": "Grep controller/mabel/motion_model/tip_over.py"
+        },
+        {
+          "at": 380.35800000000046,
+          "kind": "answer",
+          "text": "**/mabel-motion-model** walks through MABEL's base tip-over model. I only read files and ran nothing.\n\n- **ZMP condition:** the zero-moment point x_zmp = x_com \u2212 (h/g)\u00b7a_c must stay inside the polygon formed by the wheel contacts, one edge at a time (`controller/mabel/motion_model/tip_over.py:122-130`). `tip_usage`, `accel_safe_scale` and `safe_base_step` scale the commanded acceleration so it stays inside that limit (`:162-196`).\n- **Centre-of-mass constants:** `COM_Z0=0.369`, `COM_DZDLIFT=0.451` and `COM_XY=[-0.076,-0.001]`, re-measured in 2026-06 (`tip_over.py:87-96,135`).\n- **Validation:** `controller/experiments/wbc_stability.py` runs four tests, E1\u2013E4. E4 compares the fixed constants with the live centre of mass from the MJCF (`:295-318`). No validation numbers are stored in the repo; the script regenerates them along with the `docs/figures/wbc_*.pdf` figures.\n- **Re-derive rule:** `mabel_full.xml` is the canonical model. After you edit it, run step 5 (`python3 controller/experiments/wbc_stability.py`). If it reports more than about 1 cm of error, update `tip_over.py` (`README.md:327-344`).\n\n**Next step:** run that script with `--only 4`.\n\n**Not available:** no generated figures or private lab data are included here."
+        }
+      ],
+      "answer": "**/mabel-motion-model** walks through MABEL's base tip-over model. I only read files and ran nothing.\n\n- **ZMP condition:** the zero-moment point x_zmp = x_com \u2212 (h/g)\u00b7a_c must stay inside the polygon formed by the wheel contacts, one edge at a time (`controller/mabel/motion_model/tip_over.py:122-130`). `tip_usage`, `accel_safe_scale` and `safe_base_step` scale the commanded acceleration so it stays inside that limit (`:162-196`).\n- **Centre-of-mass constants:** `COM_Z0=0.369`, `COM_DZDLIFT=0.451` and `COM_XY=[-0.076,-0.001]`, re-measured in 2026-06 (`tip_over.py:87-96,135`).\n- **Validation:** `controller/experiments/wbc_stability.py` runs four tests, E1\u2013E4. E4 compares the fixed constants with the live centre of mass from the MJCF (`:295-318`). No validation numbers are stored in the repo; the script regenerates them along with the `docs/figures/wbc_*.pdf` figures.\n- **Re-derive rule:** `mabel_full.xml` is the canonical model. After you edit it, run step 5 (`python3 controller/experiments/wbc_stability.py`). If it reports more than about 1 cm of error, update `tip_over.py` (`README.md:327-344`).\n\n**Next step:** run that script with `--only 4`.\n\n**Not available:** no generated figures or private lab data are included here.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-dynamics",
+      "command": "/mabel-dynamics",
+      "start": 400.358,
+      "end": 425.138,
+      "purpose": "Region dynamics and external-force estimation: the gravity and bias feedforward, the momentum observer, contact localisation, and the three regions the body is divided into.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 401.35800000000046,
+          "kind": "inspection",
+          "text": "Grep momentum observer|gravity.*feedforward|contact locali|region"
+        },
+        {
+          "at": 402.13800000000043,
+          "kind": "inspection",
+          "text": "Grep README.md"
+        },
+        {
+          "at": 402.73800000000045,
+          "kind": "inspection",
+          "text": "Grep controller"
+        },
+        {
+          "at": 403.3380000000005,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 403.9380000000005,
+          "kind": "inspection",
+          "text": "Bash cd ~/open_mabel/controller/mabel/dynamic_models && ls && grep -nE \"^def |^class |REGION|arms|torso|base|whole\" __init__.py | head -30"
+        },
+        {
+          "at": 404.5380000000005,
+          "kind": "inspection",
+          "text": "Bash grep -nE \"^def |^class |^    def |momentum|r_hat|K_O|locali\" observers.py | head -25"
+        },
+        {
+          "at": 405.13800000000055,
+          "kind": "answer",
+          "text": "**/mabel-dynamics** is a tour of region dynamics and external-force estimation in MABEL.\n\n**What I inspected:**\n- The three regions (`controller/mabel/dynamic_models/__init__.py:10-13`):\n  - `arms` holds the body still and covers arms and hands.\n  - `upper_body` adds the torso and the cascaded lift.\n  - `whole_body` adds the mobile base and a `base_wrench()`.\n  - Region helpers come from `regions.py` (line 23).\n- The momentum observer: `MomentumObserver` (`observers.py:27`) uses gain 25.0 (line 31) and an `update(tau_cmd, dt)` step (line 46). It follows De Luca's method (line 6).\n- Contact localisation and the base wrench are in `whole_body_controller/admittance/wrench_estimation.py` (`__init__.py:19`). I didn't open that file.\n- Gravity feedforward wiring: `pd.feedforward = ArmsDynamicModel(...).gravity_ff` (`controller/README.md:135`).\n\n**Next step (shown only, not run):**\n```\ncd simulation/mabel_mujoco\nmjpython scripts/compliance.py --region whole\n```\n(`README.md:114`)\n\n**Not available:** the design write-up `dynamic_models.pdf` is generated, and I didn't check whether it's in this checkout. No private host registry ships with this pack. Plan-mode approval tools weren't available, so I wrote no plan file."
+        }
+      ],
+      "answer": "**/mabel-dynamics** is a tour of region dynamics and external-force estimation in MABEL.\n\n**What I inspected:**\n- The three regions (`controller/mabel/dynamic_models/__init__.py:10-13`):\n  - `arms` holds the body still and covers arms and hands.\n  - `upper_body` adds the torso and the cascaded lift.\n  - `whole_body` adds the mobile base and a `base_wrench()`.\n  - Region helpers come from `regions.py` (line 23).\n- The momentum observer: `MomentumObserver` (`observers.py:27`) uses gain 25.0 (line 31) and an `update(tau_cmd, dt)` step (line 46). It follows De Luca's method (line 6).\n- Contact localisation and the base wrench are in `whole_body_controller/admittance/wrench_estimation.py` (`__init__.py:19`). I didn't open that file.\n- Gravity feedforward wiring: `pd.feedforward = ArmsDynamicModel(...).gravity_ff` (`controller/README.md:135`).\n\n**Next step (shown only, not run):**\n```\ncd simulation/mabel_mujoco\nmjpython scripts/compliance.py --region whole\n```\n(`README.md:114`)\n\n**Not available:** the design write-up `dynamic_models.pdf` is generated, and I didn't check whether it's in this checkout. No private host registry ships with this pack. Plan-mode approval tools weren't available, so I wrote no plan file.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-retarget",
+      "command": "/mabel-retarget",
+      "start": 425.138,
+      "end": 449.24,
+      "purpose": "Operator to robot, in detail: the hand and whole-body mappings, the solver's cost terms, the decoupling contracts between them, the device ingest path, and the measured benchmarks.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 426.13800000000055,
+          "kind": "inspection",
+          "text": "Grep README.md"
+        },
+        {
+          "at": 426.84000000000054,
+          "kind": "inspection",
+          "text": "Glob **/*retarget*"
+        },
+        {
+          "at": 427.44000000000057,
+          "kind": "inspection",
+          "text": "Grep controller/mabel/retargeting/retargeter.py"
+        },
+        {
+          "at": 428.0400000000006,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 428.6400000000006,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/controller/mabel/retargeting/retargeter.py"
+        },
+        {
+          "at": 429.24000000000063,
+          "kind": "answer",
+          "text": "**/mabel-retarget** explains how operator motion becomes robot motion: the hand and whole-body mappings, the solver costs, the decoupling contracts, device ingest and the benchmarks.\n\n**What I inspected**\n- `README.md:377-378`: retargeting code is in `controller/mabel/whole_body_retargeting/`, `teleop_engine/`, `hand_retargeting/` and `web_gui/retarget_lab/`. `README.md:352-357`: devices connect only through `server/wire_protocol.py`, and the MJCF file is the one source for geometry and limits.\n- `controller/mabel/retargeting/retargeter.py:3-10, 83-99`: each tick runs a local torso fit and a global body-frame estimate. A `ModeArbiter` picks between them, then wrist, elbow-swivel and lift/torso targets are computed. In local mode, the output ignores vehicle drift (`:20-24`).\n\n**Not covered:** I didn't read the solver cost terms or the hand mapping (likely `controller/mabel/whole_body_controller/` and `hand_retargeting/`). I ran nothing, so I can't report any benchmark numbers.\n\n**Next step** (not run; the first command downloads public clips):\n```bash\npython3 controller/experiments/exp_egodex_retarget.py --fetch\ncd controller/experiments/retargeting_ablation && python3 run.py --family map --episodes 20\n```\nThen read `controller/docs/whole_body_retargeting.pdf`."
+        }
+      ],
+      "answer": "**/mabel-retarget** explains how operator motion becomes robot motion: the hand and whole-body mappings, the solver costs, the decoupling contracts, device ingest and the benchmarks.\n\n**What I inspected**\n- `README.md:377-378`: retargeting code is in `controller/mabel/whole_body_retargeting/`, `teleop_engine/`, `hand_retargeting/` and `web_gui/retarget_lab/`. `README.md:352-357`: devices connect only through `server/wire_protocol.py`, and the MJCF file is the one source for geometry and limits.\n- `controller/mabel/retargeting/retargeter.py:3-10, 83-99`: each tick runs a local torso fit and a global body-frame estimate. A `ModeArbiter` picks between them, then wrist, elbow-swivel and lift/torso targets are computed. In local mode, the output ignores vehicle drift (`:20-24`).\n\n**Not covered:** I didn't read the solver cost terms or the hand mapping (likely `controller/mabel/whole_body_controller/` and `hand_retargeting/`). I ran nothing, so I can't report any benchmark numbers.\n\n**Next step** (not run; the first command downloads public clips):\n```bash\npython3 controller/experiments/exp_egodex_retarget.py --fetch\ncd controller/experiments/retargeting_ablation && python3 run.py --family map --episodes 20\n```\nThen read `controller/docs/whole_body_retargeting.pdf`.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-hardware-api",
+      "command": "/mabel-hardware-api",
+      "start": 449.24,
+      "end": 472.078,
+      "purpose": "The `mabel_hw` package \u2014 the hardware abstraction layer that owns every device \u2014 by area: the drivers, the RPC servers, the camera and video planes, the configuration surface and its environment switches.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 450.24000000000063,
+          "kind": "inspection",
+          "text": "Grep mabel_hw"
+        },
+        {
+          "at": 450.8780000000006,
+          "kind": "inspection",
+          "text": "Bash ls; ls hardware_bridge 2>/dev/null"
+        },
+        {
+          "at": 451.47800000000063,
+          "kind": "inspection",
+          "text": "Bash cd hardware_bridge; ls mabel_hw mabel_hw/drivers; grep -n \"\" README.md | head -80; grep -nE \"environ|getenv|^[A-Z_]+ *=\" mabel_hw/config.py | head -40"
+        },
+        {
+          "at": 452.07800000000066,
+          "kind": "answer",
+          "text": "**`/mabel-hardware-api`** explains `mabel_hw`, the hardware layer. It is the only process that opens any device on the robot (base, arms, torso, neck, hands, lift, lidar, audio, cameras) (`hardware_bridge/README.md:3-16`).\n\n**What I read:**\n- **Interfaces** (`README.md:8-13`): ROS 2 topics, a video plane (MJPEG on port 8080, UDP on 9091/9092, plus 9620\u20139623), a hand RPC server at `127.0.0.1:8779`, and an in-process Python API (`import mabel_hw`).\n- **Drivers:** `hardware_bridge/mabel_hw/drivers/` covers swerve, openarm, damiao CAN/FDCAN, dynamixel, hands, lift, rplidar, audio and joystick. RPC and camera code is in `rpc/` and `cameras/`.\n- **Settings:** `hardware_bridge/mabel_hw/config.py:4-52` lets `MABEL_HW_<NAME>` environment variables override settings. `MABEL_CONTROL_PARAM` is at line 21 and `MABEL_HTTP_HOST`/`PORT` at lines 340-341. Settings are grouped per device (e.g. `BASE` at line 61, `CAMERAS` at line 329).\n\n**Next step (not run):** `cd hardware_bridge && ./run_bridge.sh`. Then read `mabel_hw/README.md` and `docs/video_streaming.md`.\n\n**Not available:** No private lab host list ships here. The local override file `.env.local` is git-ignored. I didn't check whether the PDF reports in `docs/` exist.\n\nI created no plan file because this was a read-only tour."
+        }
+      ],
+      "answer": "**`/mabel-hardware-api`** explains `mabel_hw`, the hardware layer. It is the only process that opens any device on the robot (base, arms, torso, neck, hands, lift, lidar, audio, cameras) (`hardware_bridge/README.md:3-16`).\n\n**What I read:**\n- **Interfaces** (`README.md:8-13`): ROS 2 topics, a video plane (MJPEG on port 8080, UDP on 9091/9092, plus 9620\u20139623), a hand RPC server at `127.0.0.1:8779`, and an in-process Python API (`import mabel_hw`).\n- **Drivers:** `hardware_bridge/mabel_hw/drivers/` covers swerve, openarm, damiao CAN/FDCAN, dynamixel, hands, lift, rplidar, audio and joystick. RPC and camera code is in `rpc/` and `cameras/`.\n- **Settings:** `hardware_bridge/mabel_hw/config.py:4-52` lets `MABEL_HW_<NAME>` environment variables override settings. `MABEL_CONTROL_PARAM` is at line 21 and `MABEL_HTTP_HOST`/`PORT` at lines 340-341. Settings are grouped per device (e.g. `BASE` at line 61, `CAMERAS` at line 329).\n\n**Next step (not run):** `cd hardware_bridge && ./run_bridge.sh`. Then read `mabel_hw/README.md` and `docs/video_streaming.md`.\n\n**Not available:** No private lab host list ships here. The local override file `.env.local` is git-ignored. I didn't check whether the PDF reports in `docs/` exist.\n\nI created no plan file because this was a read-only tour.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-pipelines",
+      "command": "/mabel-pipelines",
+      "start": 472.078,
+      "end": 496.178,
+      "purpose": "The two chains that must be run in order. The model chain \u2014 MJCF to URDF to GLB to the app rigs and the mirror \u2014 and the learning chain from a teleoperated episode to a trained policy. Also what goes stale if you edit the model and skip a step.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 473.07800000000066,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 474.37800000000067,
+          "kind": "inspection",
+          "text": "Glob ~/open_mabel"
+        },
+        {
+          "at": 474.9780000000007,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 475.5780000000007,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 476.17800000000074,
+          "kind": "answer",
+          "text": "**/mabel-pipelines** explains the two MABEL chains that must run in order. This was a read-only tour; I didn't run anything.\n\n**Model chain** (`README.md:327-344`): `simulation/mabel_mujoco/models/mabel_full.xml` is the only source of truth. After editing it, run in order:\n1. `mjcf_to_urdf.py` (MJCF \u2192 URDF)\n2. `urdf_to_glb.py` (URDF \u2192 web rig)\n3. `glb_to_rig.py` (web rig \u2192 Vision Pro rig)\n4. Rebuild the arm posture table.\n5. Run `wbc_stability.py`. If it shows more than about 1 cm centre-of-mass error, update the tip-over constants in `controller/mabel/motion_model/tip_over.py`.\n\nEach skipped step leaves everything after it stale. The README doesn't name a separate \"mirror\" step.\n\n**Learning chain** (`README.md:140-194`): teleop records one HDF5 file per episode (`dataset/simulation/vision_os/<task>/episode_XXXX.h5`; real runs use `server/real_curation_collector.py`). Then `learning/curate_export.py` exports a LeRobot dataset, and `mabel_train train/eval/resume` handles training (ACT, DP, \u03c00, \u03c00.5).\n\n**Next step:** read `learning/PIPELINE.md`.\n\n**Not available:** the private lab host registry. Training also needs `MABEL_LEROBOT_PYTHON` and a CUDA GPU."
+        }
+      ],
+      "answer": "**/mabel-pipelines** explains the two MABEL chains that must run in order. This was a read-only tour; I didn't run anything.\n\n**Model chain** (`README.md:327-344`): `simulation/mabel_mujoco/models/mabel_full.xml` is the only source of truth. After editing it, run in order:\n1. `mjcf_to_urdf.py` (MJCF \u2192 URDF)\n2. `urdf_to_glb.py` (URDF \u2192 web rig)\n3. `glb_to_rig.py` (web rig \u2192 Vision Pro rig)\n4. Rebuild the arm posture table.\n5. Run `wbc_stability.py`. If it shows more than about 1 cm centre-of-mass error, update the tip-over constants in `controller/mabel/motion_model/tip_over.py`.\n\nEach skipped step leaves everything after it stale. The README doesn't name a separate \"mirror\" step.\n\n**Learning chain** (`README.md:140-194`): teleop records one HDF5 file per episode (`dataset/simulation/vision_os/<task>/episode_XXXX.h5`; real runs use `server/real_curation_collector.py`). Then `learning/curate_export.py` exports a LeRobot dataset, and `mabel_train train/eval/resume` handles training (ACT, DP, \u03c00, \u03c00.5).\n\n**Next step:** read `learning/PIPELINE.md`.\n\n**Not available:** the private lab host registry. Training also needs `MABEL_LEROBOT_PYTHON` and a CUDA GPU.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-docs",
+      "command": "/mabel-docs",
+      "start": 496.178,
+      "end": 520.698,
+      "purpose": "The per-subsystem technical papers (docs/*.tex, built to PDF), which subsystem each covers, and how to rebuild them.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 497.17800000000074,
+          "kind": "inspection",
+          "text": "Glob docs/**/*.{tex,pdf}"
+        },
+        {
+          "at": 498.29800000000074,
+          "kind": "inspection",
+          "text": "Glob docs/Makefile"
+        },
+        {
+          "at": 498.89800000000076,
+          "kind": "inspection",
+          "text": "Grep README.md"
+        },
+        {
+          "at": 499.4980000000008,
+          "kind": "inspection",
+          "text": "Glob */docs/*.{tex,pdf}"
+        },
+        {
+          "at": 500.0980000000008,
+          "kind": "inspection",
+          "text": "Glob */docs/Makefile"
+        },
+        {
+          "at": 500.69800000000083,
+          "kind": "answer",
+          "text": "**/mabel-docs** is meant to list each subsystem's technical paper and explain how to rebuild it.\n\n**What I inspected:** `README.md` and a file search over `docs/` and `*/docs/`. I ran nothing.\n\n- `README.md:58` says most folders ship a technical report as `<folder>/docs/*.pdf`.\n- `README.md:368` points to `docs/architecture_block_diagram.pdf`, the system diagram and the only file in the top-level `docs/`.\n- `controller/docs/` has 20 PDFs, covering things like control stack, whole-body controller, retargeting, calibration and arm PD tuning.\n- `hardware_bridge/docs/` has 4: `hardware_bridge`, `mabel_hw_api`, `arm_controllers` and `gravity_ff_tracking`.\n- `server/docs/` has 4: `server`, `data_streams`, `data_collection` and `teleop_protocol`. Its relay and data-collection notes are Markdown files (`README.md:160,302`).\n\n**Not available:** this checkout has no `.tex` sources and no `docs/Makefile`, so the papers can't be rebuilt with `latexmk` from here. Only the compiled PDFs can be read.\n\n**Next step:** open `controller/docs/control_stack.pdf`, or run `python3 experiments/make_platform_figure.py` (`README.md:313`) to regenerate the combined platform figure."
+        }
+      ],
+      "answer": "**/mabel-docs** is meant to list each subsystem's technical paper and explain how to rebuild it.\n\n**What I inspected:** `README.md` and a file search over `docs/` and `*/docs/`. I ran nothing.\n\n- `README.md:58` says most folders ship a technical report as `<folder>/docs/*.pdf`.\n- `README.md:368` points to `docs/architecture_block_diagram.pdf`, the system diagram and the only file in the top-level `docs/`.\n- `controller/docs/` has 20 PDFs, covering things like control stack, whole-body controller, retargeting, calibration and arm PD tuning.\n- `hardware_bridge/docs/` has 4: `hardware_bridge`, `mabel_hw_api`, `arm_controllers` and `gravity_ff_tracking`.\n- `server/docs/` has 4: `server`, `data_streams`, `data_collection` and `teleop_protocol`. Its relay and data-collection notes are Markdown files (`README.md:160,302`).\n\n**Not available:** this checkout has no `.tex` sources and no `docs/Makefile`, so the papers can't be rebuilt with `latexmk` from here. Only the compiled PDFs can be read.\n\n**Next step:** open `controller/docs/control_stack.pdf`, or run `python3 experiments/make_platform_figure.py` (`README.md:313`) to regenerate the combined platform figure.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-brain",
+      "command": "/mabel-brain",
+      "start": 520.698,
+      "end": 544.87,
+      "purpose": "Regenerates the Obsidian second brain at harness/MABEL/ \u2014 the interlinked graph of the whole system \u2014 from the curated note bodies in claude_harness/brain/content/. The only command that writes outside the registry.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 521.6980000000008,
+          "kind": "inspection",
+          "text": "Grep ~/open_mabel/README.md"
+        },
+        {
+          "at": 523.0700000000007,
+          "kind": "inspection",
+          "text": "Glob ~/open_mabel"
+        },
+        {
+          "at": 523.6700000000008,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/README.md"
+        },
+        {
+          "at": 524.2700000000008,
+          "kind": "inspection",
+          "text": "Read ~/open_mabel/.claude/commands/mabel-brain.md"
+        },
+        {
+          "at": 524.8700000000008,
+          "kind": "answer",
+          "text": "**/mabel-brain: read-only walkthrough**\n\n**What it's for:** The command is supposed to rebuild an Obsidian \"second brain\" at `harness/MABEL/`, a linked set of notes covering the whole system. It builds it from curated notes in `claude_harness/brain/content/` (`.claude/commands/mabel-brain.md:2,9`).\n\n**What I looked at:**\n- `README.md:3-11`: MABEL is an open-source, 56-DOF mobile robot with two arms, teleoperated from an Apple Vision Pro. The guide runs simulate \u2192 teleoperate \u2192 collect \u2192 train \u2192 hardware \u2192 real robot.\n- `.claude/commands/mabel-brain.md`: the command definition. It only allows reading tools, so it can't actually generate anything.\n- `README.md` never mentions \"brain\", \"Obsidian\" or \"harness\".\n\n**What's missing:** This public checkout has no `claude_harness/` folder, no brain notes and no `harness/MABEL/` output. There's also no script that builds the graph, so I can't show you a real command to run it. I didn't make one up or fill the gap from private lab files.\n\n**Next step:** Try `/mabel-map` or `/mabel-docs` for a tour of the folders that do exist. To build the brain, you'd first need the missing `claude_harness/brain/` source notes and a script to generate the graph."
+        }
+      ],
+      "answer": "**/mabel-brain: read-only walkthrough**\n\n**What it's for:** The command is supposed to rebuild an Obsidian \"second brain\" at `harness/MABEL/`, a linked set of notes covering the whole system. It builds it from curated notes in `claude_harness/brain/content/` (`.claude/commands/mabel-brain.md:2,9`).\n\n**What I looked at:**\n- `README.md:3-11`: MABEL is an open-source, 56-DOF mobile robot with two arms, teleoperated from an Apple Vision Pro. The guide runs simulate \u2192 teleoperate \u2192 collect \u2192 train \u2192 hardware \u2192 real robot.\n- `.claude/commands/mabel-brain.md`: the command definition. It only allows reading tools, so it can't actually generate anything.\n- `README.md` never mentions \"brain\", \"Obsidian\" or \"harness\".\n\n**What's missing:** This public checkout has no `claude_harness/` folder, no brain notes and no `harness/MABEL/` output. There's also no script that builds the graph, so I can't show you a real command to run it. I didn't make one up or fill the gap from private lab files.\n\n**Next step:** Try `/mabel-map` or `/mabel-docs` for a tour of the folders that do exist. To build the brain, you'd first need the missing `claude_harness/brain/` source notes and a script to generate the graph.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-drift",
+      "command": "/mabel-drift",
+      "start": 544.87,
+      "end": 567.91,
+      "purpose": "The citation gate. Every fact in the registry names the file it came from; this checks that each of those files still exists and still contains the fact, and that the command surface in commands.yaml matches the commands actually on disk in both directions. Treat a drift failure like a failing test.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 545.8700000000008,
+          "kind": "inspection",
+          "text": "Bash ls; ls .claude .claude/* 2>/dev/null | head -50; find . -name \"commands.yaml\" -not -path \"./.git/*\" | head; grep -n -i \"drift\\|registry\\|commands.yaml\" README.md | head -20"
+        },
+        {
+          "at": 547.1260000000008,
+          "kind": "inspection",
+          "text": "Bash sed -n 1,40p README.md; ls docs | head -30"
+        },
+        {
+          "at": 547.9100000000008,
+          "kind": "answer",
+          "text": "**What `/mabel-drift` is for:** It's a citation check. It confirms that every fact in the registry still exists in the file it cites, and that the commands listed in `commands.yaml` match the command files on disk, in both directions. A mismatch counts as a failing test.\n\n**What I inspected (read-only):**\n- `README.md:1-12`: MABEL is an open-source, 56-DOF mobile bimanual robot, teleoperated with an Apple Vision Pro. The guide runs from simulation to reproducing the paper.\n- `.claude/commands/`: 27 command files are on disk (`mabel-*.md`, plus `onboard.md` and `onboarding.md`).\n- I searched the whole checkout, excluding `.git/`, for `commands.yaml` and found nothing. No fact registry exists either.\n\n**Result:** The check can't run. There's no registry and no `commands.yaml` to compare against. Without them, all 27 commands look like they're on disk but not listed anywhere. I didn't fill the gap with private lab data.\n\n**Next step:** Add the registry and `commands.yaml` (with file and line citations) to this checkout, then run `/mabel-drift` again.\n\n**Not available:** fact verification and the two-way command comparison."
+        }
+      ],
+      "answer": "**What `/mabel-drift` is for:** It's a citation check. It confirms that every fact in the registry still exists in the file it cites, and that the commands listed in `commands.yaml` match the command files on disk, in both directions. A mismatch counts as a failing test.\n\n**What I inspected (read-only):**\n- `README.md:1-12`: MABEL is an open-source, 56-DOF mobile bimanual robot, teleoperated with an Apple Vision Pro. The guide runs from simulation to reproducing the paper.\n- `.claude/commands/`: 27 command files are on disk (`mabel-*.md`, plus `onboard.md` and `onboarding.md`).\n- I searched the whole checkout, excluding `.git/`, for `commands.yaml` and found nothing. No fact registry exists either.\n\n**Result:** The check can't run. There's no registry and no `commands.yaml` to compare against. Without them, all 27 commands look like they're on disk but not listed anywhere. I didn't fill the gap with private lab data.\n\n**Next step:** Add the registry and `commands.yaml` (with file and line citations) to this checkout, then run `/mabel-drift` again.\n\n**Not available:** fact verification and the two-way command comparison.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    },
+    {
+      "key": "mabel-doctor",
+      "command": "/mabel-doctor",
+      "start": 567.91,
+      "end": 592.276,
+      "purpose": "The full self-check: drift, the technical papers, whether every safety mechanism still cites a file that exists, whether the vault has been generated, and the open questions the registry has flagged for a human to confirm.",
+      "mode": "Read-only public-checkout documentation guide",
+      "recording_status": "success",
+      "events": [
+        {
+          "at": 568.9100000000008,
+          "kind": "inspection",
+          "text": "Bash ls; ls docs 2>/dev/null | head -30; grep -n -i -E \"doctor|drift|vault|registry|safety|canonical\" README.md | head -30"
+        },
+        {
+          "at": 570.3660000000008,
+          "kind": "inspection",
+          "text": "Bash sed -n 40,56p README.md; sed -n 278,286p README.md; ls docs; grep -rl -i \"safety gate\\|SafetyGate\" controller | head -5"
+        },
+        {
+          "at": 571.1420000000007,
+          "kind": "inspection",
+          "text": "Bash grep -n -i -E \"tip-over|tipover|limp|e-stop|safety\" hardware_bridge/README.md | head -8; ls docs/*.tex 2>/dev/null; find . -maxdepth 3 -iname \"*vault*\" -o -maxdepth 3 -iname \"*registry*\" | head"
+        },
+        {
+          "at": 572.2760000000007,
+          "kind": "answer",
+          "text": "I couldn't run the full `/mabel-doctor` self-check because most of what it checks isn't in this public checkout. I only read files and ran nothing.\n\n**What it's for:** a full self-check covering drift, the technical papers, whether each safety mechanism cites a real file, whether the vault has been generated, and open questions in the registry.\n\n**What I inspected:**\n- `README.md:40-54` lists the folders. It names `simulation/` as home to the canonical MuJoCo model, and `hardware_bridge/` as the only process that opens a device.\n- `README.md:281-284` describes the safety rules: arms start limp, a tip-over gate limits base speed, and an e-stop exists.\n- `hardware_bridge/README.md:254-275` covers \"limp on rejoin\" and e-stop priority. Its e-stop uses `MabelHardware.estop()`, which skips write leases.\n\n**Not available here:**\n- **Papers:** `docs/` holds only `architecture_block_diagram.pdf`, with no `.tex` files.\n- **Vault:** never generated.\n- **Registry:** missing, so there are no flagged questions to report.\n- **Drift:** can't be checked without those pieces.\n\n**Next step:** confirm that the safety files cited in `controller/README.md` exist, before enabling any torque."
+        }
+      ],
+      "answer": "I couldn't run the full `/mabel-doctor` self-check because most of what it checks isn't in this public checkout. I only read files and ran nothing.\n\n**What it's for:** a full self-check covering drift, the technical papers, whether each safety mechanism cites a real file, whether the vault has been generated, and open questions in the registry.\n\n**What I inspected:**\n- `README.md:40-54` lists the folders. It names `simulation/` as home to the canonical MuJoCo model, and `hardware_bridge/` as the only process that opens a device.\n- `README.md:281-284` describes the safety rules: arms start limp, a tip-over gate limits base speed, and an e-stop exists.\n- `hardware_bridge/README.md:254-275` covers \"limp on rejoin\" and e-stop priority. Its e-stop uses `MabelHardware.estop()`, which skips write leases.\n\n**Not available here:**\n- **Papers:** `docs/` holds only `architecture_block_diagram.pdf`, with no `.tex` files.\n- **Vault:** never generated.\n- **Registry:** missing, so there are no flagged questions to report.\n- **Drift:** can't be checked without those pieces.\n\n**Next step:** confirm that the safety files cited in `controller/README.md` exist, before enabling any torque.",
+      "note": "Launches, host probes, calibration and generated-vault updates were reviewed, not executed. The public checkout does not include the private lab registry."
+    }
+  ]
+}
