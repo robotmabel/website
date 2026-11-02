@@ -4542,14 +4542,50 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   max-height: 78vh; object-fit: contain; margin: 0 auto; }
 /* the experiment replay beside the plot of what it measured */
 .al-clip { margin: 0 0 11px; border: 2px solid var(--ink); border-radius: 10px;
-  overflow: hidden; background: #0B0E15; }
-.al-clip video { display: block; width: 100%; aspect-ratio: 16/11;
-  object-fit: cover; }
+  overflow: hidden; background: var(--panel); }
+/* the submission renders are 900×720; contain, never crop the robot */
+.al-clip video { display: block; width: 100%; height: auto; aspect-ratio: 5/4;
+  object-fit: contain; }
 .al-clip figcaption { padding: 6px 10px 7px; font-family: var(--font-mono);
   font-size: 10px; color: var(--ash-light, #B9AF98); background: var(--ink); }
 /* the scatter is 230 px of drawing; do not let it stretch to the panel */
 .al-plot { max-width: 100%; }
-.al-panel .al-plot:has(svg[viewBox^="0 0 230"]) { max-width: 288px; margin: 0 auto; }
+.al-panel .al-plot:has(svg[viewBox^="0 0 260"]) { max-width: 320px; margin: 0 auto; }
+/* live + interactive: tooltips, toggling legends, the playhead (accuracy-lab.js) */
+.al-plotwrap { position: relative; touch-action: manipulation; }
+.al-tip { position: absolute; z-index: 3; pointer-events: none; max-width: 240px;
+  background: var(--ink); color: var(--bone); border-radius: 8px; padding: 7px 9px;
+  font-family: var(--font-mono); font-size: 10.5px; line-height: 1.5; box-shadow: 3px 3px 0 rgba(21,24,32,.25); }
+.al-tip[hidden] { display: none; }
+.al-tip i { font-style: normal; color: var(--ash-light); }
+.al-pt { stroke: var(--ink); stroke-width: 1.1; transition: r .2s; }
+.al-pt.is-new { stroke-width: 2; }
+.al-band { opacity: .13; }
+.al-cell { fill: transparent; stroke: rgba(21,24,32,.14); stroke-width: 1; cursor: pointer; transition: fill .15s, stroke .15s; }
+.al-cell:hover { fill: rgba(21,24,32,.04); }
+.al-cell.is-now { stroke: var(--hi); stroke-width: 1.8; }
+.al-cell-t { pointer-events: none; }
+.al-line.is-contour { stroke-dasharray: 6 4; }
+.al-ph { stroke: var(--hi); stroke-width: 1.6; }
+.al-ph.is-hover { stroke: var(--ink); stroke-dasharray: 3 3; opacity: .55; }
+.al-follow { border-style: dashed; }
+.al-follow.on { border-style: solid; }
+.al-lg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.al-lg-b { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 4px 11px;
+  border-radius: 20px; border: 2px solid var(--c); background: transparent; color: var(--ink);
+  font-family: var(--font-mono); font-size: 10.5px; cursor: pointer; transition: opacity .13s, background .13s; }
+.al-lg-b[aria-pressed="false"] { opacity: .4; text-decoration: line-through; }
+.al-lg-b em { font-style: normal; color: var(--ash); }
+.al-lg-sw { width: 16px; height: 0; border-top: 3px solid var(--c); }
+.al-lg-b.is-contour .al-lg-sw { border-top-style: dashed; }
+.al-live { font-family: var(--font-mono); font-size: 10.5px; line-height: 1.55; color: var(--ink-soft);
+  margin: 9px 0 0; min-height: 2.2em; }
+.al-stat.is-off { opacity: .4; }
+.al-tbl { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 10.5px; }
+.al-tbl th, .al-tbl td { padding: 5px 4px; text-align: right; border-top: 1.5px solid rgba(21,24,32,.14); white-space: nowrap; }
+.al-tbl thead th { color: var(--ash); font-weight: 400; border-top: 0; white-space: normal; }
+.al-tbl tbody th { text-align: left; font-family: var(--font-body); font-weight: 600; font-size: 12px; }
+@media (max-width: 520px) { .al-tbl { font-size: 9.5px; } .al-tbl th, .al-tbl td { padding: 5px 2px; } }
 
 /* ── the retargeting table on a phone ───────────────────────────────────
    Eight columns want 720 px and a phone has 312. Scrolling it sideways is
@@ -5091,3 +5127,10 @@ html.js .rg-chap.fade-up { opacity: 1; transform: none; }
   .pt-preview-trigger b { min-width: 0; }
   .pt-card-close { width: 44px; height: 44px; }
 }
+
+/* a clip that is still fetching: a small ring over its poster (assets/mabel.js start/begin) */
+.vid-spin { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; z-index: 4;
+  border-radius: 50%; border: 3px solid rgba(253,246,226,.45); border-top-color: var(--panel);
+  box-shadow: 0 0 0 1px rgba(21,24,32,.25); pointer-events: none; animation: vid-spin .8s linear infinite; }
+@keyframes vid-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .vid-spin { animation-duration: 2.4s; } }
