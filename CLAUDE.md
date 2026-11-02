@@ -145,8 +145,8 @@ page from the same localStorage the order page writes.
 | `assets/hw/exploded.png` | `scripts/build_exploded.py` (cuts the paper's CAD out of its white) |
 | `assets/hw/callout.{svg,png,json}` | `simulation/.../render_callout.py` |
 | `assets/reach-envelope.svg` | `simulation/.../render_reach_plot.py` |
-| `assets/data/accuracy.json` | `scripts/build_accuracy.py` (from `experiments/*/data/`) |
-| `assets/accuracy/*` | `scripts/render_accuracy_clips.py` |
+| `assets/data/accuracy.json` | `scripts/build_accuracy.py` (from the 2026-10-08 real-robot repeatability + path-following archive, read through that archive's own analysis helpers; the RA-L submission video quotes the same numbers) |
+| `assets/accuracy/*` | `scripts/render_accuracy_clips.py` (re-encodes the RA-L video's own test renders) |
 | `assets/retarget/*` | `controller/experiments/retargeting_ablation/render_compare.py` |
 | `assets/data/platforms.json` | `scripts/build_platforms.py` |
 | `assets/appshots/*.jpg` + the reel cards in teleop.html | `scripts/build_app_shots.py --src <png dir>` from `scripts/app_shots.json` (real iPhone, Vision Pro and Control Studio screenshots with numbered pins on each control — re-shoot when an app's layout changes; no hosts, IPs, ports or robot host names in a shot) |

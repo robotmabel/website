@@ -1,22 +1,24 @@
 {
  "generated_by": "website/scripts/render_accuracy_clips.py",
- "note": "replays of the archived trials the panels are scored from \u2014 qpos is assigned per frame from the same rows, never re-simulated",
+ "note": "the submission video's test panels, re-encoded; plots sync to the render's clock (accuracy.json)",
  "clips": {
-  "stations": {
-   "clip": "stations.mp4",
-   "poster": "stations.jpg",
-   "frames": 175,
-   "title": "The ISO 9283 schedule, on the real robot",
-   "trial": 0,
-   "rows": 2627
+  "repeat": {
+   "clip": "repeat.mp4",
+   "lo": "repeat-lo.mp4",
+   "poster": "repeat.jpg",
+   "w": 900,
+   "h": 720,
+   "duration_s": 9.2,
+   "title": "ISO 9283 on the real robot: 10 cycles, every return hold marked"
   },
   "path": {
    "clip": "path.mp4",
+   "lo": "path-lo.mp4",
    "poster": "path.jpg",
-   "frames": 175,
-   "title": "Tracing the circle, on the gains we deploy",
-   "trial": 0,
-   "rows": 1393
+   "w": 900,
+   "h": 720,
+   "duration_s": 9.2,
+   "title": "Spiral, then square, both palms, torso at 0\u00b0"
   }
  }
 }

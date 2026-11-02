@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
-"""The accuracy lab must DRAW what the archives measured.
+"""The accuracy lab must DRAW what the hardware logs measured, IN STEP with its clip.
 
-Not "did the section appear". A section appears just as happily with an empty
-SVG in it, which is how a brightness check once passed on a fallen robot. This
-counts the landings actually rendered, asserts the shared frame really is
-shared (switching station must NOT rescale the axes — that is the whole point
-of the panel), and checks the deployed-gains number on screen against the JSON.
+Not "did the section appear" — a section appears just as happily with an empty
+SVG in it. This checks, in a browser:
+  * the data IS the latest archive: accuracy.json against the experiments' own
+    results_real.json (every station's RP/AP, every condition's RMS), when the
+    archive is beside the repo; the headline numbers are on screen;
+  * every landing is drawn, and switching station never rescales the frame;
+  * LIVE: driven to a clip time, the grid shows exactly the returns the render
+    has marked by then, and the line plot's playhead sits at the path time the
+    render's clock maps to (and is absent while the arm is still moving to the
+    start); the clips are the 9.2 s submission renders;
+  * hover a dot and a curve (through the input pipeline) and the tooltip says
+    the measured value; the legends toggle series.
 
     python scripts/acctest.py http://localhost:8741/hardware.html
 """
-import asyncio, json, random, subprocess, sys, time, urllib.request, websockets
+import asyncio, os, json, pathlib, random, subprocess, sys, time, urllib.request, websockets
 from _chrome import cleanup_on_exit   # scripts/ is on sys.path when run as a script
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -66,37 +73,95 @@ async def go():
             print("the lab never initialised")
             print("\nRESULT: FAIL")
             return 1
+        def need(ok, msg):
+            print(("   ✓ " if ok else "   ✗ ") + msg)
+            if not ok:
+                bad.append(msg)
 
         D = await ev("window.__accuracyLab.data")
         lim0 = await ev("window.__accuracyLab.limit")
-        print(f"frame ±{lim0} mm · {D['rep_trials']} ISO cycles · "
-              f"{len(D['stations'])} stations · {len(D['paths'])} paths")
+        R, PF = D["rep"], D["path"]
+        print(f"frame ±{lim0} mm · {R['cycles']} cycles · {len(R['stations'])} stations · {len(PF['conditions'])} conditions · {R['date']}")
 
-        for s in D["stations"]:
+        # ── the data is the latest archive ──
+        arch = pathlib.Path(os.environ.get("ACCURACY_ARCHIVE", "/nonexistent")) / "experiments"   # the archive check runs only where it is set
+        if (arch / "repeatability" / "results_real.json").exists():
+            rr = json.loads((arch / "repeatability" / "results_real.json").read_text())
+            off = [(s["name"], h) for s in R["stations"] for h in ("left", "right")
+                   if abs(s["hands"][h]["RP_mm"] - rr["stations"][s["name"]][h]["RP_mm"]) > 0.01
+                   or abs(s["hands"][h]["AP_mm"] - rr["stations"][s["name"]][h]["AP_mm"]) > 0.01]
+            need(not off and len(R["stations"]) == len(rr["stations"]), f"every station's RP/AP equals the archive's results_real.json {off or ''}")
+            pr = json.loads((arch / "path_following" / "results_real.json").read_text())["by_condition"]
+            off = [c["id"] for c in PF["conditions"] for h in ("left", "right") for m in ("track_rms_mm", "contour_rms_mm")
+                   if abs(c["stats"][h][m] - pr[c["id"]][h][m]) > 0.01]
+            need(not off and len(PF["conditions"]) == len(pr), f"every path condition's RMS equals the archive's {off or ''}")
+        else:
+            print("   · archive not beside the repo: skipping the archive comparison")
+        txt = await ev("document.getElementById('accuracyLab').textContent")
+        need(f"{R['median_RP_mm']:.2f} mm" in txt and f"{PF['worst_contour_rms_mm']:.2f} mm" in txt,
+             f"the headline median RP {R['median_RP_mm']:.2f} mm and worst contour {PF['worst_contour_rms_mm']:.2f} mm are on screen")
+        clips = await ev("Array.from(document.querySelectorAll('#accuracyLab video')).map(function(v){return v.dataset.lazyvid||v.currentSrc})")
+        need(any("repeat.mp4" in c for c in clips) and any("path.mp4" in c for c in clips), f"both submission clips are wired {clips}")
+
+        # stop the clips' own clocks so the checks drive time
+        await ev("window.__accuracyLab.hold(true); document.querySelectorAll('#accuracyLab video').forEach(function(v){v.pause();}); true")
+        await asyncio.sleep(0.6)
+
+        # ── every landing drawn, one frame ──
+        for s in R["stations"]:
             await ev(f"window.__accuracyLab.setStation({json.dumps(s['name'])})")
-            lim = await ev("window.__accuracyLab.limit")
             got = await ev("window.__accuracyLab.dots()")
             want = sum(s["hands"][h]["n"] for h in s["hands"])
-            r = s["hands"]["right_index_tip"]
-            print(f"   {s['name']:16s} {got:3d}/{want:3d} landings  "
-                  f"RP {r['RP_mm']:5.1f}  Rmax {r['Rmax_mm']:5.1f} mm")
-            if got < want:
+            if got != want:
                 bad.append(f"{s['name']} drew {got} of {want} landings")
-            if lim != lim0:
-                bad.append(f"{s['name']} RESCALED the shared frame: {lim0} → {lim}")
+            if await ev("window.__accuracyLab.limit") != lim0:
+                bad.append(f"{s['name']} RESCALED the shared frame")
+        need(not any("landings" in b or "RESCALED" in b for b in bad), "every station draws all its landings on one shared frame")
 
-        for path, cs in D["paths"].items():
-            await ev(f"window.__accuracyLab.setPath({json.dumps(path)})")
-            n = await ev("window.__accuracyLab.lines()")
-            print(f"   {path:16s} {n} curves  "
-                  f"{cs[0]['rms_mm']:6.1f} → {cs[-1]['rms_mm']:5.1f} mm RMS "
-                  f"({cs[0]['rms_mm'] / max(cs[-1]['rms_mm'], 1e-9):.0f}×)")
-            if n != len(cs):
-                bad.append(f"{path} drew {n} of {len(cs)} condition curves")
-            txt = await ev("document.getElementById('accuracyLab').textContent")
-            if f"{cs[-1]['rms_mm']:.1f} mm" not in txt:
-                bad.append(f"{path}: deployed RMS {cs[-1]['rms_mm']:.1f} mm "
-                           "is not on screen")
+        # ── live: the grid fills in on the render's clock ──
+        await ev("window.__accuracyLab.follow(true)")
+        pts = [p for s in R["stations"] for h in ("left", "right") for p in s["hands"][h]["pts"]]
+        for t in (0.0, 1.0, 3.06, 5.0, 6.7, 9.2):
+            await ev(f"window.__accuracyLab.at({t})")
+            got, want = await ev("window.__accuracyLab.dots()"), sum(1 for p in pts if p[4] <= t)
+            need(got == want and await ev("window.__accuracyLab.grid()"), f"at {t:4.2f} s the grid shows the {want} returns the clip has marked (drew {got})")
+
+        # ── live: the playhead follows the drawn palm ──
+        for cc in [q for q in PF["conditions"] if "sync" in q]:
+            sy = cc["sync"]
+            mid = sy[len(sy) // 2]
+            await ev(f"window.__accuracyLab.at({mid[0]})")
+            cond, x = await ev("window.__accuracyLab.cond()"), await ev("window.__accuracyLab.playhead()")
+            need(cond == cc["id"] and x is not None and abs(x - mid[1]) < 0.15, f"at {mid[0]:.2f} s the plot is {cc['id']} with the playhead at {mid[1]:.2f} s along the path (got {cond}, {x})")
+            await ev(f"window.__accuracyLab.at({sy[0][0] - 0.3})")
+            need(await ev("window.__accuracyLab.playhead()") is None, f"while the arm moves to the {cc['shape']}'s start there is no playhead")
+
+        # ── hover tooltips, through the input pipeline ──
+        async def hover(x, y):
+            await cmd("Input.dispatchMouseEvent", {"type": "mouseMoved", "x": x, "y": y})
+            await asyncio.sleep(0.15)
+            return await ev("Array.from(document.querySelectorAll('#accuracyLab .al-tip')).filter(function(t){return !t.hidden}).map(function(t){return t.textContent}).join('|')")
+        await ev("window.__accuracyLab.setStation('T3_wide_high'); document.querySelector('[data-role=scatter]').scrollIntoView({block:'center',behavior:'instant'})")
+        await asyncio.sleep(0.3)
+        d0 = await ev("window.__accuracyLab.dotXY(0)")
+        tt = await hover(d0["x"], d0["y"])
+        need(f"{d0['mm']:.2f} mm" in tt and f"cycle {d0['cycle'] + 1}" in tt, f"hovering a dot shows its distance and cycle ('{tt[:70]}')")
+        await ev("window.__accuracyLab.setCond('square_torso-10'); document.querySelector('[data-role=err]').scrollIntoView({block:'center',behavior:'instant'})")
+        await asyncio.sleep(0.3)
+        p5 = await ev("window.__accuracyLab.plotXY(5)")
+        tt = await hover(p5["x"], p5["y"])
+        need("5.0 s along the square" in tt and tt.count("mm") >= 4, f"hovering the line plot lists every visible series' value ('{tt[:70]}')")
+
+        # ── legends toggle ──
+        n0 = await ev("window.__accuracyLab.dots()")
+        await ev("document.querySelector('[data-role=replg] [data-h=right]').click()")
+        n1 = await ev("window.__accuracyLab.dots()")
+        await ev("document.querySelector('[data-role=replg] [data-h=right]').click()")
+        need(n1 * 2 == n0 and await ev("window.__accuracyLab.dots()") == n0, f"the palm legend hides and restores a palm ({n0} → {n1} → {n0})")
+        await ev("document.querySelector('[data-role=pathlg] [data-k=left_contour]').click()")
+        l1 = await ev("window.__accuracyLab.lines()")
+        await ev("document.querySelector('[data-role=pathlg] [data-k=left_contour]').click()")
+        need(l1 == 3 and await ev("window.__accuracyLab.lines()") == 4, f"the series legend hides and restores a curve (4 → {l1} → 4)")
 
         # The callout drawing. inline-svg.js REPLACES the <img> with an inline
         # <svg> so the figure gets the page's webfonts, so "is the img loaded"

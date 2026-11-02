@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=38c75143" />
+<link rel="stylesheet" href="assets/mabel.css?v=79a0fe99" />
 <script>document.documentElement.classList.add('js');</script>
 <style>
   /* ── The buy page, while the store is closed: "coming soon" and a form.
@@ -40,6 +40,8 @@
   /* one frame for every photo: 3:2, filled (portrait shots are cropped, never letterboxed or allowed to grow the frame) */
   .cs-slide { position: relative; aspect-ratio: 3 / 2; border-radius: 18px; overflow: hidden; background: var(--paper); box-shadow: 0 24px 40px rgba(21,24,32,0.18); }
   .cs-slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; display: block; }
+  .cs-slide video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cs-slide video[hidden] { display: none; }
   .cs-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid rgba(21,24,32,0.35); background: rgba(253,246,226,0.85); color: var(--ink);
     font-size: 24px; line-height: 1; cursor: pointer; display: grid; place-items: center; padding: 0 0 3px; }
   .cs-arrow:hover { border-color: var(--ink); background: var(--panel); }
@@ -106,7 +108,7 @@
   @media (max-width: 980px) {
     .cs-stage { grid-template-columns: 1fr; }
     .cs-visual { position: static; }
-    .cs-dots button { width: 44px; height: 44px; }
+    .cs-dots button { width: 32px; height: 44px; }   /* 44 px tall to tap; 32 wide so nine fit a 360 px phone */
   }
   @media (max-width: 560px) {
     .cs-row { grid-template-columns: 1fr; }
@@ -230,6 +232,6 @@
 <script src="assets/store-api.js"></script>
 <script src="assets/coming-soon.js"></script>
 <script src="assets/store-nav.js"></script>
-<script src="assets/mabel.js?v=9fdb3a66"></script>
+<script src="assets/mabel.js?v=b9cb8e77"></script>
 </body>
 </html>

@@ -450,15 +450,54 @@
       delete v.dataset.poster;
     }
     if (!v.src) {
-      /* Full quality straight away. A clip only starts once it nears the
-         viewport, so loading the full rendition there costs one clip, and the
-         420 px -lo preview it used to play first read as blurry footage. The
-         -lo files stay as a fallback for a clip that has no full rendition. */
-      v.src = v.dataset.lazyvid || v.dataset.lo;
-      v.load();
-      v.dataset.hiDone = '1';
+      /* A FEW AT A TIME, NEAREST FIRST. A grid of a dozen clips used to open a
+         dozen downloads at once, so every tile crawled and none played. Now at
+         most MAX_LOADING clips download together; the rest wait their turn
+         (the ones on screen jump the queue), and each shows a spinner over its
+         poster until it actually has frames. */
+      spin(v, true);
+      if (loading < MAX_LOADING || onScreen(v)) begin(v); else if (waiting.indexOf(v) < 0) waiting.push(v);
+      return;
     }
     var p = v.play(); if (p && p.catch) p.catch(function () {});
+  }
+
+  var MAX_LOADING = 3, loading = 0, waiting = [];
+  function onScreen(v) { var r = v.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; }
+  function spin(v, on) {
+    var host = v.parentNode;
+    if (!host || !host.classList) return;
+    var s = host.querySelector(':scope > .vid-spin');
+    if (on && !s) {
+      s = document.createElement('span'); s.className = 'vid-spin'; s.setAttribute('aria-hidden', 'true');
+      if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+      host.appendChild(s);
+    } else if (!on && s) s.remove();
+  }
+  function begin(v) {
+    loading++;
+    var done = false;
+    var finish = function () {
+      if (done) return; done = true; loading--; spin(v, false);
+      v.removeEventListener('playing', finish); v.removeEventListener('canplaythrough', finish); v.removeEventListener('error', finish);
+      next();
+    };
+    v.addEventListener('playing', finish); v.addEventListener('canplaythrough', finish); v.addEventListener('error', finish);
+    v.addEventListener('waiting', function () { if (!v.paused) spin(v, true); });
+    v.addEventListener('playing', function () { spin(v, false); });
+    v.src = v.dataset.lazyvid || v.dataset.lo;
+    v.load();
+    v.dataset.hiDone = '1';
+    if (wantsPlay(v)) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+  }
+  function next() {
+    /* nearest to the viewport first; skip clips that scrolled far away */
+    waiting = waiting.filter(function (v) { return !v.src && document.contains(v); });
+    waiting.sort(function (a, b) { return Math.abs(a.getBoundingClientRect().top) - Math.abs(b.getBoundingClientRect().top); });
+    while (loading < MAX_LOADING && waiting.length) {
+      var v = waiting.shift();
+      if (wantsPlay(v)) begin(v); else spin(v, false);
+    }
   }
 
   /* START ONLY WHAT IS ON SCREEN. This used to start EVERY clip the moment

@@ -96,51 +96,68 @@
  ],
  "gallery": [
   {
-   "src": "assets/wild/store/front.jpg",
+   "src": "assets/wild/store/s-hero.jpg",
    "cap": "MABEL, as built",
    "key": "photo",
    "w": 1600,
    "h": 1067
   },
   {
-   "src": "assets/wild/store/pose.jpg",
-   "cap": "Two 7-DOF arms, 2.23 m fingertip to fingertip",
+   "src": "assets/wild/store/s-curtain.jpg",
+   "cap": "Two 7-DOF arms, two 17-DOF hands",
    "key": "pose",
    "w": 1600,
    "h": 1067
   },
   {
-   "src": "assets/wild/store/tabletop.jpg",
-   "cap": "Bimanual work at a table",
+   "src": "assets/home/h-wipe.jpg",
+   "video": "assets/home/h-wipe.mp4",
+   "cap": "Teleoperated at home: wiping a table (2×)",
+   "key": "wipe",
+   "w": 960,
+   "h": 720
+  },
+  {
+   "src": "assets/wild/store/s-lab.jpg",
+   "cap": "Two of them, in the lab",
    "key": "tabletop",
    "w": 1600,
    "h": 1067
   },
   {
-   "src": "assets/wild/store/laptop.jpg",
+   "src": "assets/home/h-cups.jpg",
+   "video": "assets/home/h-cups.mp4",
+   "cap": "Stacking cups, both hands",
+   "key": "cups",
+   "w": 960,
+   "h": 720
+  },
+  {
+   "src": "assets/wild/store/s-laptop.jpg",
    "cap": "Dexterous hands at a keyboard",
-   "key": "laptop",
-   "w": 1067,
-   "h": 1600
-  },
-  {
-   "src": "assets/wild/store/laptop-close.jpg",
-   "cap": "Seventeen degrees of freedom per hand",
    "key": "hands",
-   "w": 1067,
-   "h": 1600
-  },
-  {
-   "src": "assets/wild/store/skyline-dusk.jpg",
-   "cap": "Outdoors, at dusk",
-   "key": "dusk",
    "w": 1600,
    "h": 1067
   },
   {
-   "src": "assets/wild/store/skyline-night.jpg",
-   "cap": "Outdoors, at night",
-   "key": "night",
+   "src": "assets/home/h-sofa.jpg",
+   "video": "assets/home/h-sofa.mp4",
+   "cap": "Living room, at night",
+   "key": "sofa",
+   "w": 960,
+   "h": 720
+  },
+  {
+   "src": "assets/wild/store/s-hall.jpg",
+   "cap": "Holonomic base, 0.49 m footprint",
+   "key": "hall",
+   "w": 1600,
+   "h": 1067
+  },
+  {
+   "src": "assets/wild/store/s-campus.jpg",
+   "cap": "Outdoors",
+   "key": "dusk",
    "w": 1600,
    "h": 1067
   }
