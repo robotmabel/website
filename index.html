@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=6829af89" />
+<link rel="stylesheet" href="assets/mabel.css?v=b5ab81a4" />
 <script>document.documentElement.classList.add('js');</script>
 <script>
 /* The rig used to be preloaded here with <link rel="preload" as="fetch">.
@@ -88,7 +88,7 @@
   <div class="cover-badges">
     <span class="issue-chip" aria-hidden="true">Issue Nº 01<small>Platform launch</small></span>
     <span class="price-seal"><span>Build your own</span><b>$8,056</b><span>in parts · open</span></span>
-    <a class="price-seal price-seal-buy" href="order.html"><span>Buy one now</span><b>$25,000</b><span>built &amp; tested</span></a>
+    <a class="price-seal price-seal-buy" href="order.html"><span>Buy one</span><b style="font-size:19px;">Soon</b><span>join the list</span></a>
   </div>
   <div class="hero-home-inner">
     <span class="eyebrow hero-eyebrow">Mobile Bimanual Robot · Open Platform</span>
@@ -106,7 +106,7 @@
       <a href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener" class="btn btn-ghost">GitHub &#8599;</a>
     </div>
     <div class="hero-actions hero-build">
-      <a href="order.html" class="btn btn-primary btn-xl">Buy one now &middot; $25,000 &rarr;</a>
+      <a href="order.html" class="btn btn-primary btn-xl">Buy one &middot; coming soon &rarr;</a>
       <a href="docs/" class="btn btn-ghost btn-xl">Build your own &middot; from $8,056</a>
     </div>
   </div>
@@ -121,20 +121,23 @@
         <span class="eyebrow" style="display:block; margin-bottom:16px;">Abstract</span>
         <h2 class="display-sm" style="max-width:20ch; margin-bottom:22px;">A whole-body robot you can actually build.</h2>
         <p class="body-lg" style="max-width:62ch;">
-          Mobile bimanual robots are becoming the platform for learning everyday, long-horizon manipulation,
-          but open ones give up mobility, working height, dexterous hands or active gaze. MABEL keeps all of
-          them: a fully open-source, 56-DOF platform (holonomic base, 0.635&nbsp;m lift, torso, active head, two
-          7-DOF arms, two 17-DOF hands) from <strong>$8,056 in parts</strong>, with no machine shop.
-          One Apple Vision Pro drives the whole body with no hand-held controllers: morphology-aware
-          retargeting maps your head, wrists and fingers onto the robot's body frame, with arm-collision
-          filtering and model-based limits on the base. On hardware: <strong>82&nbsp;ms</strong> LAN
-          glass-to-glass latency and <strong>18.2&nbsp;mm</strong> return consistency.
+          As robot learning moves beyond the tabletop, many tasks need mobility, adjustable reach, active
+          perception and bimanual dexterity. Commercial platforms that combine them are costly; affordable
+          open-source ones cover only a subset and leave the software to integrate. MABEL is an open-source
+          anthropomorphic mobile bimanual robot with 56 degrees of freedom and a <strong>$8,056</strong> parts
+          cost: two 7-DOF arms with 17-DOF hands, a pitching torso, a lift, a 3-DOF head and a holonomic base.
+          Back-drivable arms and torso support compliant interaction, with fingertip reach from the floor to
+          <strong>2.23&nbsp;m</strong>. The head and torso roughly triple modelled camera coverage over a
+          torso-fixed camera. Apple Vision Pro head and hand tracking drives the whole body without hand-held
+          controllers, at <strong>137&nbsp;ms</strong> mean glass-to-glass stereo latency over the robot's
+          Wi-Fi hotspot. One command interface and whole-body controller carry an imitation-learning pipeline
+          from teleoperated data collection to policy deployment.
         </p>
 
       </div>
       <div>
         <div class="panel-frame reveal-media" style="padding:0; position:relative;">
-          <img src="assets/wild/hero-photo.jpg" alt="MABEL v1.0, as built — white shells, twin ORCA hands, swerve base" loading="eager" style="display:block;width:100%;height:auto;" />
+          <img src="assets/wild/hero-photo.jpg" width="1800" height="1200" alt="MABEL as built: white shells, two ORCA hands, holonomic base" loading="eager" style="display:block;width:100%;height:auto;" />
           <p class="caption-box" style="position:absolute; left:14px; bottom:14px; margin:0; font-size:11px; padding:6px 10px;">v1.0 · as built · no renders</p>
         </div>
 </div>
@@ -232,45 +235,50 @@ is already a training demonstration — no separate recording rig.</p></template
         <span class="eyebrow">Real robot · no renders</span>
         <h2 class="display-md title">Shop, home, <span class="italic accent jumpy">street.</span><img src="assets/stickers/pizza.svg" alt="" class="sticker" aria-hidden="true" style="width:92px; vertical-align:middle; margin-left:14px; transform:rotate(9deg);" loading="lazy" /></h2>
       </div>
-      <p class="lede">The bench it was built on, housework in a real apartment, and nights on the waterfront. Wherever it moves, a pilot is flying it; every home clip is one continuous take, sped up.</p>
+      <p class="lede">The lab it was built in, housework in a real apartment, and nights on the waterfront. Every clip is one continuous take, flown by a pilot; sped-up clips are marked.</p>
     </div>
-    <div class="rg-toolbar fade-up"><span class="rg-count">18 frames · real robot</span><label class="ht-switch"><input type="checkbox" id="htToggle" checked /><span class="ht-dots" aria-hidden="true"></span><span>Halftone</span><span class="ht-track" aria-hidden="true"></span></label></div>
     <div class="rg-book" id="rgGrid">
     <div class="rg-chap fade-up" data-chap="shop">
      <div class="rg-line">
       <div class="rg-cell rg-lead" data-chap-tone="yellow" style="--ar:1.15;--i:0"><span class="rg-no">01 / 03</span><h3>Shop</h3></div>
-      <figure class="rg-cell" style="--ar:0.8;--i:1"><img src="assets/wild/w-bench.jpg" alt="Arms on the bench, week two" loading="lazy" decoding="async" /><figcaption class="rg-tag">Arms on the bench</figcaption></figure>
-      <figure class="rg-cell" style="--ar:1.5;--i:2"><img src="assets/home/pair.jpg" alt="Two robots side by side in the workshop" loading="lazy" decoding="async" /><figcaption class="rg-tag">The family is growing</figcaption></figure>
-      <figure class="rg-cell" style="--ar:1.778;--i:3"><video muted loop playsinline preload="none" poster="assets/wild/v-grip.jpg" data-lazyvid="assets/wild/v-grip.mp4" aria-label="17-DOF ORCA hand closing"></video><figcaption class="rg-tag">17-DOF ORCA hand</figcaption></figure>
-      <figure class="rg-cell" data-tone="green" style="--ar:0.8;--i:4"><img src="assets/wild/w-typing.jpg" alt="MABEL at a laptop" loading="lazy" decoding="async" /><figcaption class="rg-tag">Office hours</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:1"><video muted loop playsinline preload="none" data-poster="assets/wild/s-lab-arms.jpg" data-lazyvid="assets/wild/s-lab-arms.mp4" data-lo="assets/wild/s-lab-arms-lo.mp4" aria-label="Both arms moving in the lab"></video><figcaption class="rg-tag">Both arms, one take</figcaption></figure>
+      <figure class="rg-cell" style="--ar:0.75;--i:2"><img src="assets/wild/w-curtain.jpg" alt="MABEL standing in front of a grey curtain" loading="lazy" decoding="async" /><figcaption class="rg-tag">Studio portrait</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:3"><img src="assets/wild/w-lab-pair.jpg" alt="Two MABEL robots in the lab" loading="lazy" decoding="async" /><figcaption class="rg-tag">Two of them now</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.778;--i:4"><video muted loop playsinline preload="none" data-poster="assets/wild/v-grip.jpg" data-lazyvid="assets/wild/v-grip.mp4" aria-label="17-DOF ORCA hand closing"></video><figcaption class="rg-tag">17-DOF ORCA hand</figcaption></figure>
      </div>
      <div class="rg-line">
-      <figure class="rg-cell" data-tone="yellow" style="--ar:1.5;--i:5"><img src="assets/wild/w-shop.jpg" alt="MABEL in the workshop among parts" loading="lazy" decoding="async" /><figcaption class="rg-tag">Born in the shop</figcaption></figure>
-      <figure class="rg-cell" style="--ar:1.778;--i:6"><video muted loop playsinline preload="none" poster="assets/wild/v-face.jpg" data-lazyvid="assets/wild/v-face.mp4" aria-label="MABEL turning to the camera"></video><figcaption class="rg-tag">Say hello</figcaption></figure>
-      <figure class="rg-cell" data-tone="paper" style="--ar:1.5;--i:7"><img src="assets/wild/w-tada.jpg" alt="MABEL waving, all joints present" loading="lazy" decoding="async" /><figcaption class="rg-tag">56 DOF, all present</figcaption></figure>
-      <figure class="rg-cell" data-tone="red" style="--ar:1.778;--i:8"><video muted loop playsinline preload="none" poster="assets/wild/v-typing.jpg" data-lazyvid="assets/wild/v-typing.mp4" aria-label="MABEL typing on a MacBook"></video><figcaption class="rg-tag">Inbox zero, eventually</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:5"><video muted loop playsinline preload="none" data-poster="assets/wild/s-table.jpg" data-lazyvid="assets/wild/s-table.mp4" data-lo="assets/wild/s-table-lo.mp4" aria-label="MABEL working at a table"></video><span class="speed-tag">1.5&times;</span><figcaption class="rg-tag">At the table</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:6"><img src="assets/wild/w-hall.jpg" alt="MABEL in an empty hall" loading="lazy" decoding="async" /><figcaption class="rg-tag">Room to move</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:7"><video muted loop playsinline preload="none" data-poster="assets/wild/s-lab-turn.jpg" data-lazyvid="assets/wild/s-lab-turn.mp4" data-lo="assets/wild/s-lab-turn-lo.mp4" aria-label="MABEL in the lab, seen from below"></video><figcaption class="rg-tag">Up close</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:8"><video muted loop playsinline preload="none" data-poster="assets/wild/s-hall.jpg" data-lazyvid="assets/wild/s-hall.mp4" data-lo="assets/wild/s-hall-lo.mp4" aria-label="MABEL moving its arms in a hall"></video><figcaption class="rg-tag">Stretch</figcaption></figure>
      </div>
     </div>
     <div class="rg-chap fade-up" data-chap="home">
      <div class="rg-line">
       <div class="rg-cell rg-lead" data-chap-tone="red" style="--ar:1.15;--i:0"><span class="rg-no">02 / 03</span><h3>Home</h3></div>
-      <figure class="rg-cell" data-tone="red" style="--ar:1.778;--i:1"><video muted loop playsinline preload="none" poster="assets/home/fridge.jpg" data-lazyvid="assets/home/fridge.mp4" aria-label="MABEL opening a refrigerator door"></video><span class="speed-tag">2.4&times;</span><figcaption class="rg-tag">Opening the fridge</figcaption></figure>
-      <figure class="rg-cell" style="--ar:1.333;--i:2"><img src="assets/home/kitchen.jpg" alt="MABEL standing in a home kitchen" loading="lazy" decoding="async" /><figcaption class="rg-tag">Kitchen duty</figcaption></figure>
-      <figure class="rg-cell" style="--ar:1.778;--i:3"><video muted loop playsinline preload="none" poster="assets/home/cabinet.jpg" data-lazyvid="assets/home/cabinet.mp4" aria-label="MABEL reaching into an upper kitchen cabinet"></video><span class="speed-tag">3.9&times;</span><figcaption class="rg-tag">Top-shelf cabinet</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:1"><video muted loop playsinline preload="none" data-poster="assets/home/h-wipe.jpg" data-lazyvid="assets/home/h-wipe.mp4" data-lo="assets/home/h-wipe-lo.mp4" aria-label="MABEL wiping a table with a cloth"></video><span class="speed-tag">2&times;</span><figcaption class="rg-tag">Wiping the table</figcaption></figure>
+      <figure class="rg-cell" style="--ar:0.75;--i:2"><img src="assets/home/h-laptop.jpg" alt="MABEL at a laptop on a desk" loading="lazy" decoding="async" /><figcaption class="rg-tag">Office hours</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:3"><video muted loop playsinline preload="none" data-poster="assets/home/h-cups.jpg" data-lazyvid="assets/home/h-cups.mp4" data-lo="assets/home/h-cups-lo.mp4" aria-label="MABEL stacking red cups"></video><figcaption class="rg-tag">Stacking cups</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.778;--i:4"><video muted loop playsinline preload="none" data-poster="assets/home/fridge.jpg" data-lazyvid="assets/home/fridge.mp4" aria-label="MABEL opening a refrigerator door"></video><span class="speed-tag">2.4&times;</span><figcaption class="rg-tag">Opening the fridge</figcaption></figure>
      </div>
      <div class="rg-line">
-      <figure class="rg-cell" style="--ar:1.333;--i:4"><img src="assets/home/fridge-photo.jpg" alt="MABEL reaching into an open refrigerator" loading="lazy" decoding="async" /><figcaption class="rg-tag">What&rsquo;s for dinner?</figcaption></figure>
-      <figure class="rg-cell" data-tone="yellow" style="--ar:1.778;--i:5"><video muted loop playsinline preload="none" poster="assets/home/laundry.jpg" data-lazyvid="assets/home/laundry.mp4" aria-label="MABEL carrying a laundry basket to the washer"></video><span class="speed-tag">7.3&times;</span><figcaption class="rg-tag">Laundry run</figcaption></figure>
-      <figure class="rg-cell" style="--ar:1.778;--i:6"><video muted loop playsinline preload="none" poster="assets/home/counter.jpg" data-lazyvid="assets/home/counter.mp4" aria-label="MABEL working at a kitchen counter and lower drawers"></video><span class="speed-tag">4.0&times;</span><figcaption class="rg-tag">Kitchen counter</figcaption></figure>
-      <figure class="rg-cell" data-tone="green" style="--ar:1.778;--i:7"><video muted loop playsinline preload="none" poster="assets/home/livingroom.jpg" data-lazyvid="assets/home/livingroom.mp4" aria-label="MABEL moving both arms in a living room"></video><span class="speed-tag">5.1&times;</span><figcaption class="rg-tag">Two arms, one living room</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:5"><video muted loop playsinline preload="none" data-poster="assets/home/h-window.jpg" data-lazyvid="assets/home/h-window.mp4" data-lo="assets/home/h-window-lo.mp4" aria-label="MABEL by a sunny window"></video><span class="speed-tag">4&times;</span><figcaption class="rg-tag">By the window</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:6"><video muted loop playsinline preload="none" data-poster="assets/home/h-bedroom.jpg" data-lazyvid="assets/home/h-bedroom.mp4" data-lo="assets/home/h-bedroom-lo.mp4" aria-label="MABEL moving between a bedroom and a laundry corner"></video><span class="speed-tag">4&times;</span><figcaption class="rg-tag">Bedroom to laundry</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:7"><video muted loop playsinline preload="none" data-poster="assets/home/h-sofa.jpg" data-lazyvid="assets/home/h-sofa.mp4" data-lo="assets/home/h-sofa-lo.mp4" aria-label="MABEL in a living room at night"></video><figcaption class="rg-tag">Living room, at night</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.778;--i:8"><video muted loop playsinline preload="none" data-poster="assets/home/laundry.jpg" data-lazyvid="assets/home/laundry.mp4" aria-label="MABEL carrying a laundry basket to the washer"></video><span class="speed-tag">7.3&times;</span><figcaption class="rg-tag">Laundry run</figcaption></figure>
+     </div>
+     <div class="rg-line">
+      <figure class="rg-cell" style="--ar:1.778;--i:9"><video muted loop playsinline preload="none" data-poster="assets/home/cabinet.jpg" data-lazyvid="assets/home/cabinet.mp4" aria-label="MABEL reaching into an upper kitchen cabinet"></video><span class="speed-tag">3.9&times;</span><figcaption class="rg-tag">Top-shelf cabinet</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.333;--i:10"><img src="assets/home/kitchen.jpg" alt="MABEL standing in a home kitchen" loading="lazy" decoding="async" /><figcaption class="rg-tag">Kitchen duty</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.778;--i:11"><video muted loop playsinline preload="none" data-poster="assets/home/counter.jpg" data-lazyvid="assets/home/counter.mp4" aria-label="MABEL working at a kitchen counter and lower drawers"></video><span class="speed-tag">4.0&times;</span><figcaption class="rg-tag">Kitchen counter</figcaption></figure>
      </div>
     </div>
     <div class="rg-chap fade-up" data-chap="street">
      <div class="rg-line">
       <div class="rg-cell rg-lead" data-chap-tone="blue" style="--ar:1.7;--i:0"><span class="rg-no">03 / 03</span><h3>Street</h3></div>
-      <figure class="rg-cell" data-tone="red" style="--ar:1.5;--i:1"><img src="assets/wild/w-night.jpg" alt="MABEL on the waterfront at night, Manhattan behind" loading="lazy" decoding="async" /><figcaption class="rg-tag">Manhattan, meet MABEL</figcaption></figure>
+      <figure class="rg-cell" style="--ar:1.5;--i:1"><img src="assets/wild/w-night.jpg" alt="MABEL on the waterfront at night, Manhattan behind" loading="lazy" decoding="async" /><figcaption class="rg-tag">Manhattan, meet MABEL</figcaption></figure>
       <figure class="rg-cell" style="--ar:0.75;--i:2"><img src="assets/wild/m-empire.jpg" alt="MABEL in front of the Empire State Building at dusk" loading="lazy" decoding="async" /><figcaption class="rg-tag">Empire State of mind</figcaption></figure>
-      <figure class="rg-cell" data-tone="yellow" style="--ar:0.75;--i:3"><img src="assets/wild/m-dusk.jpg" alt="MABEL on the East River waterfront at dusk" loading="lazy" decoding="async" /><figcaption class="rg-tag">East River dusk</figcaption></figure>
+      <figure class="rg-cell" style="--ar:0.75;--i:3"><img src="assets/wild/m-dusk.jpg" alt="MABEL on the East River waterfront at dusk" loading="lazy" decoding="async" /><figcaption class="rg-tag">East River dusk</figcaption></figure>
      </div>
     </div>
     </div>
@@ -321,6 +329,10 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
         <div class="viewer-hint"><span class="dot-live"></span> Drag to orbit · scroll to zoom</div>
       </div>
     </div>
+    <figure class="strip-panel fade-up" style="margin:clamp(22px,3vh,34px) 0 0;">
+      <video data-lazyvid="assets/xray/xray-reel.mp4" data-lo="assets/xray/xray-reel-lo.mp4" data-poster="assets/xray/xray-reel.jpg" muted loop playsinline preload="none" aria-label="Exploded walk-through of MABEL, module by module" style="width:100%; display:block; aspect-ratio:16/9; object-fit:cover;"></video>
+      <figcaption class="strip-cap">Module by module: arms, base, lift, body, neck, perception, end effectors</figcaption>
+    </figure>
     <div class="oh-strip fade-up">
       <a class="oh-card" href="https://github.com/robotmabel/MABEL" target="_blank" rel="noopener"><b>CAD</b><span>The whole assembly, open under CERN-OHL-S-2.0</span><i>GitHub ↗</i></a>
       <a class="oh-card" href="docs/bom.html"><b>Bill of materials</b><span>Every part with a vendor and a price: from $8,056</span><i>BOM →</i></a>
@@ -610,7 +622,6 @@ LOADING ............. <u>▓▓▓▓░░░░</u> <span class="cur">█</spa
 <script src="assets/platform-table.js?v=fab495ec"></script>
 <script src="assets/store-nav.js"></script>
 <script src="assets/mabel.js?v=9fdb3a66"></script>
-<script defer src="assets/halftone-grid.js?v=ed70005f"></script>
 <script src="assets/comic-pop.js?v=ac71d2fb"></script>
 <script>
 (function () {

@@ -4854,7 +4854,7 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
    comes out the same height, and the row fills the page width exactly. Each
    chapter opens with a title tile in the row. As a chapter scrolls in, its
    tiles wipe open one after another and the footage settles from a slight
-   zoom. Toned cells carry the live halftone (assets/halftone-grid.js). */
+   zoom. */
 .rg-book { --rg-gap: 8px; --rh: 160px; display: grid; gap: clamp(22px, 3.4vh, 36px); margin-top: 6px; }
 .rg-chap { display: grid; gap: var(--rg-gap); }
 .rg-line { display: flex; gap: var(--rg-gap); align-items: flex-start; }
@@ -4865,8 +4865,6 @@ ol.asm-steps li:nth-child(4n)   { box-shadow: 4px 4px 0 var(--rust); }
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
   transition: transform 1.4s cubic-bezier(.2,.7,.2,1); }
 .rg-cell:hover > img, .rg-cell:hover > video { transform: scale(1.04); }
-.rg-cell > canvas.rg-ht { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 1; pointer-events: none; }
-.rg-book.ht-off .rg-ht { display: none; }
 /* chapter title tile */
 .rg-lead { display: flex; flex-direction: column; justify-content: space-between; gap: 10px; padding: clamp(12px, 1.4vw, 20px);
   background: var(--yellow); color: var(--ink); contain: size; }   /* its size comes from the row, never its text */
@@ -4917,19 +4915,6 @@ html.js .rg-chap.fade-up { opacity: 1; transform: none; }
   .rg-lead h3 { font-size: 30px; }
   .rg-tag { font-size: 11px; padding: 3px 8px; left: 6px; bottom: 6px; max-width: calc(100% - 12px); white-space: normal; border-radius: 10px; }
 }
-.rg-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 14px; margin-top: clamp(18px, 3vh, 28px); }
-.rg-count { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; color: var(--ash); }
-.ht-switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
-  font-family: var(--font-head); font-weight: 700; font-size: 14px; color: var(--ink); min-height: 44px; }
-.ht-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.ht-dots { width: 16px; height: 16px; background: radial-gradient(circle, var(--ink) 1.6px, transparent 1.9px) 0 0 / 5.33px 5.33px; }
-.ht-track { position: relative; width: 40px; height: 22px; border-radius: 999px; background: rgba(21,24,32,.22);
-  border: 2px solid var(--ink); transition: background .2s ease; }
-.ht-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%;
-  background: var(--panel); border: 2px solid var(--ink); transition: transform .2s ease; box-sizing: content-box; margin: -2px 0 0 -2px; }
-.ht-switch input:checked ~ .ht-track { background: var(--green); }
-.ht-switch input:checked ~ .ht-track::after { transform: translateX(18px); }
-.ht-switch input:focus-visible ~ .ht-track { outline: 3px solid var(--hi); outline-offset: 2px; }
 
 
 /* Portrait pilot clips (PICO, a second pilot): a 3:4 frame, centred, so a phone shows them full width

@@ -50,6 +50,10 @@ def main() -> int:
             check(m.group(1) == R, f"{name}: recommended-build figure ${m.group(1)} is ${R}")
         check(" as built" not in s or "$" + R + " as built" not in s, f"{name}: the Recommended build is not called 'as built'")
     check("$" + E in pages["index.html"] and "$" + E in pages["hardware.html"], f"the front and hardware pages quote the Essential build ${E}")
+    # the buy page is "coming soon": its ONLY figure is the build-your-own cost, and no robot price
+    check("$" + E in pages["order.html"], f"order.html quotes the Essential build ${E}")
+    for robot in ("$15,000", "$25,000"):
+        check(robot not in pages["order.html"] and robot not in pages["index.html"], f"no robot price {robot} on the buy or front page while the store is closed")
     # the stats strip abbreviates: <span class="counter" data-target="8.5">0</span><span class="unit">k USD</span>
     ek = f"{[b['total'] for b in d['builds'] if b['id'] == 'essential'][0] / 1000:.1f}"
     for name, s in pages.items():

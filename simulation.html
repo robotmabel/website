@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800;1,300..800&family=Archivo:wght@900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/mabel.css?v=6829af89" />
+<link rel="stylesheet" href="assets/mabel.css?v=b5ab81a4" />
 <script>document.documentElement.classList.add('js');</script>
 <script type="importmap">
 { "imports": { "three": "./assets/three/three.module.js", "three/addons/": "./assets/three/jsm/" } }
@@ -213,7 +213,12 @@
     <div class="spec fade-up" style="margin-top:18px;">
       <span>9 city &amp; streets</span><span>6 home &amp; living</span><span>6 food &amp; dining</span><span>6 outdoor &amp; leisure</span><span>4 work &amp; public</span><span>3 industrial</span>
     </div>
-<!-- ── every released scene, orbiting, with its physics running ── -->
+<!-- ── the home scenes, rendered (marketing/build_site_media.py: sim-montage) ── -->
+    <figure class="strip-panel fade-up" style="margin:clamp(26px,3.5vh,40px) 0 0;">
+      <video data-lazyvid="assets/sim/sim-montage.mp4" data-lo="assets/sim/sim-montage-lo.mp4" data-poster="assets/sim/sim-montage.jpg" muted loop playsinline preload="none" aria-label="MABEL in nine simulated rooms" style="width:100%; display:block; aspect-ratio:16/9; object-fit:cover;"></video>
+      <figcaption class="strip-cap">Nine rooms from the library, the same model in each</figcaption>
+    </figure>
+    <!-- ── every released scene, orbiting, with its physics running ── -->
     <div class="fade-up" style="margin-top:clamp(30px,4vh,48px);">
       <div class="scene-grid-wrap" id="sceneGrid"></div>
     </div>
