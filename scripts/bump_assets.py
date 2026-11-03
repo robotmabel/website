@@ -12,7 +12,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Every shared stylesheet/script the pages reference. Missing one here means
 # a deployed page can pair with a cached older copy of it — which is exactly
 # how a verified bom-table.js fix appeared to do nothing in the browser.
-TRACKED = ["assets/studio-3d.js", "assets/studio-3d.css", "assets/studio-pages.css", "assets/studio-physics.js", "assets/hardware-viewers.js", "assets/hardware-lab.css", "assets/base-odometry.js", "assets/retarget-viewer.js", "assets/retarget-compare.js", "assets/motion-physics.js", "assets/setup-walkthrough.js", "assets/hw-slider.js", "assets/overview-scenes.js", "assets/robot-gallery.js", "assets/demo-gallery.js", "assets/harness-walkthrough.js", "assets/learning-explorer.js", "assets/latency-bars.js", "assets/page-progress.css", "assets/page-progress.js", "assets/accuracy-lab.js", "assets/overview.css", "assets/overview.js", "assets/simulation-overview.css", "assets/teleop-app.css", "assets/teleop-app.js", "assets/stack-map.js", "assets/mabel.css", "assets/mabel.js", "assets/bom/bom_data.js", "assets/spec-grid.js",
+TRACKED = ["assets/studio-3d.js", "assets/studio-3d.css", "assets/studio-pages.css", "assets/studio-physics.js", "assets/hardware-viewers.js", "assets/hardware-lab.css", "assets/base-odometry.js", "assets/retarget-viewer.js", "assets/retarget-compare.js", "assets/motion-physics.js", "assets/control-physics.js", "assets/setup-walkthrough.js", "assets/hw-slider.js", "assets/overview-scenes.js", "assets/robot-gallery.js", "assets/demo-gallery.js", "assets/harness-walkthrough.js", "assets/learning-explorer.js", "assets/latency-bars.js", "assets/page-progress.css", "assets/page-progress.js", "assets/accuracy-lab.js", "assets/accuracy-replays.js", "assets/overview.css", "assets/overview.js", "assets/simulation-overview.css", "assets/teleop-app.css", "assets/teleop-app.js", "assets/stack-map.js", "assets/mabel.css", "assets/mabel.js", "assets/bom/bom_data.js", "assets/spec-grid.js",
            "assets/comic-pop.js", "assets/tipover-lab.js",
            "assets/bom-table.js", "assets/bom-pie.js", "assets/reach-globe.js",
            "assets/wbc-viewer.js", "assets/robot-viewer.js", "assets/hero-rig.js",
@@ -29,7 +29,7 @@ def h(path):
 def main():
     n = 0
     # Version module dependencies before hashing their importers.
-    for name in ['studio-3d.js','studio-physics.js','base-odometry.js']:
+    for name in ['studio-3d.js','studio-physics.js','base-odometry.js','accuracy-replays.js']:
         version=h('assets/'+name)
         for module in glob.glob(os.path.join(ROOT,'assets','*.js')):
             source=open(module).read()

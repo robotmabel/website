@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The accuracy lab must DRAW what the hardware logs measured, IN STEP with its clip.
+"""The accuracy lab must DRAW what the hardware logs measured, in step with measured joint replay.
 
 Not "did the section appear" — a section appears just as happily with an empty
 SVG in it. This checks, in a browser:
@@ -100,21 +100,17 @@ async def go():
         txt = await ev("document.getElementById('accuracyLab').textContent")
         need(f"{R['median_RP_mm']:.2f} mm" in txt and f"{PF['worst_contour_rms_mm']:.2f} mm" in txt,
              f"the headline median RP {R['median_RP_mm']:.2f} mm and worst contour {PF['worst_contour_rms_mm']:.2f} mm are on screen")
-        clips = await ev("Array.from(document.querySelectorAll('#accuracyLab video')).map(function(v){return v.dataset.lazyvid||v.currentSrc})")
-        need(any("repeat.mp4" in c for c in clips) and any("path.mp4" in c for c in clips), f"both submission clips are wired {clips}")
-
-        # Each test is now a row: replay on the left, synchronized plot on the right.
-        # Off-screen tests pause; entering either row must start its own video.
-        for index in range(2):
-            await ev(f"document.querySelectorAll('#accuracyLab video')[{index}].scrollIntoView({{block:'center',behavior:'instant'}})")
-            for _ in range(80):
-                await asyncio.sleep(.1)
-                if await ev(f"(()=>{{let v=document.querySelectorAll('#accuracyLab video')[{index}];return v.readyState>=2&&!v.paused&&v.currentTime>.1;}})()"):break
-            need(await ev(f"(()=>{{let v=document.querySelectorAll('#accuracyLab video')[{index}];return v.readyState>=2&&!v.paused&&v.currentTime>.1;}})()"), f'replay {index+1} advances automatically on entry')
-            start=await ev(f"document.querySelectorAll('#accuracyLab video')[{index}].currentTime")
+        need(await ev("document.querySelectorAll('#accuracyLab .al-test-stage').length===2"), "both test rows contain interactive 3D stages")
+        for key in ['repeat','path']:
+            await ev(f"document.querySelector('[data-clip={key}]').scrollIntoView({{block:'center',behavior:'instant'}})")
+            for _ in range(60):
+                await asyncio.sleep(.2)
+                if await ev(f"!!window.__accuracyReplays?.{key}"):break
+            need(await ev(f"!!window.__accuracyReplays?.{key}"), f'{key} resolves a complete articulated rig')
+            start=await ev(f"window.__accuracyReplays.{key}.time")
             await asyncio.sleep(.35)
-            end=await ev(f"document.querySelectorAll('#accuracyLab video')[{index}].currentTime")
-            need(end>start or start>9, f'replay {index+1} keeps advancing')
+            end=await ev(f"window.__accuracyReplays.{key}.time")
+            need(start is not None and end is not None and end!=start, f'{key} replay advances automatically on entry')
         for width in [1440,1100,980]:
             await cmd('Emulation.setDeviceMetricsOverride',dict(width=width,height=1000,deviceScaleFactor=1,mobile=False))
             await asyncio.sleep(.2)

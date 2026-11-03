@@ -9,12 +9,19 @@ experiment uses the repository's `safe_base_step`, plus the real lift's 0.06 m/s
 rate limit. The retargeting experiment executes selected recorded joint references
 through position actuators and streams the resulting physical state.
 
+The control experiment calls the repository’s `WBCEngine` inside the physics
+thread, at the model timestep. It supports joint and task-space targets, bounded
+external forces, stiff/soft impedance and gravity compensation, with arm or
+whole-body scope. Force commands expire after 250 ms without refresh; resets
+clear the force, reference filter and base-admittance velocity. It uses the
+controller’s capsule guard and joint limits. The browser never steps physics.
+
 The 5080 user service is `mabel-web-experiments.service`. Port 18824 is private:
 its internal upstream connection and recording telemetry stay on loopback. Port
 18825 exposes only `/teleop` and `/healthz`. Tailscale Funnel on **8443** publishes
 that allowlisted listener. The pre-existing Funnel on 443 is unchanged.
 
-The server owns a single 120-second FIFO lease across both experiments. It sends
+The server owns a single 120-second FIFO lease across all three experiments. It sends
 position, people ahead, estimated wait and remaining turn time. Spectators receive
 state; commands from non-owners are discarded. Leaving, disconnecting or expiring
 resets the world and promotes the next visitor. Reset restores the model's home
@@ -44,3 +51,26 @@ Run `scripts/studiorefinementtest.py`, `learningcameratest.py`,
 `overviewscenestest.py`, and `acctest.py` against the preview server. The studio
 check covers Chrome desktop and WebKit mobile, actual orbit/recenter controls,
 episode selection, recorded chapter seeks and compact replay/plot rows.
+
+The shared renderer explicitly separates CSS and framebuffer sizes. Run
+`studioretinatest.py` at 2×/3× scale; it samples the actual WebGL alpha buffer
+and fails if any rendered pixel escapes a card, including after zoom/resize.
+`build_accuracy_replays.py --archive ROOT` exports measured arm/torso joints
+from the original hardware logs. Complete hands retain their assembled pose
+because those tests did not record finger joints; no individual link is detached
+from its parent. The three-trial path statistics remain unchanged.
+
+The current curation recording is captured from the native MILO Curation Mac app
+with a real kept hand-grasping take. The old web curation preview is retired from
+all navigation. Setup recordings use isolated simulation adapters, ORCA v1 hands,
+no simulated parallel grippers, and a private calibration copy.
+
+Explicit live browser check (uses two short queued turns; run only on purpose):
+`python scripts/control_live_test.py --page http://localhost:8742/software.html`.
+It verifies measured joint and task-space movement, a real mouse drag on the palm,
+force release, whole-body gravity compensation, reset and ending the turn in
+Chrome and WebKit. The queue test also checks spectator rejection and promotion.
+Forward, sideways and yaw swerve were independently stepped through MuJoCo:
+0.4 commands produced 0.396 m/s, 0.396 m/s and 0.395 rad/s steady-state motion.
+The wheel-axis geometry matches the configured mount offsets; no unneeded
+changes to the swerve kinematics were made. The motion camera is fixed broadside.

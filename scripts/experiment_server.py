@@ -26,9 +26,14 @@ class Experiment:
   # Never share the regular simulator's memmap, lock, RPC port or process.
   os.environ['MABEL_STATE_FILE']=str(cache/'physics.f64');os.environ['MABEL_SIM_LOCK']=str(cache/'physics.lock')
   from simulation_bridge.engine import SimWorld
+  from control_experiment import ControlExperiment
   from mabel.motion_model.tip_over import safe_base_step,max_speed
   self.safe_step,self.max_speed=safe_base_step,max_speed
-  scene,self.blocks=scene_file(root,cache);self.world=SimWorld(str(scene),instance='website_experiments');self.assets=assets
+  class ExperimentWorld(SimWorld):
+   def _apply_commands(world):
+    super()._apply_commands()
+    if getattr(world,'experiment_tick',None):world.experiment_tick()
+  scene,self.blocks=scene_file(root,cache);self.world=ExperimentWorld(str(scene),instance='website_experiments');self.assets=assets
   self.defs=json.loads((assets/'mabel_joints.json').read_text())['joints'];m=self.world.model
   lookup={m.joint(i).name.lower().replace(' ','_'):i for i in range(m.njnt)}
   self.qadr=[int(m.jnt_qposadr[lookup[j['name']]]) for j in self.defs];self.refs=np.array([j.get('ref',0) for j in self.defs])
@@ -37,21 +42,24 @@ class Experiment:
    a=m.actuator(n).id;jid=int(m.actuator_trnid[a,0]);name=m.joint(jid).name.lower().replace(' ','_')
    idx=next((i for i,j in enumerate(self.defs) if j['name']==name),None)
    if idx is not None:self.act[n]=idx
-  self.thread=threading.Thread(target=self.world.run,daemon=True);self.thread.start()
   self.lift=float(self.world.data.actuator('Lift').ctrl[0]);self.mode='motion';self.command=dict(speed=0.,turn=0.,lift=self.lift,envelope=True);self.velocity=(0.,0.,0.);self.phase=0;self.replay=None;self.replay_info=None;self.closed=False;self.tasks=[];self.peers=set();self.last_state={};self.error=''
+  self.control=ControlExperiment(self.world);self.world.experiment_tick=lambda:self.control.step(self.mode=='control')
+  self.thread=threading.Thread(target=self.world.run,daemon=True);self.thread.start()
  def reset(self):
-  self.command=dict(speed=0.,turn=0.,lift=self.lift,envelope=True);self.velocity=(0.,0.,0.);self.replay=None;self.phase=0;self.world.reset(wait=True);self.lift=float(self.world.data.actuator('Lift').ctrl[0]);self.command['lift']=self.lift;self.replay_info=None;self.world.set_estop(False)
+  self.command=dict(speed=0.,turn=0.,lift=self.lift,envelope=True);self.velocity=(0.,0.,0.);self.replay=None;self.phase=0;self.control.reset();self.world.reset(wait=True);self.lift=float(self.world.data.actuator('Lift').ctrl[0]);self.command['lift']=self.lift;self.replay_info=None;self.world.set_estop(False)
  def finite(self,v,lo,hi):
   if not isinstance(v,(int,float)) or not math.isfinite(v):raise ValueError('Expected a finite number')
   return min(hi,max(lo,float(v)))
  def handle(self,message):
+  if not isinstance(message,dict):raise ValueError('Expected a command object')
   kind=message.get('type');p=message.get('payload') or {}
+  if not isinstance(p,dict):raise ValueError('Expected a payload object')
   if kind=='reset':self.reset();return
   if kind=='estop':self.world.set_estop(bool(p.get('active',True)));self.command['speed']=0;self.command['turn']=0;return
   if kind!='experiment':return
   mode=p.get('mode','motion')
   if mode=='motion':
-   if self.mode!=mode:self.reset()
+   if self.mode!=mode:self.mode=mode;self.reset()
    self.mode=mode
    for key,lo,hi in [('speed',-1.2,1.2),('turn',-1.2,1.2),('lift',0,.635)]:
     if key in p:self.command[key]=self.finite(p[key],lo,hi)
@@ -63,7 +71,10 @@ class Experiment:
    if not task or p.get('method') not in task['methods']:raise ValueError('Unknown recorded episode or method')
    path=(self.assets.parent/task['methods'][p['method']]).resolve()
    if self.assets.resolve() not in path.parents:raise ValueError('Invalid replay')
-   replay=json.loads(path.read_text());self.reset();self.mode=mode;self.replay=replay;self.replay_info={k:replay[k] for k in ['task','episode','method']}
+   replay=json.loads(path.read_text());self.mode=mode;self.reset();self.replay=replay;self.replay_info={k:replay[k] for k in ['task','episode','method']}
+  elif mode=='control':
+   if self.mode!=mode:self.mode=mode;self.reset()
+   self.control.configure(p)
   else:raise ValueError('Unknown experiment')
  async def clock(self):
   previous=time.monotonic();last_t=-1;last_pos=None
@@ -77,6 +88,8 @@ class Experiment:
      self.world.set_twist(*self.velocity)
      # The Lift actuator drives the coupled two-stage column.
      if 'Lift' in self.world._servo_acts:self.world.set_targets({'Lift':self.lift})
+    elif self.mode=='control':
+     self.world.set_twist(0,0,0)
     elif self.replay:
      self.phase+=dt;end=self.replay['t'][-1]
      t=min(self.phase,end);i=max(0,int(np.searchsorted(self.replay['t'],t,side='right')-1))
@@ -87,6 +100,7 @@ class Experiment:
     qw,qx,qy,qz=base[3:];tilt=math.degrees(math.acos(max(-1,min(1,1-2*(qx*qx+qy*qy)))))
     position=np.array(base[:2]);speed=float(np.linalg.norm(position-last_pos)/max(ts-last_t,.00001)) if last_pos is not None and ts>last_t else 0.;last_pos=position;last_t=ts
     self.last_state=dict(mode=self.mode,time=ts if self.mode=='motion' else self.phase,q=q,base=base,speed=speed,tilt=tilt,lift=self.lift,envelope=self.command['envelope'],limit=self.max_speed(self.lift),rate=self.world.rate_hz,engine='MuJoCo',host=os.environ.get('MABEL_EXPERIMENT_HOST','MuJoCo host'),replay=self.replay_info)
+    if self.mode=='control':self.last_state.update(time=ts,control=self.control.state)
     msg=dict(type='robot_state',payload=dict(experiment=self.last_state))
     for ws in list(self.peers):
      try:await asyncio.wait_for(ws.send_json(msg),.3)
@@ -121,7 +135,7 @@ def make_app(root,assets,cache,port,lease=120):
  app=web.Application(client_max_size=65536);app['experiment']=exp;app['queue']=gate
  async def public_ws(request):
   origin=request.headers.get('Origin','')
-  if origin and origin not in ['https://robotmabel.github.io','http://localhost:8742','http://127.0.0.1:8742']:raise web.HTTPForbidden(text='Unsupported origin')
+  if origin and origin not in ['https://robotmabel.github.io','http://localhost:8741','http://127.0.0.1:8741','http://localhost:8742','http://127.0.0.1:8742']:raise web.HTTPForbidden(text='Unsupported origin')
   return await gate.websocket(request)
  app.router.add_get('/upstream',exp.upstream);app.router.add_get('/teleop',public_ws);app.router.add_get('/healthz',gate.health);app.router.add_get('/api/state',exp.api_state);app.router.add_get('/api/hello',exp.hello)
  # The public tunnel gets an allowlisted listener. Internal state APIs and

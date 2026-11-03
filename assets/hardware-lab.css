@@ -41,3 +41,11 @@
  .al-lg-b { min-height:30px;font-size:9px; }
  .base-controls .base-metrics { margin:0;flex-basis:100%; }
 }
+.al-test-stage{position:relative;height:var(--al-view-height);border:2px solid var(--ink);border-radius:9px;touch-action:none;z-index:1;overflow:hidden}
+.al-test-transport{display:flex;align-items:center;gap:10px;position:relative;z-index:1;background:var(--panel);padding-top:9px;font:11px var(--font-mono)}
+.al-test-transport button{border:1.5px solid var(--ink);border-radius:5px;padding:5px 10px;background:var(--panel);color:var(--ink);font:500 12px var(--font-head);min-height:32px;cursor:pointer}
+.al-test-transport input{flex:1;min-width:30px;accent-color:var(--hi)}.al-test-transport output{white-space:nowrap}
+
+.al-media .al-clip{border:0;overflow:visible;background:transparent;margin:0}.al-test-stage .studio-recenter[hidden]{display:none}
+
+.al-chips{min-height:0}.al-panel .al-media{row-gap:12px}.al-media .al-clip{margin-top:0}

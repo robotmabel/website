@@ -111,7 +111,7 @@ async def main():
         # Restore all original photo chapters and their varied-aspect mosaic.
         assert await ev("document.querySelectorAll('#rgGrid .rg-chap:not([hidden])').length===3&&document.querySelectorAll('.rg-lead').length===3")
         assert await ev("getComputedStyle(document.querySelector('.rg-line')).display==='flex'")
-        assert await ev("document.querySelectorAll('h2 .sticker').length===8&&document.querySelectorAll('.contrib-cell[data-pop]').length===3")
+        assert await ev("document.querySelectorAll('section h2.title').length===8&&[...document.querySelectorAll('h2 .sticker')].every(e=>e.getAttribute('aria-hidden')==='true')&&document.querySelectorAll('.contrib-cell[data-pop]').length===3")
         await until("document.querySelector('#heroRig').classList.contains('on')",30)
         assert await ev("document.querySelector('#heroRigCanvas').width>0")
         print('Original hero model, NYC stickers, comic cards and full photo mosaic: PASS',flush=True)

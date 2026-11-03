@@ -14,7 +14,7 @@
  * the clip on the render's own clock (exported by scripts/build_accuracy.py):
  * a landing appears the moment the clip marks it, and the line plot's playhead
  * sits where the drawn palm is on the path. Pick a station or a condition and
- * the plot stops following; "Follow the clip" picks it back up.
+ * the plot stops following; "Follow replay" picks it back up.
  *
  * Hover (or tap) a dot or a curve for the measured value. The legends toggle
  * series. Everything drawn comes from assets/data/accuracy.json — nothing here
@@ -57,14 +57,10 @@
     });
 
   function clipTile(D, key) {
-    var c = (D.clips || {})[key];
-    if (!c) return '';
-    return '<figure class="al-clip" data-clip="' + key + '">' +
-      '<video controls autoplay muted loop playsinline preload="none" width="' + (c.w || 900) + '" height="' + (c.h || 720) + '" ' +
-        'data-poster="assets/accuracy/' + esc(c.poster) + '" ' +
-        'data-lazyvid="assets/accuracy/' + esc(c.clip) + '"' +
-        (c.lo ? ' data-lo="assets/accuracy/' + esc(c.lo) + '"' : '') + '></video>' +
-      '</figure>';
+    return '<figure class="al-clip" data-clip="' + key + '"><div class="al-test-stage" data-label="' +
+      (key === 'repeat' ? 'Measured repeatability' : 'Measured path following') +
+      '"></div><div class="al-test-transport"><button type="button" data-test-play>Pause</button>' +
+      '<input type="range" min="0" step=".01" value="0" aria-label="' + key + ' replay time"/><output></output></div></figure>';
   }
 
   function build(D) {
@@ -97,7 +93,7 @@
           '<h4 class="al-h">Repeatability</h4>' +
           '<p class="al-say"><b>' + f2(R.median_RP_mm) + ' mm</b> median RP</p>' +
           '<div class="al-chips" data-role="stations">' +
-            '<button type="button" class="al-chip al-follow" data-follow="rep" aria-pressed="true">● Follow the clip</button>' +
+            '<button type="button" class="al-chip al-follow" data-follow="rep" aria-pressed="true">● Follow replay</button>' +
             R.stations.map(function (s) {
               return '<button type="button" class="al-chip" data-s="' + esc(s.name) + '">' + esc(pretty(s.name)) + '</button>';
             }).join('') +
@@ -116,7 +112,7 @@
           '<h4 class="al-h">Path tracking</h4>' +
           '<p class="al-say"><b>' + f2(PF.worst_contour_rms_mm) + ' mm RMS</b> worst contour error</p>' +
           '<div class="al-chips" data-role="paths">' +
-            '<button type="button" class="al-chip al-follow" data-follow="path" aria-pressed="true">● Follow the clip</button>' +
+            '<button type="button" class="al-chip al-follow" data-follow="path" aria-pressed="true">● Follow replay</button>' +
             PF.conditions.map(function (c) {
               return '<button type="button" class="al-chip" data-p="' + esc(c.id) + '">' + esc(condName(c)) + '</button>';
             }).join('') +
@@ -131,7 +127,8 @@
       '<p class="al-src">Palm centre from forward kinematics of the measured joints, torso included — it excludes ' +
         'backlash and link bending, so these are lower bounds on the true error. Drawn from ' +
         '<code>assets/data/accuracy.json</code>, exported by <code>website/scripts/build_accuracy.py</code> from the ' +
-        'hardware logs; the clips are the submission video\'s renders of the same logs.</p>';
+        'hardware logs. The 3D views replay measured arm and torso joints; unrecorded hand joints stay at rest. ' +
+        'Path curves aggregate three trials; the 3D view replays trial 1.</p>';
 
     host.querySelectorAll('.al-panel').forEach(function(panel){
       var clip=panel.querySelector('.al-clip'),plot=panel.querySelector('.al-plot'),media=document.createElement('div'),plots=document.createElement('div');media.className='al-media';plots.className='al-plots';
@@ -142,7 +139,7 @@
     });
     var base=document.createElement('article');base.className='al-panel al-base';base.id='baseOdometry';base.innerHTML='<div class="al-panel-head"><span class="al-kick">Wheel encoders · ZED reference</span><h4 class="al-h">Base odometry</h4></div><div class="base-replay">Loading recorded base tests…</div>';
     host.querySelector('[data-panel="rep"]').after(base);
-    new IntersectionObserver(function(entries,observer){if(entries.some(function(e){return e.isIntersecting;})){observer.disconnect();import('./base-odometry.js?v=e6978e3d');}},{rootMargin:'180px'}).observe(base);
+    new IntersectionObserver(function(entries,observer){if(entries.some(function(e){return e.isIntersecting;})){observer.disconnect();import('./base-odometry.js?v=e33666da');}},{rootMargin:'180px'}).observe(base);
     var source=host.querySelector('.al-src');var methods=document.createElement('details');methods.className='al-results al-methods';methods.innerHTML='<summary>Measurement methods</summary>';source.before(methods);methods.appendChild(source);
     var Q = function (r) { return host.querySelector('[data-role="' + r + '"]'); };
     var scatterBox = Q('scatter'), errBox = Q('err');
@@ -276,6 +273,7 @@
     var W = 440, H = 230, L = 38, RR = 10, T = 12, B = 32, geom = null;
     function condOf(id) { return PF.conditions.filter(function (c) { return c.id === id; })[0]; }
     function pathNow() {
+      if (pt.replay && pt.follow) return pt.replay;
       if (!pt.follow || pt.t == null) return { cond: pt.cond, x: null };
       var shape = pt.t < (D.path_split_s || CLIP / 2) ? 'spiral' : 'square';
       var c = PF.conditions.filter(function (q) { return q.shape === shape && q.sync; })[0];
@@ -352,7 +350,7 @@
       if(reveal)reveal.setAttribute('width',Math.max(0,geom.X(Math.min(geom.xmax,upto))-L).toFixed(2));
       if (now.x == null) {
         ph.innerHTML = '';
-        live.innerHTML = pt.follow && pt.t != null ? 'The clip: <b>' + esc(condName(condOf(now.cond))) + '</b>, trial 1 — ' + now.phase + '.'
+        live.innerHTML = pt.follow && pt.t != null ? 'The replay: <b>' + esc(condName(condOf(now.cond))) + '</b>, trial 1 — ' + now.phase + '.'
           : 'Hover the plot for the error at any point of the path.';
         return;
       }
@@ -368,7 +366,7 @@
       });
       ph.innerHTML = g.join('');
       ph.dataset.x = now.x.toFixed(2);
-      live.innerHTML = 'The clip: <b>' + esc(condName(c)) + '</b> at ' + f1(now.x) + ' s — ' + esc(parts.join(' · ')) + ' mm (mean of ' + c.trials + ' trials)';
+      live.innerHTML = 'The replay: <b>' + esc(condName(c)) + '</b> at ' + f1(now.x) + ' s — ' + esc(parts.join(' · ')) + ' mm (mean of ' + c.trials + ' trials)';
     }
     errBox.addEventListener('pointermove', errTip);
     errBox.addEventListener('pointerdown', errTip);
@@ -467,7 +465,7 @@
       v.autoplay=true;v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.setAttribute('webkit-playsinline','');
       ['loadeddata','canplay'].forEach(function(ev){v.addEventListener(ev,function(){resume(v);});});
     });
-    new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)resume(e.target);});},{threshold:.1}).observe(clips[0]);
+    if(clips[0])new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)resume(e.target);});},{threshold:.1}).observe(clips[0]);
     if(clips[1])new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)resume(e.target);});},{threshold:.1}).observe(clips[1]);
     ['pageshow','focus'].forEach(function(ev){window.addEventListener(ev,function(){clips.forEach(resume);});});
     document.addEventListener('visibilitychange',function(){clips.forEach(resume);});
@@ -481,7 +479,11 @@
       setStation: function (s) { st.follow = false; st.station = s; drawScatter(); },
       setCond: function (c) { pt.follow = false; pt.cond = c; drawErr(); },
       follow: function (on) { st.follow = pt.follow = on; drawScatter(); drawErr(); },
-      at: function (t) { setRepT(t); setPathT(t); },          // drive both plots as the clip would at t seconds
+      at: function (t) { pt.replay=null; setRepT(t); setPathT(t); },          // drive both plots as the clip would at t seconds
+      atRep: setRepT,
+      pathFrame: function (cond, x, phase) { pt.t = 0; pt.replay = {cond:cond,x:x,phase:phase}; var now=pathNow(); if(now.cond!==drawn2)drawErr();else drawPlayhead(); },
+      followPath: function (on) { pt.follow = on; drawErr(); },
+      held: function () { return held; },
       hold: function (on) { held = !!on; },                    // checks: stop the clips' clock from driving the plots
       dots: function () { return scatterBox.querySelectorAll('[data-role="pts"] circle').length; },
       lines: function () { return errBox.querySelectorAll('.al-line').length; },
@@ -495,5 +497,7 @@
         var b = svg.getBoundingClientRect(); return { x: b.left + geom.X(xs) * b.width / W, y: b.top + b.height / 2 };
       }
     };
+    var replayObserver = new IntersectionObserver(function(entries){if(entries.some(function(e){return e.isIntersecting;})){replayObserver.disconnect();import('./accuracy-replays.js?v=41633837');}},{rootMargin:'180px'});
+    host.querySelectorAll('.al-test-stage').forEach(function(n){replayObserver.observe(n);});
   }
 })();

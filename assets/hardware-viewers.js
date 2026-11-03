@@ -1,8 +1,8 @@
-import { StudioGrid,loadModel,isolate,THREE } from './studio-3d.js?v=2125de14';
+import { StudioGrid,loadModel,isolate,THREE } from './studio-3d.js?v=61386b7c';
 const host=document.getElementById('hwSlider');
 if(host){
  async function init(){
-  if(host.__studio||!host.querySelector('.hs-shot'))return;host.__studio=new StudioGrid(host);const raw=await loadModel();
+  if(host.__studio||!host.querySelector('.hs-shot'))return;host.__studio=new StudioGrid(host);const raw=(await loadModel()).clone(true);
   // Show the right elbow extended, using the actual articulated CAD hierarchy.
   const arm=raw.getObjectByName('r_elbow');if(arm)arm.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-.8));
   const rail=host.querySelector('.hs-rail');

@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 """Every rendered pixel stays inside its card at Retina scale, scroll and resize."""
-import asyncio, os
+import asyncio, os, json, struct
+from pathlib import Path
+from scipy.spatial.transform import Rotation
 from playwright.async_api import async_playwright
 BASE=os.environ.get('MABEL_TEST_URL','http://localhost:8742/')
+raw=(Path(__file__).resolve().parents[1]/'assets/mabel_rig.glb').read_bytes();size=struct.unpack_from('<I',raw,12)[0];nodes=json.loads(raw[20:20+size])['nodes'];elbow=next(n for n in nodes if n.get('name')=='r_elbow')
+if 'matrix' in elbow:
+ import numpy as np
+ mat=np.array(elbow['matrix']).reshape(4,4).T[:3,:3];expected=Rotation.from_matrix(mat/np.linalg.norm(mat,axis=0)).as_quat().tolist()
+else:expected=elbow.get('rotation',[0,0,0,1])
 CHECK=r"""host=>{
  const grid=host.__studioGrid,canvas=grid.renderer.domElement;grid.dirty=true;grid.render();
  const rect=canvas.getBoundingClientRect(),copy=document.createElement('canvas');
@@ -26,7 +33,6 @@ async def check(page,selector):
  await host.evaluate('(n)=>scrollTo(0,n.getBoundingClientRect().top+scrollY-125)')
  await page.wait_for_function('(s)=>document.querySelector(s)?.__studioGrid?.views.some(v=>v.visible)',arg=selector)
  await page.wait_for_timeout(250)
- print(selector,flush=True)
  result=await host.evaluate(CHECK)
  assert abs(result['width']-result['hostWidth'])<1,result
  assert abs(result['height']-result['hostHeight'])<1,result
@@ -46,7 +52,11 @@ async def main():
     await page.wait_for_function('(i)=>document.querySelectorAll(".hs-card")[i].querySelector(".studio-ready")',arg=i)
     await check(page,'#hwSlider')
    await page.set_viewport_size({'width':width-30,'height':height-40});await check(page,'#hwSlider')
+   await check(page,'[data-clip=repeat]')
    await check(page,'#baseOdometry .base-replay')
+   await check(page,'[data-clip=path]')
+   original=await page.evaluate('__accuracyReplays.path.rig.joints.find(j=>j.node==="r_elbow").q.toArray()')
+   assert abs(sum(a*b for a,b in zip(original,expected)))>1-1e-6,'Hardware card posing contaminated the measured replay rig'
    await page.screenshot(path=f'/tmp/mabel-retina-odom-{engine}.png',scale='css')
    await page.goto(BASE+'software.html',wait_until='domcontentloaded')
    await page.locator('#retargeting').evaluate('(n)=>scrollTo(0,n.getBoundingClientRect().top+scrollY-125)')
@@ -55,7 +65,12 @@ async def main():
    await check(page,'#retargetClips .replay-grid')
    await page.screenshot(path=f'/tmp/mabel-retina-retarget-{engine}.png',scale='css')
    await check(page,'#tipLab')
+   await check(page,'#wholeBodyLab')
+   # Deliberately overfill the card: clipping must still hold after zoom.
+   await page.locator('#wholeBodyLab').evaluate('(n)=>{const g=n.__studioGrid,v=g.views[0];v.camera.position.sub(v.controls.target).multiplyScalar(.5).add(v.controls.target);g.dirty=true;}')
+   await check(page,'#wholeBodyLab')
    assert not errors,errors
    print(engine,'DPR',dpr,'all eight hardware cards, odometry, retargeting and motion: no pixels outside card bounds',flush=True)
    await browser.close()
 asyncio.run(main())
+print('RESULT: PASS')

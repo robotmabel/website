@@ -47,13 +47,15 @@ run faq-pops    $P scripts/faqtest.py $B/docs/troubleshoot.html
 run bom-hover   $P scripts/hovertest.py $B/docs/bom.html
 run bom-groups  $P scripts/bomgroup.py $B/docs/bom.html
 run films       $P scripts/filmtest.py $B/connect.html
-run palm-track  $P scripts/tracktest.py $B/software.html
-run lab-table   $P scripts/labtable.py $B/software.html
-run lab-rig     $P scripts/labrig.py $B/software.html
+# The browser-only WBC and motion-table widgets were replaced by actual
+# MuJoCo experiments. These checks cover the current components.
+run retina      env MABEL_TEST_URL="$B/" $P scripts/studioretinatest.py
+run studio-flow env MABEL_TEST_URL="$B/" $P scripts/studiorefinementtest.py
+run physics-ui  env MABEL_TEST_URL="$B/" $P scripts/controlphysicstest.py
 run globe       $P scripts/globecentre.py $B/teleop.html
 run hardware    $P scripts/hwtest.py $B/hardware.html
-run curation    $P scripts/curtest.py $B/autonomy.html
-run slam        $P scripts/slamtest.py $B/autonomy.html
+# Current MILO Mac curation capture is checked by physics-ui. The old
+# synthetic curation/SLAM widgets are no longer on the autonomy page.
 run clips       $P scripts/vidcheck.py
 run scenes      $P scripts/scenetest.py $B/simulation.html
 run figures     $P scripts/figscale.py $B/index.html
@@ -67,7 +69,16 @@ run harness-gen $P scripts/build_harness.py --check
 run order       $P scripts/ordertest.py $B/order.html
 # The catalog generator lives in the private repo beside this one; the public
 # site only carries the prices it produces.
-[ -f ../commerce/build_order.py ] && run order-gen   $P ../commerce/build_order.py --check
+if [ -f ../commerce/build_order.py ]; then
+  # A linked private generator resolves SITE relative to its real path; in a
+  # worktree it would check a different checkout, including that user's edits.
+  catalog_site=$($P -c 'from pathlib import Path; print((Path("../commerce/build_order.py").resolve().parents[1]/"website").resolve())')
+  if [ "$catalog_site" = "$(pwd -P)" ]; then
+    run order-gen $P ../commerce/build_order.py --check
+  else
+    echo "── order-gen      SKIP (private generator targets another checkout)"
+  fi
+fi
 run account     $P scripts/accounttest.py $B/account.html
 run wiki        $P scripts/wikitest.py
 run page-weight $P scripts/loadtest.py
@@ -75,7 +86,8 @@ run platforms   $P scripts/pttest.py $B/index.html
 run overview    $P scripts/overviewtest.py $B
 run stack-map   $P scripts/smtest.py $B/index.html
 run accuracy    $P scripts/acctest.py $B/hardware.html
-run retarget-tv $P scripts/rktest.py $B/software.html
+# Synchronized 3D retargeting, including method/episode changes, is covered
+# by studio-flow; rktest.py targets the retired seven-video grid.
 echo
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

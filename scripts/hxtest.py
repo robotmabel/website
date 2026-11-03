@@ -14,7 +14,8 @@ against the registry it was generated from:
   * the count the hero claims is the count the page renders
   * the filters filter, and their tallies match what they show
   * the search searches
-  * every safety badge rendered is one the legend explains
+  * every command-effect badge includes an explanation
+  * recording chapters seek to the matching explanation
   * a card that claims a `note` renders it
 
 `scripts/build_harness.py --check` covers JSON-vs-registry, and
@@ -135,26 +136,28 @@ async def go():
               f"{'shown' if res and res['emptyMsg'] else 'MISSING'}) · "
               f"cleared → {res and res['back']}")
 
-        # every badge on a card is one the legend explains
-        badges = await ev("""(()=>{const cards=[...document.querySelectorAll('.ahx-card .ahx-badge')]
-          .map(b=>b.textContent.trim().toLowerCase());
-          const legend=[...document.querySelectorAll('#ahxLegend .ahx-badge')]
-          .map(b=>b.textContent.trim().toLowerCase());
-          const statuses=['partial','planned','experimental'];
-          return {unexplained:[...new Set(cards)].filter(x=>!legend.includes(x)&&!statuses.includes(x)),
-                  legend:legend.length};})()""")
-        if not badges or badges["unexplained"] or badges["legend"] < 3:
-            print(f"  ✗ badges with no legend entry: {badges and badges['unexplained']}"); bad += 1
+        # The concise reference explains effects with native tooltips, instead
+        # of the retired full-screen legend and marketing limitations section.
+        missing = await ev("[...document.querySelectorAll('.ahx-card .ahx-badge:not(.st)')].filter(b=>!b.title||b.title.length<15).map(b=>b.textContent)")
+        if missing:
+            print(f"  ✗ badges without effect explanations: {missing}"); bad += 1
         else:
-            print(f"  ✓ every badge is explained ({badges['legend']} in the legend)")
-
-        # the "won't do" list is rendered, not just declared
-        nb = await ev("document.querySelectorAll('#ahxNotBuilt li').length")
-        if nb != len(reg.get("not_built", [])):
-            print(f"  ✗ 'what it won't do' renders {nb}, registry has "
-                  f"{len(reg.get('not_built', []))}"); bad += 1
+            print("  ✓ every command effect has an explanation on its badge")
+        await ev("document.getElementById('harnessWalkthrough').scrollIntoView({block:'center',behavior:'instant'})")
+        for _ in range(50):
+            if await ev("!!window.__harnessWalkthrough&&document.querySelector('#harnessWalkthrough video').readyState>=1"):break
+            await asyncio.sleep(.2)
+        chapter_count = await ev("window.__harnessWalkthrough?.chapters.length")
+        if chapter_count != len(want):
+            print(f"  ✗ recording chapters {chapter_count}, registry commands {len(want)}");bad+=1
         else:
-            print(f"  ✓ the deliberate-omissions list renders all {nb}")
+            await ev("window.__harnessWalkthrough.jump(1);true");await asyncio.sleep(.2)
+            synced=await ev("document.querySelector('[data-hw-command]').textContent===__harnessWalkthrough.chapters[1].command&&document.querySelector('#harnessWalkthrough video').currentTime>=__harnessWalkthrough.chapters[1].start")
+            if not synced:bad+=1
+            print(f"  {'✓' if synced else '✗'} recorded chapter seeks update the explanation")
+        scoped = await ev("document.querySelector('.hw-kicker').textContent.toLowerCase().includes('read only')")
+        if not scoped:bad+=1
+        print(f"  {'✓' if scoped else '✗'} the public recording is clearly labelled read only")
 
         # a note in the registry must reach the card
         noted = [c["name"] for g in reg["groups"] for c in g["commands"] if c.get("note")]

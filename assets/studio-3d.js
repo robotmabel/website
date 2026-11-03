@@ -49,21 +49,23 @@ export class StudioGrid {
   this.observer=new IntersectionObserver(es=>{for(const e of es){const v=this.views.find(v=>v.slot===e.target);if(v)v.visible=e.isIntersecting;}this.dirty=true;},{rootMargin:'60px'});
   const frame=t=>{if(this.running){this.onframe?.(t);if(this.dirty&&!document.hidden)this.render();requestAnimationFrame(frame);}};requestAnimationFrame(frame);
  }
- add(slot,object,{direction=[-3,2.2,4],clip=null}={}){
+ add(slot,object,{direction=[-3,2.2,4],clip=null,locked=false}={}){
   const scene=new THREE.Scene();scene.environment=this.environment;scene.add(object);
   scene.add(new THREE.HemisphereLight(0xfff7eb,0x707580,.9));
   for(const [pos,power] of [[[-3,5,4],2.0],[[4,3,-2],1.1],[[1,1,5],.45]]){const light=new THREE.DirectionalLight(0xffffff,power);light.position.set(...pos);scene.add(light);}
   const camera=new THREE.PerspectiveCamera(32,1,.001,100),controls=new OrbitControls(camera,slot);controls.enableDamping=false;controls.enablePan=true;
+  if(locked){controls.enableRotate=false;controls.enablePan=false;controls.enableZoom=false;}
   const view={slot,object,scene,camera,controls,direction:new THREE.Vector3(...direction),clip,visible:false};this.views.push(view);this.observer.observe(slot);
   controls.addEventListener('change',()=>{this.dirty=true;});controls.addEventListener('start',()=>{view.touched=true;});
   const reset=document.createElement('button');reset.type='button';reset.className='studio-recenter';reset.textContent='Recenter';reset.setAttribute('aria-label','Recenter '+(slot.dataset.label||'3D view'));
-  reset.addEventListener('pointerdown',e=>e.stopPropagation());reset.addEventListener('click',e=>{e.stopPropagation();this.recenter(view);});slot.append(reset);
+  reset.hidden=locked;reset.addEventListener('pointerdown',e=>e.stopPropagation());reset.addEventListener('click',e=>{e.stopPropagation();this.recenter(view);});slot.append(reset);
   slot.tabIndex=0;slot.setAttribute('aria-label',(slot.dataset.label||'Robot')+' · drag to rotate, right-drag to pan');
-  slot.addEventListener('keydown',e=>{if(e.target!==slot)return;if(e.key==='Home'){this.recenter(view);e.preventDefault();e.stopPropagation();}if(['ArrowLeft','ArrowRight'].includes(e.key)){const d=camera.position.clone().sub(controls.target);d.applyAxisAngle(new THREE.Vector3(0,1,0),e.key==='ArrowLeft'?.15:-.15);camera.position.copy(controls.target).add(d);controls.update();this.dirty=true;e.preventDefault();e.stopPropagation();}});
+  if(locked){slot.tabIndex=-1;slot.setAttribute('aria-label',(slot.dataset.label||'Robot')+' · fixed side camera');}
+  slot.addEventListener('keydown',e=>{if(e.target!==slot||locked)return;if(e.key==='Home'){this.recenter(view);e.preventDefault();e.stopPropagation();}if(['ArrowLeft','ArrowRight'].includes(e.key)){const d=camera.position.clone().sub(controls.target);d.applyAxisAngle(new THREE.Vector3(0,1,0),e.key==='ArrowLeft'?.15:-.15);camera.position.copy(controls.target).add(d);controls.update();this.dirty=true;e.preventDefault();e.stopPropagation();}});
   this.recenter(view);slot.classList.add('studio-ready');return view;
  }
  recenter(v){
-  const box=new THREE.Box3().setFromObject(v.object),sphere=box.getBoundingSphere(new THREE.Sphere()),r=Math.max(sphere.radius,.01),a=v.slot.clientWidth/Math.max(1,v.slot.clientHeight);
+  const box=v.fitBox||new THREE.Box3().setFromObject(v.object),sphere=box.getBoundingSphere(new THREE.Sphere()),r=Math.max(sphere.radius,.01),a=v.slot.clientWidth/Math.max(1,v.slot.clientHeight);
   v.camera.aspect=a;const vf=THREE.MathUtils.degToRad(v.camera.fov/2),hf=Math.atan(Math.tan(vf)*a),distance=r/Math.sin(Math.min(vf,hf))*1.10;
   v.touched=false;v.aspect=a;v.controls.target.copy(sphere.center);v.camera.position.copy(sphere.center).add(v.direction.clone().normalize().multiplyScalar(distance));v.camera.near=r/100;v.camera.far=r*100;v.camera.updateProjectionMatrix();v.controls.minDistance=r*.5;v.controls.maxDistance=r*20;v.controls.update();this.dirty=true;
  }

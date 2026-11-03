@@ -247,3 +247,14 @@ Every number on a page comes from a file in this repo, and the page says which.
 Estimates are labelled as estimates. Parts that are not released are described
 as not released. `BOM/data/open_items.csv` is the list of things the build guide
 must not promise.
+
+## Current 3D and studio checks (2026-11-03)
+
+The software page now uses actual MuJoCo control, motion and retargeting
+experiments. `tracktest.py`, `labrig.py`, `labtable.py`, `rktest.py`, `curtest.py`
+and `slamtest.py` target retired widgets and remain as historical tools. The
+active suite uses `studioretinatest.py`, `studiorefinementtest.py` and
+`controlphysicstest.py` instead. They check every current 3D frame, synchronized
+clocks and plots, orbit/recenter, recorded workflows and the current MILO Mac app.
+Ordinary checks never claim a public physics turn; live interaction tests are
+run explicitly against the queued simulation service.
