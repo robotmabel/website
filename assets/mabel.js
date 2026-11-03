@@ -715,6 +715,7 @@
       if (!phone.matches) { cells.forEach(function (c) { c.style.gridArea = ''; }); return; }
       var gap = parseFloat(getComputedStyle(chap).columnGap) || 6;
       var colW = (chap.clientWidth - gap) / 2, h = [1, 1];
+      if (colW <= 0) return;
       cells.forEach(function (c) {
         if (c.classList.contains('rg-lead') && !book.classList.contains('ov-gallery-vertical')) {
           c.style.gridArea = '';
@@ -730,8 +731,20 @@
       });
     });
   }
+  var queued = false, lastWidth = 0;
+  function schedulePack() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; pack(); });
+  }
   pack();
-  addEventListener('resize', pack);
-  if (document.fonts) document.fonts.ready.then(pack);   // the title strip's height
+  addEventListener('resize', schedulePack);
+  // Resize can arrive before responsive gutters have settled. Observe the
+  // gallery's actual width too, without repacking on our own height changes.
+  new ResizeObserver(function (entries) {
+    var width = entries[0].contentRect.width;
+    if (Math.abs(width-lastWidth)>.5) { lastWidth=width;schedulePack(); }
+  }).observe(book);
+  if (document.fonts) document.fonts.ready.then(schedulePack);
 })();
 

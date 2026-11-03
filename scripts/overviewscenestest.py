@@ -36,6 +36,10 @@ with sync_playwright() as p:
    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1');assert not errors,errors
    for chapter in ['home','demo','learning']:
     page.locator('.ov-nav a[href="#'+chapter+'"]').click();page.wait_for_timeout(350);page.screenshot(path=f'/tmp/mabel-vertical-{chapter}-{engine}-{width}.png')
+   if width==1440:
+    for resized in (320,760,761,1280):
+     page.set_viewport_size({'width':resized,'height':844});page.wait_for_timeout(250)
+     assert page.locator('.rg-chap').evaluate_all('chs=>chs.every(ch=>{let rs=[...ch.querySelectorAll(".rg-cell")].map(e=>e.getBoundingClientRect());return rs.every((a,i)=>rs.every((b,j)=>i===j||a.right<=b.left+1||b.right<=a.left+1||a.bottom<=b.top+1||b.bottom<=a.top+1))})'),(engine,resized,'Mosaic overlap after resize')
    print(engine,width,'vertical content, all photo/demo grids, aligned headings, simpler learning, autoplay and clean hero: PASS',flush=True);page.close()
   browser.close()
  print('RESULT: PASS')
