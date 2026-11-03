@@ -1,5 +1,5 @@
 ══ milo · setup · sim ═══ UPTIME 00:23 · LINK   9 Hz ═══════════════════════════════════════════════ ● armed · SPACE = e-stop ══
-   MILO  ›  Arm · R                                                 level ●●○ 2/3    ↑↓ choose   → open   ← back   +− move 2°   
+   MILO  ›  Arm · R                                                 level ●●○ 2/3    ↑↓ choose   → open   ← back   +− move 2°
 ┌─ Arm · R  ● online  7/7  calibrated  torque limp ─────────────────────────────────────────────────────────────── SIM · 47 Hz ┐
 │    joint                id      angle      window          position in window      status                                    │
 │ › r_j1                  1 ●     +2.3°     -80 … +200    ━━━━━━━█━━━━┼━━━━━━━━━━━   ✓ ok                                      │
@@ -36,5 +36,5 @@
 │                                                                                                                              │
 │                                                                                                                              │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                                                                                                
-  C  record all   e  torque   h  home all   S  rescan   P  adapter                              SPACE e-stop · ? help · q quit  
+
+  C  record all   e  torque   h  home all   S  rescan   P  adapter                              SPACE e-stop · ? help · q quit
