@@ -68,6 +68,11 @@ class SimulationQueue:
                 if not await self._send({'type':'reset','payload':{}}):
                     self.waiting.appendleft(p);return
                 self.needs_reset=False
+            # A fresh simulated turn must not inherit a previous visitor's stop.
+            # This gateway serves only the dedicated SIM upstream. During a turn,
+            # viewers can stop it and only its current driver can release it.
+            if not await self._send({'type':'estop','payload':{'active':False}}):
+                self.waiting.appendleft(p);return
             self.owner=p;self.deadline=time.monotonic()+self.lease_seconds;break
     async def _release(self):
         if self.owner:self.owner.expired=True

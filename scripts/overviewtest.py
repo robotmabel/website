@@ -115,7 +115,7 @@ async def main():
         await until("document.querySelector('#heroRig').classList.contains('on')",30)
         assert await ev("document.querySelector('#heroRigCanvas').width>0")
         print('Original hero model, NYC stickers, comic cards and full photo mosaic: PASS',flush=True)
-        await ev("document.querySelector('[data-learn=train]').click()")
+        await ev("document.querySelector('[data-node=references]').click()")
         assert await ev("document.querySelector('#learningDetail').textContent.includes('120')")
         await ev("document.querySelector('#anat3d').scrollIntoView({block:'center',behavior:'instant'})")
         await until("document.querySelector('#anat3d').classList.contains('loaded')",30)

@@ -63,9 +63,40 @@
   host.querySelectorAll('[data-node]').forEach(function (b) { b.addEventListener('click',function () { var data=nodes[b.dataset.node];selectStage(['references','controller'].includes(b.dataset.node)?'deploy':'train');render(data[0],data[1],data[2],data[3]);b.setAttribute('aria-pressed','true'); }); });
   D.recording.cameras.forEach(function (camera) {
    var key={head_left:'head',wrist_left:'left',wrist_right:'right'}[camera.key],button=host.querySelector('[data-camera="'+key+'"]');
-   button.querySelector('img').src=camera.image;button.querySelector('img').alt=camera.label+' view of ORCA hand grasping, dataset v2';
-   button.addEventListener('click',function () { selectStage('collect');render(camera.label.toLowerCase()+' camera','A real hand-grasping frame from dataset v2.',['Same episode and time across all three views.','One of the three ACT camera inputs.'],['Episode '+V.preview.episode+', frame '+V.preview.frame+' at '+V.preview.seconds+' s. Images are extracted from the export without added blur.']);button.setAttribute('aria-pressed','true'); });
+   var video=button.querySelector('video');video.dataset.clip=camera.video;video.dataset.poster=camera.image;
+   button.addEventListener('click',function () { selectStage('collect');render(camera.label.toLowerCase()+' camera','Hand-grasping demonstration · dataset v2.',['Three synchronized views of the same recorded episode.','One of the three ACT camera inputs.'],['Episode '+V.preview.episode+', '+V.preview.video_frames+' frames at '+D.recording.camera_hz+' fps. Recorded data, with no added blur.']);button.setAttribute('aria-pressed','true'); });
   });
+  // One playback group: buffer, pause, resume and loop all camera inputs together.
+  // These are recorded observations, not a running policy or a live robot feed.
+  (function cameraPlayback(){
+   var group=host.querySelector('.lp-cameras'),videos=Array.from(group.querySelectorAll('video')),master=videos[0],visible=false,loaded=false,starting=false,stalled=false,blocked=false,previous=0;
+   var play=document.createElement('button');play.type='button';play.className='lp-camera-play';play.textContent='Play camera views';play.hidden=true;group.appendChild(play);
+   function pause(){videos.forEach(function(v){v.pause();});}
+   function sync(force){var t=master.currentTime;videos.slice(1).forEach(function(v){if(v.readyState>=2&&(force||Math.abs(v.currentTime-t)>.055))v.currentTime=t;});previous=t;}
+   async function resume(){
+    if(starting||!loaded||!visible||document.hidden||videos.some(function(v){return v.readyState<3;}))return;
+    starting=true;sync(true);
+    var result=await Promise.allSettled(videos.map(function(v){return v.play();}));starting=false;
+    if(!visible||document.hidden){pause();return;}
+    blocked=result.some(function(r){return r.status==='rejected';});stalled=blocked;play.hidden=!blocked;
+    if(blocked)pause();
+   }
+   videos.forEach(function(v){
+    v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=true;
+    v.addEventListener('waiting',function(){if(visible&&!starting){stalled=true;pause();}});
+    v.addEventListener('canplay',function(){if(!blocked&&(stalled||videos.every(function(x){return x.paused;}))){stalled=false;resume();}});
+    v.addEventListener('error',function(){pause();blocked=true;play.hidden=false;play.textContent='Retry camera views';});
+   });
+   play.addEventListener('click',function(){blocked=false;videos.forEach(function(v){if(v.error)v.load();});resume();});
+   new IntersectionObserver(function(entries){
+    visible=entries[0].isIntersecting;
+    if(visible&&!loaded){loaded=true;videos.forEach(function(v){v.poster=v.dataset.poster;v.src=v.dataset.clip;v.load();});}
+    if(visible)resume();else pause();
+   },{rootMargin:'120px',threshold:0}).observe(group);
+   document.addEventListener('visibilitychange',function(){if(document.hidden)pause();else resume();});
+   function frame(){if(visible&&!master.paused){sync(master.currentTime<previous);}if(master.requestVideoFrameCallback)master.requestVideoFrameCallback(frame);}
+   if(master.requestVideoFrameCallback)master.requestVideoFrameCallback(frame);else setInterval(function(){if(visible&&!master.paused)sync(master.currentTime<previous);},80);
+  })();
   document.getElementById('lpChunkLabel').textContent=D.chunk.steps+' steps · '+duration+' s';slider.max=D.chunk.steps-1;slider.value=execute-1;
   for (var i=0;i<D.chunk.steps;i++) { var cell=document.createElement('i');cell.className=i<execute?'executed':'';cells.appendChild(cell); }
   function inspectStep() { var index=+slider.value;Array.from(cells.children).forEach(function (cell,i) { cell.classList.toggle('inspected',i===index); });document.getElementById('lpStepReadout').value=(index+1)+' / '+D.chunk.steps+' · '+(index/D.chunk.hz).toFixed(2)+' s';document.getElementById('lpStepDetail').textContent=index<execute?'Executed before the next observation.':'Prediction only; the next observation triggers a new chunk.'; }

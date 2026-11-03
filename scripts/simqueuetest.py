@@ -33,6 +33,7 @@ async def main():
         for ws in peers:await ws.send_json({'type':'queue_join'})
         await until(lambda:gate.owner and len(gate.waiting)==2)
         first=gate.owner;second=gate.waiting[0];third=gate.waiting[1]
+        await until(lambda:any(m.get('type')=='estop' and m.get('payload',{}).get('active') is False for m in seen))
         state2=gate.state(second)['payload'];state3=gate.state(third)['payload']
         assert state2['people_ahead']==1 and 0<state2['estimated_wait_seconds']<=2
         assert state3['people_ahead']==2 and 2<state3['estimated_wait_seconds']<=4
@@ -46,6 +47,12 @@ async def main():
         await peers[1].close();await until(lambda:gate.owner is third)
         assert gate.state(third)['payload']['people_ahead']==0 and gate.state(third)['payload']['estimated_wait_seconds']==0
         deadline=gate.deadline;await peers[2].send_json({'type':'queue_join'});await asyncio.sleep(.15);assert gate.deadline==deadline,'Join renewed an active lease'
+        # A spectator can stop a turn, but cannot release the driver's stop.
+        await peers[0].send_json({'type':'queue_estop','payload':{'active':True}})
+        await until(lambda:seen[-1].get('type')=='estop' and seen[-1]['payload']['active'] is True)
+        count=len(seen);await peers[0].send_json({'type':'queue_estop','payload':{'active':False}});await asyncio.sleep(.1);assert len(seen)==count
+        await peers[2].send_json({'type':'queue_estop','payload':{'active':False}})
+        await until(lambda:seen[-1].get('type')=='estop' and seen[-1]['payload']['active'] is False)
         await peers[2].send_json({'type':'queue_leave'});await until(lambda:gate.owner is None)
         await asyncio.gather(*(ws.close() for ws in peers))
         # No upstream: preserve the queue without granting or burning time.

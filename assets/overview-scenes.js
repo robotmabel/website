@@ -8,17 +8,15 @@
  document.querySelector('#story .ov-contributions')?.classList.add('ov-followup');
  var book=document.getElementById('rgGrid');book.classList.add('ov-gallery-vertical');
  book.querySelectorAll('.rg-chap').forEach(function(chap){
-  chap.querySelector('.rg-lead')?.remove();
-  var cells=Array.from(chap.querySelectorAll('.rg-cell')),heading=document.createElement('h3');
-  heading.className='ov-subtitle';heading.textContent={shop:'Shop',home:'Home',street:'Street'}[chap.dataset.chap];
-  cells.forEach(function(cell){cell.style.gridArea='';});
-  chap.replaceChildren(heading,group(cells,'ov-photo-grid'));
+  chap.querySelector('.rg-lead h3').textContent={shop:'Shop',home:'Home',street:'Street'}[chap.dataset.chap];
  });
+ dispatchEvent(new Event('resize'));
  var hardware=document.querySelector('#anatomy > .wrap'),design=document.querySelector('#anatomy .anat-wrap'),render=document.querySelector('#anatomy .ov-hardware-reel'),specs=document.getElementById('specs'),files=document.querySelector('#anatomy .oh-strip'),reach=document.querySelector('#anatomy .ov-details');
  hardware.append(design,group([render,specs],'ov-hardware-followup ov-followup'),group([files,reach],'ov-followup'));
  hardware.querySelector('.ov-hardware-grid')?.remove();
  var demonstrations=document.querySelector('#demo .dg-collection'),demoHeading=document.createElement('h3');demoHeading.className='ov-subtitle';demoHeading.textContent='Teleoperation demonstrations';demonstrations.prepend(demoHeading);demonstrations.classList.add('ov-followup');
  document.querySelector('#play .ov-details')?.remove();document.querySelector('#play .ov-console-head')?.remove();document.querySelector('#play .ov-two')?.classList.add('ov-followup');
+ document.querySelector('#play .sec-head').after(document.querySelector('#play .sim-embed'));
  var learning=document.getElementById('learningExplorer'),diagram=learning.querySelector('.lp-architecture'),workflow=learning.querySelector('.lp-inspector');
  learning.classList.add('ov-learning-visible');learning.prepend(group([diagram,workflow],'ov-learning-pair'));
  function size(){
@@ -43,6 +41,14 @@
  boot?.addEventListener('click',startSimulation);
  new IntersectionObserver(function(entries,observer){if(entries.some(function(e){return e.isIntersecting;})){startSimulation();observer.disconnect();}},{threshold:.1}).observe(document.getElementById('simStage'));
  addEventListener('scroll',viewport,{passive:true,capture:true});addEventListener('resize',viewport);addEventListener('fullscreenchange',viewport);
- addEventListener('message',function(e){if(frame&&e.origin===location.origin&&e.source===frame.contentWindow&&e.data?.type==='mabel-sim-ready')viewport();});
+ addEventListener('message',function(e){
+  if(!frame||e.origin!==location.origin||e.source!==frame.contentWindow)return;
+  if(e.data?.type==='mabel-sim-ready')viewport();
+  if(e.data?.type==='mabel-sim-focus'){
+   pendingAnchor=null;
+   var top=frame.getBoundingClientRect().top,offset=parseFloat(getComputedStyle(document.getElementById('play')).scrollMarginTop)||150;
+   if(top<offset||frame.getBoundingClientRect().bottom>innerHeight-12)scrollTo({top:scrollY+top-offset,behavior:'smooth'});
+  }
+ });
  window.__overviewScenes={size:size,startSimulation:startSimulation};
 })();

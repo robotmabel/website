@@ -29,3 +29,20 @@ Use an isolated virtual environment with `aiohttp>=3.9,<4`. Install the script a
 Before changing Caddy, back up its configuration privately. Change only the control upstream inside the existing `/sim/*` handler from 7006 to 7011; validate and gracefully reload Caddy. Do not change the other routes or restart the tunnel.
 
 `GET http://127.0.0.1:7011/healthz` reports aggregate readiness and queue length without identifying visitors. `python scripts/simqueuetest.py` tests real WebSocket clients against a simulated upstream: exclusive commands, FIFO order, expiry, reset, disconnect handoff and offline waiting.
+
+Each new simulated turn releases the previous visitor's latched stop. During a
+turn, the page reflects the server's stop state; only the current driver can
+release it. Start/end buttons show a pending state until the queue acknowledges
+the change. Opening a map stream does not alter the control session.
+
+The home host also needs `scripts/sim-home-reset.patch` in its source checkout.
+The optional `reset(wait=True)` RPC acknowledges only after the physics thread
+has published home. The gateway reads that pose before rebuilding controller
+hold targets, so a raised lift cannot be re-latched after Reset. The patch
+includes a regression against the actual MuJoCo model. It is already installed
+on the home host; apply it only to a compatible checkout after `git apply --check`.
+
+`python scripts/simlivecheck.py --live` checks the website against the real
+simulation host: two visitors, FIFO estimate, pointer-driven base and lift,
+home reset, authoritative stop and fresh two-minute handoff. Run it only when
+the queue is empty. It uses only the dedicated SIM route.

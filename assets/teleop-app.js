@@ -211,9 +211,9 @@ class Link {
   }
   _retry() { if (this.want) this._retryT = setTimeout(() => this._open(), 2000); }
   send(type, payload) {
-    if (this.app.simSession && !this.app.simSession.canSend(type)) return;
-    if (!this.connected || !this.ws || this.ws.readyState !== 1) return;
-    try { this.ws.send(JSON.stringify({ type, payload })); } catch (e) {}
+    if (this.app.simSession && !this.app.simSession.canSend(type)) return false;
+    if (!this.connected || !this.ws || this.ws.readyState !== 1) return false;
+    try { this.ws.send(JSON.stringify({ type, payload })); return true; } catch (e) { return false; }
   }
 }
 
@@ -236,7 +236,6 @@ class MapStream {
   connect(url) {
     if (this.url === url && this.want) return;
     this.url = url; this.want = true;
-    this.app._queueEdgeAt = 0; this.app.simSession?.connecting(url);
     clearTimeout(this._retryT);
     if (this.ws) { const o = this.ws; this.ws = null; o.onmessage = o.onclose = o.onerror = null; try { o.close(); } catch (e) {} }
     this._open();
@@ -769,11 +768,11 @@ class App {
       }
     });
     $('#taEstop').addEventListener('click', () => {
+      if (this.estop && this.simSession?.enabled && !this.simSession.driver) return;
       this.estop = !this.estop;
+      this._estopPending={active:this.estop,until:performance.now()+2000};
       if (this.simSession?.enabled) this.link.send('queue_estop', {active: this.estop});
-      this.shell.classList.toggle('estopped', this.estop);
-      $('#taEstop').classList.toggle('latched', this.estop);
-      $('#taEstop').textContent = this.estop ? 'RELEASE' : 'E-STOP';
+      this._paintEstop();
       if (this.estop) {
         this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
         this.drag = null;
@@ -2487,9 +2486,11 @@ class App {
   }
 
   resetAll() {
+    if(this.simSession?.enabled&&!this.simSession.driver)return;
     this.sim.resetHome();
     this.wireJoints = {}; this.jointsDirty = false;
     this.nav = { f: 0, s: 0, w: 0, liftRate: 0 };
+    this.armJoy={left:{x:0,y:0},right:{x:0,y:0}};this.armRaise={left:0,right:0};this.armTgt={};this.drag=null;this.ringDrag=null;
     if (this.goalRing) this.clearGoal();
     if (this.wristQ) for (const s of ['l', 'r']) this.wristQ[s]?.identity();
     if (this.bodyRig && this.targets) {
@@ -2500,8 +2501,23 @@ class App {
   }
 
   /* ── incoming robot_state ───────────────────────────────────────── */
+  _paintEstop() {
+    this.shell.classList.toggle('estopped',this.estop);
+    const button=$('#taEstop');button.classList.toggle('latched',this.estop);
+    const viewer=this.simSession?.enabled&&!this.simSession.driver;
+    button.textContent=this.estop?(viewer?'Stopped':'Release stop'):'E-STOP';
+    button.disabled=!!(this.estop&&viewer);
+    button.setAttribute('aria-pressed',String(this.estop));
+  }
+
   applyRobotState(p) {
     this.sim.remote = true;
+    if (this.simSession?.enabled && typeof p.estop==='boolean') {
+      if(!this._estopPending||p.estop===this._estopPending.active||performance.now()>this._estopPending.until){
+        this._estopPending=null;this.estop=p.estop;this._paintEstop();
+        if(this.estop){this.nav={f:0,s:0,w:0,liftRate:0};this.armRaise={left:0,right:0};this.drag=null;}
+      }
+    }
     if (p.jointPositions) {
       // Don't overwrite the arm chain the operator is actively dragging — the local
       // IK owns it for instant feedback while it streams the command (see _tick).
@@ -2721,7 +2737,7 @@ function installSimulationSession(app) {
   info.className='sim-session-info';info.hidden=true;estimate.className='sim-session-estimate';estimate.setAttribute('aria-live','off');info.appendChild(estimate);dock.before(info);
   const resetIcon='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></svg>';
   let layoutEnabled=null;
-  const session={enabled:!!app.overview,driver:false,want:false,seen:false,role:'viewer',ready:false,position:null,ahead:0,waitEstimate:null,remaining:0,updated:0};
+  const session={enabled:!!app.overview,driver:false,want:false,seen:false,role:'viewer',ready:false,position:null,ahead:0,waitEstimate:null,remaining:0,updated:0,pending:null};
   app.simSession=session;
   const readOnly=new Set(['ping','list_maps','queue_watch','queue_join','queue_leave','queue_estop']);
   session.canSend=(type)=>!session.enabled||session.driver||readOnly.has(type);
@@ -2745,29 +2761,35 @@ function installSimulationSession(app) {
     const text=pill.querySelector('span:last-child');if(text&&text.textContent!==label)text.textContent=label;
     pill.classList.toggle('link',session.driver);pill.classList.toggle('wait',!session.ready||session.role==='waiting');
     pill.title=session.driver?'Two-minute simulation session':session.role==='waiting'?'People ahead includes the current driver. The queue advances automatically; early departures shorten the estimated wait.':'Watch the simulation or join for a two-minute turn';
-    join.textContent=session.driver?'End turn':session.role==='waiting'?'Leave queue':session.ready&&!session.ahead?'Start my turn':'Join queue';
-    join.disabled=!app.link.connected||!session.seen;
+    if(session.pending&&performance.now()-session.pending.at>4000)session.pending=null;
+    join.textContent=session.pending?(session.pending.type==='queue_leave'?'Leaving…':'Starting…'):session.driver?'End turn':session.role==='waiting'?'Leave queue':session.ready&&!session.ahead?'Start my turn':'Join queue';
+    join.disabled=!app.link.connected||!session.seen||!!session.pending;
+    app._paintEstop();
     if(app.overview){const b=$('#taNoVid .inner b');if(b)b.textContent=session.ready?'Connecting camera…':'Simulator offline';if(!session.ready)$('#taNoVid').style.display='grid';}
     reset.disabled=!session.driver;reset.hidden=!session.driver;
   };
   session.connecting=(url)=>{
     const enabled=!!app.overview||new URL(url).pathname==='/sim/teleop';
     if(!enabled){session.want=false;$('#taReset').disabled=false;}
-    session.enabled=enabled;session.seen=false;session.driver=false;session.role='viewer';session.ready=false;session.ahead=0;session.waitEstimate=null;
+    session.pending=null;session.enabled=enabled;session.seen=false;session.driver=false;session.role='viewer';session.ready=false;session.ahead=0;session.waitEstimate=null;
     session.paint();
   };
   session.socketOpen=()=>{if(!session.enabled)return;app.link.send('queue_watch',{});if(session.want)app.link.send('queue_join',{});};
-  session.socketClosed=()=>{session.driver=false;session.seen=false;session.ready=false;session.role='viewer';if(session.enabled)stop();session.paint();};
+  session.socketClosed=()=>{session.pending=null;session.driver=false;session.seen=false;session.ready=false;session.role='viewer';if(session.enabled)stop();session.paint();};
   session.receive=(state)=>{
     const wasDriver=session.driver;
     session.enabled=true;session.seen=true;session.role=state.role;session.driver=state.role==='driver';session.ready=state.backend_ready;session.position=state.position;session.ahead=state.people_ahead??Math.max(0,(state.position||1)-1);session.waitEstimate=state.estimated_wait_seconds??null;session.remaining=state.remaining_seconds;session.updated=performance.now();
+    if(session.pending&&((session.pending.type==='queue_leave'&&state.role==='viewer')||(session.pending.type==='queue_join'&&state.role!=='viewer')))session.pending=null;
     if(wasDriver&&!session.driver){stop();if(state.role==='viewer')session.want=false;}
     if(!wasDriver&&session.driver){app._setFlying(true);app._announceSpec(true);}
     session.paint();
   };
   join.addEventListener('click',()=>{
-    if(session.driver||session.role==='waiting'){session.want=false;stop();app.link.send('queue_leave',{});}
-    else{session.want=true;app.link.send('queue_join',{});}
+    if(session.pending)return;
+    const leaving=session.driver||session.role==='waiting',type=leaving?'queue_leave':'queue_join';
+    session.want=!leaving;if(leaving)stop();
+    if(app.link.send(type,{})){session.pending={type,at:performance.now()};session.paint();}
+    if(!leaving&&app.overview)parent.postMessage({type:'mabel-sim-focus'},location.origin);
   });
   $('#taStartTeleop')?.addEventListener('click',(event)=>{
     if(session.enabled&&!session.driver){event.stopImmediatePropagation();event.preventDefault();session.want=true;app.link.send('queue_join',{});}

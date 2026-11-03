@@ -710,14 +710,13 @@
   if (!book) return;
   var phone = matchMedia('(max-width: 760px)');
   function pack() {
-    if(book.classList.contains('ov-gallery-vertical'))return;
     [].forEach.call(book.querySelectorAll('.rg-chap'), function (chap) {
       var cells = [].slice.call(chap.querySelectorAll('.rg-cell'));
       if (!phone.matches) { cells.forEach(function (c) { c.style.gridArea = ''; }); return; }
       var gap = parseFloat(getComputedStyle(chap).columnGap) || 6;
       var colW = (chap.clientWidth - gap) / 2, h = [1, 1];
       cells.forEach(function (c) {
-        if (c.classList.contains('rg-lead')) {
+        if (c.classList.contains('rg-lead') && !book.classList.contains('ov-gallery-vertical')) {
           c.style.gridArea = '';
           var lh = Math.ceil(c.getBoundingClientRect().height + gap);
           c.style.gridArea = h[0] + ' / 1 / span ' + lh + ' / -1';

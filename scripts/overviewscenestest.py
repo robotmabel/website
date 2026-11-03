@@ -11,9 +11,13 @@ with sync_playwright() as p:
    page.goto(BASE,wait_until='domcontentloaded');page.wait_for_function('window.__overviewScenes && window.__learningExplorer');page.wait_for_selector('.dg-card')
    assert page.locator('.ov-rail-controls').count()==0
    assert page.locator('.hero-path svg,.hero-path img').count()==0
-   assert page.locator('#rgGrid .rg-lead').count()==0
-   assert page.locator('#rgGrid .rg-cell').count()==31
-   assert page.locator('#rgGrid .ov-subtitle').all_text_contents()==['Shop','Home','Street']
+   assert page.locator('#rgGrid .rg-lead h3').all_text_contents()==['Shop','Home','Street']
+   assert page.locator('#rgGrid figure.rg-cell').count()==31
+   assert page.locator('#rgGrid .rg-line').count()==8
+   tiles=page.locator('#rgGrid .rg-cell').evaluate_all("es=>es.map(e=>{let r=e.getBoundingClientRect();return {w:r.width,h:r.height}})")
+   assert len({round(t['w']) for t in tiles})>1 if width>760 else len({round(t['h']) for t in tiles})>2
+   assert page.locator('#rgGrid .rg-lead h3').evaluate_all('es=>es.every(e=>e.scrollWidth<=e.clientWidth+1)')
+   assert 'Jost' in page.locator('.ov-nav a').first.evaluate('e=>getComputedStyle(e).fontFamily')
    assert page.locator('#demo .dg-card').count()==12
    assert page.locator('#demo .dg-grid').evaluate('e=>e.scrollWidth<=e.clientWidth+1')
    for chapter in ['story','home','paper','anatomy','demo','play','architecture','learning']:
@@ -23,6 +27,7 @@ with sync_playwright() as p:
    assert page.locator('#learning [data-learning-dataset]').count()==0
    assert page.locator('#learning .lp-process li').count()==4
    assert page.locator('#play .ov-details').count()==0
+   assert page.locator('#simStage').evaluate('e=>e.getBoundingClientRect().top<document.querySelector("#play .ov-two").getBoundingClientRect().top')
    assert 'Jost' in page.locator('.lp-node b').first.evaluate('e=>getComputedStyle(e).fontFamily')
    assert page.locator('#learning .lp-node b').first.evaluate('e=>getComputedStyle(e).fontWeight') in ['650','700']
    page.locator('.ov-nav a[href="#home"]').click();page.wait_for_timeout(500)

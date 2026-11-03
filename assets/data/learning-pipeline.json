@@ -16,17 +16,20 @@
       {
         "key": "head_left",
         "label": "Left head",
-        "image": "assets/learning/hand-v2-head_left.jpg"
+        "image": "assets/learning/hand-v2-head_left.jpg",
+        "video": "assets/learning/hand-v2-head_left.mp4"
       },
       {
         "key": "wrist_left",
         "label": "Left wrist",
-        "image": "assets/learning/hand-v2-wrist_left.jpg"
+        "image": "assets/learning/hand-v2-wrist_left.jpg",
+        "video": "assets/learning/hand-v2-wrist_left.mp4"
       },
       {
         "key": "wrist_right",
         "label": "Right wrist",
-        "image": "assets/learning/hand-v2-wrist_right.jpg"
+        "image": "assets/learning/hand-v2-wrist_right.jpg",
+        "video": "assets/learning/hand-v2-wrist_right.mp4"
       }
     ],
     "image_size_hw": [
@@ -134,7 +137,10 @@
     "preview": {
       "episode": 20,
       "frame": 272,
-      "seconds": 9.067
+      "seconds": 9.067,
+      "start_frame": 0,
+      "video_frames": 545,
+      "duration_seconds": 18.166666666666668
     }
   }
 }
