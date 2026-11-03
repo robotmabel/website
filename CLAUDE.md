@@ -151,6 +151,11 @@ page from the same localStorage the order page writes.
 | `assets/data/platforms.json` | `scripts/build_platforms.py` |
 | `assets/appshots/*.jpg` + the reel cards in teleop.html | `scripts/build_app_shots.py --src <png dir>` from `scripts/app_shots.json` (real iPhone, Vision Pro and Control Studio screenshots with numbered pins on each control — re-shoot when an app's layout changes; no hosts, IPs, ports or robot host names in a shot) |
 | `assets/data/harness.json` | `scripts/build_harness.py` (from `claude_harness/data/commands.yaml`) |
+| `assets/data/learning-pipeline.json` | `scripts/build_learning_overview.py --dataset <v2 export> --run <saved ACT run>` (export metadata, saved split/report, and synchronized hand camera frames) |
+| `assets/data/latency.json` | `scripts/build_latency.py --source <results_g2g.json>` (the paper's current light-test archive) |
+| `assets/demos/*` + `assets/data/demo-gallery.json` | `scripts/build_demo_gallery.py --sources <local Sony source map>` (original camera frames; no added blur; speeds recorded in the manifest) |
+| `assets/harness/public-command-pack.zip` | `scripts/build_public_command_pack.py --checkout <public checkout>` (25 read-only documentation guides and two onboarding aliases) |
+| `assets/harness/claude-code-walkthrough.*` + `assets/data/harness-recording.json` | `scripts/record_harness_walkthrough.py --checkout <public checkout> --output <local captures>`, then `scripts/build_harness_recording.py --recordings <local captures>` (actual visible CLI messages, condensed replay; retain raw captures locally) |
 | `assets/data/order.json` | the private catalog generator, from the published BOM |
 | `assets/hw/exploded.{png,webp}` | `scripts/build_exploded.py` |
 
@@ -242,3 +247,14 @@ Every number on a page comes from a file in this repo, and the page says which.
 Estimates are labelled as estimates. Parts that are not released are described
 as not released. `BOM/data/open_items.csv` is the list of things the build guide
 must not promise.
+
+## Current 3D and studio checks (2026-11-03)
+
+The software page now uses actual MuJoCo control, motion and retargeting
+experiments. `tracktest.py`, `labrig.py`, `labtable.py`, `rktest.py`, `curtest.py`
+and `slamtest.py` target retired widgets and remain as historical tools. The
+active suite uses `studioretinatest.py`, `studiorefinementtest.py` and
+`controlphysicstest.py` instead. They check every current 3D frame, synchronized
+clocks and plots, orbit/recenter, recorded workflows and the current MILO Mac app.
+Ordinary checks never claim a public physics turn; live interaction tests are
+run explicitly against the queued simulation service.

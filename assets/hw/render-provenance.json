@@ -1,0 +1,103 @@
+{
+  "method": "Blender Cycles studio lighting; isolated exact visual meshes; orthographic cameras fitted to all subject bounds. No generated hardware geometry.",
+  "model_sha256": "2fd8df651ffd1b5c48862e9f996c6b32cff85724d89a74e6138c30715f4cd57c",
+  "motherboard_sha256": "421a6ab0c47d5fd80f8a6e0ca6a5d35b4d84fe79051bcf8cdcf8153cc501f463",
+  "visual_meshes": 97,
+  "resolution": [
+    1440,
+    1080
+  ],
+  "arm_display_elbow_radians": -1.1,
+  "subsystems": [
+    "base",
+    "lift",
+    "body",
+    "arms",
+    "hands",
+    "head",
+    "sensors",
+    "electronics"
+  ],
+  "render_checks": {
+    "base": {
+      "bounds": [
+        240,
+        181,
+        1200,
+        934
+      ],
+      "png_sha256": "1957da1e9d4ed9aa314de96369e3baf8327c15a07ed13b46ba320c6bb80495d7",
+      "webp_bytes": 22556
+    },
+    "lift": {
+      "bounds": [
+        623,
+        123,
+        831,
+        958
+      ],
+      "png_sha256": "f60c92d0c2ae2100de4da81a9c07c1ec6cb6cf5fc772c604a7ca3ac6371836d9",
+      "webp_bytes": 12490
+    },
+    "body": {
+      "bounds": [
+        424,
+        196,
+        998,
+        925
+      ],
+      "png_sha256": "ff6f70c00b264ea11e90dded273b77310681092bdae4182ffd7e5869f75af6a2",
+      "webp_bytes": 19516
+    },
+    "arms": {
+      "bounds": [
+        358,
+        123,
+        1084,
+        926
+      ],
+      "png_sha256": "311b51ce27dc8a094dc555c644f731e14d652e7e53e6d4d0c9e8e8face3d9a39",
+      "webp_bytes": 25318
+    },
+    "hands": {
+      "bounds": [
+        365,
+        277,
+        1109,
+        806
+      ],
+      "png_sha256": "63efe36c03a330fe914f1441ebe7ce287a9d714f0b857fa55f1b3e2b174a3c42",
+      "webp_bytes": 40828
+    },
+    "head": {
+      "bounds": [
+        414,
+        94,
+        1022,
+        929
+      ],
+      "png_sha256": "3573e599e6a71f745e11e48ddcc2faf00b6052cc541aafa4e608ee0e934fcfeb",
+      "webp_bytes": 22084
+    },
+    "sensors": {
+      "bounds": [
+        307,
+        133,
+        1119,
+        940
+      ],
+      "png_sha256": "3e31f8d0f196df9abc224a2fa4e45d903b25def80ec2d1b8316b2baf4bc91fb6",
+      "webp_bytes": 23814
+    },
+    "electronics": {
+      "bounds": [
+        214,
+        140,
+        1226,
+        985
+      ],
+      "png_sha256": "f989cd3b4fad4a1d3fabdaf4c9e183344a913beb5a1019e3783be76be95eaa0d",
+      "webp_bytes": 75592
+    }
+  }
+}

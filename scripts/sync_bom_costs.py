@@ -56,7 +56,7 @@ s = s.replace('The reference robot in these docs is the <b>Maximum</b> build (Je
     'The standard robot uses the <b>Essential</b> configuration: Raspberry Pi 5 (16 GB),\n    720p global-shutter wrist cameras, an IEights stereo head camera, and LD19 lidar.\n    Policies run off-board; Jetson compute and depth cameras are optional upgrades.\n    Totals exclude unpriced items, optional storage, operator equipment, shipping, taxes, and labor.')
 s = s.replace('Prices are as paid on 31 July 2026.', 'Price basis: 31 July 2026; configuration and catalog corrections updated 22 September 2026.')
 s = s.replace('Prices are live-quoted (last refresh: 31&nbsp;July&nbsp;2026)', 'Configuration updated 22&nbsp;September&nbsp;2026 (price basis: 31&nbsp;July&nbsp;2026)')
-s = s.replace('The raw CSVs it\n  is generated from live in\n  <a href="https://github.com/robotmabel/MABEL/tree/main/BOM/data"><code>BOM/data/</code></a>.',
+s = s.replace('The raw CSVs it\n  is generated from live in\n  <a href="https://github.com/robotmabel/open_mabel/tree/main/hardware/bom/data"><code>BOM/data/</code></a>.',
     'Download the current <a href="../assets/bom/core.csv">core parts CSV</a>,\n  <a href="../assets/bom/choices.csv">compute and sensing CSV</a>, or\n  <a href="../assets/bom/mabel_bom.pdf">BOM audit PDF</a>.')
 p.write_text(s)
 print(f'Synced BOM: core ${core:,.2f}; Essential ${essential:,.2f}; Recommended ${recommended:,.2f}; Maximum ${maximum:,.2f}')

@@ -1,8 +1,8 @@
 {
  "generated_by": "website/scripts/build_platforms.py",
- "source": "papers/ral2026/Tables/02_related_comparison.tex \u2014 the full survey behind the printed figure, plus the single-arm open platforms the paper discusses in prose",
- "surveyed": "July 2026",
- "cost_note": "hardware list or estimate, thousands of USD, manufacturer-stated unless noted; commercial prices are frequently inquiry-only",
+ "source": "Active RA-L paper comparison for its listed platforms; extended original survey and official Sunday Memo and Dyna-2.1 video sources",
+ "surveyed": "Paper comparison + extended survey \u00b7 November 2026",
+ "cost_note": "hardware list or estimate, USD, manufacturer-stated unless noted; commercial prices are frequently inquiry-only",
  "platforms": [
   {
    "name": "Mobile ALOHA",
@@ -20,7 +20,14 @@
    "note": null,
    "mobile": true,
    "ours": false,
-   "link": "https://mobile-aloha.github.io/"
+   "link": "https://mobile-aloha.github.io/",
+   "preview": {
+    "video": "assets/platforms/aloha.mp4",
+    "poster": "assets/platforms/aloha.jpg",
+    "credit": "mobile-aloha.github.io",
+    "source_url": "https://mobile-aloha.github.io/",
+    "label": "Submission excerpt \u00b7 0.78\u00d7"
+   }
   },
   {
    "name": "AhaRobot",
@@ -38,7 +45,14 @@
    "note": "estimate",
    "mobile": true,
    "ours": false,
-   "link": "https://arxiv.org/abs/2503.10070"
+   "link": "https://arxiv.org/abs/2503.10070",
+   "preview": {
+    "video": "assets/platforms/aha.mp4",
+    "poster": "assets/platforms/aha.jpg",
+    "credit": "aha-robot.github.io",
+    "source_url": "https://aha-robot.github.io/",
+    "label": "Submission excerpt \u00b7 0.41\u00d7"
+   }
   },
   {
    "name": "Cone-E",
@@ -56,7 +70,14 @@
    "note": null,
    "mobile": true,
    "ours": false,
-   "link": ""
+   "link": "https://cone-e.com/",
+   "preview": {
+    "video": "assets/platforms/cone.mp4",
+    "poster": "assets/platforms/cone.jpg",
+    "credit": "Cone-E project",
+    "source_url": "https://cone-e.com/",
+    "label": "Project demonstration"
+   }
   },
   {
    "name": "XLeRobot",
@@ -74,7 +95,14 @@
    "note": null,
    "mobile": true,
    "ours": false,
-   "link": "https://github.com/Vector-Wangel/XLeRobot"
+   "link": "https://github.com/Vector-Wangel/XLeRobot",
+   "preview": {
+    "video": "assets/platforms/xle.mp4",
+    "poster": "assets/platforms/xle.jpg",
+    "credit": "XLeRobot GitHub",
+    "source_url": "https://github.com/Vector-Wangel/XLeRobot",
+    "label": "Submission excerpt \u00b7 0.78\u00d7"
+   }
   },
   {
    "name": "YOR",
@@ -92,7 +120,14 @@
    "note": null,
    "mobile": true,
    "ours": false,
-   "link": "https://arxiv.org/abs/2602.11150"
+   "link": "https://arxiv.org/abs/2602.11150",
+   "preview": {
+    "video": "assets/platforms/yor.mp4",
+    "poster": "assets/platforms/yor.jpg",
+    "credit": "yourownrobot.ai",
+    "source_url": "https://yourownrobot.ai/",
+    "label": "Submission excerpt"
+   }
   },
   {
    "name": "Trossen Mobile AI",
@@ -110,7 +145,14 @@
    "note": null,
    "mobile": true,
    "ours": false,
-   "link": "https://www.trossenrobotics.com/mobile-ai"
+   "link": "https://www.trossenrobotics.com/mobile-ai",
+   "preview": {
+    "video": "assets/platforms/trossen-motion-v2.mp4",
+    "poster": "assets/platforms/trossen-motion-v2.jpg",
+    "credit": "Trossen Robotics",
+    "source_url": "https://www.youtube.com/watch?v=BDENPOcgwdU",
+    "label": "Mobile AI assembly demonstration"
+   }
   },
   {
    "name": "OpenPyRo-A1",
@@ -128,7 +170,14 @@
    "note": null,
    "mobile": false,
    "ours": false,
-   "link": ""
+   "link": "https://openpyro-a1.github.io/",
+   "preview": {
+    "video": "assets/platforms/pyro.mp4",
+    "poster": "assets/platforms/pyro.jpg",
+    "credit": "OpenPyRo-A1 project",
+    "source_url": "https://openpyro-a1.github.io/",
+    "label": "Project demonstration \u00b7 4\u00d7"
+   }
   },
   {
    "name": "Reachy 2",
@@ -146,7 +195,14 @@
    "note": null,
    "mobile": true,
    "ours": false,
-   "link": "https://www.pollen-robotics.com/reachy/"
+   "link": "https://www.pollen-robotics.com/reachy-2/",
+   "preview": {
+    "video": "assets/platforms/reachy.mp4",
+    "poster": "assets/platforms/reachy.jpg",
+    "credit": "Pollen Robotics",
+    "source_url": "https://pollen-robotics.com/reachy-2/",
+    "label": "Submission excerpt"
+   }
   },
   {
    "name": "TidyBot++",
@@ -164,7 +220,14 @@
    "note": "arm not included",
    "mobile": true,
    "ours": false,
-   "link": ""
+   "link": "https://tidybot2.github.io/",
+   "preview": {
+    "video": "assets/platforms/tidy.mp4",
+    "poster": "assets/platforms/tidy.jpg",
+    "credit": "tidybot2.github.io",
+    "source_url": "https://tidybot2.github.io/",
+    "label": "Submission excerpt"
+   }
   },
   {
    "name": "LeKiwi",
@@ -182,7 +245,14 @@
    "note": null,
    "mobile": true,
    "ours": false,
-   "link": "https://github.com/SIGRobotics-UIUC/LeKiwi"
+   "link": "https://github.com/SIGRobotics-UIUC/LeKiwi",
+   "preview": {
+    "video": "assets/platforms/lekiwi.mp4",
+    "poster": "assets/platforms/lekiwi.jpg",
+    "credit": "SIGRobotics UIUC",
+    "source_url": "https://github.com/SIGRobotics-UIUC/LeKiwi",
+    "label": "Dynamixel variant"
+   }
   },
   {
    "name": "Reflex",
@@ -200,7 +270,14 @@
    "note": "gripper, not in-hand dexterity",
    "mobile": true,
    "ours": false,
-   "link": "https://www.reflexrobotics.com/"
+   "link": "https://www.reflexrobotics.com/",
+   "preview": {
+    "video": "assets/platforms/reflex-motion-v2.mp4",
+    "poster": "assets/platforms/reflex-motion-v2.jpg",
+    "credit": "Reflex Robotics",
+    "source_url": "https://www.reflexrobotics.com/",
+    "label": "Project demonstration"
+   }
   },
   {
    "name": "Rainbow RB-Y1",
@@ -210,15 +287,22 @@
    "arms": "7\u00d72",
    "n_arms": 2,
    "hand": 1,
-   "neck": 0,
-   "lift": "Torso \u00d76",
+   "neck": 2,
+   "lift": "Lift + torso",
    "cost": 80.0,
    "open": false,
    "focus": "Industrial bimanual coordination",
    "note": null,
    "mobile": true,
    "ours": false,
-   "link": "https://www.rainbow-robotics.com/en_rby1"
+   "link": "https://rainbow-robotics.com/en/rb-y1/",
+   "preview": {
+    "video": "assets/platforms/rby1.mp4",
+    "poster": "assets/platforms/rby1.jpg",
+    "credit": "Rainbow Robotics",
+    "source_url": "https://rainbow-robotics.com/en/rb-y1/",
+    "label": "Submission excerpt \u00b7 0.54\u00d7"
+   }
   },
   {
    "name": "Sunday Memo",
@@ -236,7 +320,14 @@
    "note": "target at scale; beta ~$20k",
    "mobile": true,
    "ours": false,
-   "link": "https://www.sunday.ai/"
+   "link": "https://www.sunday.ai/",
+   "preview": {
+    "video": "assets/platforms/sunday.mp4",
+    "poster": "assets/platforms/sunday.jpg",
+    "credit": "sunday.ai",
+    "source_url": "https://www.sunday.ai/blog/act-2-preview",
+    "label": "Submission excerpt"
+   }
   },
   {
    "name": "Weave Isaac 1",
@@ -254,25 +345,39 @@
    "note": null,
    "mobile": true,
    "ours": false,
-   "link": "https://www.weaverobotics.com/isaac-1"
+   "link": "https://www.weaverobotics.com/isaac-1",
+   "preview": {
+    "video": "assets/platforms/weave.mp4",
+    "poster": "assets/platforms/weave.jpg",
+    "credit": "Weave Robotics",
+    "source_url": "https://www.weaverobotics.com/isaac-1",
+    "label": "Project demonstration"
+   }
   },
   {
-   "name": "Galaxea R1",
-   "year": 2024,
+   "name": "Galaxea R1 Pro",
+   "year": 2025,
    "base": "Omni (3-wheel)",
    "holo": true,
    "arms": "7\u00d72",
    "n_arms": 2,
    "hand": 1,
    "neck": 0,
-   "lift": "Torso \u00d74",
-   "cost": 27.0,
+   "lift": "Lift + torso",
+   "cost": 70.0,
    "open": false,
    "focus": "Generalist mobile manipulation",
-   "note": "base model; R1 Pro ~$70k",
+   "note": "R1 Pro, matching the active paper and submission",
    "mobile": true,
    "ours": false,
-   "link": "https://galaxea.ai/"
+   "link": "https://www.galaxea-dynamics.com/",
+   "preview": {
+    "video": "assets/platforms/r1pro.mp4",
+    "poster": "assets/platforms/r1pro.jpg",
+    "credit": "Galaxea Dynamics",
+    "source_url": "https://www.galaxea-dynamics.com/",
+    "label": "Submission excerpt \u00b7 0.33\u00d7"
+   }
   },
   {
    "name": "Galbot G1",
@@ -290,7 +395,14 @@
    "note": "suction + 1-DOF jaw; retail-listed",
    "mobile": true,
    "ours": false,
-   "link": "https://www.galbot.com/en"
+   "link": "https://www.galbot.com/en",
+   "preview": {
+    "video": "assets/platforms/galbot.mp4",
+    "poster": "assets/platforms/galbot.jpg",
+    "credit": "Galbot",
+    "source_url": "https://www.galbot.com/en",
+    "label": "Project demonstration"
+   }
   },
   {
    "name": "DexMate Vega",
@@ -302,13 +414,20 @@
    "hand": 6,
    "neck": 3,
    "lift": "Torso + lift",
-   "cost": 90.0,
+   "cost": 98.0,
    "open": false,
    "focus": "General-purpose research robot",
    "note": null,
    "mobile": true,
    "ours": false,
-   "link": "https://www.dexmate.ai/product/vega"
+   "link": "https://www.dexmate.ai/product/vega",
+   "preview": {
+    "video": "assets/platforms/vega.mp4",
+    "poster": "assets/platforms/vega.jpg",
+    "credit": "Dexmate",
+    "source_url": "https://www.dexmate.com/product/vega",
+    "label": "Submission excerpt \u00b7 0.23\u00d7"
+   }
   },
   {
    "name": "Astribot S1",
@@ -319,14 +438,21 @@
    "n_arms": 2,
    "hand": 1,
    "neck": 2,
-   "lift": "Torso \u00d74",
-   "cost": 100.0,
+   "lift": "Lift + torso",
+   "cost": 69.0,
    "open": false,
    "focus": "High-speed bimanual manipulation",
-   "note": "third-party price",
+   "note": "paper comparison; source-specific price",
    "mobile": true,
    "ours": false,
-   "link": "https://www.astribot.com/product"
+   "link": "https://www.astribot.com/product",
+   "preview": {
+    "video": "assets/platforms/astri.mp4",
+    "poster": "assets/platforms/astri.jpg",
+    "credit": "astribot.com",
+    "source_url": "https://www.astribot.com/product/",
+    "label": "Submission excerpt \u00b7 0.84\u00d7"
+   }
   },
   {
    "name": "AgiBot Genie G1",
@@ -344,7 +470,14 @@
    "note": "third-party price",
    "mobile": true,
    "ours": false,
-   "link": "https://www.agibot.com/"
+   "link": "https://www.agibot.com/",
+   "preview": {
+    "video": "assets/platforms/agibot.mp4",
+    "poster": "assets/platforms/agibot.jpg",
+    "credit": "AGIBOT",
+    "source_url": "https://www.agibot.com/products/G1",
+    "label": "Project demonstration"
+   }
   },
   {
    "name": "Unitree R1-A7-D",
@@ -362,7 +495,39 @@
    "note": "lineup from $4,290; -D quote-based",
    "mobile": true,
    "ours": false,
-   "link": "https://www.unitree.com/"
+   "link": "https://www.unitree.com/R1-D",
+   "preview": {
+    "video": "assets/platforms/unitree.mp4",
+    "poster": "assets/platforms/unitree.jpg",
+    "credit": "Unitree Robotics",
+    "source_url": "https://www.unitree.com/R1-D",
+    "label": "R1-A-D series demonstration"
+   }
+  },
+  {
+   "name": "Dyna Taku",
+   "year": 2026,
+   "base": "4-wheel steering",
+   "holo": null,
+   "arms": "7\u00d72",
+   "n_arms": 2,
+   "hand": null,
+   "neck": null,
+   "lift": "Folding lower body",
+   "cost": null,
+   "open": false,
+   "focus": "Whole-body manipulation for end-to-end commercial workflows",
+   "note": "Dyna-2.1; hand and neck DOF and price not disclosed in the cited release",
+   "mobile": true,
+   "ours": false,
+   "link": "https://www.dyna.co/dyna-2.1",
+   "preview": {
+    "video": "assets/platforms/dyna.mp4",
+    "poster": "assets/platforms/dyna.jpg",
+    "credit": "dyna.co",
+    "source_url": "https://www.dyna.co/dyna-2.1",
+    "label": "Submission excerpt"
+   }
   },
   {
    "name": "MABEL",
@@ -374,13 +539,20 @@
    "hand": 17,
    "neck": 3,
    "lift": "Lift + torso",
-   "cost": 8.1,
+   "cost": 8.056,
    "open": true,
    "focus": "Open anthropomorphic dexterity + spatial teleoperation",
-   "note": "Essential build; recommended $9.3k",
+   "note": "Raspberry Pi 5 parts subtotal; optional sensors excluded",
    "mobile": true,
    "ours": true,
-   "link": "https://github.com/robotmabel/MABEL"
+   "link": "https://github.com/robotmabel/open_mabel",
+   "preview": {
+    "video": "assets/platforms/mabel.mp4",
+    "poster": "assets/platforms/mabel.jpg",
+    "credit": "MABEL project",
+    "source_url": "https://github.com/robotmabel/open_mabel",
+    "label": "Teleoperated demonstration \u00b7 2.4\u00d7"
+   }
   }
  ]
 }

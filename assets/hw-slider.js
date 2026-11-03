@@ -27,7 +27,7 @@
     });
   };
 
-  fetch('assets/data/hw-modules.json')
+  fetch('assets/data/hw-modules.json?v=studio-20261103', {cache:'no-cache'})
     .then(function (r) { return r.json(); })
     .then(build)
     .catch(function (e) {
@@ -54,12 +54,12 @@
            table of contents and must not dangle */
         '<article class="hs-card" role="listitem" id="hw-' + m.id + '" ' +
           'data-id="' + m.id + '">' +
-          '<div class="hs-shot"><img src="' + m.img + '" alt="MABEL’s ' +
+          '<div class="hs-shot"><img src="' + m.img + '" width="1440" height="1080" alt="MABEL’s ' +
             esc(m.name) + '" loading="' + (i < 2 ? 'eager' : 'lazy') + '"/>' +
-            '<span class="hs-kicker">' + esc(m.kicker) + '</span></div>' +
+            '</div>' +
           '<div class="hs-body">' +
             '<h3 class="hs-name">' + esc(m.name) + '</h3>' +
-            '<p class="hs-blurb">' + esc(m.blurb) + '</p>' +
+            '<details class="hs-design"><summary>Design notes</summary><p class="hs-blurb">' + esc(m.blurb) + '</p></details>' +
             '<dl class="hs-specs">' +
               m.specs.slice(0, 5).map(function (s) {
                 return '<div><dt>' + esc(s[0]) + '</dt><dd>' + esc(s[1]) + '</dd></div>';

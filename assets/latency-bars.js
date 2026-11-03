@@ -1,62 +1,21 @@
-/* Where the video latency actually goes.
- *
- * Every number here is a stage mean from the paper's own harness —
- * experiments/glass_to_glass/results/summary.json, 5 trials of 301 frames per
- * transport, frame ids recovered from the DECODED image so a frame only counts
- * if it survived the whole chain. Nothing is apportioned by eye.
- *
- *   g2g = capture + pipeline + present,  pipeline = encode + transport + decode
- *
- * `present` is the one declared term: 1.5 refresh intervals at 90 Hz on the
- * visionOS compositor. It is labelled as declared in the tooltip, because
- * quietly mixing a modelled number into measured ones is how latency charts
- * lie.
- *
- * Hover (or tap, or tab to) a segment and it names itself with its own
- * milliseconds and its share of that path.
- */
+/* Hardware light-test results, exported from the same archive as the active paper. */
 (function () {
   var host = document.getElementById('latencyBars');
   if (!host) return;
 
   /* stage name → [colour, what it is] */
   var STAGE = {
-    capture:   ['#23577E', 'Sensor exposure and readout on the robot. Identical on ' +
-                           'every path — the camera does not care where you are.'],
-    encode:    ['#C6301A', 'Turning the frame into bytes.'],
-    transport: ['#F0762E', 'On the wire: propagation, jitter and serialisation, ' +
-                           'shaped from a link measured by linkprobe.py.'],
-    decode:    ['#2E7D4F', 'Bytes back into pixels on the operator’s machine.'],
-    present:   ['#D9A13F', 'Waiting for the display to show it. DECLARED, not ' +
-                           'measured: 1.5 refresh intervals at 90 Hz.']
+    capture:['var(--blue)','Camera exposure, readout and upstream capture latency. Inferred as the light-test total minus the downstream stages.'],
+    encode:['var(--rust)','Measured H.264 encoding time on the robot.'],
+    transport:['var(--hi)','Measured frame transport over this connection.'],
+    decode:['var(--green)','Measured decoding time in the operator browser.'],
+    present:['var(--gold)','Measured browser presentation contribution; no fixed headset-refresh allowance is added.']
   };
-
-  var PATHS = [
-    { key: 'local', name: 'Same host', total: 48.5,
-      sub: 'the robot’s own screen · UDP/JPEG 960×720',
-      stages: { capture: 26.479, encode: 2.034, transport: 1.457,
-                decode: 1.867, present: 16.7 },
-      note: 'Nothing but the pipeline. The camera itself is now the biggest ' +
-            'single cost on the path.' },
-    { key: 'lan', name: 'Over the LAN', total: 82.3,
-      sub: 'headset on the same Wi-Fi · UDP/JPEG 960×720',
-      stages: { capture: 26.479, encode: 2.122, transport: 35.001,
-                decode: 2.034, present: 16.7 },
-      note: 'The wire costs 35 ms and everything else is unchanged. This is ' +
-            'the number the paper quotes for a working session.' },
-    { key: 'relay', name: 'Public relay', total: 362.3,
-      sub: 'other side of the planet · TCP/H.264 640×480',
-      stages: { capture: 26.479, encode: 214.015, transport: 104.087,
-                decode: 1.005, present: 16.7 },
-      note: 'The relay is NOT mostly distance. 214 ms of it is the hardware ' +
-            'H.264 encoder buffering frames — swap in libx264 -tune ' +
-            'zerolatency over the same link and the whole path drops to 150 ms.' }
-  ];
-
-  var MAX = 362.3;
-
+  fetch('assets/data/latency.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw new Error('latency data');return r.json();}).then(function(DATA){
+  var PATHS=DATA.paths;
+  var MAX=Math.max.apply(null,PATHS.map(function(p){return p.total;}));
   var html = '<div class="lb-head"><span class="lb-title">Glass to glass</span>' +
-    '<span class="lb-sub">camera photon → operator’s pixel, 5 × 301 frames per path</span></div>' +
+    '<span class="lb-sub">camera photon → operator pixel · hardware light tests · 27 Oct 2026</span></div>' +
     '<div class="lb-rows">';
   PATHS.forEach(function (p) {
     html += '<div class="lb-row" data-path="' + p.key + '">' +
@@ -71,14 +30,14 @@
         'aria-label="' + p.name + ', ' + s + ', ' + ms.toFixed(1) + ' milliseconds">' +
         '<span>' + (pct > 7 ? s : '') + '</span></button>';
     });
-    html += '</div><div class="lb-total">' + p.total.toFixed(0) + ' ms</div></div>';
+    html += '</div><div class="lb-total">' + p.label + '</div></div>';
   });
   html += '</div><div class="lb-key">';
   Object.keys(STAGE).forEach(function (s) {
     html += '<span class="lb-k"><i style="background:' + STAGE[s][0] + '"></i>' + s + '</span>';
   });
   html += '</div><p class="lb-foot">Hover a block for what it is and what it cost. ' +
-    'Source: <code>experiments/glass_to_glass/results/summary.json</code>.</p>' +
+    'Mean ± s.d. of trial medians: 3 × 20 s for hotspot/LAN, 4 × 20 s for Tailscale. The relay total is partly derived. <a href="assets/data/latency.json">Measured data ↗</a> · <a href="index.html#cite">Paper ↗</a>.</p>' +
     '<div class="lb-tip" hidden></div>';
   host.innerHTML = html;
 
@@ -93,8 +52,7 @@
       '<span class="lb-tip-path">' + p.name + '</span>' +
       '<span class="lb-tip-stage" style="color:' + STAGE[s][0] + '">' + s + '</span>' +
       '<span class="lb-tip-ms">' + ms.toFixed(1) + ' ms</span>' +
-      '<span class="lb-tip-share">' + share.toFixed(0) + '% of this path’s ' +
-        p.total.toFixed(0) + ' ms</span>' +
+      '<span class="lb-tip-share">' + share.toFixed(0) + '% of this path’s ' + p.label + '</span>' +
       '<span class="lb-tip-what">' + STAGE[s][1] + '</span>' +
       (s === 'encode' || s === 'transport'
         ? '<span class="lb-tip-note">' + p.note + '</span>' : '');
@@ -130,5 +88,6 @@
     if (b) show(b); else hide();
   });
 
-  window.__latencyBars = { paths: PATHS, show: show, hide: hide };
+  window.__latencyBars = { paths: PATHS, data:DATA,show: show, hide: hide };
+  }).catch(function(){host.innerHTML='<p>Latency data could not load. <a href="index.html#cite">See the paper.</a></p>';});
 })();

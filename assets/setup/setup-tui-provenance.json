@@ -1,0 +1,44 @@
+{
+  "recorded": "2026-11-03",
+  "method": "Actual PTY screen capture; no synthetic demo mode",
+  "command": [
+    "python3",
+    "setup/tui.py",
+    "--sim",
+    "--no-takeover",
+    "--http",
+    "18820"
+  ],
+  "keys": [
+    {
+      "at": 3,
+      "key": "\r"
+    },
+    {
+      "at": 6,
+      "key": "\r"
+    },
+    {
+      "at": 10,
+      "key": "\u001b"
+    },
+    {
+      "at": 13,
+      "key": "\u001b"
+    },
+    {
+      "at": 16,
+      "key": "\u001bOB"
+    },
+    {
+      "at": 17,
+      "key": "\u001bOB"
+    },
+    {
+      "at": 18,
+      "key": "\r"
+    }
+  ],
+  "source": "MILO",
+  "simulation_only": true
+}

@@ -1,0 +1,9 @@
+{
+  "recorded": "2026-11-03",
+  "method": "Actual browser recording of MILO Setup Studio in simulation; dedicated scratch calibration",
+  "source": "MILO/setup/studio.py",
+  "simulation": true,
+  "rig": "hands-v1-v1",
+  "end_effectors": "ORCA v1; simulated parallel grippers disabled",
+  "camera": "Reset view, then orbit using the studio controls"
+}

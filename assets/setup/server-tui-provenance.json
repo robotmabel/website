@@ -1,0 +1,38 @@
+{
+  "recorded": "2026-11-03",
+  "method": "Actual PTY screen capture; no synthetic demo mode",
+  "command": [
+    "python3",
+    "server/tui/cockpit.py",
+    "--mode",
+    "sim",
+    "--source",
+    "milo",
+    "--telemetry-host",
+    "127.0.0.1",
+    "--http-port",
+    "18824",
+    "--teleop-port",
+    "18824"
+  ],
+  "keys": [
+    {
+      "at": 7,
+      "key": "h"
+    },
+    {
+      "at": 12,
+      "key": "h"
+    },
+    {
+      "at": 16,
+      "key": "l"
+    },
+    {
+      "at": 20,
+      "key": "l"
+    }
+  ],
+  "source": "MILO",
+  "simulation_only": true
+}

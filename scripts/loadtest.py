@@ -28,7 +28,10 @@ BUDGET_REQ = 90
 # index.html carries the hero rig — three.js plus a 1.87 MB GLB — and that is
 # a deliberate cost, paid on an idle frame AFTER the load event so the page is
 # interactive at ~200 ms without it. Everything else has to fit the budget.
-PER_PAGE = {"index.html": 2100}
+# The simulator and teleoperation consoles also need the canonical 1.87 MB rig plus
+# three.js. The Overview loads that application only after a visitor requests
+# the console, so these bytes do not affect the Overview's first render.
+PER_PAGE = {"index.html": 2100, "simulator.html": 2600, "teleop.html": 2600}
 TEXT_TYPES = {"Script", "Stylesheet", "Document", "XHR", "Fetch", "Other"}
 GZIP_RATIO = 0.28          # measured on three.module.js and mabel.css
 

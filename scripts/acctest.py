@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The accuracy lab must DRAW what the hardware logs measured, IN STEP with its clip.
+"""The accuracy lab must DRAW what the hardware logs measured, in step with measured joint replay.
 
 Not "did the section appear" — a section appears just as happily with an empty
 SVG in it. This checks, in a browser:
@@ -100,8 +100,23 @@ async def go():
         txt = await ev("document.getElementById('accuracyLab').textContent")
         need(f"{R['median_RP_mm']:.2f} mm" in txt and f"{PF['worst_contour_rms_mm']:.2f} mm" in txt,
              f"the headline median RP {R['median_RP_mm']:.2f} mm and worst contour {PF['worst_contour_rms_mm']:.2f} mm are on screen")
-        clips = await ev("Array.from(document.querySelectorAll('#accuracyLab video')).map(function(v){return v.dataset.lazyvid||v.currentSrc})")
-        need(any("repeat.mp4" in c for c in clips) and any("path.mp4" in c for c in clips), f"both submission clips are wired {clips}")
+        need(await ev("document.querySelectorAll('#accuracyLab .al-test-stage').length===2"), "both test rows contain interactive 3D stages")
+        for key in ['repeat','path']:
+            await ev(f"document.querySelector('[data-clip={key}]').scrollIntoView({{block:'center',behavior:'instant'}})")
+            for _ in range(60):
+                await asyncio.sleep(.2)
+                if await ev(f"!!window.__accuracyReplays?.{key}"):break
+            need(await ev(f"!!window.__accuracyReplays?.{key}"), f'{key} resolves a complete articulated rig')
+            start=await ev(f"window.__accuracyReplays.{key}.time")
+            await asyncio.sleep(.35)
+            end=await ev(f"window.__accuracyReplays.{key}.time")
+            need(start is not None and end is not None and end!=start, f'{key} replay advances automatically on entry')
+        for width in [1440,1100,980]:
+            await cmd('Emulation.setDeviceMetricsOverride',dict(width=width,height=1000,deviceScaleFactor=1,mobile=False))
+            await asyncio.sleep(.2)
+            aligned=await ev("[...document.querySelectorAll('#accuracyLab .al-media')].every(n=>Math.abs(n.querySelector('.al-clip').getBoundingClientRect().top-n.querySelector('.al-plots').getBoundingClientRect().top)<2)")
+            need(aligned, f'each replay aligns with its plots at {width}px')
+        await cmd('Emulation.setDeviceMetricsOverride',dict(width=1500,height=1200,deviceScaleFactor=1,mobile=False))
 
         # stop the clips' own clocks so the checks drive time
         await ev("window.__accuracyLab.hold(true); document.querySelectorAll('#accuracyLab video').forEach(function(v){v.pause();}); true")
@@ -135,6 +150,17 @@ async def go():
             need(cond == cc["id"] and x is not None and abs(x - mid[1]) < 0.15, f"at {mid[0]:.2f} s the plot is {cc['id']} with the playhead at {mid[1]:.2f} s along the path (got {cond}, {x})")
             await ev(f"window.__accuracyLab.at({sy[0][0] - 0.3})")
             need(await ev("window.__accuracyLab.playhead()") is None, f"while the arm moves to the {cc['shape']}'s start there is no playhead")
+
+        # The curves progressively reveal samples, rather than showing the
+        # complete graph under a moving playhead from the first frame.
+        sy=next(c['sync'] for c in PF['conditions'] if c['id']=='spiral_torso0')
+        await ev(f"window.__accuracyLab.at({sy[0][0]-.1})")
+        need(await ev("+document.querySelector('[data-role=trace-window]').getAttribute('width')===0"), 'no path samples appear before tracing starts')
+        await ev(f"window.__accuracyLab.at({sy[len(sy)//3][0]})")
+        early=await ev("+document.querySelector('[data-role=trace-window]').getAttribute('width')")
+        await ev(f"window.__accuracyLab.at({sy[2*len(sy)//3][0]})")
+        late=await ev("+document.querySelector('[data-role=trace-window]').getAttribute('width')")
+        need(0<early<late<392, f'curve reveal grows with the robot clock ({early} → {late})')
 
         # ── hover tooltips, through the input pipeline ──
         async def hover(x, y):

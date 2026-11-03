@@ -26,6 +26,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Bangers&family=Jost:ital,wght@0,300..800&family=Space+Mono:ital,wght@0,400;0,700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="docs.css?v=470404c8"/>
+<link rel="stylesheet" href="../assets/page-progress.css?v=fc22a843"/>
+<script src="../assets/page-progress.js?v=4b9cfcb1" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -40,7 +42,7 @@
   </p>
 
   <h2>Laptop — the simulation twin</h2>
-<pre><code>git clone https://github.com/robotmabel/MABEL.git &amp;&amp; cd MABEL
+<pre><code>git clone https://github.com/robotmabel/open_mabel.git &amp;&amp; cd open_mabel
 python3 -m pip install -r server/requirements.txt   <span class="c"># mujoco≥3.0, websockets, aiohttp, opencv, osqp…</span>
 cd server &amp;&amp; ./run.sh                                <span class="c"># full stack: physics + cameras + web studio :8097</span></code></pre>
   <p>
@@ -55,12 +57,12 @@ cd server &amp;&amp; ./run.sh                                <span class="c"># f
     The ROS 2 side is <b>RoboStack Jazzy in conda</b> — no apt ROS for the
     workspace. One script does the whole bring-up from a fresh clone:
   </p>
-<pre><code>cd mabel_ws
+<pre><code>cd ros
 ./dev_up.sh          <span class="c"># installs Miniforge if needed, creates the `mabel` env from</span>
                      <span class="c"># environment.yml (RoboStack Jazzy + Nav2 + slam-toolbox +</span>
                      <span class="c"># camera SDKs), colcon-builds the workspace, opens tmux panes</span></code></pre>
   <p>Then, in every shell that talks ROS:</p>
-<pre><code>source mabel_ws/scripts/mabel_env.sh   <span class="c"># activates `mabel`, overlays install/, pins DDS</span></code></pre>
+<pre><code>source ros/scripts/mabel_env.sh   <span class="c"># activates `mabel`, overlays install/, pins DDS</span></code></pre>
   <ul>
     <li>The env pins the DDS trio — CycloneDDS, <code>ROS_DOMAIN_ID=0</code>,
       LOCALHOST discovery — and scrubs any apt ROS from the environment. Every
@@ -118,6 +120,6 @@ hardware_bridge/install/install.sh      <span class="c"># systemd unit + udev ru
   </ul>
 </main>
 </div>
-<script src="docs.js?v=0efc77c8"></script>
+<script src="docs.js?v=347f7c1b"></script>
 </body>
 </html>

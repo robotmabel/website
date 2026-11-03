@@ -1,13 +1,10 @@
-"""The platform landscape, from the paper's own survey.
+"""Generate the paper-aligned comparison and extended survey.
 
-papers/ral2026/Tables/02_related_comparison.tex is the FULL survey (the printed
-figure abridges the commercial block to its four most articulated rows). This
-carries all of it, plus the single-arm open platforms the paper discusses in
-prose rather than tabulating, so the page can filter across the whole set.
-
-Survey date is the paper's: July 2026. Prices are the hardware list or estimate
-in thousands of USD, manufacturer-stated unless the note says otherwise;
-commercial prices are frequently inquiry-only.
+Core rows follow papers/ral2026_overleaf/Sections/01_introduction.tex.
+The active specifications table supplies MABEL's parts subtotal, also checked
+against the published BOM. Additional survey platforms and the submission's
+Sunday Memo / Dyna Taku clips retain their separate cited sources. Peer costs
+are historical, source-specific figures rather than current quotations.
 
     python3 scripts/build_platforms.py
 """
@@ -29,19 +26,23 @@ LINKS = {
     "XLeRobot": "https://github.com/Vector-Wangel/XLeRobot",
     "YOR": "https://arxiv.org/abs/2602.11150",
     "Trossen Mobile AI": "https://www.trossenrobotics.com/mobile-ai",
-    "Reachy 2": "https://www.pollen-robotics.com/reachy/",
+    "Reachy 2": "https://www.pollen-robotics.com/reachy-2/",
     "LeKiwi": "https://github.com/SIGRobotics-UIUC/LeKiwi",
     "Reflex": "https://www.reflexrobotics.com/",
-    "Rainbow RB-Y1": "https://www.rainbow-robotics.com/en_rby1",
+    "Rainbow RB-Y1": "https://rainbow-robotics.com/en/rb-y1/",
+    "Dyna Taku": "https://www.dyna.co/dyna-2.1",
+    "Cone-E": "https://cone-e.com/",
+    "OpenPyRo-A1": "https://openpyro-a1.github.io/",
+    "TidyBot++": "https://tidybot2.github.io/",
     "Sunday Memo": "https://www.sunday.ai/",
     "Weave Isaac 1": "https://www.weaverobotics.com/isaac-1",
-    "Galaxea R1": "https://galaxea.ai/",
+    "Galaxea R1 Pro": "https://www.galaxea-dynamics.com/",
     "Galbot G1": "https://www.galbot.com/en",
     "DexMate Vega": "https://www.dexmate.ai/product/vega",
     "Astribot S1": "https://www.astribot.com/product",
     "AgiBot Genie G1": "https://www.agibot.com/",
-    "Unitree R1-A7-D": "https://www.unitree.com/",
-    "MABEL": "https://github.com/robotmabel/MABEL",
+    "Unitree R1-A7-D": "https://www.unitree.com/R1-D",
+    "MABEL": "https://github.com/robotmabel/open_mabel",
 }
 
 # name, year, base, holonomic (True/False/None=unstated), arms "NxM",
@@ -73,30 +74,33 @@ P = [
     # ── commercial ───────────────────────────────────────────────────────
     ("Reflex", 2024, "3-module swerve", True, "2", 1, 3, "Spine lift", None, False,
      "Teleoperated warehouse manipulation", "gripper, not in-hand dexterity"),
-    ("Rainbow RB-Y1", 2024, "Differential", False, "7×2", 1, 0, "Torso ×6", 80.0, False,
+    ("Rainbow RB-Y1", 2024, "Differential", False, "7×2", 1, 2, "Lift + torso", 80.0, False,
      "Industrial bimanual coordination", None),
     ("Sunday Memo", 2025, "Omni (3-wheel)", None, "7×2", 4, 2, "Lift", 10.0, False,
      "Learn-from-demonstration home chores", "target at scale; beta ~$20k"),
     ("Weave Isaac 1", 2026, "Wheeled", None, "6×2", 1, 2, "Lift", 8.0, False,
      "Teleoperation-assisted home robot", None),
-    ("Galaxea R1", 2024, "Omni (3-wheel)", True, "7×2", 1, 0, "Torso ×4", 27.0, False,
-     "Generalist mobile manipulation", "base model; R1 Pro ~$70k"),
+    ("Galaxea R1 Pro", 2025, "Omni (3-wheel)", True, "7×2", 1, 0, "Lift + torso", 70.0, False,
+     "Generalist mobile manipulation", "R1 Pro, matching the active paper and submission"),
     ("Galbot G1", 2024, "Omni wheeled", True, "7×2", 1, 2, "Waist + lift", 88.0, False,
      "Retail and pharmacy manipulation", "suction + 1-DOF jaw; retail-listed"),
-    ("DexMate Vega", 2025, "Omni (caster)", True, "7×2", 6, 3, "Torso + lift", 90.0, False,
+    ("DexMate Vega", 2025, "Omni (caster)", True, "7×2", 6, 3, "Torso + lift", 98.0, False,
      "General-purpose research robot", None),
-    ("Astribot S1", 2024, "Omni wheeled", True, "7×2", 1, 2, "Torso ×4", 100.0, False,
-     "High-speed bimanual manipulation", "third-party price"),
+    ("Astribot S1", 2024, "Omni wheeled", True, "7×2", 1, 2, "Lift + torso", 69.0, False,
+     "High-speed bimanual manipulation", "paper comparison; source-specific price"),
     ("AgiBot Genie G1", 2025, "Wheeled", None, "7×2", 1, 2, "Lift + waist", 22.0, False,
      "Fleet-scale data collection", "third-party price"),
     ("Unitree R1-A7-D", 2026, "Differential", False, "7×2", 7, 2, "Lift + waist", 4.3, False,
      "Modular dual-arm mobile manipulation", "lineup from $4,290; -D quote-based"),
+    ("Dyna Taku", 2026, "4-wheel steering", None, "7×2", None, None, "Folding lower body", None, False,
+     "Whole-body manipulation for end-to-end commercial workflows",
+     "Dyna-2.1; hand and neck DOF and price not disclosed in the cited release"),
     # ── ours ─────────────────────────────────────────────────────────────
     # MABEL's cost is NOT the paper's archived $9.7k: it is the published BOM's
     # Essential build today (see essential_k below), so this table cannot quote a
     # figure the rest of the site has moved past (bomclaims.py guards the rest).
     ("MABEL", 2026, "3-module swerve", True, "7×2", 17, 3, "Lift + torso", "BOM", True,
-     "Open anthropomorphic dexterity + spatial teleoperation", "Essential build; recommended $RECk"),
+     "Open anthropomorphic dexterity + spatial teleoperation", "Raspberry Pi 5 parts subtotal; optional sensors excluded"),
 ]
 
 
@@ -107,11 +111,14 @@ def bom_k():
     """(Essential, Recommended) totals in k$, one decimal, from the published BOM."""
     with open(BOM_SUMMARY) as f:
         builds = {b["id"]: b["total"] for b in json.load(f)["builds"]}
-    return round(builds["essential"] / 1000, 1), round(builds["recommended"] / 1000, 1)
+    return round(builds["essential"] / 1000, 3), round(builds["recommended"] / 1000, 3)
 
 
 def main():
     rows = []
+    preview_file = os.path.join(SITE, "assets", "data", "platform-previews.json")
+    with open(preview_file) as f:
+        previews = json.load(f)
     ess_k, rec_k = bom_k()
     for (name, yr, base, holo, arms, hand, neck, lift, cost, is_open,
          focus, note) in P:
@@ -125,14 +132,14 @@ def main():
             "lift": lift, "cost": cost, "open": is_open, "focus": focus,
             "note": note, "mobile": base != "Fixed", "ours": name == "MABEL",
             "link": LINKS.get(name, ""),
+            "preview": previews.get(name),
         })
     out = {
         "generated_by": "website/scripts/build_platforms.py",
-        "source": ("papers/ral2026/Tables/02_related_comparison.tex — the full "
-                   "survey behind the printed figure, plus the single-arm open "
-                   "platforms the paper discusses in prose"),
-        "surveyed": "July 2026",
-        "cost_note": ("hardware list or estimate, thousands of USD, "
+        "source": ("Active RA-L paper comparison for its listed platforms; "
+                   "extended original survey and official Sunday Memo and Dyna-2.1 video sources"),
+        "surveyed": "Paper comparison + extended survey · November 2026",
+        "cost_note": ("hardware list or estimate, USD, "
                       "manufacturer-stated unless noted; commercial prices are "
                       "frequently inquiry-only"),
         "platforms": rows,
@@ -142,7 +149,7 @@ def main():
         json.dump(out, f, indent=1)
 
     n_link = sum(1 for r in rows if r["link"])
-    print(f"   {n_link}/{len(rows)} carry a link from the bibliography")
+    print(f"   {n_link}/{len(rows)} carry a project reference")
     n_open = sum(1 for r in rows if r["open"])
     print(f"wrote {os.path.relpath(OUT, SITE)} — {len(rows)} platforms "
           f"({n_open} open, {len(rows)-n_open} commercial)")

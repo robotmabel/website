@@ -32,7 +32,7 @@
   /* id, label, sub, column, row, kind, world, the tooltip body */
   var NODES = [
     ['vp', 'Vision Pro', 'ARKit · 27 joints/hand', 0, 0, 'in', 'both',
-     'The headset streams head and both hands at 90 Hz. It is a client of the ' +
+     'The headset streams head and both hands at 60 Hz. It is a client of the ' +
      'wire protocol like everything else here — it has no privileged path.'],
     ['ios', 'iPhone app', 'joysticks · task space', 0, 1, 'in', 'both',
      'Thumbsticks for the base, a task-space pad for the arms. Same wire, ' +
@@ -40,7 +40,7 @@
     ['web', 'Browser console', 'zero install', 0, 2, 'in', 'both',
      'The Control Center. Nothing to install and nothing privileged: it opens ' +
      'the same WebSocket the apps do.'],
-    ['policy', 'Learned policy', 'ACT · diffusion · π₀', 0, 3, 'in', 'both',
+    ['policy', 'Learned policy', 'ACT · shared command interface', 0, 3, 'in', 'both',
      'A trained policy is a command SOURCE, not a special mode. It publishes ' +
      'the same messages a human does, and the envelope trims it the same way.'],
     ['nav', 'Nav2 goal', 'a pose on the map', 0, 4, 'in', 'both',
@@ -55,21 +55,17 @@
      'LAN without opening a port on it.'],
 
     ['retarget', 'Retargeter', 'operator → robot frame', 2, 0, 'ctl', 'both',
-     'Human wrists are not MABEL wrists. An SE(3) cost puts the operator’s ' +
-     'hand pose on a shorter, differently jointed arm, elbow included.'],
-    ['wbc', 'Whole-body QP', '200 Hz · collision guard', 2, 1, 'ctl', 'both',
-     'One quadratic program for arms, torso, lift and base together, with ' +
-     'self-collision as a constraint rather than an afterthought.'],
+     'Head and hand tracking is mapped to whole-body, hand and neck references under their separate kinematic constraints.'],
+    ['wbc', 'Whole-body control', 'joint limits · collision guard', 2, 1, 'ctl', 'both',
+     'Retargeted references and learned-policy outputs execute through the same controller, with joint limits and monitored self-collision constraints.'],
     ['motion', 'Motion model', 'tip-over envelope', 2, 2, 'ctl', 'both',
      'The robot is tall and its base is small. This trims any command that ' +
-     'would put the ZMP outside the support polygon — before it is sent.'],
-    ['torque', 'Torque layer', '500 Hz · gravity FF', 2, 3, 'ctl', 'both',
-     'Gravity and friction feed-forward on top of PD. Worth 251 mm → 24 mm of ' +
-     'path error; the hardware page plots it.'],
+     'exceeds the height-dependent speed and acceleration limits before it is sent. These limits reduce tip-over risk.'],
+    ['torque', 'Torque layer', 'gravity · friction feed-forward', 2, 3, 'ctl', 'both',
+     'Gravity and friction feed-forward complement low-gain joint control for compliant motion.'],
 
     ['hal', 'hardware_bridge', 'sole hardware owner', 3, 0, 'hal', 'real',
-     'THE ONLY THING IN THE REPO THAT OPENS A DEVICE. CAN to the actuators, ' +
-     'serial to the neck and hands, USB to the cameras. Everything else asks it.'],
+     'Owns the physical motor and sensor interfaces: CAN actuators, serial neck and hands, and USB cameras. Shared-controller commands are dispatched here.'],
     ['simbridge', 'simulation_bridge', 'the plant, swapped', 3, 2, 'sim', 'sim',
      'The same contract as the HAL, backed by MuJoCo instead of motors. This ' +
      'node is the ENTIRE difference between driving the sim and driving the robot.'],
@@ -88,13 +84,12 @@
 
     ['fw', 'Firmware', 'Teensy · Pico · CAN', 5, 0, 'fw', 'real',
      'The microcontrollers. CAN at 1 Mbit to the DAMIAO actuators, TTL to the ' +
-     '32 finger servos, and the swerve steering loop.'],
+     '34 hand coordinates, and the swerve steering loop.'],
     ['robot', 'The robot', '59 actuators', 5, 1, 'bot', 'real',
-     '56 functional degrees of freedom, 59 motors, and the only thing on this ' +
-     'diagram that can hurt someone.'],
+     'The physical MABEL platform has 56 functional degrees of freedom and 59 actuators.'],
     ['mujoco', 'MuJoCo', 'the same 59 joints', 5, 3, 'simbot', 'sim',
      'The canonical MJCF — the model every other representation on this site ' +
-     'is generated from. Forty scenes, scripted traffic, rendered sensors.'],
+     'is generated from. 35 scenes, scripted traffic, rendered sensors.'],
   ];
 
   var EDGES = [
@@ -255,7 +250,7 @@
 
   host.innerHTML =
     '<div class="sm-head">' +
-      '<span class="sm-kicker">The stack · click anything</span>' +
+      '<span class="sm-kicker">System architecture · select a block</span>' +
       '<h3 class="sm-title">Where does a command actually go?</h3>' +
     '</div>' +
     '<div class="sm-paths">' +

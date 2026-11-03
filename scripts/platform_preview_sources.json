@@ -1,0 +1,234 @@
+[
+  {
+    "name": "Sunday Memo",
+    "key": "sunday",
+    "credit": "sunday.ai",
+    "source_url": "https://www.sunday.ai/blog/act-2-preview",
+    "source_file": "marketing/ral_video/renders/v17/strict_privacy/e11005a7e02bf29b47.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt"
+  },
+  {
+    "name": "Dyna Taku",
+    "key": "dyna",
+    "credit": "dyna.co",
+    "source_url": "https://www.dyna.co/dyna-2.1",
+    "source_file": "marketing/ral_video/renders/v17/media/dyna_deployment_latest.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt"
+  },
+  {
+    "name": "Rainbow RB-Y1",
+    "key": "rby1",
+    "credit": "Rainbow Robotics",
+    "source_url": "https://rainbow-robotics.com/en/rb-y1/",
+    "source_file": "marketing/ral_video/renders/v16_grid/media/rby1_selected.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt \u00b7 0.54\u00d7"
+  },
+  {
+    "name": "Galaxea R1 Pro",
+    "key": "r1pro",
+    "credit": "Galaxea Dynamics",
+    "source_url": "https://www.galaxea-dynamics.com/",
+    "source_file": "marketing/ral_video/renders/v16_grid/media/r1pro_selected.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt \u00b7 0.33\u00d7"
+  },
+  {
+    "name": "Astribot S1",
+    "key": "astri",
+    "credit": "astribot.com",
+    "source_url": "https://www.astribot.com/product/",
+    "source_file": "marketing/ral_video/renders/v16_grid/media/astri_selected.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt \u00b7 0.84\u00d7"
+  },
+  {
+    "name": "DexMate Vega",
+    "key": "vega",
+    "credit": "Dexmate",
+    "source_url": "https://www.dexmate.com/product/vega",
+    "source_file": "marketing/ral_video/renders/v16_grid/media/vega_body_selected.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt \u00b7 0.23\u00d7"
+  },
+  {
+    "name": "Mobile ALOHA",
+    "key": "aloha",
+    "credit": "mobile-aloha.github.io",
+    "source_url": "https://mobile-aloha.github.io/",
+    "source_file": "marketing/ral_video/renders/v16_grid/media/aloha_selected.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt \u00b7 0.78\u00d7"
+  },
+  {
+    "name": "AhaRobot",
+    "key": "aha",
+    "credit": "aha-robot.github.io",
+    "source_url": "https://aha-robot.github.io/",
+    "source_file": "marketing/ral_video/renders/v16_grid/media/aha_selected.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt \u00b7 0.41\u00d7"
+  },
+  {
+    "name": "XLeRobot",
+    "key": "xle",
+    "credit": "XLeRobot GitHub",
+    "source_url": "https://github.com/Vector-Wangel/XLeRobot",
+    "source_file": "marketing/ral_video/renders/v16_grid/media/xle_selected.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt \u00b7 0.78\u00d7"
+  },
+  {
+    "name": "YOR",
+    "key": "yor",
+    "credit": "yourownrobot.ai",
+    "source_url": "https://yourownrobot.ai/",
+    "source_file": "marketing/ral_video/renders/v16_grid/media/yor_selected.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt"
+  },
+  {
+    "name": "TidyBot++",
+    "key": "tidy",
+    "credit": "tidybot2.github.io",
+    "source_url": "https://tidybot2.github.io/",
+    "source_file": "marketing/ral_video/renders/v11/face_review/6f950b6450b2857f0e/anonymous.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt"
+  },
+  {
+    "name": "Reachy 2",
+    "key": "reachy",
+    "credit": "Pollen Robotics",
+    "source_url": "https://pollen-robotics.com/reachy-2/",
+    "source_file": "marketing/ral_video/renders/v16_grid/media/reachy_selected.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Submission excerpt"
+  },
+  {
+    "name": "Cone-E",
+    "key": "cone",
+    "credit": "Cone-E project",
+    "source_url": "https://cone-e.com/",
+    "source_media": "https://cone-e.com/mfiles/cone-e-compliance.mp4",
+    "cache_name": "cone-valid.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Project demonstration"
+  },
+  {
+    "name": "Trossen Mobile AI",
+    "key": "trossen-motion-v2",
+    "credit": "Trossen Robotics",
+    "source_url": "https://www.youtube.com/watch?v=BDENPOcgwdU",
+    "source_media": "https://www.youtube.com/watch?v=BDENPOcgwdU",
+    "cache_name": "trossen-mobile-outro.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Mobile AI assembly demonstration",
+    "source_window": [
+      265,
+      295
+    ]
+  },
+  {
+    "name": "OpenPyRo-A1",
+    "key": "pyro",
+    "credit": "OpenPyRo-A1 project",
+    "source_url": "https://openpyro-a1.github.io/",
+    "source_media": "https://openpyro-a1.github.io/media/videos/pick_exchange_banana_4x.webm",
+    "cache_name": "pyro.webm",
+    "start": 0,
+    "duration": 6,
+    "label": "Project demonstration \u00b7 4\u00d7"
+  },
+  {
+    "name": "LeKiwi",
+    "key": "lekiwi",
+    "credit": "SIGRobotics UIUC",
+    "source_url": "https://github.com/SIGRobotics-UIUC/LeKiwi",
+    "source_media": "https://raw.githubusercontent.com/SIGRobotics-UIUC/LeKiwi/main/media/dynamixel%20lekiwi%20demo.gif",
+    "cache_name": "lekiwi.gif",
+    "start": 0,
+    "duration": 6,
+    "label": "Dynamixel variant"
+  },
+  {
+    "name": "Reflex",
+    "key": "reflex-motion-v2",
+    "credit": "Reflex Robotics",
+    "source_url": "https://www.reflexrobotics.com/",
+    "source_media": "https://stream.mux.com/YXkXlb3sApj01hiuWc729pT5aa1Ke3C7DVyZbD9q2nAY.m3u8",
+    "cache_name": "reflex-rendition.mp4",
+    "start": 0.1,
+    "duration": 5.8,
+    "label": "Project demonstration"
+  },
+  {
+    "name": "Weave Isaac 1",
+    "key": "weave",
+    "credit": "Weave Robotics",
+    "source_url": "https://www.weaverobotics.com/isaac-1",
+    "source_media": "https://weaveassets.com/Isaac_1_at_Home.mp4",
+    "cache_name": "weave.mp4",
+    "start": 14,
+    "duration": 6,
+    "label": "Project demonstration"
+  },
+  {
+    "name": "AgiBot Genie G1",
+    "key": "agibot",
+    "credit": "AGIBOT",
+    "source_url": "https://www.agibot.com/products/G1",
+    "source_media": "https://www.agibot.com/public/static/index/en/images/pro-A2D/banner-video.mp4",
+    "cache_name": "agibot.mp4",
+    "start": 1,
+    "duration": 6,
+    "label": "Project demonstration"
+  },
+  {
+    "name": "Unitree R1-A7-D",
+    "key": "unitree",
+    "credit": "Unitree Robotics",
+    "source_url": "https://www.unitree.com/R1-D",
+    "source_media": "https://www.unitree.com/images/5d0424babffa48a7a1fe2932e2b6d548.mp4",
+    "cache_name": "unitree.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "R1-A-D series demonstration"
+  },
+  {
+    "name": "Galbot G1",
+    "key": "galbot",
+    "credit": "Galbot",
+    "source_url": "https://www.galbot.com/en",
+    "source_file": "marketing/ral_video/assets/peers/video/galbot_g1.mp4",
+    "start": 12,
+    "duration": 6,
+    "label": "Project demonstration"
+  },
+  {
+    "name": "MABEL",
+    "key": "mabel",
+    "credit": "MABEL project",
+    "source_url": "https://github.com/robotmabel/open_mabel",
+    "source_file": "website/assets/home/fridge.mp4",
+    "start": 0,
+    "duration": 6,
+    "label": "Teleoperated demonstration \u00b7 2.4\u00d7"
+  }
+]

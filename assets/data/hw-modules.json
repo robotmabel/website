@@ -1,6 +1,8 @@
 {
  "generated_by": "scripts/build_hw_modules.py",
  "source": "BOM/data/{core,choices}.csv",
+ "currency": "USD",
+ "cny_to_usd": 0.14342237061769617,
  "modules": [
   {
    "id": "base",
@@ -93,7 +95,7 @@
    ],
    "options": [],
    "price": 1912.11,
-   "img": "assets/hw/base.png"
+   "img": "assets/hw/base.webp?v=508e17dbf8"
   },
   {
    "id": "lift",
@@ -182,14 +184,14 @@
    ],
    "options": [],
    "price": 484.2,
-   "img": "assets/hw/lift.png"
+   "img": "assets/hw/lift.webp?v=13fe35fff1"
   },
   {
    "id": "body",
    "name": "Body & torso",
-   "kicker": "One yaw, huge torque",
-   "blurb": "A hollow-shaft planetary actuator turns the whole upper body on the lift, so the arms can face a workspace the base is not pointed at.",
-   "why": "Turning the torso instead of the base is what lets the robot work at a bench without re-parking. The hollow shaft carries the arm harness through the joint rather than around it.",
+   "kicker": "Torso pitch",
+   "blurb": "A hollow-shaft actuator pitches the upper body, extending reach above and below the neutral workspace.",
+   "why": "Torso pitch extends vertical reach. The hollow shaft carries the arm harness through the joint rather than around it.",
    "specs": [
     [
      "Actuator",
@@ -283,7 +285,7 @@
      "item": "DAMIAO DM10422P torso actuator",
      "spec": "Hollow-shaft planetary, dual inductive encoder",
      "qty": 1,
-     "price": 1999.0,
+     "price": 286.7,
      "vendor": "Taobao",
      "link": "https://s.taobao.com/search?q=DM10422P%20%E5%8F%8C%E7%94%B5%E6%84%9F%E7%BC%96%E7%A0%81%E5%99%A8%E9%AB%98%E7%B2%BE%E5%BA%A6%E4%B8%AD%E7%A9%BA%E8%A1%8C%E6%98%9F%E5%87%8F%E9%80%9F%E5%85%B3%E8%8A%82%E7%94%B5%E6%9C%BA%E6%A8%A1%E7%BB%84",
      "search": true,
@@ -291,8 +293,8 @@
     }
    ],
    "options": [],
-   "price": 2202.36,
-   "img": "assets/hw/body.png"
+   "price": 490.06,
+   "img": "assets/hw/body.webp?v=48b71fca57"
   },
   {
    "id": "arms",
@@ -343,7 +345,7 @@
      "item": "DAMIAO FOCGM43 joint module",
      "spec": "MIT-mode BLDC, dual encoder, geared",
      "qty": 6,
-     "price": 599.0,
+     "price": 85.91,
      "vendor": "Taobao",
      "link": "https://s.taobao.com/search?q=MIT%E9%A9%B1%E5%8A%A8%E6%97%A0%E5%88%B7%E4%BC%BA%E6%9C%8D%E6%9C%BA%E6%A2%B0%E8%87%82%E6%9C%BA%E5%99%A8%E4%BA%BA%E8%BE%BE%E5%A6%99%E7%A7%91%E6%8A%80%E5%85%B3%E8%8A%82%E6%A8%A1%E7%BB%84%E7%94%B5%E6%9C%BAFOCGM43%E5%87%8F%E9%80%9F%E5%8F%8C%E7%BC%96",
      "search": true,
@@ -354,7 +356,7 @@
      "item": "DAMIAO DM4340 joint motor",
      "spec": "Geared, dual encoder, 9 N.m rated",
      "qty": 4,
-     "price": 882.33,
+     "price": 126.55,
      "vendor": "Taobao",
      "link": "https://s.taobao.com/search?q=MIT%E9%A9%B1%E5%8A%A8%E6%97%A0%E5%88%B7%E4%BC%BA%E6%9C%8D%E6%9C%BA%E6%A2%B0%E8%87%82%E6%9C%BA%E5%99%A8%E4%BA%BA%E8%BE%BE%E5%A6%99%E7%A7%91%E6%8A%80%E5%85%B3%E8%8A%82%E7%94%B5%E6%9C%BADM4340%E5%87%8F%E9%80%9F%E5%8F%8C%E7%BC%96%E7%A0%81%E5%99%A8",
      "search": true,
@@ -365,7 +367,7 @@
      "item": "DAMIAO DM8009P joint module",
      "spec": "MIT-mode BLDC module, V4, 40 N.m",
      "qty": 4,
-     "price": 1899.0,
+     "price": 272.36,
      "vendor": "Taobao",
      "link": "https://s.taobao.com/search?q=DM8009P%20%E6%97%A0%E5%88%B7MIT%E9%A9%B1%E5%8A%A8%E4%BC%BA%E6%9C%8D%E6%9C%BA%E6%A2%B0%E8%87%82%E6%9C%BA%E5%99%A8%E4%BA%BA%E8%BE%BE%E5%A6%99%E7%A7%91%E6%8A%80%E5%85%B3%E8%8A%82%E6%A8%A1%E7%BB%84%E7%94%B5%E6%9C%BA%E5%8F%8C%E7%BC%96",
      "search": true,
@@ -376,7 +378,7 @@
      "item": "OpenArm structural set",
      "spec": "CNC 7075 aluminium + sheet steel",
      "qty": 1,
-     "price": 2699.0,
+     "price": 387.1,
      "vendor": "Taobao",
      "link": "https://s.taobao.com/search?q=%E7%8E%B0%E8%B4%A7openarm%E6%9C%BA%E6%A2%B0%E8%87%82%E7%BB%93%E6%9E%84%E4%BB%B6%20%E5%AE%9A%E5%81%9Acnc%E9%9B%B6%E4%BB%B6%E9%92%A3%E9%87%91%E4%B8%8D%E9%94%88%E9%92%A2%207075%E9%93%9D%E5%90%88%E9%87%91%E5%8A%A0%E5%B7%A5",
      "search": true,
@@ -387,7 +389,7 @@
      "item": "Arm harness set",
      "spec": "Harness + hub + e-stop + power adapter board + PSU",
      "qty": 1,
-     "price": 865.0,
+     "price": 124.06,
      "vendor": "Taobao",
      "link": "",
      "search": false,
@@ -395,8 +397,8 @@
     }
    ],
    "options": [],
-   "price": 18283.32,
-   "img": "assets/hw/arms.png"
+   "price": 2622.24,
+   "img": "assets/hw/arms.webp?v=ece1ea914a"
   },
   {
    "id": "hands",
@@ -447,7 +449,7 @@
      "item": "Feetech HL3915M servo",
      "spec": "HL-3915-C001, 12 V, 14 kg-cm, dual-shaft, steel gear, TTL",
      "qty": 32,
-     "price": 235.0,
+     "price": 33.7,
      "vendor": "Taobao",
      "link": "https://s.taobao.com/search?q=%E9%A3%9E%E7%89%B9HL3915M%E5%8A%9B%E6%8E%A7%E5%85%A8%E9%87%91%E5%B1%9E%E9%92%A2%E9%BD%BF14KG%E5%8F%8C%E8%BD%B4%E7%81%B5%E5%B7%A7%E6%89%8B%E6%9C%BA%E6%A2%B0%E8%87%82TTL%E6%80%BB%E7%BA%BF%E4%B8%B2%E5%8F%A3%E8%88%B5%E6%9C%BA",
      "search": true,
@@ -458,7 +460,7 @@
      "item": "Feetech HL3930M servo",
      "spec": "HL-3930-C001, 12 V, 35 kg-cm, metal case, dual-shaft, TTL",
      "qty": 2,
-     "price": 359.0,
+     "price": 51.49,
      "vendor": "Taobao",
      "link": "https://s.taobao.com/search?q=%E9%A3%9E%E7%89%B9HL3930M%E6%81%92%E5%8A%9B%E9%87%91%E5%B1%9E%E5%A4%96%E5%A3%B335KG%E5%A4%A7%E6%89%AD%E7%9F%A9%E5%8F%8C%E8%BD%B4%E6%9C%BA%E6%A2%B0%E8%87%82%E6%9C%BA%E5%99%A8%E4%BA%BATTL%E4%B8%B2%E5%8F%A3%E8%88%B5%E6%9C%BA",
      "search": true,
@@ -469,7 +471,7 @@
      "item": "ST/SC bus servo driver board",
      "spec": "USB-UART TTL debug board",
      "qty": 2,
-     "price": 27.65,
+     "price": 3.97,
      "vendor": "Taobao",
      "link": "",
      "search": false,
@@ -480,7 +482,7 @@
      "item": "Bus servo power distribution board",
      "spec": "5264 terminal splitter",
      "qty": 2,
-     "price": 18.0,
+     "price": 2.58,
      "vendor": "Taobao",
      "link": "",
      "search": false,
@@ -488,8 +490,8 @@
     }
    ],
    "options": [],
-   "price": 8329.3,
-   "img": "assets/hw/hands.png"
+   "price": 1194.61,
+   "img": "assets/hw/hands.webp?v=dd67ddabf8"
   },
   {
    "id": "head",
@@ -546,7 +548,7 @@
      "item": "DAMIAO FOCGM43 neck actuator",
      "spec": "MIT-mode BLDC, dual encoder",
      "qty": 1,
-     "price": 599.0,
+     "price": 85.91,
      "vendor": "Taobao",
      "link": "",
      "search": false,
@@ -554,8 +556,8 @@
     }
    ],
    "options": [],
-   "price": 748.39,
-   "img": "assets/hw/head.png"
+   "price": 235.3,
+   "img": "assets/hw/head.webp?v=93dba3512f"
   },
   {
    "id": "sensors",
@@ -732,7 +734,7 @@
     }
    ],
    "price": 383.98,
-   "img": "assets/hw/sensors.png",
+   "img": "assets/hw/sensors.webp?v=d44f30c61a",
    "art": "assets/hw/sensors.svg"
   },
   {
@@ -1043,7 +1045,7 @@
     }
    ],
    "price": 1740.84,
-   "img": "assets/hw/electronics.png"
+   "img": "assets/hw/electronics.webp?v=6d33e34bd9"
   }
  ]
 }

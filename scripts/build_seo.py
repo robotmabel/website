@@ -22,18 +22,18 @@ TAG = "open-source mobile bimanual robot"
 
 # path: (title, description, priority)
 PAGES = {
-    "index.html": (f"MABEL — the {TAG}",
-                   "MABEL is an open-source anthropomorphic mobile bimanual robot: 56 degrees of freedom, two 17-DOF hands, a lift, an active head and a holonomic base, from $8,056 in parts. CAD, firmware, ROS 2, simulation and teleoperation are open.", "1.0"),
+    "index.html": ("MABEL — Hardware, Teleoperation, Simulation and Learning",
+                   "MABEL is an open-source 56-DOF mobile bimanual robot with an $8,056 parts subtotal. Explore hardware, robot comparisons, teleoperation, simulation, control and learning.", "1.0"),
     "hardware.html": (f"Hardware — MABEL, the {TAG}",
                       "MABEL's hardware: holonomic swerve base, 0.635 m lift, pitching torso, two 7-DOF arms, two 17-DOF ORCA hands and a 3-DOF head, with measured repeatability and path-following accuracy.", "0.9"),
     "anatomy.html": (f"Anatomy explorer — MABEL, the {TAG}",
                      "Explore MABEL module by module in 3-D: every actuator, bus and part of the open-source mobile bimanual robot.", "0.6"),
     "software.html": (f"Software — MABEL, the {TAG}",
-                      "MABEL's software stack: ROS 2, the hardware abstraction layer, the whole-body controller, the tip-over motion model, retargeting and firmware.", "0.8"),
+                      "MABEL's software stack, retargeting, height-aware motion limits, whole-body control, Setup TUI and Studio, and server bring-up.", "0.8"),
     "simulation.html": (f"Simulation — MABEL, the {TAG}",
                         "MABEL's MuJoCo digital twin: one canonical model, the same controller and wire contract as the robot, 35 scenes, simulated data collection and reinforcement learning.", "0.8"),
     "simulator.html": (f"Browser simulator — MABEL, the {TAG}",
-                       "Drive MABEL's simulated twin in your browser: the same command interface the real robot uses.", "0.6"),
+                       "Explore MABEL with camera and orbitable 3D state views, a hosted MuJoCo connection when available, and an explicitly labelled browser kinematic fallback.", "0.6"),
     "teleop.html": (f"Teleoperation — MABEL, the {TAG}",
                     "Whole-body teleoperation of MABEL from an Apple Vision Pro without hand-held controllers, plus iPhone, browser and gamepad clients on one command interface.", "0.8"),
     "autonomy.html": (f"Autonomy — MABEL, the {TAG}",

@@ -137,8 +137,9 @@
         var t = document.querySelector(id);
         if (t) {
           e.preventDefault();
-          var top = t.getBoundingClientRect().top + window.scrollY - 76;
-          window.scrollTo({ top: top, behavior: 'smooth' });
+          var offset = parseFloat(getComputedStyle(t).scrollMarginTop) || 76;
+          var top = t.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({ top: top, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
         }
       }
     });
@@ -349,7 +350,7 @@
      which has to know whether to start the replacement it just inserted */
   function wantsPlay(v) {
     var r = v.getBoundingClientRect();
-    return r.bottom > -100 && r.top < innerHeight + 100 && v.offsetParent !== null;
+    return r.bottom > -100 && r.top < innerHeight + 100 && r.right > 0 && r.left < innerWidth && v.offsetParent !== null;
   }
 
   /* background high-res fetch queue — strictly one at a time, and never
@@ -438,6 +439,7 @@
   }
 
   function start(v) {
+    if (v.dataset.userPaused || document.hidden || document.body.classList.contains('pop-locked')) return;
     /* THE POSTER IS NOT LAZY UNLESS YOU MAKE IT LAZY. `preload="none"` holds
        back the video bytes and says nothing about `poster`, which the browser
        fetches the moment the element parses. The 35-tile scene gallery was
@@ -485,6 +487,7 @@
     v.addEventListener('playing', finish); v.addEventListener('canplaythrough', finish); v.addEventListener('error', finish);
     v.addEventListener('waiting', function () { if (!v.paused) spin(v, true); });
     v.addEventListener('playing', function () { spin(v, false); });
+    v.autoplay = true; v.muted = true; v.defaultMuted = true; v.loop = true; v.playsInline = true;
     v.src = v.dataset.lazyvid || v.dataset.lo;
     v.load();
     v.dataset.hiDone = '1';
@@ -509,8 +512,9 @@
      deciding when to fetch.
 
      The property worth keeping is that a clip you are looking at plays
-     immediately, and it survives: `start` runs on intersection with a 400 px
-     margin, so a clip is loading before it is visible. */
+     immediately, and it survives: the observer and wantsPlay use the same 100 px
+     margin. A larger observer margin loaded the clip while wantsPlay was false,
+     then never triggered another event when it actually became visible. */
   var io = null;
   if ('IntersectionObserver' in window) {
     io = new IntersectionObserver(function (entries) {
@@ -519,7 +523,7 @@
         if (e.isIntersecting) start(v);
         else if (v.src) v.pause();
       });
-    }, { rootMargin: '400px 0px' });
+    }, { rootMargin: '100px 0px' });
     vids.forEach(function (v) { io.observe(v); });
   } else {
     vids.forEach(function (v) { if (wantsPlay(v)) start(v); });
@@ -568,6 +572,15 @@
     });
     return fresh.length;
   };
+
+  // Restore inline loops after Safari suspends a tab or a scroll reveal.
+  // User-paused clips stay paused; playing clips recover without a tile click.
+  function resumeVisible() { vids.forEach(function(v){if(wantsPlay(v)&&!v.dataset.userPaused)start(v);}); }
+  var mediaFrame=false;
+  document.addEventListener('scroll',function(){if(mediaFrame)return;mediaFrame=true;requestAnimationFrame(function(){mediaFrame=false;resumeVisible();});},{passive:true,capture:true});
+  ['pageshow','focus'].forEach(function(ev){addEventListener(ev,resumeVisible);});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)resumeVisible();});
+  document.addEventListener('pointerup',function(){vids.forEach(function(v){if(v.paused&&wantsPlay(v)&&!v.dataset.userPaused)start(v);});},{passive:true});
 
   /* a freshly shown tab panel: start its clips immediately */
   document.querySelectorAll('.tab-btn').forEach(function (btn) {
@@ -702,8 +715,9 @@
       if (!phone.matches) { cells.forEach(function (c) { c.style.gridArea = ''; }); return; }
       var gap = parseFloat(getComputedStyle(chap).columnGap) || 6;
       var colW = (chap.clientWidth - gap) / 2, h = [1, 1];
+      if (colW <= 0) return;
       cells.forEach(function (c) {
-        if (c.classList.contains('rg-lead')) {
+        if (c.classList.contains('rg-lead') && !book.classList.contains('ov-gallery-vertical')) {
           c.style.gridArea = '';
           var lh = Math.ceil(c.getBoundingClientRect().height + gap);
           c.style.gridArea = h[0] + ' / 1 / span ' + lh + ' / -1';
@@ -717,8 +731,20 @@
       });
     });
   }
+  var queued = false, lastWidth = 0;
+  function schedulePack() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; pack(); });
+  }
   pack();
-  addEventListener('resize', pack);
-  if (document.fonts) document.fonts.ready.then(pack);   // the title strip's height
+  addEventListener('resize', schedulePack);
+  // Resize can arrive before responsive gutters have settled. Observe the
+  // gallery's actual width too, without repacking on our own height changes.
+  new ResizeObserver(function (entries) {
+    var width = entries[0].contentRect.width;
+    if (Math.abs(width-lastWidth)>.5) { lastWidth=width;schedulePack(); }
+  }).observe(book);
+  if (document.fonts) document.fonts.ready.then(schedulePack);
 })();
 

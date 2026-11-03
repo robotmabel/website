@@ -1,0 +1,97 @@
+diff --git a/server/plant.py b/server/plant.py
+index 97ac0479..85dba07f 100644
+--- a/server/plant.py
++++ b/server/plant.py
+@@ -300,7 +300,13 @@ class SimBridgePlant:
+     # ── the rest of the Plant surface ────────────────────────────────────────
+     def reset(self):
+         self._last_sent.clear()
+-        self.rpc.try_call("reset")
++        # Capture the owner's completed home pose before TeleopFacade.reset()
++        # rebuilds hold references. Queuing reset and returning immediately let
++        # the pre-reset mirror re-latch a raised lift or displaced arm.
++        if self.rpc.try_call("reset", wait=True):
++            self.read_state()
++        else:
++            _log.warning("simulation reset was not acknowledged by the physics owner")
+ 
+     def place_base(self, x, y, yaw=0.0):
+         self._last_sent.clear()
+diff --git a/simulation_bridge/engine.py b/simulation_bridge/engine.py
+index e03ade6f..5a89010b 100644
+--- a/simulation_bridge/engine.py
++++ b/simulation_bridge/engine.py
+@@ -223,9 +223,14 @@ class SimWorld:
+         v, w = self.cmd.caps
+         self.cmd.caps = (float(vmax) if vmax else v, float(wmax) if wmax else w)
+ 
+-    def reset(self, pose=None):
++    def reset(self, pose=None, wait=False):
++        # The gateway must re-anchor AFTER the physics owner publishes home,
++        # otherwise its old measured lift/arm pose becomes the new hold target.
++        done = threading.Event() if wait else None
+         with self.cmd.lock:
+-            self.cmd.reset_req = {"pose": pose} if pose else {}
++            self.cmd.reset_req = {"pose": pose, "done": done}
++        if done is not None and not done.wait(1.0):
++            raise RuntimeError("Physics reset did not complete")
+ 
+     def set_state(self, qpos=None):
+         """Seed the world from a full qpos vector (the PREVIEW instance uses
+@@ -385,6 +390,9 @@ class SimWorld:
+             self.dynamics.reset()
+         mujoco.mj_forward(m, d)
+         self._publish()
++        done = req.get("done")
++        if done is not None:
++            done.set()
+         log.info("world reset%s", f" → {pose}" if pose else "")
+ 
+     def _apply_commands(self):
+diff --git a/simulation_bridge/rpc.py b/simulation_bridge/rpc.py
+index ef6d83f2..6b4f7024 100644
+--- a/simulation_bridge/rpc.py
++++ b/simulation_bridge/rpc.py
+@@ -81,8 +81,8 @@ class SimBridgeService:
+         self.world.set_speed_caps(vmax, wmax)
+         return True
+ 
+-    def _op_reset(self, pose=None):
+-        self.world.reset(pose)
++    def _op_reset(self, pose=None, wait=False):
++        self.world.reset(pose, wait=wait)
+         return True
+ 
+     def _op_set_state(self, qpos=None):
+diff --git a/simulation_bridge/tests/test_bridge.py b/simulation_bridge/tests/test_bridge.py
+index fa6ca931..6d28d882 100644
+--- a/simulation_bridge/tests/test_bridge.py
++++ b/simulation_bridge/tests/test_bridge.py
+@@ -170,3 +170,27 @@ def test_realtime_rate(world):
+     realtime_hz = 1.0 / w.model.opt.timestep       # 500 Hz at dt=2 ms
+     assert s["rateHz"] >= 0.6 * realtime_hz, \
+         f"physics too slow: {s['rateHz']} Hz vs {realtime_hz} Hz real-time"
++
++
++def test_gateway_sees_home_before_reanchoring(world, monkeypatch):
++    """A reset must expose home before the controller rebuilds hold references."""
++    from pathlib import Path
++    monkeypatch.syspath_prepend(str(Path(REPO) / "server"))
++    from plant import SimBridgePlant
++    owner, rpc = world
++    rpc.call("reset", wait=True)
++    rpc.call("set_targets", targets={"Lift": 0.48, "Left Arm 2": 0.45})
++    time.sleep(1.0)
++    data = mujoco.MjData(owner.model)
++    plant = SimBridgePlant(owner.model, data, port=rpc.port)
++    plant.read_state()
++    lift = [int(owner.model.joint(n).qposadr[0]) for n in ("Lift Lower", "Lift Upper")]
++    assert sum(data.qpos[i] for i in lift) > 0.40
++    plant.reset()
++    # No sleep: this is exactly when the facade captures its hold references.
++    home = mujoco.MjData(owner.model)
++    if owner.model.nkey:
++        mujoco.mj_resetDataKeyframe(owner.model, home, 0)
++    arm = int(owner.model.joint("Left Arm 2").qposadr[0])
++    assert np.allclose(data.qpos[lift + [arm]], home.qpos[lift + [arm]], atol=0.002)
++    assert not owner.cmd.targets
