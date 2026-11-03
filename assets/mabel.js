@@ -710,6 +710,7 @@
   if (!book) return;
   var phone = matchMedia('(max-width: 760px)');
   function pack() {
+    if(book.classList.contains('ov-gallery-vertical'))return;
     [].forEach.call(book.querySelectorAll('.rg-chap'), function (chap) {
       var cells = [].slice.call(chap.querySelectorAll('.rg-cell'));
       if (!phone.matches) { cells.forEach(function (c) { c.style.gridArea = ''; }); return; }

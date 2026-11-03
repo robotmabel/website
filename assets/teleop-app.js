@@ -2717,37 +2717,50 @@ function installSimulationSession(app) {
   const dock=$('.ta-dock-row'),pill=$('#taPill');if(!dock||!pill)return;
   const join=document.createElement('button');join.type='button';join.className='ta-sbtn sim-queue-join';join.textContent='Join queue';join.hidden=true;
   dock.insertBefore(join,$('#taReset'));
-  const session={enabled:!!app.overview,driver:false,want:false,seen:false,role:'viewer',ready:false,position:null,remaining:0,updated:0};
+  const info=document.createElement('div'),estimate=document.createElement('span'),reset=$('#taReset'),resetHTML=reset.innerHTML;
+  info.className='sim-session-info';info.hidden=true;estimate.className='sim-session-estimate';estimate.setAttribute('aria-live','off');info.appendChild(estimate);dock.before(info);
+  const resetIcon='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></svg>';
+  let layoutEnabled=null;
+  const session={enabled:!!app.overview,driver:false,want:false,seen:false,role:'viewer',ready:false,position:null,ahead:0,waitEstimate:null,remaining:0,updated:0};
   app.simSession=session;
   const readOnly=new Set(['ping','list_maps','queue_watch','queue_join','queue_leave','queue_estop']);
   session.canSend=(type)=>!session.enabled||session.driver||readOnly.has(type);
   const stop=()=>{app._setFlying(false);app.nav={f:0,s:0,w:0,liftRate:0};app.armRaise={left:0,right:0};app.jointsDirty=false;};
   session.paint=()=>{
     join.hidden=!session.enabled;app.shell.classList.toggle('sim-queue-locked',session.enabled&&!session.driver);
+    if(layoutEnabled!==session.enabled){
+      layoutEnabled=session.enabled;info.hidden=!session.enabled;dock.parentElement.classList.toggle('sim-session-dock',session.enabled);
+      if(session.enabled){info.insertBefore(pill,estimate);pill.setAttribute('role','status');reset.innerHTML=resetIcon;reset.setAttribute('aria-label','Reset simulation');reset.title='Reset simulation';}
+      else{dock.insertBefore(pill,join);pill.removeAttribute('role');reset.innerHTML=resetHTML;reset.removeAttribute('aria-label');reset.removeAttribute('title');reset.hidden=false;}
+    }
     if(!session.enabled)return;
     const elapsed=(performance.now()-session.updated)/1000;
     const seconds=Math.max(0,Math.ceil(session.remaining-elapsed));
     const clock=Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
-    const label=session.driver?'Your turn · '+clock:session.role==='waiting'?'Queue · #'+session.position:session.ready?'Watching':'Simulator offline';
+    const aheadLabel=session.ahead+' '+(session.ahead===1?'person':'people')+' ahead';
+    const label=session.driver?'Your turn':session.role==='waiting'?(session.ahead?aheadLabel:'First in queue'):session.ready?(session.ahead?aheadLabel:'Ready to drive'):session.seen?'Simulator offline':'Connecting…';
+    const wait=session.waitEstimate===null?null:Math.max(0,Math.ceil(session.waitEstimate-elapsed));
+    const waitLabel=wait===null?'Calculating…':wait<60?'<1 min wait':'~'+Math.ceil(wait/60)+' min wait';
+    estimate.textContent=session.driver?clock+' left':session.role==='waiting'&&!session.ready?'Offline · place held':session.ready&&session.ahead?waitLabel:'2-min turns';
     const text=pill.querySelector('span:last-child');if(text&&text.textContent!==label)text.textContent=label;
     pill.classList.toggle('link',session.driver);pill.classList.toggle('wait',!session.ready||session.role==='waiting');
-    pill.title=session.driver?'Two-minute simulation session':session.role==='waiting'?'Your place is held until the simulator is ready':'Watch the simulation or join the waiting queue';
-    join.textContent=session.driver?'End turn':session.role==='waiting'?'Leave queue':'Join queue';
+    pill.title=session.driver?'Two-minute simulation session':session.role==='waiting'?'People ahead includes the current driver. The queue advances automatically; early departures shorten the estimated wait.':'Watch the simulation or join for a two-minute turn';
+    join.textContent=session.driver?'End turn':session.role==='waiting'?'Leave queue':session.ready&&!session.ahead?'Start my turn':'Join queue';
     join.disabled=!app.link.connected||!session.seen;
     if(app.overview){const b=$('#taNoVid .inner b');if(b)b.textContent=session.ready?'Connecting camera…':'Simulator offline';if(!session.ready)$('#taNoVid').style.display='grid';}
-    $('#taReset').disabled=!session.driver;
+    reset.disabled=!session.driver;reset.hidden=!session.driver;
   };
   session.connecting=(url)=>{
     const enabled=!!app.overview||new URL(url).pathname==='/sim/teleop';
     if(!enabled){session.want=false;$('#taReset').disabled=false;}
-    session.enabled=enabled;session.seen=false;session.driver=false;session.role='viewer';session.ready=false;
+    session.enabled=enabled;session.seen=false;session.driver=false;session.role='viewer';session.ready=false;session.ahead=0;session.waitEstimate=null;
     session.paint();
   };
   session.socketOpen=()=>{if(!session.enabled)return;app.link.send('queue_watch',{});if(session.want)app.link.send('queue_join',{});};
   session.socketClosed=()=>{session.driver=false;session.seen=false;session.ready=false;session.role='viewer';if(session.enabled)stop();session.paint();};
   session.receive=(state)=>{
     const wasDriver=session.driver;
-    session.enabled=true;session.seen=true;session.role=state.role;session.driver=state.role==='driver';session.ready=state.backend_ready;session.position=state.position;session.remaining=state.remaining_seconds;session.updated=performance.now();
+    session.enabled=true;session.seen=true;session.role=state.role;session.driver=state.role==='driver';session.ready=state.backend_ready;session.position=state.position;session.ahead=state.people_ahead??Math.max(0,(state.position||1)-1);session.waitEstimate=state.estimated_wait_seconds??null;session.remaining=state.remaining_seconds;session.updated=performance.now();
     if(wasDriver&&!session.driver){stop();if(state.role==='viewer')session.want=false;}
     if(!wasDriver&&session.driver){app._setFlying(true);app._announceSpec(true);}
     session.paint();

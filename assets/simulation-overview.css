@@ -23,7 +23,20 @@
 .sim-queue-join[hidden] { display:none; }
 .sim-queue-join { white-space:nowrap; }
 .ta-sbtn:disabled { opacity:.35;cursor:default; }
+.sim-session-info { display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:1px 3px 6px;border-bottom:1px solid rgba(255,255,255,.12); }
+.sim-session-info[hidden] { display:none; }
+.sim-session-info .ta-pill { border:0;background:none;padding:0;height:auto;min-height:24px;max-width:none;font:500 13px var(--font-head);letter-spacing:0;color:var(--bone); }
+.sim-session-info .ta-pill span:last-child { display:inline; }
+.sim-session-estimate { white-space:nowrap;font:12px var(--font-head);color:var(--ash-light); }
+.ta-dock.sim-session-dock { min-width:280px;gap:7px;font-family:var(--font-head); }
+.sim-session-dock .ta-dock-row { width:100%;gap:7px;flex-wrap:nowrap; }
+.sim-session-dock .sim-queue-join { margin-right:auto; }
+.sim-session-dock #taReset { display:grid;place-items:center;width:34px;padding:0; }
+.sim-session-dock #taReset[hidden] { display:none; }
+.sim-session-dock .ta-dock-row .ta-sbtn,.sim-session-dock .ta-dock-row .ta-estop { min-height:34px;padding-inline:10px;font:600 12px var(--font-head); }
+.sim-session-dock .ta-dock-row .ta-fs { width:34px;padding:0; }
 @media(max-width:720px) {
+ .ta-dock.sim-session-dock { min-width:0; }
  .overview-sim .ta-dock { width:calc(100% - 24px);padding:8px; }
  .overview-sim .ta-view[data-view=nav] { width:min(150px,42vw);height:clamp(126px,44vw,155px);top:10px;right:10px; }
  .overview-sim .ta-joy { width:76px;height:76px; }

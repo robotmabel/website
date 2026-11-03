@@ -43,7 +43,7 @@
    deploy:['Execute and re-plan','Use the same controller as teleoperation.',['Execute 1 s, then observe again.','Send the next chunk through the shared controller.'],['The configured execution window is 30 steps at 30 Hz, with no temporal ensembling.']]
   };
   function render(title,text,items,more) {
-   detail.replaceChildren();var h=document.createElement('h3'),p=document.createElement('p'),ul=document.createElement('ul');h.textContent=title;p.textContent=text;
+   detail.hidden=false;detail.replaceChildren();var h=document.createElement('h3'),p=document.createElement('p'),ul=document.createElement('ul');h.textContent=title;p.textContent=text;
    items.forEach(function (item) { var li=document.createElement('li');li.textContent=item;ul.appendChild(li); });detail.append(h,p,ul);
    if (more && more.length) { var disclosure=document.createElement('details'),summary=document.createElement('summary');summary.textContent='More details';disclosure.appendChild(summary);more.forEach(function (text) { var note=document.createElement('p');note.textContent=text;disclosure.appendChild(note); });detail.appendChild(disclosure); }
   }
@@ -71,7 +71,7 @@
   function inspectStep() { var index=+slider.value;Array.from(cells.children).forEach(function (cell,i) { cell.classList.toggle('inspected',i===index); });document.getElementById('lpStepReadout').value=(index+1)+' / '+D.chunk.steps+' · '+(index/D.chunk.hz).toFixed(2)+' s';document.getElementById('lpStepDetail').textContent=index<execute?'Executed before the next observation.':'Prediction only; the next observation triggers a new chunk.'; }
   slider.addEventListener('input',inspectStep);inspectStep();
   host.querySelectorAll('[data-target]').forEach(function (b) { b.addEventListener('click',function () { host.querySelectorAll('[data-target]').forEach(function (other) { other.setAttribute('aria-pressed',String(other===b)); });document.getElementById('lpTargetLabel').textContent=b.dataset.target==='sim'?'Simulation bridge → digital twin':'Hardware bridge → robot';selectStage('deploy'); }); });
-  var groups=document.getElementById('lpStateGroups');D.state_groups.forEach(function (group) { var b=document.createElement('button');b.type='button';b.style.setProperty('--count',group.count);b.innerHTML='<b>'+group.count+'</b><span>'+group.name+'</span>';b.addEventListener('click',function () { selectStage('train');render(group.name+': '+group.count+' coordinates','Part of the 59-coordinate state.',['Wrists count within the hand coordinates.','Base twist and lift rate are separate action fields.']); });groups.appendChild(b); });
-  selectStage('collect');window.__learningExplorer={data:D,selectStage:selectStage};
+  var groups=document.getElementById('lpStateGroups');if(groups)D.state_groups.forEach(function (group) { var b=document.createElement('button');b.type='button';b.style.setProperty('--count',group.count);b.innerHTML='<b>'+group.count+'</b><span>'+group.name+'</span>';b.addEventListener('click',function () { selectStage('train');render(group.name+': '+group.count+' coordinates','Part of the 59-coordinate state.',['Wrists count within the hand coordinates.','Base twist and lift rate are separate action fields.']); });groups.appendChild(b); });
+  selectStage('collect');detail.hidden=true;window.__learningExplorer={data:D,selectStage:selectStage};
  }).catch(function () { if (host) document.getElementById('learningDetail').textContent='Learning data could not load. Reload to try again.';datasetHosts.forEach(function (target) { target.textContent='Dataset summary could not load. Reload to try again.'; }); });
 })();

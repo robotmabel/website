@@ -48,7 +48,11 @@ class SimulationQueue:
         self.lock=asyncio.Lock();self.tasks=[];self.session=None;self.needs_reset=True
     def state(self,peer):
         position=next((i+1 for i,p in enumerate(self.waiting) if p is peer),None)
-        return {'type':'sim_queue','payload':{'role':'driver' if peer is self.owner else 'waiting' if position else 'viewer','position':position,'waiting':len(self.waiting),'remaining_seconds':max(0,math.ceil(self.deadline-time.monotonic())) if self.owner else 0,'lease_seconds':self.lease_seconds,'backend_ready':self.ready}}
+        remaining=max(0,math.ceil(self.deadline-time.monotonic())) if self.owner else 0
+        queued_ahead=position-1 if position else len(self.waiting)
+        ahead=0 if peer is self.owner else queued_ahead+int(self.owner is not None)
+        estimate=(remaining+queued_ahead*self.lease_seconds) if self.ready else None
+        return {'type':'sim_queue','payload':{'role':'driver' if peer is self.owner else 'waiting' if position else 'viewer','position':position,'waiting':len(self.waiting),'people_ahead':ahead,'estimated_wait_seconds':0 if peer is self.owner else estimate,'current_turn_remaining_seconds':remaining,'remaining_seconds':remaining if peer is self.owner else 0,'lease_seconds':self.lease_seconds,'backend_ready':self.ready}}
     async def broadcast_queue(self):
         await asyncio.gather(*(p.send(self.state(p)) for p in list(self.peers)),return_exceptions=True)
     async def _send(self,message):

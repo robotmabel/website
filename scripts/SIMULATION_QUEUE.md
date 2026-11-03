@@ -4,6 +4,8 @@ The overview uses the complete camera/teleop console with an orbitable robot pic
 
 The gateway in `sim_queue_server.py` enforces these rules on the server. Client-side button disabling is only a UI affordance. Each spectator has a bounded output buffer, so a slow connection cannot block another visitor's state or the lease timer.
 
+Queue updates report `people_ahead` (including the current driver), `estimated_wait_seconds`, and the current turn's remaining time. The estimate is the active turn's remainder plus two minutes per queued visitor ahead. Early departures shorten it. When the simulation is unavailable, the estimate is null and the UI shows that the visitor's place is held. Joining or reconnecting does not extend an active lease.
+
 ## Dedicated simulation routing
 
 - Caddy `/sim/teleop` → loopback `127.0.0.1:7011/teleop` (queue gateway).

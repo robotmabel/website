@@ -46,7 +46,7 @@
   .studios .card p { flex:1; }
   .studios .card .btn { align-self:flex-start; margin-top:18px; }
 </style>
-<link href="assets/overview.css?v=b4b8780b" rel="stylesheet"/>
+<link href="assets/overview.css?v=e7cce5e1" rel="stylesheet"/>
 <link rel="stylesheet" href="assets/page-progress.css?v=fc22a843"/>
 <script src="assets/page-progress.js?v=4b9cfcb1" defer></script>
 </head>
@@ -104,8 +104,8 @@
 <a class="hero-source" href="https://github.com/robotmabel/open_mabel" rel="noopener" target="_blank"><svg aria-hidden="true" class="comic-icon" focusable="false" viewbox="0 0 64 64"><use href="assets/comic-icons.svg#source"></use></svg> GitHub <span aria-hidden="true">↗</span></a>
 </div>
 <div aria-label="Get or build MABEL" class="hero-build hero-paths">
-<a class="hero-path hero-path-buy" href="order.html"><img alt="" aria-hidden="true" class="comic-icon comic-icon-robot" src="assets/head-icon.svg"/><span><b>Buy now (waitlist)</b></span><i aria-hidden="true">→</i></a>
-<a class="hero-path hero-path-build" href="docs/"><svg aria-hidden="true" class="comic-icon" focusable="false" viewbox="0 0 64 64"><use href="assets/comic-icons.svg#tools"></use></svg><span><b>Build yourself!</b></span><i aria-hidden="true">→</i></a>
+<a class="hero-path hero-path-buy" href="order.html"><span><b>Buy now (waitlist)</b></span><i aria-hidden="true">→</i></a>
+<a class="hero-path hero-path-build" href="docs/"><span><b>Build yourself!</b></span><i aria-hidden="true">→</i></a>
 </div>
 </div>
 <a aria-label="Scroll to read more" class="scroll-cue" href="#story"><span>Scroll</span><span class="cue-line"></span></a>
@@ -269,7 +269,7 @@
 <div class="ov-control-details"><details class="ov-details"><summary>Whole-body retargeting</summary><p>Sparse head and hand tracking is mapped to the arms and torso, hands, and neck under their kinematic constraints.</p><figure class="ov-figure"><video aria-label="Whole-body retargeting decomposition" controls="" data-lazyvid="assets/overview/control.mp4" data-lo="assets/overview/control-lo.mp4" data-poster="assets/overview/control.jpg" loop="" muted="" playsinline="" preload="none"></video></figure><a href="software.html#retargeting">Retargeting implementation →</a></details><details class="ov-details"><summary>Compliant control</summary><p>Gravity and friction feed-forward support low-gain, back-drivable arm and torso motion.</p><figure class="ov-figure"><video aria-label="Compliant whole-body control" controls="" data-lazyvid="assets/overview/compliance.mp4" data-lo="assets/overview/compliance-lo.mp4" data-poster="assets/overview/compliance.jpg" loop="" muted="" playsinline="" preload="none"></video></figure><a href="software.html#controller">Controller details →</a></details><details class="ov-details"><summary>Height-aware motion limits</summary><p>Base speed and acceleration limits depend on lift height to reduce tip-over risk.</p><figure class="ov-figure"><video aria-label="Height-aware base motion limits" controls="" data-lazyvid="assets/overview/motion.mp4" data-lo="assets/overview/motion-lo.mp4" data-poster="assets/overview/motion.jpg" loop="" muted="" playsinline="" preload="none"></video></figure><a href="software.html#motion">Motion model →</a></details></div></div>
 </section><section class="pad-y" id="learning"><div class="wrap"><div class="sec-head"><h2 class="display-md title">8. Learning and <span class="italic accent">architecture</span><img alt="" aria-hidden="true" class="sticker" loading="lazy" src="assets/stickers/broadway.svg" style="width:88px;vertical-align:middle;margin-left:14px;transform:rotate(-6deg);"/></h2></div><div aria-label="Interactive learning pipeline" class="lp-explorer" id="learningExplorer">
 <div class="lp-architecture panel-frame">
-<p class="lp-caption">ACT · observations → actions → control</p>
+
 <div class="lp-diagram">
 <div aria-label="Policy camera inputs" class="lp-cameras">
 <button class="lp-camera" data-camera="head" type="button"><img alt="Recorded left head camera view of the grasp" loading="lazy" src="assets/learning/hand-v2-head_left.jpg"/><b>Left head</b></button>
@@ -286,19 +286,19 @@
 <button class="lp-node lp-references" data-node="references" type="button"><b>Action chunk</b><span id="lpChunkLabel">120 steps · 4 s</span><span aria-hidden="true" class="lp-chunk-cells" id="lpChunkCells"></span></button>
 <span aria-hidden="true" class="lp-arrow">↓</span>
 <button class="lp-node lp-controller" data-node="controller" type="button"><b>Shared controller</b><span>Teleop + policy</span></button>
-<div aria-label="Execution target" class="lp-targets"><button aria-pressed="true" data-target="hardware" type="button"><img alt="" aria-hidden="true" class="comic-icon comic-icon-robot" src="assets/head-icon.svg"/> Robot</button><button aria-label="Digital twin" aria-pressed="false" data-target="sim" type="button"><svg aria-hidden="true" class="comic-icon" focusable="false" viewbox="0 0 64 64"><use href="assets/comic-icons.svg#twin"></use></svg> Twin</button></div>
+<div aria-label="Execution target" class="lp-targets"><button aria-pressed="true" data-target="hardware" type="button"> Robot</button><button aria-label="Digital twin" aria-pressed="false" data-target="sim" type="button"> Twin</button></div>
 <p class="lp-mini" id="lpTargetLabel">Hardware bridge → robot</p>
 </div>
 </div>
-<p class="lp-mini">Select a camera or block to inspect it.</p>
+
 </div>
 <div class="lp-inspector">
-<div aria-label="Learning pipeline stage" class="ov-flow" role="group"><button aria-pressed="true" data-learn="collect" type="button">Collect</button><button aria-pressed="false" data-learn="export" type="button">Curate</button><button aria-pressed="false" data-learn="train" type="button">Train</button><button aria-pressed="false" data-learn="deploy" type="button">Deploy</button></div>
-<div aria-live="polite" class="ov-learn-detail" id="learningDetail"></div>
+<ol class="lp-process"><li><b>Collect</b><span>Record hand-grasping demonstrations.</span></li><li><b>Curate</b><span>Align camera views and measured state.</span></li><li><b>Train</b><span>Predict 4 s of actions with ACT.</span></li><li><b>Deploy</b><span>Execute 1 s, then observe again.</span></li></ol>
+<div aria-live="polite" class="ov-learn-detail" id="learningDetail" hidden></div>
 <div class="lp-timeline"><h3>Predict 4 s. Execute 1 s.</h3><div class="lp-timeline-track"><span>Execute · 1 s</span><span>Prediction · 3 s</span></div><label for="lpStep">Action step <output id="lpStepReadout">30 / 120</output></label><input id="lpStep" max="119" min="0" type="range" value="29"/><p class="lp-mini" id="lpStepDetail"></p></div>
 </div>
-<details class="lp-state-breakdown"><summary>59 joint coordinates</summary><div class="lp-groups" id="lpStateGroups"></div><p class="lp-mini">Wrists are included in the hands; the coupled lift counts as one height. Base twist and lift rate use four separate action fields.</p></details>
-<div aria-label="Hand-grasping dataset v2" class="lp-paper" data-learning-dataset="v2"></div>
+
+<a class="lp-method-link" href="autonomy.html#learning">Learning details →</a>
 </div></div></section>
 <!-- ─── ABSTRACT ─── -->
 <!-- ─── HOME · SHOP · STREET — one results grid of real footage, straight after the hero ─── -->
@@ -384,12 +384,12 @@
 <script src="assets/spec-grid.js?v=5b79c705"></script>
 <script src="assets/platform-table.js?v=ec488fef"></script>
 <script src="assets/store-nav.js"></script>
-<script src="assets/mabel.js?v=828b8687"></script>
+<script src="assets/mabel.js?v=5cbc363c"></script>
 <script src="assets/comic-pop.js?v=ba6e9586"></script>
 
 <!-- Control Studio links: the REAL studio is passkey-gated SERVER-side (basic
      auth at control.<domain>) — no client-side gate needed. The SIM twin is an
      open demo whose planes can only reach the token-gated simulation relay. -->
 <script src="assets/inline-svg.js"></script>
-<dialog aria-labelledby="submissionTitle" class="ov-submission" id="submissionDialog"><div class="ov-submission-head"><h2 id="submissionTitle">MABEL · Video submission</h2><button aria-label="Close video" class="film-close" type="button">✕</button></div><video loop aria-label="MABEL final video submission" controls="" data-submission-poster="assets/overview/submission-final-v3.jpg" playsinline="" preload="none" src="assets/overview/submission-final-v3-web.mp4" webkit-playsinline=""></video><div class="ov-submission-foot"><p id="submissionStatus" role="status">Press play to watch the final submission with sound.</p><button class="btn" id="submissionStart" type="button">▶ Start video</button><a href="assets/overview/submission-final-v3-web.mp4" rel="noopener" target="_blank">Open video ↗</a></div></dialog><nav aria-label="Page progress" class="ov-scroll-rail"><a aria-label="Front page" href="#hero" title="Front page"><span>Front page</span></a><a aria-label="Abstract" href="#story" title="Abstract"><span>Abstract</span></a><a aria-label="Real robot photos" href="#home" title="Real robot photos"><span>Real robot photos</span></a><a aria-label="State-of-the-art robots" href="#paper" title="State-of-the-art robots"><span>State-of-the-art robots</span></a><a aria-label="Hardware design" href="#anatomy" title="Hardware design"><span>Hardware design</span></a><a aria-label="Teleoperation" href="#demo" title="Teleoperation"><span>Teleoperation</span></a><a aria-label="Simulation" href="#play" title="Simulation"><span>Simulation</span></a><a aria-label="Control stack" href="#architecture" title="Control stack"><span>Control stack</span></a><a aria-label="Learning" href="#learning" title="Learning"><span>Learning</span></a><a aria-label="Paper and citation" href="#cite" title="Paper and citation"><span>Paper and citation</span></a><output aria-label="Page progress" id="pageProgress">0%</output></nav><script src="assets/overview.js?v=c87400c1"></script><script defer="" src="assets/learning-explorer.js?v=50bcdcef"></script><script defer="True" src="assets/demo-gallery.js?v=97763c9d"></script><script defer="" src="assets/robot-gallery.js?v=ff7cf5c1"></script><script defer="True" src="assets/overview-scenes.js?v=d0c7e803"></script></body>
+<dialog aria-labelledby="submissionTitle" class="ov-submission" id="submissionDialog"><div class="ov-submission-head"><h2 id="submissionTitle">MABEL · Video submission</h2><button aria-label="Close video" class="film-close" type="button">✕</button></div><video loop aria-label="MABEL final video submission" controls="" data-submission-poster="assets/overview/submission-final-v3.jpg" playsinline="" preload="none" src="assets/overview/submission-final-v3-web.mp4" webkit-playsinline=""></video><div class="ov-submission-foot"><p id="submissionStatus" role="status">Press play to watch the final submission with sound.</p><button class="btn" id="submissionStart" type="button">▶ Start video</button><a href="assets/overview/submission-final-v3-web.mp4" rel="noopener" target="_blank">Open video ↗</a></div></dialog><nav aria-label="Page progress" class="ov-scroll-rail"><a aria-label="Front page" href="#hero" title="Front page"><span>Front page</span></a><a aria-label="Abstract" href="#story" title="Abstract"><span>Abstract</span></a><a aria-label="Real robot photos" href="#home" title="Real robot photos"><span>Real robot photos</span></a><a aria-label="State-of-the-art robots" href="#paper" title="State-of-the-art robots"><span>State-of-the-art robots</span></a><a aria-label="Hardware design" href="#anatomy" title="Hardware design"><span>Hardware design</span></a><a aria-label="Teleoperation" href="#demo" title="Teleoperation"><span>Teleoperation</span></a><a aria-label="Simulation" href="#play" title="Simulation"><span>Simulation</span></a><a aria-label="Control stack" href="#architecture" title="Control stack"><span>Control stack</span></a><a aria-label="Learning" href="#learning" title="Learning"><span>Learning</span></a><a aria-label="Paper and citation" href="#cite" title="Paper and citation"><span>Paper and citation</span></a><output aria-label="Page progress" id="pageProgress">0%</output></nav><script src="assets/overview.js?v=c87400c1"></script><script defer="" src="assets/learning-explorer.js?v=62c25894"></script><script defer="True" src="assets/demo-gallery.js?v=97763c9d"></script><script defer="" src="assets/robot-gallery.js?v=ff7cf5c1"></script><script defer="True" src="assets/overview-scenes.js?v=110e8d84"></script></body>
 </html>
