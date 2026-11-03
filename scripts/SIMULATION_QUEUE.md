@@ -16,6 +16,12 @@ Queue updates report `people_ahead` (including the current driver), `estimated_w
 
 The home simulation host supplies MuJoCo state and camera frames through the existing tunnel. The gateway does not replace that host or fabricate a video feed when it is unavailable.
 
+## Home GPU host
+
+The home host runs two enabled user services, `mabel-web-sim.service` and `mabel-web-sim-tunnel.service`, with lingering enabled. The simulation uses its own environment at `~/.local/share/mabel-web-sim/venv`, EGL rendering, the canonical home scene and the simulation bridge as the sole physics owner. The tunnel registers only `mabel_sim_control` and `mabel_sim_video`. Its configuration is private at `~/.config/mabel-web-sim/relay.toml`; never commit it.
+
+Use `systemctl --user status mabel-web-sim.service mabel-web-sim-tunnel.service` and `journalctl --user -u mabel-web-sim.service` on that host. Restart both with `systemctl --user restart mabel-web-sim.service mabel-web-sim-tunnel.service`.
+
 ## Install / update
 
 Use an isolated virtual environment with `aiohttp>=3.9,<4`. Install the script at `/opt/mabel-sim-queue/sim_queue_server.py` and the included `mabel-sim-queue.service` in `/etc/systemd/system/`. The unit uses the virtual environment at `/opt/mabel-sim-queue/venv`.

@@ -14,7 +14,8 @@
 .overview-sim .ta-novid .inner b { font:600 18px var(--font-head); }
 .overview-sim .ta-novid .inner p,.overview-sim .ta-novid .inner button { display:none; }
 .overview-sim .ta-video.ta-camoff::after { display:none; }
-.overview-sim .ta-joy { width:96px;height:96px;bottom:calc(var(--ta-dock-h,80px) + 16px); }
+.overview-sim .ta-joy { width:96px;height:96px;bottom:calc(var(--sim-dock-bottom,14px) + var(--ta-dock-h,80px) + 16px); }
+.overview-sim .ta-cluster { bottom:calc(var(--sim-dock-bottom,14px) + var(--ta-dock-h,80px) + 18px); }
 .overview-sim .ta-dock { bottom:var(--sim-dock-bottom,14px);width:max-content;max-width:calc(100% - 24px);font-family:var(--font-head); }
 .overview-sim .ta-pill span:last-child { display:inline; }
 .overview-sim .sim-pip-expand { position:absolute;right:7px;top:7px;z-index:20;width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--ash);border-radius:7px;background:var(--ink);color:var(--bone);cursor:pointer; }
