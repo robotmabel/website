@@ -1,4 +1,4 @@
-import {StudioGrid,robot,THREE} from './studio-3d.js?v=2da9c7a0';
+import {StudioGrid,robot,THREE} from './studio-3d.js?v=2125de14';
 import {PhysicsLink} from './studio-physics.js?v=d716b1ad';
 const host=document.getElementById('tipLab');if(host)boot().catch(e=>{console.error(e);host.textContent='The physics replay could not load. Please refresh.';});
 async function boot(){

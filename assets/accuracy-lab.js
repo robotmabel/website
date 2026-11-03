@@ -142,7 +142,7 @@
     });
     var base=document.createElement('article');base.className='al-panel al-base';base.id='baseOdometry';base.innerHTML='<div class="al-panel-head"><span class="al-kick">Wheel encoders · ZED reference</span><h4 class="al-h">Base odometry</h4></div><div class="base-replay">Loading recorded base tests…</div>';
     host.querySelector('[data-panel="rep"]').after(base);
-    new IntersectionObserver(function(entries,observer){if(entries.some(function(e){return e.isIntersecting;})){observer.disconnect();import('./base-odometry.js?v=a5797ce9');}},{rootMargin:'180px'}).observe(base);
+    new IntersectionObserver(function(entries,observer){if(entries.some(function(e){return e.isIntersecting;})){observer.disconnect();import('./base-odometry.js?v=e6978e3d');}},{rootMargin:'180px'}).observe(base);
     var source=host.querySelector('.al-src');var methods=document.createElement('details');methods.className='al-results al-methods';methods.innerHTML='<summary>Measurement methods</summary>';source.before(methods);methods.appendChild(source);
     var Q = function (r) { return host.querySelector('[data-role="' + r + '"]'); };
     var scatterBox = Q('scatter'), errBox = Q('err');

@@ -41,7 +41,7 @@ export class StudioGrid {
   this.host=host;host.__studioGrid=this;this.views=[];this.dirty=true;this.running=true;
   host.classList.add('studio-grid');this.renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});
   this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=.9;
-  this.renderer.domElement.className='studio-canvas';this.renderer.domElement.setAttribute('aria-hidden','true');host.prepend(this.renderer.domElement);
+  this.renderer.domElement.className='studio-canvas';this.renderer.domElement.style.width='100%';this.renderer.domElement.style.height='100%';this.renderer.domElement.setAttribute('aria-hidden','true');host.prepend(this.renderer.domElement);
   const room=new THREE.Scene();room.add(new THREE.Mesh(new THREE.BoxGeometry(12,10,12),new THREE.MeshBasicMaterial({color:0x5d6068,side:THREE.BackSide})));
   for(const [p,size] of [[[-3,2,0],[.1,4,3]],[[3,2,-2],[.1,3,2]],[[0,4,1],[3,.1,3]]]){const m=new THREE.MeshBasicMaterial();m.color.setRGB(2,2,2);const panel=new THREE.Mesh(new THREE.BoxGeometry(...size),m);panel.position.set(...p);room.add(panel);}
   const pmrem=new THREE.PMREMGenerator(this.renderer);this.environment=pmrem.fromScene(room,.04).texture;pmrem.dispose();
@@ -68,12 +68,18 @@ export class StudioGrid {
   v.touched=false;v.aspect=a;v.controls.target.copy(sphere.center);v.camera.position.copy(sphere.center).add(v.direction.clone().normalize().multiplyScalar(distance));v.camera.near=r/100;v.camera.far=r*100;v.camera.updateProjectionMatrix();v.controls.minDistance=r*.5;v.controls.maxDistance=r*20;v.controls.update();this.dirty=true;
  }
  render(){
-  const rect=this.host.getBoundingClientRect(),w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h)return;
+  const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h)return;
   if(this.width!==w||this.height!==h){this.width=w;this.height=h;this.renderer.setSize(w,h,false);}
+  // Canvas CSS pixels and framebuffer pixels are different on Retina screens.
+  // Project each slot from its actual content box into the canvas's logical
+  // coordinates; the renderer applies devicePixelRatio exactly once.
+  const rect=this.renderer.domElement.getBoundingClientRect(),scaleX=w/rect.width,scaleY=h/rect.height;
   const r=this.renderer;r.setScissorTest(false);r.setClearColor(0,0);r.clear();r.setScissorTest(true);
-  for(const v of this.views){if(!v.visible||v.slot.closest('[hidden]'))continue;const s=v.slot.getBoundingClientRect(),c=v.clip?.getBoundingClientRect()||rect;
+  for(const v of this.views){if(!v.visible||v.slot.closest('[hidden]'))continue;const outer=v.slot.getBoundingClientRect(),sx=outer.width/v.slot.offsetWidth,sy=outer.height/v.slot.offsetHeight;
+   const s={left:outer.left+v.slot.clientLeft*sx,top:outer.top+v.slot.clientTop*sy,width:v.slot.clientWidth*sx,height:v.slot.clientHeight*sy};s.right=s.left+s.width;s.bottom=s.top+s.height;
+   const c=v.clip?.getBoundingClientRect()||rect;
    const left=Math.max(s.left,rect.left,c.left),right=Math.min(s.right,rect.right,c.right),top=Math.max(s.top,rect.top,c.top),bottom=Math.min(s.bottom,rect.bottom,c.bottom);if(right<=left||bottom<=top)continue;
-   const aspect=s.width/s.height;if(Math.abs(aspect-v.aspect)>.01){if(!v.touched)this.recenter(v);v.aspect=aspect;}v.camera.aspect=aspect;v.camera.updateProjectionMatrix();r.setViewport(s.left-rect.left,rect.bottom-s.bottom,s.width,s.height);r.setScissor(left-rect.left,rect.bottom-bottom,right-left,bottom-top);r.render(v.scene,v.camera);
+   const aspect=s.width*scaleX/(s.height*scaleY);if(Math.abs(aspect-v.aspect)>.01){if(!v.touched)this.recenter(v);v.aspect=aspect;}v.camera.aspect=aspect;v.camera.updateProjectionMatrix();r.setViewport((s.left-rect.left)*scaleX,(rect.bottom-s.bottom)*scaleY,s.width*scaleX,s.height*scaleY);r.setScissor((left-rect.left)*scaleX,(rect.bottom-bottom)*scaleY,(right-left)*scaleX,(bottom-top)*scaleY);r.render(v.scene,v.camera);
   }
   this.dirty=false;
  }

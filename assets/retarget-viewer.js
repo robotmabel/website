@@ -1,5 +1,5 @@
 /* Recorded robot states from the offline MuJoCo benchmark. One playback clock. */
-import {StudioGrid,robot} from './studio-3d.js?v=2da9c7a0';
+import {StudioGrid,robot} from './studio-3d.js?v=2125de14';
 import {PhysicsLink} from './studio-physics.js?v=d716b1ad';
 const host=document.getElementById('retargetClips');
 if(host)boot().catch(e=>{host.textContent='The 3D replay could not load. Please refresh.';console.error(e);});

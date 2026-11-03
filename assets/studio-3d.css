@@ -1,5 +1,5 @@
 .studio-grid { position:relative;isolation:isolate; }
-.studio-canvas { position:absolute;inset:0;display:block;z-index:0;pointer-events:none; }
+.studio-canvas { position:absolute;inset:0;display:block;width:100%;height:100%;z-index:0;pointer-events:none; }
 .studio-grid .hs-card,.studio-grid .rk-tile { position:relative;z-index:1;background:transparent; }
 .studio-grid .hs-body,.studio-grid .rk-tile figcaption { background:var(--panel); }
 .studio-grid .hs-shot,.rk-stage { position:relative; }

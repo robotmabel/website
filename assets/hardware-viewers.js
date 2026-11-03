@@ -1,4 +1,4 @@
-import { StudioGrid,loadModel,isolate,THREE } from './studio-3d.js?v=2da9c7a0';
+import { StudioGrid,loadModel,isolate,THREE } from './studio-3d.js?v=2125de14';
 const host=document.getElementById('hwSlider');
 if(host){
  async function init(){

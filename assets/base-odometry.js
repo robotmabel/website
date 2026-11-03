@@ -1,4 +1,4 @@
-import {StudioGrid,robot,THREE} from './studio-3d.js?v=2da9c7a0';
+import {StudioGrid,robot,THREE} from './studio-3d.js?v=2125de14';
 const host=document.getElementById('baseOdometry');
 if(host)boot().catch(e=>{host.querySelector('.base-replay').textContent='Base replay could not load. Reload to retry.';console.warn(e);});
 async function boot(){
