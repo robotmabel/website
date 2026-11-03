@@ -17,8 +17,7 @@
  var demonstrations=document.querySelector('#demo .dg-collection'),demoHeading=document.createElement('h3');demoHeading.className='ov-subtitle';demoHeading.textContent='Teleoperation demonstrations';demonstrations.prepend(demoHeading);demonstrations.classList.add('ov-followup');
  document.querySelector('#play .ov-details')?.remove();document.querySelector('#play .ov-console-head')?.remove();document.querySelector('#play .ov-two')?.classList.add('ov-followup');
  document.querySelector('#play .sec-head').after(document.querySelector('#play .sim-embed'));
- var learning=document.getElementById('learningExplorer'),diagram=learning.querySelector('.lp-architecture'),workflow=learning.querySelector('.lp-inspector');
- learning.classList.add('ov-learning-visible');learning.prepend(group([diagram,workflow],'ov-learning-pair'));
+ document.getElementById('learningExplorer').classList.add('ov-learning-visible');
  function size(){
   var nav=document.querySelector('.ov-nav'),top=Math.max(document.getElementById('nav').getBoundingClientRect().bottom,(parseFloat(getComputedStyle(nav).top)||0)+nav.offsetHeight)+12;
   document.documentElement.style.setProperty('--ov-anchor-offset',Math.ceil(top)+'px');

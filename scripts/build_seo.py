@@ -29,7 +29,7 @@ PAGES = {
     "anatomy.html": (f"Anatomy explorer — MABEL, the {TAG}",
                      "Explore MABEL module by module in 3-D: every actuator, bus and part of the open-source mobile bimanual robot.", "0.6"),
     "software.html": (f"Software — MABEL, the {TAG}",
-                      "MABEL's software stack: ROS 2, the hardware abstraction layer, the whole-body controller, the tip-over motion model, retargeting and firmware.", "0.8"),
+                      "MABEL's software stack, retargeting, height-aware motion limits, whole-body control, Setup TUI and Studio, and server bring-up.", "0.8"),
     "simulation.html": (f"Simulation — MABEL, the {TAG}",
                         "MABEL's MuJoCo digital twin: one canonical model, the same controller and wire contract as the robot, 35 scenes, simulated data collection and reinforcement learning.", "0.8"),
     "simulator.html": (f"Browser simulator — MABEL, the {TAG}",

@@ -27,7 +27,7 @@
     });
   };
 
-  fetch('assets/data/hw-modules.json?v=studio-20261102', {cache:'no-cache'})
+  fetch('assets/data/hw-modules.json?v=studio-20261103', {cache:'no-cache'})
     .then(function (r) { return r.json(); })
     .then(build)
     .catch(function (e) {

@@ -21,7 +21,12 @@ import urllib.parse
 HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.dirname(HERE)
 REPO = os.path.dirname(SITE)
-BOM = os.path.join(REPO, "BOM", "data")
+BOM = os.environ.get("MABEL_BOM_DATA", os.path.join(REPO, "BOM", "data"))
+# Frozen quote conversion used by BOM/tools/build_bom.py, not a live FX quote.
+CNY_TO_USD = 85.91 / 599.0
+def usd(row):
+    price = money(row["unit_price"])
+    return price * CNY_TO_USD if row.get("currency", "USD").upper() == "CNY" else price
 OUT = os.path.join(SITE, "assets", "data", "hw-modules.json")
 
 # BOM section -> module, plus the parts a module borrows from other sections.
@@ -72,14 +77,12 @@ MODULES = [
                   ["Bring-up", "hardware_bridge/LIFT_VERIFY.md"]],
     },
     {
-        "id": "body", "name": "Body & torso", "kicker": "One yaw, huge torque",
+        "id": "body", "name": "Body & torso", "kicker": "Torso pitch",
         "sections": ["Body / torso"],
         "skip": ["2.01"],
-        "blurb": "A hollow-shaft planetary actuator turns the whole upper body "
-                 "on the lift, so the arms can face a workspace the base is "
-                 "not pointed at.",
-        "why": "Turning the torso instead of the base is what lets the robot "
-               "work at a bench without re-parking. The hollow shaft carries "
+        "blurb": "A hollow-shaft actuator pitches the upper body, extending reach "
+                 "above and below the neutral workspace.",
+        "why": "Torso pitch extends vertical reach. The hollow shaft carries "
                "the arm harness through the joint rather than around it.",
         "specs": [["Actuator", "DAMIAO DM-J10422P"],
                   ["Torque", "100 N·m rated · 400 N·m peak"],
@@ -243,7 +246,7 @@ def main():
                 continue
             if r["section"] in m.get("sections", []) or r["ref"] in m.get("refs", []):
                 qty = money(r["qty"]) or 1
-                price = money(r["unit_price"])
+                price = usd(r)
                 total += qty * price
                 link, is_search = vendor_link(r, taobao)
                 parts.append({"ref": r["ref"], "item": r["item"], "spec": r["spec"],
@@ -260,7 +263,7 @@ def main():
                      "item": r["option"], "spec": r["spec"]}, taobao)
                 opts.append({"choice": r["choice"], "option": r["option"],
                              "spec": r["spec"], "qty": int(money(r["qty"]) or 1),
-                             "price": round(money(r["unit_price"]), 2),
+                             "price": round(usd(r), 2),
                              "tier": r["tier"], "vendor": r["vendor"],
                              "link": olink, "search": osearch})
         # a module's headline price is what it costs at the RECOMMENDED tier
@@ -290,7 +293,7 @@ def main():
     with open(OUT, "w") as f:
         json.dump({"generated_by": "scripts/build_hw_modules.py",
                    "source": "BOM/data/{core,choices}.csv",
-                   "modules": out}, f, indent=1)
+                   "currency": "USD", "cny_to_usd": CNY_TO_USD, "modules": out}, f, indent=1)
     print(f"wrote {os.path.relpath(OUT, SITE)}")
     for m in out:
         links = (sum(1 for p in m["parts"] if p["link"]) +

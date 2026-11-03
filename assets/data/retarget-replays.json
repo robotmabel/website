@@ -1,0 +1,379 @@
+{
+  "source": "Existing offline retargeting ablation harness",
+  "robot_pose_only": true,
+  "joints": [
+    "fl_steer",
+    "fl_drive",
+    "fr_steer",
+    "fr_drive",
+    "b_steer",
+    "b_drive",
+    "lift_lower",
+    "lift_upper",
+    "torso",
+    "neck_yaw",
+    "neck_pitch",
+    "neck_roll",
+    "left_arm_1",
+    "left_arm_2",
+    "left_arm_3",
+    "left_arm_4",
+    "left_arm_5",
+    "left_arm_6",
+    "left_arm_7",
+    "left_wrist",
+    "left_thumb_mcp",
+    "left_thumb_abd",
+    "left_thumb_pip",
+    "left_thumb_dip",
+    "left_index_abd",
+    "left_index_mcp",
+    "left_index_pip",
+    "left_middle_abd",
+    "left_middle_mcp",
+    "left_middle_pip",
+    "left_ring_abd",
+    "left_ring_mcp",
+    "left_ring_pip",
+    "left_pinky_abd",
+    "left_pinky_mcp",
+    "left_pinky_pip",
+    "right_arm_1",
+    "right_arm_2",
+    "right_arm_3",
+    "right_arm_4",
+    "right_arm_5",
+    "right_arm_6",
+    "right_arm_7",
+    "right_wrist",
+    "right_thumb_mcp",
+    "right_thumb_abd",
+    "right_thumb_pip",
+    "right_thumb_dip",
+    "right_index_abd",
+    "right_index_mcp",
+    "right_index_pip",
+    "right_middle_abd",
+    "right_middle_mcp",
+    "right_middle_pip",
+    "right_ring_abd",
+    "right_ring_mcp",
+    "right_ring_pip",
+    "right_pinky_abd",
+    "right_pinky_mcp",
+    "right_pinky_pip"
+  ],
+  "source_sha256": "f9983abd91b4bfaffff4305d065bb361d3cfee7b8877e8fa5139dfef1357d72d",
+  "tasks": [
+    {
+      "id": "basic_pick_place",
+      "label": "basic pick place",
+      "episode": 53,
+      "methods": {
+        "direct": "assets/retarget/replays/basic_pick_place__ep53__direct.json",
+        "abs": "assets/retarget/replays/basic_pick_place__ep53__abs.json",
+        "wrist_ik": "assets/retarget/replays/basic_pick_place__ep53__wrist_ik.json",
+        "ext": "assets/retarget/replays/basic_pick_place__ep53__ext.json",
+        "gmr": "assets/retarget/replays/basic_pick_place__ep53__gmr.json",
+        "wb_ik": "assets/retarget/replays/basic_pick_place__ep53__wb_ik.json",
+        "ours": "assets/retarget/replays/basic_pick_place__ep53__ours.json"
+      }
+    },
+    {
+      "id": "fold_stack_unstack_unfold_cloths",
+      "label": "fold stack unstack unfold cloths",
+      "episode": 12,
+      "methods": {
+        "direct": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep12__direct.json",
+        "abs": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep12__abs.json",
+        "wrist_ik": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep12__wrist_ik.json",
+        "ext": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep12__ext.json",
+        "gmr": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep12__gmr.json",
+        "wb_ik": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep12__wb_ik.json",
+        "ours": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep12__ours.json"
+      }
+    },
+    {
+      "id": "insert_remove_drawer",
+      "label": "insert remove drawer",
+      "episode": 93,
+      "methods": {
+        "direct": "assets/retarget/replays/insert_remove_drawer__ep93__direct.json",
+        "abs": "assets/retarget/replays/insert_remove_drawer__ep93__abs.json",
+        "wrist_ik": "assets/retarget/replays/insert_remove_drawer__ep93__wrist_ik.json",
+        "ext": "assets/retarget/replays/insert_remove_drawer__ep93__ext.json",
+        "gmr": "assets/retarget/replays/insert_remove_drawer__ep93__gmr.json",
+        "wb_ik": "assets/retarget/replays/insert_remove_drawer__ep93__wb_ik.json",
+        "ours": "assets/retarget/replays/insert_remove_drawer__ep93__ours.json"
+      }
+    },
+    {
+      "id": "make_sandwich",
+      "label": "make sandwich",
+      "episode": 22,
+      "methods": {
+        "direct": "assets/retarget/replays/make_sandwich__ep22__direct.json",
+        "abs": "assets/retarget/replays/make_sandwich__ep22__abs.json",
+        "wrist_ik": "assets/retarget/replays/make_sandwich__ep22__wrist_ik.json",
+        "ext": "assets/retarget/replays/make_sandwich__ep22__ext.json",
+        "gmr": "assets/retarget/replays/make_sandwich__ep22__gmr.json",
+        "wb_ik": "assets/retarget/replays/make_sandwich__ep22__wb_ik.json",
+        "ours": "assets/retarget/replays/make_sandwich__ep22__ours.json"
+      }
+    },
+    {
+      "id": "pour",
+      "label": "pour",
+      "episode": 96,
+      "methods": {
+        "direct": "assets/retarget/replays/pour__ep96__direct.json",
+        "abs": "assets/retarget/replays/pour__ep96__abs.json",
+        "wrist_ik": "assets/retarget/replays/pour__ep96__wrist_ik.json",
+        "ext": "assets/retarget/replays/pour__ep96__ext.json",
+        "gmr": "assets/retarget/replays/pour__ep96__gmr.json",
+        "wb_ik": "assets/retarget/replays/pour__ep96__wb_ik.json",
+        "ours": "assets/retarget/replays/pour__ep96__ours.json"
+      }
+    },
+    {
+      "id": "put_away_set_up_board_game",
+      "label": "put away set up board game",
+      "episode": 9,
+      "methods": {
+        "direct": "assets/retarget/replays/put_away_set_up_board_game__ep9__direct.json",
+        "abs": "assets/retarget/replays/put_away_set_up_board_game__ep9__abs.json",
+        "wrist_ik": "assets/retarget/replays/put_away_set_up_board_game__ep9__wrist_ik.json",
+        "ext": "assets/retarget/replays/put_away_set_up_board_game__ep9__ext.json",
+        "gmr": "assets/retarget/replays/put_away_set_up_board_game__ep9__gmr.json",
+        "wb_ik": "assets/retarget/replays/put_away_set_up_board_game__ep9__wb_ik.json",
+        "ours": "assets/retarget/replays/put_away_set_up_board_game__ep9__ours.json"
+      }
+    },
+    {
+      "id": "screw_unscrew_allen_fixture",
+      "label": "screw unscrew allen fixture",
+      "episode": 9,
+      "methods": {
+        "direct": "assets/retarget/replays/screw_unscrew_allen_fixture__ep9__direct.json",
+        "abs": "assets/retarget/replays/screw_unscrew_allen_fixture__ep9__abs.json",
+        "wrist_ik": "assets/retarget/replays/screw_unscrew_allen_fixture__ep9__wrist_ik.json",
+        "ext": "assets/retarget/replays/screw_unscrew_allen_fixture__ep9__ext.json",
+        "gmr": "assets/retarget/replays/screw_unscrew_allen_fixture__ep9__gmr.json",
+        "wb_ik": "assets/retarget/replays/screw_unscrew_allen_fixture__ep9__wb_ik.json",
+        "ours": "assets/retarget/replays/screw_unscrew_allen_fixture__ep9__ours.json"
+      }
+    },
+    {
+      "id": "screw_unscrew_bottle_cap",
+      "label": "screw unscrew bottle cap",
+      "episode": 13,
+      "methods": {
+        "direct": "assets/retarget/replays/screw_unscrew_bottle_cap__ep13__direct.json",
+        "abs": "assets/retarget/replays/screw_unscrew_bottle_cap__ep13__abs.json",
+        "wrist_ik": "assets/retarget/replays/screw_unscrew_bottle_cap__ep13__wrist_ik.json",
+        "ext": "assets/retarget/replays/screw_unscrew_bottle_cap__ep13__ext.json",
+        "gmr": "assets/retarget/replays/screw_unscrew_bottle_cap__ep13__gmr.json",
+        "wb_ik": "assets/retarget/replays/screw_unscrew_bottle_cap__ep13__wb_ik.json",
+        "ours": "assets/retarget/replays/screw_unscrew_bottle_cap__ep13__ours.json"
+      }
+    },
+    {
+      "id": "setup_cleanup_table",
+      "label": "setup cleanup table",
+      "episode": 4,
+      "methods": {
+        "direct": "assets/retarget/replays/setup_cleanup_table__ep4__direct.json",
+        "abs": "assets/retarget/replays/setup_cleanup_table__ep4__abs.json",
+        "wrist_ik": "assets/retarget/replays/setup_cleanup_table__ep4__wrist_ik.json",
+        "ext": "assets/retarget/replays/setup_cleanup_table__ep4__ext.json",
+        "gmr": "assets/retarget/replays/setup_cleanup_table__ep4__gmr.json",
+        "wb_ik": "assets/retarget/replays/setup_cleanup_table__ep4__wb_ik.json",
+        "ours": "assets/retarget/replays/setup_cleanup_table__ep4__ours.json"
+      }
+    },
+    {
+      "id": "stack_unstack_bowls",
+      "label": "stack unstack bowls",
+      "episode": 6,
+      "methods": {
+        "direct": "assets/retarget/replays/stack_unstack_bowls__ep6__direct.json",
+        "abs": "assets/retarget/replays/stack_unstack_bowls__ep6__abs.json",
+        "wrist_ik": "assets/retarget/replays/stack_unstack_bowls__ep6__wrist_ik.json",
+        "ext": "assets/retarget/replays/stack_unstack_bowls__ep6__ext.json",
+        "gmr": "assets/retarget/replays/stack_unstack_bowls__ep6__gmr.json",
+        "wb_ik": "assets/retarget/replays/stack_unstack_bowls__ep6__wb_ik.json",
+        "ours": "assets/retarget/replays/stack_unstack_bowls__ep6__ours.json"
+      }
+    },
+    {
+      "id": "stock_unstock_fridge",
+      "label": "stock unstock fridge",
+      "episode": 5,
+      "methods": {
+        "direct": "assets/retarget/replays/stock_unstock_fridge__ep5__direct.json",
+        "abs": "assets/retarget/replays/stock_unstock_fridge__ep5__abs.json",
+        "wrist_ik": "assets/retarget/replays/stock_unstock_fridge__ep5__wrist_ik.json",
+        "ext": "assets/retarget/replays/stock_unstock_fridge__ep5__ext.json",
+        "gmr": "assets/retarget/replays/stock_unstock_fridge__ep5__gmr.json",
+        "wb_ik": "assets/retarget/replays/stock_unstock_fridge__ep5__wb_ik.json",
+        "ours": "assets/retarget/replays/stock_unstock_fridge__ep5__ours.json"
+      }
+    },
+    {
+      "id": "sweep_dustpan",
+      "label": "sweep dustpan",
+      "episode": 5,
+      "methods": {
+        "direct": "assets/retarget/replays/sweep_dustpan__ep5__direct.json",
+        "abs": "assets/retarget/replays/sweep_dustpan__ep5__abs.json",
+        "wrist_ik": "assets/retarget/replays/sweep_dustpan__ep5__wrist_ik.json",
+        "ext": "assets/retarget/replays/sweep_dustpan__ep5__ext.json",
+        "gmr": "assets/retarget/replays/sweep_dustpan__ep5__gmr.json",
+        "wb_ik": "assets/retarget/replays/sweep_dustpan__ep5__wb_ik.json",
+        "ours": "assets/retarget/replays/sweep_dustpan__ep5__ours.json"
+      }
+    },
+    {
+      "id": "throw_collect_objects",
+      "label": "throw collect objects",
+      "episode": 11,
+      "methods": {
+        "direct": "assets/retarget/replays/throw_collect_objects__ep11__direct.json",
+        "abs": "assets/retarget/replays/throw_collect_objects__ep11__abs.json",
+        "wrist_ik": "assets/retarget/replays/throw_collect_objects__ep11__wrist_ik.json",
+        "ext": "assets/retarget/replays/throw_collect_objects__ep11__ext.json",
+        "gmr": "assets/retarget/replays/throw_collect_objects__ep11__gmr.json",
+        "wb_ik": "assets/retarget/replays/throw_collect_objects__ep11__wb_ik.json",
+        "ours": "assets/retarget/replays/throw_collect_objects__ep11__ours.json"
+      }
+    },
+    {
+      "id": "use_chopsticks",
+      "label": "use chopsticks",
+      "episode": 3,
+      "methods": {
+        "direct": "assets/retarget/replays/use_chopsticks__ep3__direct.json",
+        "abs": "assets/retarget/replays/use_chopsticks__ep3__abs.json",
+        "wrist_ik": "assets/retarget/replays/use_chopsticks__ep3__wrist_ik.json",
+        "ext": "assets/retarget/replays/use_chopsticks__ep3__ext.json",
+        "gmr": "assets/retarget/replays/use_chopsticks__ep3__gmr.json",
+        "wb_ik": "assets/retarget/replays/use_chopsticks__ep3__wb_ik.json",
+        "ours": "assets/retarget/replays/use_chopsticks__ep3__ours.json"
+      }
+    },
+    {
+      "id": "wash_put_away_dishes",
+      "label": "wash put away dishes",
+      "episode": 1,
+      "methods": {
+        "direct": "assets/retarget/replays/wash_put_away_dishes__ep1__direct.json",
+        "abs": "assets/retarget/replays/wash_put_away_dishes__ep1__abs.json",
+        "wrist_ik": "assets/retarget/replays/wash_put_away_dishes__ep1__wrist_ik.json",
+        "ext": "assets/retarget/replays/wash_put_away_dishes__ep1__ext.json",
+        "gmr": "assets/retarget/replays/wash_put_away_dishes__ep1__gmr.json",
+        "wb_ik": "assets/retarget/replays/wash_put_away_dishes__ep1__wb_ik.json",
+        "ours": "assets/retarget/replays/wash_put_away_dishes__ep1__ours.json"
+      }
+    },
+    {
+      "id": "wipe_kitchen_surfaces",
+      "label": "wipe kitchen surfaces",
+      "episode": 2,
+      "methods": {
+        "direct": "assets/retarget/replays/wipe_kitchen_surfaces__ep2__direct.json",
+        "abs": "assets/retarget/replays/wipe_kitchen_surfaces__ep2__abs.json",
+        "wrist_ik": "assets/retarget/replays/wipe_kitchen_surfaces__ep2__wrist_ik.json",
+        "ext": "assets/retarget/replays/wipe_kitchen_surfaces__ep2__ext.json",
+        "gmr": "assets/retarget/replays/wipe_kitchen_surfaces__ep2__gmr.json",
+        "wb_ik": "assets/retarget/replays/wipe_kitchen_surfaces__ep2__wb_ik.json",
+        "ours": "assets/retarget/replays/wipe_kitchen_surfaces__ep2__ours.json"
+      }
+    },
+    {
+      "id": "basic_pick_place",
+      "label": "basic pick place",
+      "episode": 91,
+      "methods": {
+        "direct": "assets/retarget/replays/basic_pick_place__ep91__direct.json",
+        "abs": "assets/retarget/replays/basic_pick_place__ep91__abs.json",
+        "wrist_ik": "assets/retarget/replays/basic_pick_place__ep91__wrist_ik.json",
+        "ext": "assets/retarget/replays/basic_pick_place__ep91__ext.json",
+        "gmr": "assets/retarget/replays/basic_pick_place__ep91__gmr.json",
+        "wb_ik": "assets/retarget/replays/basic_pick_place__ep91__wb_ik.json",
+        "ours": "assets/retarget/replays/basic_pick_place__ep91__ours.json"
+      }
+    },
+    {
+      "id": "fold_stack_unstack_unfold_cloths",
+      "label": "fold stack unstack unfold cloths",
+      "episode": 9,
+      "methods": {
+        "direct": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep9__direct.json",
+        "abs": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep9__abs.json",
+        "wrist_ik": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep9__wrist_ik.json",
+        "ext": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep9__ext.json",
+        "gmr": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep9__gmr.json",
+        "wb_ik": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep9__wb_ik.json",
+        "ours": "assets/retarget/replays/fold_stack_unstack_unfold_cloths__ep9__ours.json"
+      }
+    },
+    {
+      "id": "insert_remove_drawer",
+      "label": "insert remove drawer",
+      "episode": 58,
+      "methods": {
+        "direct": "assets/retarget/replays/insert_remove_drawer__ep58__direct.json",
+        "abs": "assets/retarget/replays/insert_remove_drawer__ep58__abs.json",
+        "wrist_ik": "assets/retarget/replays/insert_remove_drawer__ep58__wrist_ik.json",
+        "ext": "assets/retarget/replays/insert_remove_drawer__ep58__ext.json",
+        "gmr": "assets/retarget/replays/insert_remove_drawer__ep58__gmr.json",
+        "wb_ik": "assets/retarget/replays/insert_remove_drawer__ep58__wb_ik.json",
+        "ours": "assets/retarget/replays/insert_remove_drawer__ep58__ours.json"
+      }
+    },
+    {
+      "id": "make_sandwich",
+      "label": "make sandwich",
+      "episode": 19,
+      "methods": {
+        "direct": "assets/retarget/replays/make_sandwich__ep19__direct.json",
+        "abs": "assets/retarget/replays/make_sandwich__ep19__abs.json",
+        "wrist_ik": "assets/retarget/replays/make_sandwich__ep19__wrist_ik.json",
+        "ext": "assets/retarget/replays/make_sandwich__ep19__ext.json",
+        "gmr": "assets/retarget/replays/make_sandwich__ep19__gmr.json",
+        "wb_ik": "assets/retarget/replays/make_sandwich__ep19__wb_ik.json",
+        "ours": "assets/retarget/replays/make_sandwich__ep19__ours.json"
+      }
+    }
+  ],
+  "methods": [
+    {
+      "id": "direct",
+      "label": "Direct copy"
+    },
+    {
+      "id": "abs",
+      "label": "Abs. scaled"
+    },
+    {
+      "id": "wrist_ik",
+      "label": "Frozen fingers"
+    },
+    {
+      "id": "ext",
+      "label": "Extension"
+    },
+    {
+      "id": "gmr",
+      "label": "GMR-like"
+    },
+    {
+      "id": "wb_ik",
+      "label": "Posture variant"
+    },
+    {
+      "id": "ours",
+      "label": "MABEL"
+    }
+  ]
+}

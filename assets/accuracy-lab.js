@@ -64,7 +64,7 @@
         'data-poster="assets/accuracy/' + esc(c.poster) + '" ' +
         'data-lazyvid="assets/accuracy/' + esc(c.clip) + '"' +
         (c.lo ? ' data-lo="assets/accuracy/' + esc(c.lo) + '"' : '') + '></video>' +
-      '<figcaption>' + esc(c.title) + ' · the render from the submission video</figcaption></figure>';
+      '</figure>';
   }
 
   function build(D) {
@@ -93,11 +93,9 @@
     host.innerHTML =
       '<div class="al-grid">' +
         '<div class="al-panel" data-panel="rep">' +
-          '<span class="al-kick">On the robot · ISO 9283 · ' + R.cycles + ' cycles · ' + esc(R.date) + '</span>' +
-          '<h4 class="al-h">Where does the palm land?</h4>' +
-          '<p class="al-say">Send both arms and the torso to the same pose ' + R.cycles + ' times and mark every ' +
-            'return, in the frontal plane, about its own centre. Median RP over every station and palm: ' +
-            '<b>' + f2(R.median_RP_mm) + ' mm</b>.</p>' +
+          '<span class="al-kick">ISO 9283 · ' + R.cycles + ' cycles</span>' +
+          '<h4 class="al-h">Repeatability</h4>' +
+          '<p class="al-say"><b>' + f2(R.median_RP_mm) + ' mm</b> median RP</p>' +
           '<div class="al-chips" data-role="stations">' +
             '<button type="button" class="al-chip al-follow" data-follow="rep" aria-pressed="true">● Follow the clip</button>' +
             R.stations.map(function (s) {
@@ -114,11 +112,9 @@
           '<div class="al-read" data-role="repread"></div>' +
         '</div>' +
         '<div class="al-panel" data-panel="path">' +
-          '<span class="al-kick">On the robot · both palms · ' + PF.conditions[0].trials + ' trials each · ' + esc(PF.date) + '</span>' +
-          '<h4 class="al-h">And how well does it follow?</h4>' +
-          '<p class="al-say">Trace a 10 cm spiral and a 20 cm square at once, one per palm. ' +
-            '<b>Tracking</b> error counts lag; <b>contour</b> error is the shape alone — worst ' +
-            '<b>' + f2(PF.worst_contour_rms_mm) + ' mm RMS</b> in any condition.</p>' +
+          '<span class="al-kick">Both palms · ' + PF.conditions[0].trials + ' trials</span>' +
+          '<h4 class="al-h">Path tracking</h4>' +
+          '<p class="al-say"><b>' + f2(PF.worst_contour_rms_mm) + ' mm RMS</b> worst contour error</p>' +
           '<div class="al-chips" data-role="paths">' +
             '<button type="button" class="al-chip al-follow" data-follow="path" aria-pressed="true">● Follow the clip</button>' +
             PF.conditions.map(function (c) {
@@ -137,6 +133,17 @@
         '<code>assets/data/accuracy.json</code>, exported by <code>website/scripts/build_accuracy.py</code> from the ' +
         'hardware logs; the clips are the submission video\'s renders of the same logs.</p>';
 
+    host.querySelectorAll('.al-panel').forEach(function(panel){
+      var clip=panel.querySelector('.al-clip'),plot=panel.querySelector('.al-plot'),media=document.createElement('div'),plots=document.createElement('div');media.className='al-media';plots.className='al-plots';
+      var header=document.createElement('div');header.className='al-panel-head';['.al-kick','.al-h','.al-say'].forEach(function(s){header.appendChild(panel.querySelector(s));});panel.prepend(header);
+      media.append(clip,plots);plot.before(media);plots.appendChild(plot);
+      ['.al-lg','.al-live'].forEach(function(s){var n=panel.querySelector(s);if(n)plots.appendChild(n);});
+      var read=panel.querySelector('.al-read'),details=document.createElement('details');details.className='al-results';details.innerHTML='<summary>Results</summary>';read.before(details);details.appendChild(read);
+    });
+    var base=document.createElement('article');base.className='al-panel al-base';base.id='baseOdometry';base.innerHTML='<div class="al-panel-head"><span class="al-kick">Wheel encoders · ZED reference</span><h4 class="al-h">Base odometry</h4></div><div class="base-replay">Loading recorded base tests…</div>';
+    host.querySelector('[data-panel="rep"]').after(base);
+    new IntersectionObserver(function(entries,observer){if(entries.some(function(e){return e.isIntersecting;})){observer.disconnect();import('./base-odometry.js?v=a5797ce9');}},{rootMargin:'180px'}).observe(base);
+    var source=host.querySelector('.al-src');var methods=document.createElement('details');methods.className='al-results al-methods';methods.innerHTML='<summary>Measurement methods</summary>';source.before(methods);methods.appendChild(source);
     var Q = function (r) { return host.querySelector('[data-role="' + r + '"]'); };
     var scatterBox = Q('scatter'), errBox = Q('err');
     var tip = document.createElement('div'); tip.className = 'al-tip'; tip.hidden = true;

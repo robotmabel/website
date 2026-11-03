@@ -103,23 +103,23 @@ async def go():
         clips = await ev("Array.from(document.querySelectorAll('#accuracyLab video')).map(function(v){return v.dataset.lazyvid||v.currentSrc})")
         need(any("repeat.mp4" in c for c in clips) and any("path.mp4" in c for c in clips), f"both submission clips are wired {clips}")
 
-        # Scroll into the near-load margin first, then onto the videos: this
-        # catches the observer mismatch that used to leave both replays paused.
-        await ev("document.documentElement.style.scrollBehavior='auto';var clip=document.querySelector('#accuracyLab video');scrollTo(0,clip.getBoundingClientRect().top+scrollY-innerHeight-180)")
-        await asyncio.sleep(.4)
-        await ev("document.querySelector('#accuracyLab video').scrollIntoView({block:'center',behavior:'instant'})")
-        for _ in range(80):
-            await asyncio.sleep(.1)
-            if await ev("[...document.querySelectorAll('#accuracyLab video')].every(v=>v.readyState>=2&&!v.paused&&v.currentTime>.1)"):break
-        need(await ev("[...document.querySelectorAll('#accuracyLab video')].every(v=>v.readyState>=2&&!v.paused&&v.currentTime>.1)"), 'both real replay clocks advance automatically on entry')
-        await ev("window.accuracyTimes=[...document.querySelectorAll('#accuracyLab video')].map(v=>v.currentTime)")
-        await asyncio.sleep(.35)
-        need(await ev("[...document.querySelectorAll('#accuracyLab video')].every((v,i)=>v.currentTime>accuracyTimes[i]||accuracyTimes[i]>v.duration-.5)"), 'both replay clocks keep advancing')
+        # Each test is now a row: replay on the left, synchronized plot on the right.
+        # Off-screen tests pause; entering either row must start its own video.
+        for index in range(2):
+            await ev(f"document.querySelectorAll('#accuracyLab video')[{index}].scrollIntoView({{block:'center',behavior:'instant'}})")
+            for _ in range(80):
+                await asyncio.sleep(.1)
+                if await ev(f"(()=>{{let v=document.querySelectorAll('#accuracyLab video')[{index}];return v.readyState>=2&&!v.paused&&v.currentTime>.1;}})()"):break
+            need(await ev(f"(()=>{{let v=document.querySelectorAll('#accuracyLab video')[{index}];return v.readyState>=2&&!v.paused&&v.currentTime>.1;}})()"), f'replay {index+1} advances automatically on entry')
+            start=await ev(f"document.querySelectorAll('#accuracyLab video')[{index}].currentTime")
+            await asyncio.sleep(.35)
+            end=await ev(f"document.querySelectorAll('#accuracyLab video')[{index}].currentTime")
+            need(end>start or start>9, f'replay {index+1} keeps advancing')
         for width in [1440,1100,980]:
             await cmd('Emulation.setDeviceMetricsOverride',dict(width=width,height=1000,deviceScaleFactor=1,mobile=False))
             await asyncio.sleep(.2)
-            tops=await ev("[...document.querySelectorAll('#accuracyLab video')].map(v=>v.getBoundingClientRect().top)")
-            need(abs(tops[0]-tops[1])<1, f'video top edges align at {width}px ({tops})')
+            aligned=await ev("[...document.querySelectorAll('#accuracyLab .al-media')].every(n=>Math.abs(n.querySelector('.al-clip').getBoundingClientRect().top-n.querySelector('.al-plots').getBoundingClientRect().top)<2)")
+            need(aligned, f'each replay aligns with its plots at {width}px')
         await cmd('Emulation.setDeviceMetricsOverride',dict(width=1500,height=1200,deviceScaleFactor=1,mobile=False))
 
         # stop the clips' own clocks so the checks drive time
