@@ -108,8 +108,14 @@ async def go():
                 if await ev(f"!!window.__accuracyReplays?.{key}"):break
             need(await ev(f"!!window.__accuracyReplays?.{key}"), f'{key} resolves a complete articulated rig')
             start=await ev(f"window.__accuracyReplays.{key}.time")
-            await asyncio.sleep(.35)
-            end=await ev(f"window.__accuracyReplays.{key}.time")
+            # A software-rendered headless frame can take more than 350 ms
+            # while the second articulated rig is initializing. Require real
+            # clock progress, with a bounded wait instead of a frame-rate guess.
+            end=start
+            for _ in range(25):
+                await asyncio.sleep(.2)
+                end=await ev(f"window.__accuracyReplays.{key}.time")
+                if end != start: break
             need(start is not None and end is not None and end!=start, f'{key} replay advances automatically on entry')
         for width in [1440,1100,980]:
             await cmd('Emulation.setDeviceMetricsOverride',dict(width=width,height=1000,deviceScaleFactor=1,mobile=False))

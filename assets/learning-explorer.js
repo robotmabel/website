@@ -4,6 +4,26 @@
  var host = document.getElementById('learningExplorer');
  var datasetHosts = document.querySelectorAll('[data-learning-dataset]');
  if (!host && !datasetHosts.length) return;
+ if (host) {
+  var families = {
+   act: {title:'ACT · Action Chunking Transformer',status:'Saved ACT training run',text:'Learn a sequence of robot references from camera features and recent state. Chunking gives the policy a short motion horizon before it observes and plans again.',flow:['Camera images + state history','Transformer + latent action model','Action chunk','Shared controller'],data:'The current hand-grasping run uses three camera views, one second of state history, and 120 action steps at 30 Hz. It executes the first second before observing again.',link:'https://trainer.mabelrobot.duckdns.org/?arch=ACT',label:'Configure ACT ↗',paper:'https://tonyzhaozh.github.io/aloha/'},
+   dp: {title:'DP · Diffusion Policy',status:'DiT diffusion backend in Training Studio',text:'Condition a denoising process on images and robot state to produce an action sequence. The studio’s implementation uses a Diffusion Transformer (DiT) action model.',flow:['Camera images + robot state','Conditioned action denoising','Action sequence','Shared controller'],data:'Training needs aligned observation–action pairs, action normalization and a selected prediction horizon. Compare checkpoints on held-out takes before closed-loop evaluation.',link:'https://trainer.mabelrobot.duckdns.org/?arch=DiT',label:'Configure diffusion training ↗',paper:'https://diffusion-policy.cs.columbia.edu/'},
+   vla: {title:'VLA · π0.5',status:'π0.5 fine-tuning configuration available',text:'Combine visual observations, language instructions and robot state with a pretrained vision-language-action model. Adapt its action interface to the selected robot modules.',flow:['Images + instruction + state','Pretrained VLA + action expert','Robot action chunk','Shared controller'],data:'Curated episodes need task instructions and consistent embodiment-specific action channels. The studio exposes π0.5 configuration; a completed MABEL hardware result is not reported here.',link:'https://trainer.mabelrobot.duckdns.org/?arch=pi0.5',label:'Configure π0.5 ↗',paper:'https://www.pi.website/blog/pi0.5'},
+   wam: {title:'WAM · World Action Models',status:'Research integration track',text:'Learn future visual dynamics together with the actions that cause them. A world-action model can use video and action sequences to connect anticipated changes in the scene with robot behavior.',flow:['Video + instruction + state','Joint video–action model','Future visual dynamics + actions','Embodiment adapter'],data:'This track needs temporally aligned video and actions, task descriptions and an embodiment adapter. WAM training and deployment remain a research integration; no completed MABEL WAM run is claimed.',link:'https://arxiv.org/abs/2602.15922',label:'Explore World Action Models ↗',paper:'https://arxiv.org/abs/2602.15922'}
+  };
+  var tabs=Array.from(host.querySelectorAll('[data-family]')),panel=document.getElementById('lpFamilyPanel');
+  function selectFamily(key) {
+   var family=families[key];if(!family||!panel)return;
+   host.dataset.family=key;panel.setAttribute('aria-labelledby','lpFamily-'+key);
+   tabs.forEach(function(button){var active=button.dataset.family===key;button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;});
+   panel.innerHTML='<div class="lp-family-title"><h4>'+family.title+'</h4><span>'+family.status+'</span></div><p>'+family.text+'</p><div class="lp-family-flow">'+family.flow.map(function(text){return '<span>'+text+'</span>';}).join('')+'</div><p class="lp-family-data">'+family.data+'</p><div class="lp-family-links"><a href="'+family.link+'" target="_blank" rel="noopener">'+family.label+'</a><a href="'+family.paper+'" target="_blank" rel="noopener">Method reference ↗</a></div>';
+  }
+  tabs.forEach(function(button,index){
+   button.addEventListener('click',function(){selectFamily(button.dataset.family);});
+   button.addEventListener('keydown',function(event){var next=index;if(event.key==='ArrowRight')next=(index+1)%tabs.length;else if(event.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;else return;event.preventDefault();tabs[next].focus();selectFamily(tabs[next].dataset.family);});
+  });
+  selectFamily('act');
+ }
  var number = function (value) { return value.toLocaleString('en-US'); };
  fetch('assets/data/learning-pipeline.json', {cache:'no-cache'}).then(function (r) {
   if (!r.ok) throw Error('learning data'); return r.json();

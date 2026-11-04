@@ -10,6 +10,8 @@
 <link rel="canonical" href="https://robotmabel.github.io/website/order.html" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="MABEL" />
+<meta name="application-name" content="MABEL" />
+<link rel="icon" type="image/png" sizes="96x96" href="https://robotmabel.github.io/favicon-96.png" />
 <meta property="og:title" content="Coming soon — MABEL, the open-source mobile bimanual robot" />
 <meta property="og:description" content="MABEL is coming soon. Leave your details to hear when assembled robots, kits and parts open, or build your own from the open plans." />
 <meta property="og:url" content="https://robotmabel.github.io/website/order.html" />
@@ -47,7 +49,7 @@
   .cs-arrow:hover { border-color: var(--ink); background: var(--panel); }
   .cs-prev { left: 8px; } .cs-next { right: 8px; }
   .cs-strip { display: grid; justify-items: center; gap: 4px; padding-top: 12px; }
-  .cs-dots { display: flex; }
+  .cs-dots { display: flex; flex-wrap: wrap; justify-content: center; max-width: 100%; }
   .cs-dots button { width: 28px; height: 28px; border-radius: 50%; border: 0; background: transparent; padding: 0; cursor: pointer; display: grid; place-items: center; }
   .cs-dots button::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: rgba(21,24,32,0.28); }
   .cs-dots button[aria-selected="true"]::before { background: var(--ink); transform: scale(1.25); }
@@ -68,6 +70,11 @@
     border: 1.5px solid rgba(21,24,32,0.35); background: var(--panel); color: var(--ink); }
   .cs-form textarea { min-height: 104px; resize: vertical; line-height: 1.5; }
   .cs-form input:focus, .cs-form select:focus, .cs-form textarea:focus { outline: 2px solid var(--blue); outline-offset: 1px; border-color: var(--ink); }
+  .cs-form input[aria-invalid="true"] { border-color: var(--rust); }
+  .cs-email-hint { display: block; margin: 6px 0 0; font-size: 13px; line-height: 1.45; color: var(--ash); overflow-wrap: anywhere; }
+  .cs-email-hint[data-state="error"] { color: var(--rust); }
+  .cs-email-fix { margin-top: 6px; min-height: 44px; max-width: 100%; padding: 8px 12px; background: var(--panel); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 2px 2px 0 var(--ink); font: inherit; font-size: 13px; overflow-wrap: anywhere; cursor: pointer; }
+  .cs-email-fix[hidden] { display: none; }
   .cs-chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .cs-chip { position: relative; }
   .cs-chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
@@ -106,7 +113,7 @@
   .faq-list details[open] summary::after { transform: rotate(45deg); }
   .faq-list p { margin: 0 0 22px; max-width: 76ch; font-size: 15px; line-height: 1.65; color: var(--ink-soft); }
   @media (max-width: 980px) {
-    .cs-stage { grid-template-columns: 1fr; }
+    .cs-stage { grid-template-columns: minmax(0, 1fr); }
     .cs-visual { position: static; }
     .cs-dots button { width: 32px; height: 44px; }   /* 44 px tall to tap; 32 wide so nine fit a 360 px phone */
   }
@@ -129,19 +136,19 @@
     <a href="index.html">Overview</a>
         <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="hardware.html">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body & head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="software.html">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#stack">Stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#setup">Setup</a><a href="software.html#server">Simulation</a></div></div>
-    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
+    <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="simulation.html">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="teleop.html">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="autonomy.html">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
     <div class="nav-group"><button type="button" class="nav-grp-btn" data-href="harness.html">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#walkthrough">Claude Code walkthrough</a><a href="harness.html#surface">All 25 commands</a></div></div>
     <a href="connect.html">Links</a>
-    <a href="index.html#cite" class="ext">Paper ↗</a>
+    <a class="ext" href="https://arxiv.org/pdf/2611.04083" target="_blank" rel="noopener">Paper ↗</a>
         <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
     <a href="docs/" class="nav-cta">DIY guide</a>
   </nav>
   <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mob" id="mob">
-  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a href="index.html#cite" class="ext">Paper ↗</a>
+  <a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a class="ext" href="https://arxiv.org/pdf/2611.04083" target="_blank" rel="noopener">Paper ↗</a>
     <a href="order.html" class="nav-build" aria-label="Buy one now"><span>BUY<br/>ONE NOW!</span></a>
     <a href="docs/" class="nav-cta">DIY guide</a>
 </nav>
@@ -167,7 +174,7 @@
       <form class="cs-form" id="csForm" novalidate>
         <div class="cs-row">
           <div><label class="cs-l" for="csName">Name</label><input id="csName" name="name" type="text" autocomplete="name" maxlength="120" required /></div>
-          <div><label class="cs-l" for="csEmail">Email</label><input id="csEmail" name="email" type="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="200" required /></div>
+          <div><label class="cs-l" for="csEmail">Email</label><input id="csEmail" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="254" aria-describedby="csEmailHint" required /><span class="cs-email-hint" id="csEmailHint" aria-live="polite">Use an address where we can reach you.</span><button class="cs-email-fix" id="csEmailFix" type="button" hidden></button></div>
         </div>
         <div class="cs-row">
           <div><label class="cs-l" for="csOrg">Lab or organization <small>(optional)</small></label><input id="csOrg" name="org" type="text" autocomplete="organization" maxlength="200" /></div>
@@ -231,8 +238,8 @@
   </div>
 </footer>
 
-<script src="assets/store-api.js"></script>
-<script src="assets/coming-soon.js"></script>
+<script src="assets/store-api.js?v=a606d5c7"></script>
+<script src="assets/coming-soon.js?v=3a7b8c75"></script>
 <script src="assets/store-nav.js"></script>
 <script src="assets/mabel.js?v=a91d0755"></script>
 </body>

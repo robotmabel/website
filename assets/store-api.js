@@ -23,7 +23,13 @@
     var h = { 'Content-Type': 'application/json' }, t = token();
     if (t) h.Authorization = 'Bearer ' + t;
     return fetch(api + path, { method: method, credentials: 'include', headers: h, body: body ? JSON.stringify(body) : undefined })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw new Error(j.detail || j.error || ('HTTP ' + r.status)); return j; }); });
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) {
+          var detail = j.detail || j.error, ex = new Error(typeof detail === 'string' ? detail : (detail && detail.message) || ('HTTP ' + r.status));
+          ex.status = r.status; ex.field = detail && detail.field; throw ex;
+        }
+        return j;
+      }); });
   }
   var store = {
     get api() { return api; }, set api(v) { api = v; },

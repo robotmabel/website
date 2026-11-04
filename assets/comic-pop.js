@@ -152,7 +152,8 @@
         '<path d="M-24 -14 Q0 -26 24 -14 L20 34 L-20 34 Z" fill="' + ORANGE + '" stroke="' + INK + '" stroke-width="5"/></g>' +
         '<path d="M128 96 Q210 46 292 96" stroke="' + RUST + '" stroke-width="5" fill="none" stroke-dasharray="10 8"/>' +
         '<text x="210" y="60" font-family="Space Mono, monospace" font-size="13" fill="' + RUST +
-        '" text-anchor="middle">49 ms</text>' +
+        '" text-anchor="middle" data-teleop-latency>Camera → headset</text>' +
+        '<text x="210" y="174" font-family="Space Mono, monospace" font-size="9" fill="' + INK + '" text-anchor="middle">Stereo video · robot hotspot</text>' +
         '<g transform="translate(320,124)">' +
         '<rect x="-52" y="-16" width="104" height="40" rx="9" fill="#B9B2A0" stroke="' + INK + '" stroke-width="5"/>' +
         '<rect x="-8" y="-72" width="16" height="58" fill="#8E8778" stroke="' + INK + '" stroke-width="5"/>' +
@@ -305,6 +306,15 @@
     overlay.querySelector('.pop-kicker').textContent = kicker;
     overlay.querySelector('.pop-title').textContent = title;
     overlay.querySelector('.pop-body').innerHTML = body;
+    if (card.getAttribute('data-art') === 'teleop') {
+      // Use the measured archive that drives the latency chart, rather than
+      // keeping a separate, stale number in the illustration.
+      fetch('assets/data/latency.json', {cache: 'no-cache'}).then(function (r) { if (!r.ok) throw new Error('latency data'); return r.json(); }).then(function (data) {
+        var path = data.paths.find(function (p) { return p.key === 'hotspot'; });
+        var label = overlay.querySelector('[data-teleop-latency]');
+        if (lastCard === card && label && path && Number.isFinite(path.total) && Number.isFinite(path.sd)) label.textContent = Math.round(path.total) + ' ± ' + Math.round(path.sd) + ' ms';
+      }).catch(function () {});
+    }
 
     /* fly the panel out of the card that was clicked */
     var r = card.getBoundingClientRect();

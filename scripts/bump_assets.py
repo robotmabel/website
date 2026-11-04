@@ -21,6 +21,7 @@ TRACKED = ["assets/studio-3d.js", "assets/studio-3d.css", "assets/studio-pages.c
            # the wiki's own shell, and the widgets build.html handed it
            "docs/docs.css", "docs/docs.js", "docs/build.css",
            "docs/hub.css", "docs/hub.js"]
+TRACKED += ["assets/coming-soon.js", "assets/store-api.js"]
 
 def h(path):
     p = os.path.join(ROOT, path)

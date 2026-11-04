@@ -41,7 +41,12 @@ if HAVE_API:
     DB = f"{tmp}/order.db"
     env = dict(os.environ, ORDER_DB=DB, ORDER_SECRET="check-secret", ORDER_ORIGINS=f"{ORIGIN},http://127.0.0.1:8741",
                STRIPE_SECRET_KEY="", STRIPE_WEBHOOK_SECRET="", SMTP_HOST="", TWILIO_SID="")
-    api = subprocess.Popen([sys.executable, "-m", "uvicorn", "commerce.order_api:app", "--host", "127.0.0.1", "--port", str(port), "--log-level", "warning"],
+    # Keep the full API and email parser; only supply deterministic DNS records.
+    # This test must never depend on Internet DNS or send mail to an inbox.
+    boot = ("from types import SimpleNamespace; from commerce import interest_email; "
+            "interest_email.RESOLVER = SimpleNamespace(resolve=lambda domain, kind: [SimpleNamespace(preference=10, exchange='mail.'+domain)]); "
+            f"import uvicorn; uvicorn.run('commerce.order_api:app', host='127.0.0.1', port={port}, log_level='warning')")
+    api = subprocess.Popen([sys.executable, "-c", boot],
                            cwd=str(REPO), env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     import atexit; atexit.register(lambda: (api.terminate(), subprocess.run(["rm", "-rf", tmp])))
     for _ in range(60):
@@ -165,6 +170,13 @@ async def go():
             await typ("#csName", name); await typ("#csEmail", "not-an-email")
             await click("#csSubmit")
             check(await ev("document.activeElement.id") == "csEmail", "a bad email is refused")
+            await ev("document.getElementById('csEmail').value='ada@gmial.com'; document.getElementById('csEmail').dispatchEvent(new Event('blur')); true")
+            await asyncio.sleep(.2)
+            check(await ev("!document.getElementById('csEmailFix').hidden && document.getElementById('csEmail').value==='ada@gmial.com'"), "a provider typo gets an explicit suggestion, without silently changing the address")
+            await click('#csEmailFix')
+            check(await ev("document.getElementById('csEmail').value==='ada@gmail.com'"), "the suggested correction applies on request")
+            await ev("document.getElementById('csEmail').value='ada..lab@gmail.com'; document.getElementById('csEmail').dispatchEvent(new Event('blur')); true")
+            check(await ev("document.getElementById('csEmail').getAttribute('aria-invalid')==='true'"), "consecutive dots are refused inline")
             await ev("document.getElementById('csEmail').value=''"); await typ("#csEmail", email)
             await click('#csForm input[name=how][value=kit] + span')
             await click('#csForm input[name=parts][value="Arms"] + span')

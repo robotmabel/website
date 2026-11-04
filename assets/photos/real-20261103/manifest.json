@@ -1,0 +1,117 @@
+{
+  "source": "14 photographs supplied by the owner for the website",
+  "photos": [
+    {
+      "src": "assets/photos/real-20261103/home-kitchen.jpg",
+      "group": "home",
+      "alt": "MABEL in a home kitchen",
+      "width": 1086,
+      "height": 724,
+      "sha256": "5ce8a5aa73722fb3edd748d4714998e97bbb1cc3bd962732bc60ee6ec4b6b2b0"
+    },
+    {
+      "src": "assets/photos/real-20261103/home-workspace.jpg",
+      "group": "home",
+      "alt": "MABEL beside a home workspace",
+      "width": 1086,
+      "height": 724,
+      "sha256": "67dc43f9b528bbe41da1672ad5e017540556e2141f8ee29b6b46ac56baa1a4d2"
+    },
+    {
+      "src": "assets/photos/real-20261103/campus-handshake.jpg",
+      "group": "street",
+      "alt": "A person shaking hands with MABEL outdoors",
+      "width": 1086,
+      "height": 724,
+      "sha256": "3de2e1ab41b329251623b22c4bec31050c8abc3265ef68ee85f5a4849fda031b"
+    },
+    {
+      "src": "assets/photos/real-20261103/campus-portrait.jpg",
+      "group": "street",
+      "alt": "MABEL beside a campus lawn at sunset",
+      "width": 724,
+      "height": 1086,
+      "sha256": "2e6210f5ce320249dea1a69f4fb7743917200cfc8feac9504833ad017111f442"
+    },
+    {
+      "src": "assets/photos/real-20261103/campus-sign.jpg",
+      "group": "street",
+      "alt": "MABEL in front of a campus sign",
+      "width": 1086,
+      "height": 724,
+      "sha256": "fc84764b6c211eebcf91545aeed16c9745ac7964e5e14fe02d0b27e9bab4a787"
+    },
+    {
+      "src": "assets/photos/real-20261103/toronto-evening.jpg",
+      "group": "street",
+      "alt": "MABEL on a tree-lined walkway at dusk",
+      "width": 1086,
+      "height": 724,
+      "sha256": "7e4812d419501bc5d1c7dcd6814cf7903981f517d213dc9e58e6792a82e6727f"
+    },
+    {
+      "src": "assets/photos/real-20261103/home-living-room.jpg",
+      "group": "home",
+      "alt": "MABEL beside the dining table in a living room",
+      "width": 2170,
+      "height": 1447,
+      "sha256": "d1854fc980a1d52f4f231414369127e104b5306754d2c49656e0179cc8c82b41"
+    },
+    {
+      "src": "assets/photos/real-20261103/shop-curtain.jpg",
+      "group": "shop",
+      "alt": "MABEL with dexterous hands in the workshop",
+      "width": 1086,
+      "height": 724,
+      "sha256": "d9fffd6801d5e69d4dc64f277d7c00b5cb20cd1d3e9aff9b1a2f8a614d593fdc"
+    },
+    {
+      "src": "assets/photos/real-20261103/waterfront-setup.jpg",
+      "group": "street",
+      "alt": "Setting up MABEL beside the waterfront at night",
+      "width": 1086,
+      "height": 724,
+      "sha256": "5f6d45822cb5261c7609b80cf1267950434b69583a222b31890497eda662d9c4"
+    },
+    {
+      "src": "assets/photos/real-20261103/waterfront-closeup.jpg",
+      "group": "street",
+      "alt": "Close view of the MABEL head and torso at night",
+      "width": 1086,
+      "height": 724,
+      "sha256": "7e12bb29f5b429b75714ac346020e08d27c5929eee2b36b46e7e7989e2d883fe"
+    },
+    {
+      "src": "assets/photos/real-20261103/waterfront-portrait.jpg",
+      "group": "street",
+      "alt": "MABEL beside the waterfront with the city skyline behind",
+      "width": 724,
+      "height": 1086,
+      "sha256": "937e920927a89392963b96b4e83862b0e60b38e7e0473c73efdfdfa095a4d186"
+    },
+    {
+      "src": "assets/photos/real-20261103/waterfront-testing.jpg",
+      "group": "street",
+      "alt": "People testing MABEL beside the waterfront",
+      "width": 1086,
+      "height": 724,
+      "sha256": "a4eadd41965fb1f7459a84bd18fafbbad8f2a087adb6f1fe29128abbcc04a2d4"
+    },
+    {
+      "src": "assets/photos/real-20261103/waterfront-wide.jpg",
+      "group": "street",
+      "alt": "MABEL and its testing setup beside the waterfront",
+      "width": 1086,
+      "height": 724,
+      "sha256": "4ac4628365ac08476e04ba05d3e2f8b3d7f821b9deaf8863771d474218aaf59e"
+    },
+    {
+      "src": "assets/photos/real-20261103/waterfront-team.jpg",
+      "group": "street",
+      "alt": "MABEL with the team beside the waterfront at night",
+      "width": 1086,
+      "height": 724,
+      "sha256": "90c6e3a42648b5c1b380453fae4d89fef1487f042a277efbe85c3fb136c20553"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Current physics replays and the actual MILO Mac curation recording.
+"""Current physics replays and the Data Curation web GUI entry point.
 
 Read-only by default. Live command/queue tests are explicitly opt-in, in
 scripts/EXPERIMENTS.md, so routine builds never take a visitor's turn.
@@ -26,10 +26,13 @@ async def main():
    slot=page.locator('.control-stage');before=await page.evaluate('__controlPhysics.grid.views[0].camera.position.toArray()');await slot.focus();await page.keyboard.press('ArrowRight');assert await page.evaluate('__controlPhysics.grid.views[0].camera.position.toArray()')!=before
    await slot.locator('.studio-recenter').click();await page.screenshot(path=f'/tmp/mabel-control-current-{engine}.png',scale='css')
    await scroll(page,'#tipLab');await page.wait_for_function('window.__motionPhysics');assert await page.evaluate('!__motionPhysics.grid.views[0].controls.enableRotate&&!__motionPhysics.grid.views[0].controls.enablePan')
-   await page.goto(BASE+'autonomy.html',wait_until='domcontentloaded');assert await page.locator('a[href*="studio.mabelrobot.duckdns.org"]').count()==0
-   await scroll(page,'#curation');video=page.locator('.milo-curation-recording video');await page.wait_for_function('document.querySelector(".milo-curation-recording video").currentTime>0.2');t=await video.evaluate('v=>v.currentTime');await page.wait_for_timeout(700);assert await video.evaluate('v=>v.currentTime')>t
-   meta=await video.evaluate('v=>({muted:v.muted,loop:v.loop,width:v.videoWidth,height:v.videoHeight,src:v.currentSrc})');assert meta['muted'] and meta['loop'] and meta['width']>=720 and meta['height']>400,meta;assert await page.locator('.milo-curation-recording figcaption').inner_text()=='MILO Curation · Mac app'
+   await page.goto(BASE+'autonomy.html',wait_until='domcontentloaded')
+   await scroll(page,'#curation');workspace=page.locator('#curation a.studio-workspace')
+   assert await workspace.get_attribute('href')=='https://studio.mabelrobot.duckdns.org/'
+   await workspace.locator('img').evaluate('(img)=>img.decode()')
+   assert await workspace.locator('img').evaluate('(img)=>img.naturalWidth>=720&&img.naturalHeight>400')
+   assert await workspace.locator('span').inner_text()=='Open Data Curation ↗'
    assert await page.evaluate('document.documentElement.scrollWidth<=innerWidth+1');assert not errors,errors
-   print(engine,'control presets, orbit/recenter, fixed motion camera, current Mac curation playback: PASS',flush=True);await b.close()
+   print(engine,'control presets, orbit/recenter, fixed motion camera, web curation link and preview: PASS',flush=True);await b.close()
  print('RESULT: PASS')
 asyncio.run(main())

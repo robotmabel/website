@@ -12,7 +12,7 @@ and writes sitemap.xml and robots.txt at the site root. The redirect stub
     python3 scripts/build_seo.py           # write
     python3 scripts/build_seo.py --check   # fail if any page or file is stale
 """
-import datetime, html, pathlib, re, sys
+import datetime, html, json, pathlib, re, sys
 
 SITE = pathlib.Path(__file__).resolve().parent.parent
 BASE = "https://robotmabel.github.io/website/"
@@ -22,8 +22,8 @@ TAG = "open-source mobile bimanual robot"
 
 # path: (title, description, priority)
 PAGES = {
-    "index.html": ("MABEL — Hardware, Teleoperation, Simulation and Learning",
-                   "MABEL is an open-source 56-DOF mobile bimanual robot with an $8,056 parts subtotal. Explore hardware, robot comparisons, teleoperation, simulation, control and learning.", "1.0"),
+    "index.html": ("MABEL — Open-Source Mobile Bimanual Robot for Teleoperation and Learning",
+                   "MABEL is an open-source research platform for whole-body teleoperation and robot learning, designed for home automation and everyday household tasks.", "1.0"),
     "hardware.html": (f"Hardware — MABEL, the {TAG}",
                       "MABEL's hardware: holonomic swerve base, 0.635 m lift, pitching torso, two 7-DOF arms, two 17-DOF ORCA hands and a 3-DOF head, with measured repeatability and path-following accuracy.", "0.9"),
     "anatomy.html": (f"Anatomy explorer — MABEL, the {TAG}",
@@ -80,10 +80,20 @@ def url_of(path):
 
 def head_block(path, title, desc):
     u, t, d = url_of(path), html.escape(title, quote=True), html.escape(desc, quote=True)
+    structured = ''
+    if path == 'index.html':
+        structured = '<script type="application/ld+json">' + json.dumps({
+            '@context': 'https://schema.org', '@type': 'WebSite',
+            '@id': 'https://robotmabel.github.io/#website',
+            'url': 'https://robotmabel.github.io/', 'name': NAME,
+            'alternateName': 'MABEL Robot',
+        }, ensure_ascii=False) + '</script>\n'
     return ("<!-- seo:begin (scripts/build_seo.py) -->\n"
             f'<link rel="canonical" href="{u}" />\n'
             f'<meta property="og:type" content="website" />\n'
             f'<meta property="og:site_name" content="{NAME}" />\n'
+            '<meta name="application-name" content="MABEL" />\n'
+            '<link rel="icon" type="image/png" sizes="96x96" href="https://robotmabel.github.io/favicon-96.png" />\n'
             f'<meta property="og:title" content="{t}" />\n'
             f'<meta property="og:description" content="{d}" />\n'
             f'<meta property="og:url" content="{u}" />\n'
@@ -94,6 +104,7 @@ def head_block(path, title, desc):
             f'<meta name="twitter:title" content="{t}" />\n'
             f'<meta name="twitter:description" content="{d}" />\n'
             f'<meta name="twitter:image" content="{OG_IMAGE}" />\n'
+            f'{structured}'
             "<!-- seo:end -->")
 
 

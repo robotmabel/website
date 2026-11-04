@@ -29,7 +29,8 @@ subprocess.run(["rm", "-rf", PROF])
 p = subprocess.Popen([CHROME, "--headless=new", f"--remote-debugging-port={P}",
                       f"--user-data-dir={PROF}", "--window-size=1400,1000",
                       "--hide-scrollbars", "--autoplay-policy=no-user-gesture-required",
-                      "--use-angle=swiftshader", "--enable-unsafe-swiftshader",
+                      "--use-angle=" + os.environ.get("MABEL_TEST_ANGLE", "swiftshader"), "--enable-unsafe-swiftshader",
+                      "--disable-background-timer-throttling", "--disable-renderer-backgrounding",
                       "about:blank"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 cleanup_on_exit(p)   # kill Chrome + rm its profile on ANY exit
@@ -86,6 +87,7 @@ async def go():
 
         await cmd("Page.enable"); await cmd("Runtime.enable")
         for pg in pages:
+            print(pg, flush=True)
             await cmd("Page.navigate", {"url": pg})
             # WAIT FOR THE PAGE TO FINISH BUILDING ITSELF. Several widgets
             # fetch JSON and only then create their <video> elements; scrolling

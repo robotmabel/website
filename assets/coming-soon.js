@@ -53,10 +53,51 @@
   function values(name) {
     return Array.prototype.map.call(document.querySelectorAll('#csForm input[name="' + name + '"]:checked'), function (i) { return i.value; });
   }
+  function cleanEmail(value) {
+    value = value.trim(); var at = value.lastIndexOf('@');
+    return at < 0 ? value : value.slice(0, at) + '@' + value.slice(at + 1).toLowerCase();
+  }
+  function emailProblem(value) {
+    var parts = value.split('@'), local = parts[0] || '', domain = parts[1] || '';
+    if (parts.length !== 2 || !local || !domain) return 'Enter an email address, such as name@university.edu.';
+    if (value.length > 254 || local.length > 64 || !/^[A-Za-z0-9!#$%&'*+\/=?^_`{|}~.-]+$/.test(local) || local[0] === '.' || local.slice(-1) === '.' || local.indexOf('..') >= 0) return 'Check the part of your email address before @.';
+    if (/[\s/\\?#:%\[\]]/.test(domain)) return 'Check the domain after @ in your email address.';
+    try { domain = new URL('https://' + domain).hostname; } catch (ex) { return 'Check the domain after @ in your email address.'; }
+    var top = domain.split('.').slice(-1)[0];
+    if (!domain.includes('.') || domain.length > 253 || !domain.split('.').every(function (part) { return /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(part); }) || !(top.startsWith('xn--') || /^[a-z]{2,63}$/i.test(top))) return 'Enter a complete email domain, such as gmail.com or university.edu.';
+    return '';
+  }
+  var emailVersion = 0, emailSuggestion = '';
+  var emailTypos = { 'gmial.com': 'gmail.com', 'gamil.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gmail.con': 'gmail.com', 'gmail.cmo': 'gmail.com', 'hotmial.com': 'hotmail.com', 'hotmail.con': 'hotmail.com', 'outlok.com': 'outlook.com', 'outlook.con': 'outlook.com', 'yaho.com': 'yahoo.com', 'yahoo.con': 'yahoo.com', 'icloud.con': 'icloud.com' };
+  function emailMessage(message, state) {
+    $('csEmailHint').textContent = message; $('csEmailHint').dataset.state = state || '';
+    $('csEmail').setAttribute('aria-invalid', String(state === 'error'));
+  }
+  function suggestEmail(value) {
+    var at = value.lastIndexOf('@'), fix = emailTypos[value.slice(at + 1)];
+    emailSuggestion = fix ? value.slice(0, at + 1) + fix : '';
+    $('csEmailFix').hidden = !emailSuggestion;
+    $('csEmailFix').textContent = emailSuggestion ? 'Use ' + emailSuggestion + '?' : '';
+  }
+  function checkEmail() {
+    var value = cleanEmail($('csEmail').value), version = ++emailVersion;
+    $('csEmail').value = value; suggestEmail(value);
+    if (!value) { emailMessage('Use an address where we can reach you.'); return; }
+    var problem = emailProblem(value);
+    if (problem) { emailMessage(problem, 'error'); return; }
+    emailMessage(emailSuggestion ? 'Possible typo — check the suggested address below.' : 'Checking email domain…');
+    S.req('POST', '/api/interest/email-check', { email: value }).then(function () {
+      if (version !== emailVersion) return;
+      emailMessage(emailSuggestion ? 'Possible typo — check the suggested address below.' : 'This domain accepts email. Please double-check the address.');
+    }).catch(function (ex) {
+      if (version !== emailVersion) return;
+      emailMessage(ex.status === 400 ? ex.message : 'Email check is temporarily unavailable. We will check again when you submit.', ex.status === 400 ? 'error' : '');
+    });
+  }
   function collect() {
     var f = $('csForm');
     return {
-      name: f.name.value.trim(), email: f.email.value.trim(), org: f.org.value.trim(), role: f.role.value,
+      name: f.name.value.trim(), email: cleanEmail(f.email.value), org: f.org.value.trim(), role: f.role.value,
       country: f.country.value.trim(), how: values('how')[0] || '', parts: values('parts'), uses: values('uses'),
       why: f.why.value.trim(), use_detail: f.use_detail.value.trim(), qty: f.qty.value, when: f.when.value,
       website: f.website.value
@@ -64,7 +105,8 @@
   }
   function validate(d) {
     if (!d.name) return ['csName', 'Tell us your name.'];
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(d.email)) return ['csEmail', 'Enter an email address so we can write back.'];
+    var problem = emailProblem(d.email);
+    if (problem) return ['csEmail', problem];
     if (d.why.length < 10) return ['csWhy', 'Tell us, in a sentence or two, why you need MABEL.'];
     return null;
   }
@@ -72,19 +114,24 @@
     e.preventDefault();
     var d = collect(), err = $('csErr'), btn = $('csSubmit'), bad = validate(d);
     err.textContent = '';
-    if (bad) { err.textContent = bad[1]; $(bad[0]).focus(); return; }
+    if (bad) { err.textContent = bad[1]; if (bad[0] === 'csEmail') emailMessage(bad[1], 'error'); $(bad[0]).focus(); return; }
     btn.disabled = true; btn.textContent = 'Sending…';
-    S.req('POST', '/api/interest', d).then(function () {
+    S.req('POST', '/api/interest', d).then(function (result) {
+      emailVersion++; d.email = result.email || d.email;
       $('csForm').hidden = true; $('csDone').hidden = false;
       $('csDoneText').textContent = 'We have your note, ' + d.name.split(' ')[0] + ', and will write to ' + d.email + ' when MABEL opens.';
       try { $('csDone').scrollIntoView({ block: 'center' }); } catch (x) {}
     }).catch(function (ex) {
       btn.disabled = false; btn.textContent = 'Keep me posted';
-      err.textContent = 'Your note could not be sent (' + ex.message + '). Nothing was lost — please try again in a moment.';
+      err.textContent = 'Your note could not be sent. ' + ex.message + ' Your information is still here.';
+      if (ex.field === 'email') { emailVersion++; emailMessage(ex.message, ex.status === 400 ? 'error' : ''); $('csEmail').focus(); }
     });
   }
 
   $('csForm').addEventListener('submit', submit);
+  $('csEmail').addEventListener('input', function () { emailVersion++; $('csEmailFix').hidden = true; emailMessage('Use an address where we can reach you.'); });
+  $('csEmail').addEventListener('blur', checkEmail);
+  $('csEmailFix').addEventListener('click', function () { $('csEmail').value = emailSuggestion; $('csEmail').focus(); checkEmail(); });
   $('csPrev').addEventListener('click', function () { go(at - 1); });
   $('csNext').addEventListener('click', function () { go(at + 1); });
   var sx = null, img = $('csSlide');

@@ -5,22 +5,25 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="#151820" name="theme-color"/>
-<title>MABEL — Hardware, Teleoperation, Simulation and Learning</title>
-<meta name="description" content="MABEL is an open-source 56-DOF mobile bimanual robot with an $8,056 parts subtotal. Explore hardware, robot comparisons, teleoperation, simulation, control and learning." />
+<title>MABEL — Open-Source Mobile Bimanual Robot for Teleoperation and Learning</title>
+<meta name="description" content="MABEL is an open-source research platform for whole-body teleoperation and robot learning, designed for home automation and everyday household tasks." />
 <!-- seo:begin (scripts/build_seo.py) -->
 <link rel="canonical" href="https://robotmabel.github.io/website/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="MABEL" />
-<meta property="og:title" content="MABEL — Hardware, Teleoperation, Simulation and Learning" />
-<meta property="og:description" content="MABEL is an open-source 56-DOF mobile bimanual robot with an $8,056 parts subtotal. Explore hardware, robot comparisons, teleoperation, simulation, control and learning." />
+<meta name="application-name" content="MABEL" />
+<link rel="icon" type="image/png" sizes="96x96" href="https://robotmabel.github.io/favicon-96.png" />
+<meta property="og:title" content="MABEL — Open-Source Mobile Bimanual Robot for Teleoperation and Learning" />
+<meta property="og:description" content="MABEL is an open-source research platform for whole-body teleoperation and robot learning, designed for home automation and everyday household tasks." />
 <meta property="og:url" content="https://robotmabel.github.io/website/" />
 <meta property="og:image" content="https://robotmabel.github.io/website/assets/og.jpg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="MABEL — Hardware, Teleoperation, Simulation and Learning" />
-<meta name="twitter:description" content="MABEL is an open-source 56-DOF mobile bimanual robot with an $8,056 parts subtotal. Explore hardware, robot comparisons, teleoperation, simulation, control and learning." />
+<meta name="twitter:title" content="MABEL — Open-Source Mobile Bimanual Robot for Teleoperation and Learning" />
+<meta name="twitter:description" content="MABEL is an open-source research platform for whole-body teleoperation and robot learning, designed for home automation and everyday household tasks." />
 <meta name="twitter:image" content="https://robotmabel.github.io/website/assets/og.jpg" />
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://robotmabel.github.io/#website", "url": "https://robotmabel.github.io/", "name": "MABEL", "alternateName": "MABEL Robot"}</script>
 <!-- seo:end -->
 
 <link href="assets/logo.svg?v=3" rel="icon" type="image/svg+xml"/>
@@ -46,7 +49,7 @@
   .studios .card p { flex:1; }
   .studios .card .btn { align-self:flex-start; margin-top:18px; }
 </style>
-<link href="assets/overview.css?v=c610a46f" rel="stylesheet"/>
+<link href="assets/overview.css?v=68180303" rel="stylesheet"/>
 <link rel="stylesheet" href="assets/page-progress.css?v=fc22a843"/>
 <script src="assets/page-progress.js?v=4b9cfcb1" defer></script>
 </head>
@@ -59,12 +62,12 @@
 <a class="on" href="index.html">Overview</a>
 <div class="nav-group"><button class="nav-grp-btn" data-href="hardware.html" type="button">Hardware<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="hardware.html">Overview</a><a href="anatomy.html">Anatomy explorer</a><a href="hardware.html#model">In 3D</a><a href="hardware.html#hw-hands">Hands</a><a href="hardware.html#hw-arms">Arms</a><a href="hardware.html#hw-base">Base</a><a href="hardware.html#hw-lift">Lift</a><a href="hardware.html#hw-body">Body &amp; head</a><a href="hardware.html#hw-sensors">Sensors</a><a href="hardware.html#hw-electronics">Electronics</a></div></div>
 <div class="nav-group"><button class="nav-grp-btn" data-href="software.html" type="button">Software<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="software.html">Overview</a><a href="software.html#stack">Stack</a><a href="software.html#controller">Controller</a><a href="software.html#motion">Motion model</a><a href="software.html#retargeting">Retargeting</a><a href="software.html#setup">Setup</a><a href="software.html#server">Server bring-up</a></div></div>
-<div class="nav-group"><button class="nav-grp-btn" data-href="simulation.html" type="button">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#renderers">Renderers</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
+<div class="nav-group"><button class="nav-grp-btn" data-href="simulation.html" type="button">Simulation<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="simulation.html">Overview</a><a href="simulation.html#model">One model</a><a href="simulation.html#plant">The plant</a><a href="simulation.html#scenes">35 scenes</a><a href="simulation.html#simdata">Data in sim</a><a href="simulation.html#rl">Reinforcement learning</a><a href="simulator.html">Drive it ↗</a></div></div>
 <div class="nav-group"><button class="nav-grp-btn" data-href="teleop.html" type="button">Teleop<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="teleop.html">Overview</a><a href="software.html#retargeting">Retargeting</a><a href="teleop.html#vp-app">Vision Pro app</a><a href="teleop.html#ios-app">iPhone app</a><a href="simulator.html">Browser simulator</a></div></div>
 <div class="nav-group"><button class="nav-grp-btn" data-href="autonomy.html" type="button">Autonomy<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="autonomy.html">Overview</a><a href="autonomy.html#localization">Localization</a><a href="autonomy.html#mapping">Mapping</a><a href="autonomy.html#data">Collection</a><a href="autonomy.html#curation">Curation</a><a href="autonomy.html#learning">Training</a><a href="autonomy.html#arch">Architectures</a><a href="autonomy.html#deployment">Deployment</a></div></div>
 <div class="nav-group"><button class="nav-grp-btn" data-href="harness.html" type="button">AI harness<span class="nav-caret">▾</span></button><div class="nav-menu"><a href="harness.html">Overview</a><a href="harness.html#walkthrough">Claude Code walkthrough</a><a href="harness.html#surface">All 25 commands</a></div></div>
 <a href="connect.html">Links</a>
-<a class="ext" href="index.html#cite">Paper ↗</a>
+<a class="ext" href="https://arxiv.org/pdf/2611.04083" target="_blank" rel="noopener">Paper ↗</a>
 <a aria-label="Buy one now" class="nav-build" href="order.html"><span>BUY<br/>ONE NOW!</span></a>
 <a class="nav-cta" href="docs/">DIY guide</a>
 </nav>
@@ -75,7 +78,7 @@
 <a aria-label="Cart" class="store-dock-btn" href="order.html?open=cart" id="storeCart" title="Cart"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg><span class="store-dock-n" hidden="" id="storeCartN">0</span></a>
 </div>
 <nav class="mob" id="mob">
-<a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a class="ext" href="index.html#cite">Paper ↗</a>
+<a href="index.html">Overview</a><a class="mob-top" href="hardware.html">Hardware</a><a class="mob-top" href="software.html">Software</a><a class="mob-top" href="simulation.html">Simulation</a><a class="mob-top" href="teleop.html">Teleop</a><a class="mob-top" href="autonomy.html">Autonomy</a><a class="mob-top" href="harness.html">AI harness</a><a href="connect.html">Links</a><a class="ext" href="https://arxiv.org/pdf/2611.04083" target="_blank" rel="noopener">Paper ↗</a>
 <a aria-label="Buy one now" class="nav-build" href="order.html"><span>BUY<br/>ONE NOW!</span></a>
 <a class="nav-cta" href="docs/">DIY guide</a>
 </nav>
@@ -96,10 +99,10 @@
 <h1 aria-label="MABEL" class="display-xl hero-title">
 <span aria-hidden="true" class="line"><span class="ch">M</span><span class="ch">A</span><span class="ch">B</span><span class="ch">E</span><span class="ch">L</span></span>
 </h1>
-<p class="hero-sub"><span class="rot">A robot that does the work.</span></p>
+<p class="hero-sub"><span class="rot">Designed for home automation.</span></p>
 <p class="hero-tag" style="margin-top:28px;">56 functional DOF. Two 17-DOF hands, a holonomic base, and an $8,056 parts subtotal. Open hardware and software.</p>
 <div aria-label="Project resources" class="hero-actions hero-resources">
-<a class="btn hero-paper" href="#cite"><svg aria-hidden="true" class="comic-icon" focusable="false" viewbox="0 0 64 64"><use href="assets/comic-icons.svg#paper"></use></svg> Read paper</a>
+<a class="btn hero-paper" href="https://arxiv.org/pdf/2611.04083" target="_blank" rel="noopener"><svg aria-hidden="true" class="comic-icon" focusable="false" viewbox="0 0 64 64"><use href="assets/comic-icons.svg#paper"></use></svg> Read paper</a>
 <a aria-controls="submissionDialog" aria-haspopup="dialog" class="btn hero-video" data-submission-play="" href="assets/overview/submission-final-v3-web.mp4" target="_blank"><svg aria-hidden="true" class="comic-icon" focusable="false" viewbox="0 0 64 64"><use href="assets/comic-icons.svg#video"></use></svg> Play video</a>
 <a class="hero-source" href="https://github.com/robotmabel/open_mabel" rel="noopener" target="_blank"><svg aria-hidden="true" class="comic-icon" focusable="false" viewbox="0 0 64 64"><use href="assets/comic-icons.svg#source"></use></svg> GitHub <span aria-hidden="true">↗</span></a>
 </div>
@@ -137,6 +140,7 @@
 <figure class="rg-cell" style="--ar:1.333;--i:6"><img alt="MABEL in an empty hall" decoding="async" loading="lazy" src="assets/wild/w-hall.jpg"/></figure>
 <figure class="rg-cell" style="--ar:1.333;--i:7"><video aria-label="MABEL in the lab, seen from below" data-lazyvid="assets/wild/s-lab-turn.mp4" data-lo="assets/wild/s-lab-turn-lo.mp4" data-poster="assets/wild/s-lab-turn.jpg" loop="" muted="" playsinline="" preload="none"></video></figure>
 <figure class="rg-cell" style="--ar:1.333;--i:8"><video aria-label="MABEL moving its arms in a hall" data-lazyvid="assets/wild/s-hall.mp4" data-lo="assets/wild/s-hall-lo.mp4" data-poster="assets/wild/s-hall.jpg" loop="" muted="" playsinline="" preload="none"></video></figure>
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:20"><img src="assets/photos/real-20261103/shop-curtain.jpg" alt="MABEL with dexterous hands in the workshop" width="1086" height="724" loading="lazy" decoding="async"/></figure>
 </div>
 </div>
 <div class="rg-chap fade-up" data-chap="home" id="photos-home">
@@ -157,6 +161,11 @@
 <figure class="rg-cell" style="--ar:1.333;--i:10"><img alt="MABEL standing in a home kitchen" decoding="async" loading="lazy" src="assets/home/kitchen.jpg"/></figure>
 <figure class="rg-cell" style="--ar:1.778;--i:11"><video aria-label="MABEL working at a kitchen counter and lower drawers" data-lazyvid="assets/home/counter.mp4" data-poster="assets/home/counter.jpg" loop="" muted="" playsinline="" preload="none"></video><span class="speed-tag">4.0×</span></figure>
 </div>
+<div class="rg-line">
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:20"><img src="assets/photos/real-20261103/home-kitchen.jpg" alt="MABEL in a home kitchen" width="1086" height="724" loading="lazy" decoding="async"/></figure>
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:21"><img src="assets/photos/real-20261103/home-workspace.jpg" alt="MABEL beside a home workspace" width="1086" height="724" loading="lazy" decoding="async"/></figure>
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.499654;--i:22"><img src="assets/photos/real-20261103/home-living-room.jpg" alt="MABEL beside the dining table in a living room" width="2170" height="1447" loading="lazy" decoding="async"/></figure>
+</div>
 </div>
 <div class="rg-chap fade-up" data-chap="street" id="photos-street">
 <div class="rg-line"><div class="rg-cell rg-lead" data-chap-tone="blue" style="--ar:1.15;--i:0"><span class="rg-no">03 / 03</span><h3>Street</h3></div>
@@ -170,6 +179,22 @@
 <figure class="rg-cell" style="--ar:1.333;--i:6"><video aria-label="MABEL waving on a lawn" data-lazyvid="assets/wild/t-field-wave-original.mp4" data-lo="assets/wild/t-field-wave-original-lo.mp4" data-poster="assets/wild/t-field-wave-original.jpg" loop="" muted="" playsinline="" preload="none"></video></figure>
 <figure class="rg-cell" style="--ar:1.333;--i:7"><video aria-label="MABEL reaching across its body outdoors" data-lazyvid="assets/wild/t-field-reach-original.mp4" data-lo="assets/wild/t-field-reach-original-lo.mp4" data-poster="assets/wild/t-field-reach-original.jpg" loop="" muted="" playsinline="" preload="none"></video></figure>
 <figure class="rg-cell" style="--ar:1.333;--i:8"><video aria-label="MABEL rolling along a curved path" data-lazyvid="assets/wild/t-path-original.mp4" data-lo="assets/wild/t-path-original-lo.mp4" data-poster="assets/wild/t-path-original.jpg" loop="" muted="" playsinline="" preload="none"></video></figure>
+</div>
+<div class="rg-line">
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:20"><img src="assets/photos/real-20261103/campus-handshake.jpg" alt="A person shaking hands with MABEL outdoors" width="1086" height="724" loading="lazy" decoding="async"/></figure>
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:0.666667;--i:21"><img src="assets/photos/real-20261103/campus-portrait.jpg" alt="MABEL beside a campus lawn at sunset" width="724" height="1086" loading="lazy" decoding="async"/></figure>
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:22"><img src="assets/photos/real-20261103/campus-sign.jpg" alt="MABEL in front of a campus sign" width="1086" height="724" loading="lazy" decoding="async"/></figure>
+</div>
+<div class="rg-line">
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:23"><img src="assets/photos/real-20261103/toronto-evening.jpg" alt="MABEL on a tree-lined walkway at dusk" width="1086" height="724" loading="lazy" decoding="async"/></figure>
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:24"><img src="assets/photos/real-20261103/waterfront-setup.jpg" alt="Setting up MABEL beside the waterfront at night" width="1086" height="724" loading="lazy" decoding="async"/></figure>
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:25"><img src="assets/photos/real-20261103/waterfront-closeup.jpg" alt="Close view of the MABEL head and torso at night" width="1086" height="724" loading="lazy" decoding="async"/></figure>
+</div>
+<div class="rg-line">
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:0.666667;--i:26"><img src="assets/photos/real-20261103/waterfront-portrait.jpg" alt="MABEL beside the waterfront with the city skyline behind" width="724" height="1086" loading="lazy" decoding="async"/></figure>
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:27"><img src="assets/photos/real-20261103/waterfront-testing.jpg" alt="People testing MABEL beside the waterfront" width="1086" height="724" loading="lazy" decoding="async"/></figure>
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:28"><img src="assets/photos/real-20261103/waterfront-wide.jpg" alt="MABEL and its testing setup beside the waterfront" width="1086" height="724" loading="lazy" decoding="async"/></figure>
+<figure class="rg-cell" data-user-photo="20261103" style="--ar:1.500000;--i:29"><img src="assets/photos/real-20261103/waterfront-team.jpg" alt="MABEL with the team beside the waterfront at night" width="1086" height="724" loading="lazy" decoding="async"/></figure>
 </div>
 </div>
 </div>
@@ -268,6 +293,24 @@
 <div class="smap fade-up" id="stackMap"></div><div class="overview-setup-preview"><a href="software.html#setup"><img src="assets/setup/setup-tui.jpg" width="1280" height="800" loading="lazy" alt="Recorded module and joint setup in the terminal"/><span>Setup TUI &amp; Studio →</span></a><a href="software.html#server"><img src="assets/setup/server-tui.jpg" width="1280" height="800" loading="lazy" alt="Live server status in the terminal cockpit"/><span>Server bring-up →</span></a></div>
 <div class="ov-control-details"><details class="ov-details"><summary>Whole-body retargeting</summary><p>Sparse head and hand tracking is mapped to the arms and torso, hands, and neck under their kinematic constraints.</p><figure class="ov-figure"><video aria-label="Whole-body retargeting decomposition" controls="" data-lazyvid="assets/overview/control.mp4" data-lo="assets/overview/control-lo.mp4" data-poster="assets/overview/control.jpg" loop="" muted="" playsinline="" preload="none"></video></figure><a href="software.html#retargeting">Retargeting implementation →</a></details><details class="ov-details"><summary>Compliant control</summary><p>Gravity and friction feed-forward support low-gain, back-drivable arm and torso motion.</p><figure class="ov-figure"><video aria-label="Compliant whole-body control" controls="" data-lazyvid="assets/overview/compliance.mp4" data-lo="assets/overview/compliance-lo.mp4" data-poster="assets/overview/compliance.jpg" loop="" muted="" playsinline="" preload="none"></video></figure><a href="software.html#controller">Controller details →</a></details><details class="ov-details"><summary>Height-aware motion limits</summary><p>Base speed and acceleration limits depend on lift height to reduce tip-over risk.</p><figure class="ov-figure"><video aria-label="Height-aware base motion limits" controls="" data-lazyvid="assets/overview/motion.mp4" data-lo="assets/overview/motion-lo.mp4" data-poster="assets/overview/motion.jpg" loop="" muted="" playsinline="" preload="none"></video></figure><a href="software.html#motion">Motion model →</a></details></div></div>
 </section><section class="pad-y" id="learning"><div class="wrap"><div class="sec-head"><h2 class="display-md title">8. Learning and <span class="italic accent">architecture</span></h2></div><div aria-label="Interactive learning pipeline" class="lp-explorer" id="learningExplorer">
+<p class="lp-learning-intro">Teach household tasks through whole-body teleoperation. Keep the operator’s intended motion, curate synchronized demonstrations, then train and evaluate policies through a shared control interface.</p>
+<div class="lp-rich-workflow">
+<article><span class="lp-stage-number">01 · Data collection</span><h3>Record intent and motion.</h3><p>Head and wrist cameras capture the task while the operator controls the arms, hands, gaze, lift and mobile base.</p><ul><li>Time-stamped camera observations and measured robot state.</li><li>Operator references recorded separately from feedback.</li><li>Base odometry, lift state and control events stay with each take.</li></ul><a href="https://control-sim.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Open Control Studio ↗</a></article>
+<article><span class="lp-stage-number">02 · Data curation</span><h3>Build usable demonstrations.</h3><p>Review the camera views beside the robot and joint timeline. Keep useful intervals and preserve the source recordings.</p><ul><li>Trim takes, inspect tracking gaps and review quality flags.</li><li>Align observations with the commands they should predict.</li><li>Export LeRobot episodes with complete takes kept in one split.</li></ul><a href="https://studio.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Open web curation ↗</a></article>
+<article><span class="lp-stage-number">03 · Policy training</span><h3>Train, validate, deploy.</h3><p>Choose camera inputs and robot modules, build the policy architecture, and inspect loss, checkpoints and held-out predictions.</p><ul><li>Select observation history and the action representation.</li><li>Compare policies on the same train, validation and test takes.</li><li>Evaluate in the twin and execute through the shared controller.</li></ul><a href="https://trainer.mabelrobot.duckdns.org/" target="_blank" rel="noopener">Open Training Studio ↗</a></article>
+</div>
+<div class="lp-family-section">
+<div class="lp-family-heading"><div><span class="lp-stage-number">Training families</span><h3>From action chunks to world models.</h3></div><p>Explore the policy families and their data requirements. Training status is shown for each track.</p></div>
+<div class="lp-family-tabs" role="tablist" aria-label="Policy architecture families">
+<button type="button" role="tab" id="lpFamily-act" data-family="act" aria-controls="lpFamilyPanel" aria-selected="true">ACT</button>
+<button type="button" role="tab" id="lpFamily-dp" data-family="dp" aria-controls="lpFamilyPanel" aria-selected="false" tabindex="-1">DP · Diffusion Policy</button>
+<button type="button" role="tab" id="lpFamily-vla" data-family="vla" aria-controls="lpFamilyPanel" aria-selected="false" tabindex="-1">VLA · π0.5</button>
+<button type="button" role="tab" id="lpFamily-wam" data-family="wam" aria-controls="lpFamilyPanel" aria-selected="false" tabindex="-1">WAM</button>
+</div>
+<div class="lp-family-panel" id="lpFamilyPanel" role="tabpanel" aria-labelledby="lpFamily-act" tabindex="0"><h4>ACT · Action Chunking Transformer</h4><p>Camera features and state history predict a sequence of robot references. The recorded ACT run below uses a four-second prediction horizon.</p></div>
+</div>
+<div class="lp-current-data" data-learning-dataset aria-label="Current curated demonstration dataset"></div>
+<p class="lp-example-heading">Inside the recorded ACT training configuration</p>
 <div class="lp-architecture panel-frame">
 
 <div class="lp-diagram">
@@ -311,17 +354,23 @@
 <h3 style="font-family:var(--font-head); font-weight:800; font-size:clamp(20px,2vw,27px); letter-spacing:-0.02em; margin-bottom:12px;">Paper and source</h3>
 <p class="body" style="margin-bottom:20px;">The system paper documents the hardware, teleoperation, control, simulation and learning pipeline. Design files, software and build documentation are available in the repository.</p>
 <div style="display:flex; gap:10px; flex-wrap:wrap;">
+<a class="btn btn-primary" href="https://arxiv.org/pdf/2611.04083" rel="noopener" target="_blank">Read paper · PDF ↗</a>
+<a class="btn btn-ghost" href="https://arxiv.org/abs/2611.04083" rel="noopener" target="_blank">arXiv · 2611.04083 ↗</a>
 <a class="btn btn-ghost" href="https://github.com/robotmabel/open_mabel" rel="noopener" target="_blank">GitHub repo ↗</a>
 </div>
 <div class="bib fade-up" style="margin-top:26px;">
 <button class="bib-copy" onclick="copyBib(this)">Copy</button>
-<pre id="bib-text">@misc{mabel2026,
+<pre id="bib-text">@misc{cheng2026mabel,
   title  = {{MABEL}: An Open Anthropomorphic Mobile
             Bimanual Platform for Teleoperation
             and Learning},
-  author = {Anonymous (under review)},
+  author = {Qilong Cheng and Rooholla Khorrambakht and Mohamed Yassine Kabouri and
+            Quang Nam Nguyen and Luca Macesanu and Haoran Zhou and
+            Yipeng Wang and Ludovic Righetti},
   year   = {2026},
-  note   = {robotmabel.github.io/website}
+  eprint = {2611.04083},
+  archivePrefix = {arXiv},
+  url    = {https://arxiv.org/abs/2611.04083}
 }</pre>
 </div>
 </div>
@@ -379,11 +428,11 @@
 <script src="assets/platform-table.js?v=ec488fef"></script>
 <script src="assets/store-nav.js"></script>
 <script src="assets/mabel.js?v=a91d0755"></script>
-<script src="assets/comic-pop.js?v=ba6e9586"></script>
+<script src="assets/comic-pop.js?v=e676b2a5"></script>
 
 <!-- Control Studio links: the REAL studio is passkey-gated SERVER-side (basic
      auth at control.<domain>) — no client-side gate needed. The SIM twin is an
      open demo whose planes can only reach the token-gated simulation relay. -->
 <script src="assets/inline-svg.js"></script>
-<dialog aria-labelledby="submissionTitle" class="ov-submission" id="submissionDialog"><div class="ov-submission-head"><h2 id="submissionTitle">MABEL · Video submission</h2><button aria-label="Close video" class="film-close" type="button">✕</button></div><video loop aria-label="MABEL final video submission" controls="" data-submission-poster="assets/overview/submission-final-v3.jpg" playsinline="" preload="none" src="assets/overview/submission-final-v3-web.mp4" webkit-playsinline=""></video><div class="ov-submission-foot"><p id="submissionStatus" role="status">Press play to watch the final submission with sound.</p><button class="btn" id="submissionStart" type="button">▶ Start video</button><a href="assets/overview/submission-final-v3-web.mp4" rel="noopener" target="_blank">Open video ↗</a></div></dialog><nav aria-label="Page progress" class="ov-scroll-rail"><a aria-label="Front page" href="#hero" title="Front page"><span>Front page</span></a><a aria-label="Abstract" href="#story" title="Abstract"><span>Abstract</span></a><a aria-label="Real robot photos" href="#home" title="Real robot photos"><span>Real robot photos</span></a><a aria-label="State-of-the-art robots" href="#paper" title="State-of-the-art robots"><span>State-of-the-art robots</span></a><a aria-label="Hardware design" href="#anatomy" title="Hardware design"><span>Hardware design</span></a><a aria-label="Teleoperation" href="#demo" title="Teleoperation"><span>Teleoperation</span></a><a aria-label="Simulation" href="#play" title="Simulation"><span>Simulation</span></a><a aria-label="Control stack" href="#architecture" title="Control stack"><span>Control stack</span></a><a aria-label="Learning" href="#learning" title="Learning"><span>Learning</span></a><a aria-label="Paper and citation" href="#cite" title="Paper and citation"><span>Paper and citation</span></a><output aria-label="Page progress" id="pageProgress">0%</output></nav><script src="assets/overview.js?v=c87400c1"></script><script defer="" src="assets/learning-explorer.js?v=bc8c24ab"></script><script defer="True" src="assets/demo-gallery.js?v=97763c9d"></script><script defer="" src="assets/robot-gallery.js?v=ff7cf5c1"></script><script defer="True" src="assets/overview-scenes.js?v=fcf10a1e"></script></body>
+<dialog aria-labelledby="submissionTitle" class="ov-submission" id="submissionDialog"><div class="ov-submission-head"><h2 id="submissionTitle">MABEL · Video submission</h2><button aria-label="Close video" class="film-close" type="button">✕</button></div><video loop aria-label="MABEL final video submission" controls="" data-submission-poster="assets/overview/submission-final-v3.jpg" playsinline="" preload="none" src="assets/overview/submission-final-v3-web.mp4" webkit-playsinline=""></video><div class="ov-submission-foot"><p id="submissionStatus" role="status">Press play to watch the final submission with sound.</p><button class="btn" id="submissionStart" type="button">▶ Start video</button><a href="assets/overview/submission-final-v3-web.mp4" rel="noopener" target="_blank">Open video ↗</a></div></dialog><nav aria-label="Page progress" class="ov-scroll-rail"><a aria-label="Front page" href="#hero" title="Front page"><span>Front page</span></a><a aria-label="Abstract" href="#story" title="Abstract"><span>Abstract</span></a><a aria-label="Real robot photos" href="#home" title="Real robot photos"><span>Real robot photos</span></a><a aria-label="State-of-the-art robots" href="#paper" title="State-of-the-art robots"><span>State-of-the-art robots</span></a><a aria-label="Hardware design" href="#anatomy" title="Hardware design"><span>Hardware design</span></a><a aria-label="Teleoperation" href="#demo" title="Teleoperation"><span>Teleoperation</span></a><a aria-label="Simulation" href="#play" title="Simulation"><span>Simulation</span></a><a aria-label="Control stack" href="#architecture" title="Control stack"><span>Control stack</span></a><a aria-label="Learning" href="#learning" title="Learning"><span>Learning</span></a><a aria-label="Paper and citation" href="#cite" title="Paper and citation"><span>Paper and citation</span></a><output aria-label="Page progress" id="pageProgress">0%</output></nav><script src="assets/overview.js?v=c87400c1"></script><script defer="" src="assets/learning-explorer.js?v=f275c145"></script><script defer="True" src="assets/demo-gallery.js?v=97763c9d"></script><script defer="" src="assets/robot-gallery.js?v=ff7cf5c1"></script><script defer="True" src="assets/overview-scenes.js?v=fcf10a1e"></script></body>
 </html>

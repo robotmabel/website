@@ -31,7 +31,7 @@ run () {
   if ok "$out"; then echo "PASS (on retry)"; pass=$((pass+1)); return; fi
   echo "FAIL"; fail=$((fail+1)); sed 's/^/      /' <<<"$out" | tail -8
 }
-P=python3
+P="${MABEL_TEST_PYTHON:-python3}"
 run structure   $P scripts/structure.py $B/index.html $B/software.html \
                    $B/teleop.html $B/connect.html $B/hardware.html $B/autonomy.html \
                    $B/anatomy.html $B/simulator.html $B/simulation.html $B/harness.html $B/order.html $B/account.html \
@@ -54,8 +54,7 @@ run studio-flow env MABEL_TEST_URL="$B/" $P scripts/studiorefinementtest.py
 run physics-ui  env MABEL_TEST_URL="$B/" $P scripts/controlphysicstest.py
 run globe       $P scripts/globecentre.py $B/teleop.html
 run hardware    $P scripts/hwtest.py $B/hardware.html
-# Current MILO Mac curation capture is checked by physics-ui. The old
-# synthetic curation/SLAM widgets are no longer on the autonomy page.
+# The Data Curation web GUI link and preview are checked by physics-ui.
 run clips       $P scripts/vidcheck.py
 run scenes      $P scripts/scenetest.py $B/simulation.html
 run figures     $P scripts/figscale.py $B/index.html
